@@ -1,0 +1,444 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=19mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{deepblue}{RGB}{0,79,128}
+\definecolor{lightblue}{RGB}{238,246,251}
+\definecolor{deeporange}{RGB}{205,92,20}
+\definecolor{lightorange}{RGB}{254,244,235}
+
+\sisetup{
+  detect-all,
+  retain-explicit-plus,
+  table-number-alignment=center
+}
+
+\newcommand{\Ncal}{\mathcal{N}}
+\newcommand{\proj}{\Pi_{[-1,1]}}
+
+\title{One Projected-Gradient Descent Iteration\\
+  for the Six-Bit, Two-Check Example}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.6em}
+
+\begin{abstract}
+This document lists every scalar used in one projected-gradient descent
+iteration for the six-bit example in \texttt{p2}.  The calculation transforms
+the six input log-likelihood ratios (LLRs) into an initial soft estimate,
+evaluates the penalty function corresponding to the two parity-check
+constraints, forms the complete gradient vector of this parity-only objective,
+takes a gradient step, and projects the search point onto the box constraint.
+\end{abstract}
+
+\noindent
+\fcolorbox{deeporange}{lightorange}{%
+\begin{minipage}{0.945\textwidth}
+\textbf{Scope.}  This exact projected-gradient teaching control, retained in
+\texttt{p2}, uses the one-soft-estimate-per-coded-bit representation of the
+project-defined CORAL receiver.  Its objective includes only the penalty terms
+for the parity-check constraints: the part based on the received samples and
+the penalty term for the binary constraint are omitted.  The step size
+\(\eta=0.25\) is illustrative.  Production CORAL also
+replaces the leave-one product on a violated check by its mapped value when
+forming the search direction.  It is therefore not simply this calculation
+with additional objective terms.
+\end{minipage}}
+
+\section{Graph, mapping, and initialization}
+
+Bits are indexed from zero.  The parity-check matrix and graph neighbourhoods
+are
+\begin{equation}
+H=
+\begin{bmatrix}
+0&1&1&0&0&1\\
+1&0&0&1&1&0
+\end{bmatrix},
+\qquad
+\Ncal(c_0)=\{1,2,5\},
+\qquad
+\Ncal(c_1)=\{0,3,4\}.
+\label{eq:H}
+\end{equation}
+For a variable node, \(\Ncal(i)=\{c:i\in\Ncal(c)\}\) denotes its incident
+checks.  The source convention maps bit one to \(+1\) and defines its supplied
+input LLR by
+\begin{equation}
+x_i=2b_i-1,
+\qquad
+L_i=\log\frac{P(b_i=1\mid y_i)}{P(b_i=0\mid y_i)},
+\qquad
+x_i^{(0)}=\tanh\!\left(\frac{L_i}{2}\right).
+\label{eq:init}
+\end{equation}
+Thus a positive input LLR gives a positive soft bit estimate.  The
+hard-decision estimate at any iteration is
+\begin{equation}
+\widehat b_i^{(k)}=\mathbb{1}\!\left[x_i^{(k)}\geq0\right].
+\label{eq:hard-decision}
+\end{equation}
+Because each
+row of~\eqref{eq:H} contains three bits, a word that satisfies the corresponding
+parity-check equation has bipolar product \(-1\).
+
+\begin{table}[H]
+\centering
+\small
+\caption{Observations, input LLRs, and initial soft bit estimates.}
+\label{tab:init}
+\begin{tabular}{
+  c
+  S[table-format=+1.2]
+  S[table-format=+1.2]
+  S[table-format=+1.3]
+  S[table-format=+1.9]
+  c
+}
+\toprule
+{$i$} & {$y_i$} & {$L_i$} & {$L_i/2$} & {$x_i^{(0)}=\tanh(L_i/2)$}
+& {$\widehat b_i^{(0)}$} \\
+\midrule
+0 & -0.24 & -0.38 & -0.190 & -0.187746206 & 0 \\
+1 & +0.30 & +0.48 & +0.240 & +0.235495750 & 1 \\
+2 & +0.09 & +0.14 & +0.070 & +0.069885890 & 1 \\
+3 & +3.00 & +4.78 & +2.390 & +0.983347814 & 1 \\
+4 & +1.79 & +2.85 & +1.425 & +0.890637366 & 1 \\
+5 & +0.69 & +1.10 & +0.550 & +0.500520211 & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The \(y_i\) values identify the original observations.  This parity-only
+calculation takes the supplied \(L_i\) values directly and does not derive them
+from \(y_i\).
+
+The displayed transmitted word is
+\begin{equation}
+\boldsymbol b_{\mathrm{tx}}=(0,1,0,1,1,1).
+\label{eq:tx-word}
+\end{equation}
+The initial point and its hard-decision estimate are therefore
+\begin{align}
+\boldsymbol{x}^{(0)}={}&(-0.187746206,\ 0.235495750,\ 0.069885890,\nonumber\\
+&\phantom{(}0.983347814,\ 0.890637366,\ 0.500520211),\\
+\widehat{\boldsymbol b}^{(0)}={}&(0,1,1,1,1,1),
+\qquad
+H\widehat{\boldsymbol b}^{(0)}\bmod 2=(1,0).
+\label{eq:initial-state}
+\end{align}
+Relative to \(\boldsymbol b_{\mathrm{tx}}\), only bit 2 is initially wrong, and
+check \(c_0\) is violated.
+
+\section{Objective and one-iteration rule}
+
+For check \(c\), define
+\begin{equation}
+p_c(\boldsymbol{x})=\prod_{j\in\Ncal(c)}x_j,
+\qquad
+r_c(\boldsymbol{x})=1+p_c(\boldsymbol{x}),
+\qquad
+J_c(\boldsymbol{x})=r_c(\boldsymbol{x})^2.
+\end{equation}
+The plus sign is specific to the bit mapping and the degree-three checks in
+this example.  For a degree-four check with the same mapping, a satisfying
+word has product \(+1\), giving the corresponding squared residual
+\((1-p_c)^2\).
+The objective in this calculation is
+\begin{equation}
+J_p(\boldsymbol{x})=J_{c_0}(\boldsymbol{x})+J_{c_1}(\boldsymbol{x}).
+\label{eq:objective}
+\end{equation}
+For \(i\in\Ncal(c)\), the partial derivative of \(J_c\) is
+\begin{equation}
+\frac{\partial J_c}{\partial x_i}
+=2r_c(\boldsymbol{x})
+ \prod_{j\in\Ncal(c)\setminus\{i\}}x_j.
+\label{eq:check-derivative}
+\end{equation}
+The gradient of the objective function is obtained by adding the partial
+derivatives from the checks that contain bit \(i\):
+\begin{equation}
+g_i^{(0)}=
+\left.\frac{\partial J_p}{\partial x_i}\right|_{\boldsymbol{x}^{(0)}}
+=\sum_{c\in\Ncal(i)}
+ \left.\frac{\partial J_c}{\partial x_i}\right|_{\boldsymbol{x}^{(0)}}.
+\label{eq:gradient}
+\end{equation}
+All six partial derivatives are evaluated at the same
+\(\boldsymbol{x}^{(0)}\) before any variable is changed.  The Tanner graph
+specifies which variables enter each product; these derivatives are not
+directed variable-to-check or check-to-variable messages, and they are not
+retained as state on directed edges.
+
+One projected-gradient descent iteration consists of the gradient step and the
+projection step
+\begin{align}
+z_i^{(0)}&=x_i^{(0)}-\eta g_i^{(0)},
+&\eta&=0.25,
+\label{eq:gradient-step}\\
+x_i^{(1)}&=\proj\!\left(z_i^{(0)}\right)
+=\min\!\left(1,\max(-1,z_i^{(0)})\right).
+\label{eq:projection-step}
+\end{align}
+The Euclidean projection in~\eqref{eq:projection-step} enforces only the box
+constraint \(\boldsymbol{x}\in[-1,1]^6\); it does not enforce parity.
+
+\section{Objective at the initial point}
+
+Table~\ref{tab:initial-checks} evaluates every quantity used by
+\eqref{eq:check-derivative}.  The factor \(2r_c\) is included because it is
+shared by the three partial derivatives associated with check \(c\).
+
+\begin{table}[H]
+\centering
+\small
+\caption{Initial check products, residuals, and penalty terms.}
+\label{tab:initial-checks}
+\begin{tabular}{c c
+  S[table-format=+1.9]
+  S[table-format=1.9]
+  S[table-format=1.9]
+  S[table-format=1.9]
+  c}
+\toprule
+{check} & {bits} & {$p_c^{(0)}$} & {$r_c^{(0)}$} & {$2r_c^{(0)}$}
+& {$J_c^{(0)}$} & {parity status} \\
+\midrule
+$c_0$ & $1,2,5$ & +0.008237477 & 1.008237477 & 2.016474953 & 1.016542809 & violated \\
+$c_1$ & $0,3,4$ & -0.164429311 & 0.835570689 & 1.671141378 & 0.698178376 & satisfied \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Hence
+\begin{equation}
+J_p(\boldsymbol{x}^{(0)})
+=1.016542809238+0.698178376170
+\approx1.714721185407.
+\label{eq:J0}
+\end{equation}
+
+\section{All partial derivatives at the initial point}
+
+Define the product that excludes variable \(i\) from check \(c\) as
+\begin{equation}
+q_{c,i}^{(0)}=
+\prod_{j\in\Ncal(c)\setminus\{i\}}x_j^{(0)}.
+\end{equation}
+Every variable belongs to one check in this example, so
+\(g_i^{(0)}=\partial J_c/\partial x_i=2r_c^{(0)}q_{c,i}^{(0)}\).
+
+\begin{table}[H]
+\centering
+\scriptsize
+\caption{All products and partial derivatives used to form the initial gradient vector.}
+\label{tab:gradient}
+\setlength{\tabcolsep}{4.6pt}
+\begin{tabular}{c c c
+  S[table-format=+1.9]
+  S[table-format=1.9]
+  S[table-format=+1.9]
+  S[table-format=+1.9]}
+\toprule
+{$i$} & {check} & {other bits} & {$q_{c,i}^{(0)}$} & {$2r_c^{(0)}$}
+& {$g_i^{(0)}$} & {$-g_i^{(0)}$} \\
+\midrule
+0 & $c_1$ & $3,4$ & +0.875806306 & 1.671141378 & +1.463596157 & -1.463596157 \\
+1 & $c_0$ & $2,5$ & +0.034979301 & 2.016474953 & +0.070534884 & -0.070534884 \\
+2 & $c_0$ & $1,5$ & +0.117870382 & 2.016474953 & +0.237682674 & -0.237682674 \\
+3 & $c_1$ & $0,4$ & -0.167213786 & 1.671141378 & -0.279437877 & +0.279437877 \\
+4 & $c_1$ & $0,3$ & -0.184619821 & 1.671141378 & -0.308525822 & +0.308525822 \\
+5 & $c_0$ & $1,2$ & +0.016457830 & 2.016474953 & +0.033186802 & -0.033186802 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Thus
+\begin{align}
+\nabla J_p(\boldsymbol{x}^{(0)})={}&
+(1.463596157,\ 0.070534884,\ 0.237682674,\nonumber\\
+&\phantom{(}-0.279437877,\ -0.308525822,\ 0.033186802).
+\label{eq:g0}
+\end{align}
+
+\section{Gradient step and projection step}
+
+The change applied by the gradient step is
+\(\Delta x_i^{(0)}=-\eta g_i^{(0)}\).  Table~\ref{tab:gradient-step}
+lists every multiplication and addition in~\eqref{eq:gradient-step}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Gradient step with \(\eta=0.25\).}
+\label{tab:gradient-step}
+\setlength{\tabcolsep}{5.0pt}
+\begin{tabular}{c
+  S[table-format=+1.9]
+  S[table-format=+1.9]
+  S[table-format=+1.9]
+  S[table-format=+1.9]}
+\toprule
+{$i$} & {$x_i^{(0)}$} & {$g_i^{(0)}$}
+& {$\Delta x_i^{(0)}=-0.25g_i^{(0)}$} & {$z_i^{(0)}=x_i^{(0)}+\Delta x_i^{(0)}$} \\
+\midrule
+0 & -0.187746206 & +1.463596157 & -0.365899039 & -0.553645245 \\
+1 & +0.235495750 & +0.070534884 & -0.017633721 & +0.217862029 \\
+2 & +0.069885890 & +0.237682674 & -0.059420668 & +0.010465222 \\
+3 & +0.983347814 & -0.279437877 & +0.069859469 & +1.053207283 \\
+4 & +0.890637366 & -0.308525822 & +0.077131456 & +0.967768821 \\
+5 & +0.500520211 & +0.033186802 & -0.008296701 & +0.492223511 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:projection} then applies the projection operator.  Only
+coordinate 3 lies outside the box.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Projection onto \([-1,1]^6\) and resulting hard-decision estimates.}
+\label{tab:projection}
+\begin{tabular}{c
+  S[table-format=+1.9]
+  S[table-format=+1.9]
+  S[table-format=+1.9]
+  c c}
+\toprule
+{$i$} & {$z_i^{(0)}$} & {$x_i^{(1)}$}
+& {$x_i^{(1)}-z_i^{(0)}$} & {clipped?} & {$\widehat b_i^{(1)}$} \\
+\midrule
+0 & -0.553645245 & -0.553645245 & +0.000000000 & no  & 0 \\
+1 & +0.217862029 & +0.217862029 & +0.000000000 & no  & 1 \\
+2 & +0.010465222 & +0.010465222 & +0.000000000 & no  & 1 \\
+3 & +1.053207283 & +1.000000000 & -0.053207283 & yes & 1 \\
+4 & +0.967768821 & +0.967768821 & +0.000000000 & no  & 1 \\
+5 & +0.492223511 & +0.492223511 & +0.000000000 & no  & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The point after one complete projected-gradient descent iteration is
+\begin{align}
+\boldsymbol{x}^{(1)}={}&(-0.553645245,\ 0.217862029,\ 0.010465222,\nonumber\\
+&\phantom{(}1.000000000,\ 0.967768821,\ 0.492223511).
+\label{eq:x1}
+\end{align}
+
+\section{State after one iteration}
+
+Re-evaluating the two penalty terms at \(\boldsymbol{x}^{(1)}\) gives
+Table~\ref{tab:post-checks}.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Check values after the first projected-gradient descent iteration.}
+\label{tab:post-checks}
+\begin{tabular}{c c
+  S[table-format=+1.9]
+  S[table-format=1.9]
+  S[table-format=1.9]
+  S[table-format=1.9]
+  c}
+\toprule
+{check} & {bits} & {$p_c^{(1)}$} & {$r_c^{(1)}$} & {$2r_c^{(1)}$}
+& {$J_c^{(1)}$} & {parity status} \\
+\midrule
+$c_0$ & $1,2,5$ & +0.001122257 & 1.001122257 & 2.002244514 & 1.002245774 & violated \\
+$c_1$ & $0,3,4$ & -0.535800606 & 0.464199394 & 0.928398787 & 0.215481077 & satisfied \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Therefore
+\begin{align}
+J_p(\boldsymbol{x}^{(1)})&=1.217726850659,\\
+J_p(\boldsymbol{x}^{(0)})-J_p(\boldsymbol{x}^{(1)})
+&=0.496994334749
+\quad\text{(28.984\% relative to \(J_p(\boldsymbol{x}^{(0)})\)).}
+\label{eq:cost-change}
+\end{align}
+The objective value decreases, but \(x_2^{(1)}=+0.010465222\) remains on the
+positive side.  Consequently,
+\begin{equation}
+\widehat{\boldsymbol b}^{(1)}=(0,1,1,1,1,1),
+\qquad
+H\widehat{\boldsymbol b}^{(1)}\bmod2=(1,0).
+\label{eq:final-hard}
+\end{equation}
+The hard-decision estimate and syndrome are unchanged: one iteration does not
+yet correct bit 2.  In contrast, one sum-product message-passing iteration on
+this same example changes bit 2 and recovers \(\boldsymbol b_{\mathrm{tx}}\).
+
+Each variable node in this small graph has degree one, so the graph is a pair
+of disconnected check stars.  It cannot demonstrate the aggregation of
+several incident-check contributions into one gradient coordinate, and any
+numerical similarity to sum-product does not establish equivalence.
+
+\subsection*{Recomputed partial derivatives at \(\boldsymbol{x}^{(1)}\)}
+
+These values describe the state available to the next iteration; they are not
+used retroactively in the first update.
+
+\begin{table}[H]
+\centering
+\scriptsize
+\caption{Products and partial derivatives recomputed after the first iteration.}
+\label{tab:post-gradient}
+\setlength{\tabcolsep}{4.6pt}
+\begin{tabular}{c c c
+  S[table-format=+1.9]
+  S[table-format=1.9]
+  S[table-format=+1.9]
+  S[table-format=+1.9]}
+\toprule
+{$i$} & {check} & {other bits} & {$q_{c,i}^{(1)}$} & {$2r_c^{(1)}$}
+& {$g_i^{(1)}$} & {$-g_i^{(1)}$} \\
+\midrule
+0 & $c_1$ & $3,4$ & +0.967768821 & 0.928398787 & +0.898475400 & -0.898475400 \\
+1 & $c_0$ & $2,5$ & +0.005151228 & 2.002244514 & +0.010314019 & -0.010314019 \\
+2 & $c_0$ & $1,5$ & +0.107236813 & 2.002244514 & +0.214714320 & -0.214714320 \\
+3 & $c_1$ & $0,4$ & -0.535800606 & 0.928398787 & -0.497436633 & +0.497436633 \\
+4 & $c_1$ & $0,3$ & -0.553645245 & 0.928398787 & -0.514003574 & +0.514003574 \\
+5 & $c_0$ & $1,2$ & +0.002279974 & 2.002244514 & +0.004565066 & -0.004565066 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Thus the gradient ready for iteration two is
+\begin{align}
+\nabla J_p(\boldsymbol{x}^{(1)})={}&
+(0.898475400,\ 0.010314019,\ 0.214714320,\nonumber\\
+&\phantom{(}-0.497436633,\ -0.514003574,\ 0.004565066).
+\end{align}
+
+\paragraph{Numerical provenance.}
+Within \texttt{JadeJcade}, the graph, observations, LLRs, and transmitted word
+come from
+\path{paper/p2/p2_assets/frames/os00_exact_example.tex}.  The objective and
+illustrative step come from
+\path{paper/p2/p2_assets/frames/os00b_projected_gradient.tex}; the retained
+executable checker, \path{exact_six_bit_example.py}, is under
+\path{paper/one_scalar_per_bit_slides/one_scalar_per_bit_slides_assets/examples/}.
+Every displayed value was independently recomputed from the rounded input
+LLRs.  A symmetric numerical derivative check with perturbation \(10^{-6}\)
+agrees with
+\(\nabla J_p(\boldsymbol{x}^{(0)})\) to within
+\(1.92\times10^{-10}\) in every coordinate.
+
+\end{document}

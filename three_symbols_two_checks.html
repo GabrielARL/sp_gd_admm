@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Three Symbols, Two Checks — BP, GD, and ADMM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<style>
+:root {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --ink: #111820;
+  --muted: #526172;
+  --line: #cbd6e2;
+  --edge: #93a7bb;
+  --soft: #edf3f8;
+  --bp: #164f86;
+  --gd: #087b83;
+  --admm: #9b5d00;
+  --bad: #c24c16;
+  --good: #197148;
+  --violet: #7256a8;
+  --serif: "Times New Roman", Times, Tinos, "Liberation Serif", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c131c; --surface: #121d29; --ink: #eef3f7; --muted: #a3b1bf;
+    --line: #2d4155; --edge: #58718a; --soft: #192b3d;
+    --bp: #8fc1ee; --gd: #72d0d1; --admm: #ffc06b;
+    --bad: #ff9a70; --good: #81d2a7; --violet: #c1aaf2;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.45;
+}
+button { font-family: inherit; }
+.wrap {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: max(14px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+           max(30px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.eyebrow {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+h1 {
+  margin: 2px 0 5px;
+  font-size: clamp(27px, 3vw, 40px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.lead {
+  max-width: 108ch;
+  margin: 0;
+  font-size: 16px;
+}
+.lead a, .foot a { color: var(--bp); }
+.rule {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 4px;
+  margin-top: 12px;
+}
+.rule span:nth-child(1) { background: var(--bp); }
+.rule span:nth-child(2) { background: var(--gd); }
+.rule span:nth-child(3) { background: var(--admm); }
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px 20px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.btns, .speed { display: flex; align-items: center; gap: 6px; }
+.bar button {
+  border: 1px solid var(--bp);
+  border-radius: 5px;
+  padding: 5px 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 16px;
+  cursor: pointer;
+}
+.bar button:hover { background: var(--soft); }
+.bar button:focus-visible, summary:focus-visible {
+  outline: 3px solid var(--admm);
+  outline-offset: 2px;
+}
+.bar .primary { min-width: 5.5em; color: #fff; background: #164f86; }
+.beat-name {
+  min-width: 178px;
+  color: var(--muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.track { display: flex; align-items: flex-start; gap: 7px; flex: 1 1 390px; }
+.track-group { flex: 1 1 auto; min-width: 62px; }
+.track-cells { display: flex; gap: 3px; }
+.track .beat {
+  width: 100%;
+  min-width: 20px;
+  height: 17px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+}
+.track .beat.done { background: var(--soft); }
+.track .beat.now { border-color: var(--bp); background: var(--bp); }
+.track-label {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.1;
+  text-align: center;
+}
+.speed { margin-left: auto; color: var(--muted); font-size: 14px; }
+.speed button { padding: 2px 8px; font-size: 14px; }
+.speed button[aria-pressed="true"] { background: var(--soft); font-weight: 700; }
+.panel {
+  --accent: var(--bp);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 390px;
+  gap: 12px 24px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--ink) 7%, transparent);
+}
+.panel.gd { --accent: var(--gd); }
+.panel.admm { --accent: var(--admm); }
+.fig { min-width: 0; overflow-x: auto; }
+.fig svg { display: block; width: 100%; min-width: 620px; height: auto; }
+.cap { min-width: 0; }
+.cap h2 { margin: 0; color: var(--accent); font-size: 21px; line-height: 1.15; }
+.kind { display: block; margin-top: 2px; color: var(--muted); font-size: 14px; font-weight: 400; }
+.count { margin: 7px 0 0; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.step { margin: 5px 0 2px; font-size: 17px; font-weight: 700; }
+.say { min-height: 6.9em; margin: 0; font-size: 16px; }
+.say .eq { white-space: nowrap; }
+.scope {
+  margin-top: 12px;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 15px;
+}
+.scope summary { color: var(--muted); cursor: pointer; font-weight: 700; }
+.scope p { max-width: 112ch; margin: 7px 0 0; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.key { width: 29px; height: 14px; border: 2px solid currentColor; border-radius: 8px; }
+.key.bp { color: var(--bp); background: var(--bp); }
+.key.gd { color: var(--gd); border-style: dashed; }
+.key.admm { color: var(--admm); background: color-mix(in srgb, var(--admm) 16%, transparent); border-radius: 3px; }
+.foot { max-width: 112ch; margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+
+svg text { fill: var(--ink); font-family: var(--serif); font-variant-numeric: tabular-nums; }
+svg .edge { stroke: var(--edge); stroke-width: 2; }
+svg .edge.active { stroke: var(--accent); stroke-width: 4; }
+svg .symbol { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+svg .symbol.changed { fill: var(--soft); stroke-width: 4; }
+svg .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2; }
+svg .check.active { stroke-width: 4; }
+svg .label { font-size: 14px; font-weight: 700; }
+svg .value { font-size: 14px; font-weight: 700; }
+svg .tiny { fill: var(--muted); font-size: 12px; }
+svg .summary { font-size: 14px; }
+svg .tag rect { fill: var(--surface); stroke: var(--accent); stroke-width: 1.4; }
+svg .tag text { font-size: 11.5px; }
+svg .token rect { fill: var(--accent); stroke: var(--accent); }
+svg .token text { fill: #fff; font-size: 11.5px; font-weight: 700; }
+svg .token.gd rect { fill: var(--surface); stroke-dasharray: 4 2; }
+svg .token.gd text { fill: var(--gd); }
+svg .token.admm rect { fill: var(--surface); }
+svg .token.admm text { fill: var(--admm); }
+svg .status-pass rect { fill: var(--good); }
+svg .status-fail rect { fill: var(--bad); }
+svg .status-pass text, svg .status-fail text { fill: #fff; font-size: 11px; font-weight: 700; }
+svg .joint { fill: var(--admm); font-size: 12px; font-weight: 700; }
+
+@media (max-width: 980px) {
+  .panel { grid-template-columns: minmax(0, 1fr); }
+  .say { min-height: 0; }
+  .speed { margin-left: 0; }
+}
+@media (max-width: 620px) {
+  .wrap { padding-inline: max(10px, env(safe-area-inset-left, 0px)); }
+  .bar { gap: 8px 10px; }
+  .beat-name { order: 3; width: 100%; }
+  .track { order: 4; flex-basis: 100%; }
+  .panel { padding: 8px; }
+  .fig::after { content: "Scroll the graph horizontally"; display: block; color: var(--muted); font-size: 12px; text-align: right; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Three symbols · two checks · one synchronized teaching clock</div>
+    <h1>BP, Gradient Descent, and ADMM</h1>
+    <p class="lead">The Tanner graph and ADMM state come from the
+      <a href="https://gabrielarl.github.io/kings-land-descent/three_symbols_two_checks.html">King’s Land three-symbol example</a>:
+      <i>c</i> = (0.1, 0.6, 0.9), check A joins symbols 1–2, and check B joins symbols 2–3.
+      For this new comparison, <i>c</i><sub>i</sub> is explicitly set equal to <i>P</i>(<i>b</i><sub>i</sub> = 1 | <i>y</i><sub>i</sub>) to form the BP input LLR
+      and the bipolar GD initialization. The serial A-then-B reveal does not change the frozen snapshot used by any calculation.</p>
+    <div class="rule" aria-hidden="true"><span></span><span></span><span></span></div>
+  </header>
+
+  <nav class="bar" aria-label="Synchronized animation controls">
+    <div class="btns">
+      <button id="restart" type="button">Restart</button>
+      <button id="back" type="button">Back</button>
+      <button id="play" type="button" class="primary">Play</button>
+      <button id="next" type="button">Next</button>
+    </div>
+    <div class="beat-name" id="beat-name"></div>
+    <div class="track" id="track"></div>
+    <div class="speed" role="group" aria-label="Animation speed">
+      <span>Speed</span>
+      <button type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+      <button type="button" data-speed="1" aria-pressed="true">1×</button>
+      <button type="button" data-speed="2" aria-pressed="false">2×</button>
+    </div>
+  </nav>
+
+  <section class="panel bp" aria-labelledby="bp-title">
+    <div class="fig"><svg id="bp-graph" viewBox="0 0 900 220" role="img" aria-label="Belief-propagation iteration on the three-symbol Tanner graph"></svg></div>
+    <div class="cap" aria-live="polite">
+      <h2 id="bp-title">Upper · Belief propagation (BP)<span class="kind">Directed variable-to-check and check-to-variable LLR messages</span></h2>
+      <p class="count" id="bp-count"></p>
+      <p class="step" id="bp-step"></p>
+      <p class="say" id="bp-say"></p>
+    </div>
+  </section>
+
+  <section class="panel gd" aria-labelledby="gd-title">
+    <div class="fig"><svg id="gd-graph" viewBox="0 0 900 220" role="img" aria-label="Projected-gradient iteration on the three-symbol Tanner graph"></svg></div>
+    <div class="cap" aria-live="polite">
+      <h2 id="gd-title">Middle · Projected gradient (GD)<span class="kind">Terms used to form ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub>i</sub>; no <i>Q</i> or <i>U</i> messages</span></h2>
+      <p class="count" id="gd-count"></p>
+      <p class="step" id="gd-step"></p>
+      <p class="say" id="gd-say"></p>
+    </div>
+  </section>
+
+  <section class="panel admm" aria-labelledby="admm-title">
+    <div class="fig"><svg id="admm-graph" viewBox="0 0 900 220" role="img" aria-label="ADMM round on the three-symbol Tanner graph"></svg></div>
+    <div class="cap" aria-live="polite">
+      <h2 id="admm-title">Lower · ADMM<span class="kind">Shared variables, replica variables for each check, and scaled dual variables</span></h2>
+      <p class="count" id="admm-count"></p>
+      <p class="step" id="admm-step"></p>
+      <p class="say" id="admm-say"></p>
+    </div>
+  </section>
+
+  <div class="legend" aria-label="Visual legend">
+    <span><i class="key bp" aria-hidden="true"></i>BP message</span>
+    <span><i class="key gd" aria-hidden="true"></i>GD value or term in ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub>i</sub></span>
+    <span><i class="key admm" aria-hidden="true"></i>ADMM <i>q</i>, <i>z</i>, or <i>u</i> value</span>
+  </div>
+
+  <details class="scope">
+    <summary>What the synchronized beats do—and do not—claim</summary>
+    <p>The panels share a graph, mapped initial evidence, and a presentation clock. They do not implement one objective:
+      BP performs probabilistic inference from LLRs; GD reduces the objective function
+      <i>J</i><sub>p</sub>; ADMM minimizes ½‖<b><i>b</i></b> − <b><i>c</i></b>‖² under parity-polytope constraints.
+      Only BP’s <i>Q</i> and <i>U</i> are messages. Each GD edge quantity is one term in the partial derivative of <i>J</i><sub>p</sub> with respect to a symbol value,
+      while ADMM’s replica variables and scaled dual variables persist between rounds. Synchronized placement is therefore
+      not a claim of equal arithmetic, state, operation count, or complexity.</p>
+  </details>
+  <p class="foot">Space plays or pauses; the arrow keys step. One iteration ends with the hard word 011 in all three panels.
+    That word fails check A. In ADMM, legal projected replicas after one round do not mean that the shared hard word passes
+    or that the continuous variables have converged.</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var C = [0.1, 0.6, 0.9];
+  var CHECKS = [[0, 1], [1, 2]];
+  var EDGES = [
+    { a: 0, i: 0, slot: 0, name: "A–1" },
+    { a: 0, i: 1, slot: 1, name: "A–2" },
+    { a: 1, i: 1, slot: 0, name: "B–2" },
+    { a: 1, i: 2, slot: 1, name: "B–3" }
+  ];
+  var ETA = 0.25, RHO = 1;
+
+  function clip(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function sum(v) { return v.reduce(function (s, x) { return s + x; }, 0); }
+  function norm(v) { return Math.sqrt(sum(v.map(function (x) { return x * x; }))); }
+  function hardB(v) { return v.map(function (x) { return x >= 0.5 ? 1 : 0; }); }
+  function hardX(v) { return v.map(function (x) { return x >= 0 ? 1 : 0; }); }
+  function syndrome(w) { return [w[0] ^ w[1], w[1] ^ w[2]]; }
+  function sigmoid(v) { return 1 / (1 + Math.exp(-v)); }
+
+  var L = C.map(function (p) { return Math.log(p / (1 - p)); });
+  var bpQ = EDGES.map(function (e) { return L[e.i]; });
+  var bpU = EDGES.map(function (e) {
+    var pair = CHECKS[e.a];
+    var other = pair[0] === e.i ? pair[1] : pair[0];
+    return L[other];
+  });
+  var bpB = L.slice();
+  EDGES.forEach(function (e, k) { bpB[e.i] += bpU[k]; });
+  var bpP = bpB.map(sigmoid);
+  var bpHard = hardB(bpP);
+
+  var x0 = C.map(function (p) { return 2 * p - 1; });
+  function parityCost(x) {
+    return CHECKS.reduce(function (s, pair) {
+      var r = 1 - x[pair[0]] * x[pair[1]];
+      return s + r * r;
+    }, 0);
+  }
+  var gdResidual = CHECKS.map(function (pair) { return 1 - x0[pair[0]] * x0[pair[1]]; });
+  var gdEdge = EDGES.map(function (e) {
+    var pair = CHECKS[e.a];
+    var other = pair[0] === e.i ? pair[1] : pair[0];
+    return -2 * gdResidual[e.a] * x0[other];
+  });
+  var gdGrad = [0, 0, 0];
+  EDGES.forEach(function (e, k) { gdGrad[e.i] += gdEdge[k]; });
+  var gdRaw = x0.map(function (x, i) { return x - ETA * gdGrad[i]; });
+  var x1 = gdRaw.map(function (x) { return clip(x, -1, 1); });
+  var gdHard = hardX(x1);
+
+  var z0 = CHECKS.map(function (pair) { return [C[pair[0]], C[pair[1]]]; });
+  var u0 = [[0, 0], [0, 0]];
+  var admmNum = C.slice(), admmDen = [1, 1, 1];
+  EDGES.forEach(function (e) {
+    admmNum[e.i] += RHO * (z0[e.a][e.slot] - u0[e.a][e.slot]);
+    admmDen[e.i] += RHO;
+  });
+  var b1 = admmNum.map(function (v, i) { return clip(v / admmDen[i], 0, 1); });
+  var q = CHECKS.map(function (pair, a) {
+    return [b1[pair[0]] + u0[a][0], b1[pair[1]] + u0[a][1]];
+  });
+  function parityProject(v) {
+    var t = clip((v[0] + v[1]) / 2, 0, 1);
+    return [t, t];
+  }
+  var z1 = q.map(parityProject);
+  var u1 = CHECKS.map(function (pair, a) {
+    return [u0[a][0] + b1[pair[0]] - z1[a][0],
+            u0[a][1] + b1[pair[1]] - z1[a][1]];
+  });
+  var residualFlat = [];
+  CHECKS.forEach(function (pair, a) {
+    residualFlat.push(b1[pair[0]] - z1[a][0], b1[pair[1]] - z1[a][1]);
+  });
+  var moveFlat = [];
+  z1.forEach(function (za, a) {
+    moveFlat.push(RHO * (za[0] - z0[a][0]), RHO * (za[1] - z0[a][1]));
+  });
+  var admmHard = hardB(b1);
+
+  var M = {
+    c: C, checks: CHECKS, edges: EDGES, eta: ETA, rho: RHO,
+    L: L, bpQ: bpQ, bpU: bpU, bpB: bpB, bpP: bpP, bpHard: bpHard,
+    x0: x0, gdResidual: gdResidual, gdEdge: gdEdge, gdGrad: gdGrad,
+    gdRaw: gdRaw, x1: x1, J0: parityCost(x0), J1: parityCost(x1), gdHard: gdHard,
+    z0: z0, u0: u0, admmNum: admmNum, admmDen: admmDen, b1: b1,
+    q: q, z1: z1, u1: u1, gap: norm(residualFlat), copyMove: norm(moveFlat),
+    admmHard: admmHard, syndrome: syndrome
+  };
+
+  function near(a, b, eps) { return Math.abs(a - b) <= (eps || 1e-10); }
+  function assertNear(actual, expected, label) {
+    if (!near(actual, expected, 1e-9)) throw new Error(label + ": " + actual + " != " + expected);
+  }
+  assertNear(M.L[0], -2.1972245773362196, "BP L1");
+  assertNear(M.bpB[2], 2.6026896854443837, "BP B3");
+  assertNear(M.J0, 2.0512, "GD J0");
+  assertNear(M.J1, 1.977676433408, "GD J1");
+  assertNear(M.x1[1], 0.072, "GD x2");
+  assertNear(M.z1[0][0], 0.35, "ADMM zA1");
+  assertNear(M.u1[1][0], -0.15, "ADMM uB2");
+  assertNear(M.gap, 0.412310562561766, "ADMM primal residual norm");
+  window.THREE_SYMBOL_MODEL = M;
+
+  var BEATS = [
+    { id: "start", label: "Initialize" },
+    { id: "prepare", label: "Prepare / freeze" },
+    { id: "a-read", label: "Check A reads" },
+    { id: "a-act", label: "Check A acts" },
+    { id: "b-read", label: "Check B reads" },
+    { id: "b-act", label: "Check B acts" },
+    { id: "update", label: "Finish the iteration" },
+    { id: "decide", label: "Hard decision" }
+  ];
+  var LAST = BEATS.length - 1;
+  var DURATION = 3.2;
+  var MOTION = 1.25;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function minus(s) { return String(s).replace(/-/g, "−"); }
+  function fixed(v, d, sign) {
+    var a = Math.abs(v) < Math.pow(10, -(d + 1)) ? 0 : v;
+    return (sign && a >= 0 ? "+" : "") + minus(a.toFixed(d));
+  }
+  function vector(v, d, sign) {
+    return "(" + v.map(function (x) { return fixed(x, d, sign); }).join(", ") + ")";
+  }
+  function htmlVector(v, d, sign) {
+    return '<span class="eq">' + vector(v, d, sign) + "</span>";
+  }
+  function done(S, beat, at) {
+    at = at == null ? 0.78 : at;
+    return S.k > beat || (S.k === beat && S.a >= at);
+  }
+  function ease(t) {
+    t = clip(t, 0, 1);
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+  function mix(a, b, t) { return a + (b - a) * t; }
+
+  var NS = "http://www.w3.org/2000/svg";
+  function svgEl(parent, tag, attrs, content) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (key) { e.setAttribute(key, attrs[key]); });
+    if (content != null) e.textContent = content;
+    parent.appendChild(e);
+    return e;
+  }
+  function textAt(parent, x, y, content, cls, anchor) {
+    return svgEl(parent, "text", { x: x, y: y, "class": cls || "", "text-anchor": anchor || "middle" }, content);
+  }
+  function pill(parent, x, y, text, good) {
+    var g = svgEl(parent, "g", { "class": good ? "status-pass" : "status-fail" });
+    svgEl(g, "rect", { x: x - 34, y: y - 11, width: 68, height: 21, rx: 10 });
+    textAt(g, x, y + 4, text, "", "middle");
+  }
+  function edgeTag(parent, x, y, text) {
+    var g = svgEl(parent, "g", { "class": "tag" });
+    var w = Math.max(80, Math.min(124, 12 + text.length * 5.8));
+    svgEl(g, "rect", { x: x - w / 2, y: y - 11, width: w, height: 22, rx: 5 });
+    textAt(g, x, y + 4, text, "", "middle");
+  }
+  function token(parent, x, y, text, method) {
+    var g = svgEl(parent, "g", { "class": "token " + method });
+    var w = Math.max(66, 12 + text.length * 6);
+    svgEl(g, "rect", { x: x - w / 2, y: y - 11, width: w, height: 22, rx: method === "admm" ? 4 : 11 });
+    textAt(g, x, y + 4, text, "", "middle");
+  }
+
+  var SX = [220, 450, 680], SY = 143;
+  var KX = [335, 565], KY = 50;
+  var SUBSCRIPT = ["₁", "₂", "₃"];
+  function endpoints(e) {
+    return { s: [SX[e.i], SY], k: [KX[e.a], KY] };
+  }
+  function edgeMid(e) {
+    var p = endpoints(e);
+    return [(p.s[0] + p.k[0]) / 2, (p.s[1] + p.k[1]) / 2 + 2];
+  }
+  function activeEdges(S) {
+    if (S.k === 2 || S.k === 3) return [0, 1];
+    if (S.k === 4 || S.k === 5) return [2, 3];
+    return [];
+  }
+  function methodVector(method, S) {
+    var t = S.k < 6 ? 0 : S.k === 6 ? ease(S.a) : 1;
+    var from = method === "bp" ? M.L : method === "gd" ? M.x0 : M.c;
+    var to = method === "bp" ? M.bpB : method === "gd" ? M.x1 : M.b1;
+    return from.map(function (v, i) { return mix(v, to[i], t); });
+  }
+  function forwardValue(method, eIndex) {
+    var e = EDGES[eIndex];
+    if (method === "bp") return "Q " + fixed(M.bpQ[eIndex], 3, true);
+    if (method === "gd") return "x " + fixed(M.x0[e.i], 3, true);
+    return "q " + fixed(M.q[e.a][e.slot], 3, false);
+  }
+  function returnValue(method, eIndex) {
+    var e = EDGES[eIndex];
+    if (method === "bp") return "U " + fixed(M.bpU[eIndex], 3, true);
+    if (method === "gd") return "∂ " + fixed(M.gdEdge[eIndex], 3, true);
+    return "z " + fixed(M.z1[e.a][e.slot], 3, false);
+  }
+  function storedValue(method, eIndex, updated) {
+    var e = EDGES[eIndex];
+    if (method === "bp") return "Q " + fixed(M.bpQ[eIndex], 2, true) + " · U " + fixed(M.bpU[eIndex], 2, true);
+    if (method === "gd") return "∂" + (e.a === 0 ? "A" : "B") + "," + (e.i + 1) + " " + fixed(M.gdEdge[eIndex], 3, true);
+    if (updated) return "z " + fixed(M.z1[e.a][e.slot], 2, false) + " · u " + fixed(M.u1[e.a][e.slot], 2, true);
+    return "z " + fixed(M.z1[e.a][e.slot], 3, false);
+  }
+  function summaryText(method, S) {
+    var updated = done(S, 6, 0.55);
+    if (method === "bp") return updated
+      ? "a-posteriori LLR B = " + vector(M.bpB, 6, true)
+      : "input LLR L = " + vector(M.L, 6, true);
+    if (method === "gd") return updated
+      ? "x¹ = " + vector(M.x1, 3, true) + "    Jₚ = " + M.J1.toFixed(9)
+      : "x⁰ = " + vector(M.x0, 3, true) + "    Jₚ = " + M.J0.toFixed(6);
+    return updated
+      ? "zA¹ = (0.35, 0.35), zB¹ = (0.75, 0.75); scaled duals updated"
+      : "b¹ = (0.10, 0.60, 0.90); ρ = 1";
+  }
+
+  function draw(method, S) {
+    var svg = document.getElementById(method + "-graph");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var active = activeEdges(S);
+    var vals = methodVector(method, S);
+    var updateLit = S.k === 6;
+    var decided = done(S, 7, 0.30);
+    var hard = method === "bp" ? M.bpHard : method === "gd" ? M.gdHard : M.admmHard;
+    var syn = syndrome(hard);
+
+    textAt(svg, 20, 20, "edge order: A–1, A–2, B–2, B–3", "tiny", "start");
+    textAt(svg, 880, 20, BEATS[S.k].label, "tiny", "end");
+
+    EDGES.forEach(function (e, ei) {
+      var p = endpoints(e);
+      svgEl(svg, "line", {
+        x1: p.s[0], y1: p.s[1], x2: p.k[0], y2: p.k[1],
+        "class": "edge" + (active.indexOf(ei) >= 0 ? " active" : "")
+      });
+    });
+
+    [0, 1].forEach(function (a) {
+      var isActive = (S.k === (a === 0 ? 2 : 4) || S.k === (a === 0 ? 3 : 5));
+      svgEl(svg, "rect", {
+        x: KX[a] - 25, y: KY - 17, width: 50, height: 34, rx: 4,
+        "class": "check" + (isActive ? " active" : "")
+      });
+      textAt(svg, KX[a], KY + 5, a === 0 ? "A" : "B", "label", "middle");
+      if (decided) pill(svg, KX[a], 84, syn[a] === 0 ? "✓ pass" : "✗ fail", syn[a] === 0);
+    });
+
+    vals.forEach(function (v, i) {
+      svgEl(svg, "circle", {
+        cx: SX[i], cy: SY, r: 23,
+        "class": "symbol" + (updateLit ? " changed" : "")
+      });
+      textAt(svg, SX[i], SY + 5, fixed(v, 3, true), "value", "middle");
+      var lab = method === "bp" ? (done(S, 6, 0.55) ? "B" : "L") :
+                method === "gd" ? (done(S, 6, 0.55) ? "x¹" : "x⁰") :
+                (done(S, 1, 0.55) ? "b¹" : "b⁰");
+      textAt(svg, SX[i], SY + 39, lab + SUBSCRIPT[i], "label", "middle");
+      if (decided) textAt(svg, SX[i], SY + 56, "hard " + hard[i], "tiny", "middle");
+    });
+
+    EDGES.forEach(function (e, ei) {
+      var readBeat = e.a === 0 ? 2 : 4;
+      var actBeat = e.a === 0 ? 3 : 5;
+      var readDone = done(S, readBeat);
+      var actDone = done(S, actBeat);
+      var updated = done(S, 6, 0.70);
+      var mid = edgeMid(e);
+      if (actDone) edgeTag(svg, mid[0], mid[1], storedValue(method, ei, updated));
+      else if (readDone) edgeTag(svg, mid[0], mid[1], forwardValue(method, ei));
+
+      if (S.k === readBeat) {
+        var pIn = endpoints(e), tr = ease(S.a);
+        token(svg, mix(pIn.s[0], pIn.k[0], tr), mix(pIn.s[1], pIn.k[1], tr), forwardValue(method, ei), method);
+      } else if (S.k === actBeat) {
+        var pOut = endpoints(e), to = ease(S.a);
+        token(svg, mix(pOut.k[0], pOut.s[0], to), mix(pOut.k[1], pOut.s[1], to), returnValue(method, ei), method);
+      }
+    });
+
+    if (method === "admm" && (S.k === 3 || S.k === 5)) {
+      var aa = S.k === 3 ? 0 : 1;
+      textAt(svg, KX[aa], 25, "joint projection Π𝒫" + (aa === 0 ? "A" : "B"), "joint", "middle");
+    }
+    textAt(svg, 450, 210, summaryText(method, S), "summary", "middle");
+  }
+
+  var CAP = {
+    bp: [
+      'Treat <i>c</i><sub>i</sub> as <i>P</i>(<i>b</i><sub>i</sub> = 1 | <i>y</i><sub>i</sub>). Then <i>L</i><sub>i</sub> = log(<i>c</i><sub>i</sub>/(1 − <i>c</i><sub>i</sub>)) = ' + htmlVector(M.L, 6, true) + '. Positive LLR favours bit 1.',
+      'All four variable-to-check messages are formed before any returned message is used. Initially every incoming check message is zero, so <span class="eq"><i>Q</i><sub>i→a</sub> = <i>L</i><sub>i</sub></span>; symbol 2 prepares one copy for A and one for B.',
+      'A receives <span class="eq"><i>Q</i><sub>1→A</sub> = ' + fixed(M.bpQ[0], 6, true) + '</span> and <span class="eq"><i>Q</i><sub>2→A</sub> = ' + fixed(M.bpQ[1], 6, true) + '</span>.',
+      'A enforces equality. For a degree-two even-parity check, each outgoing LLR is the other incoming LLR: <span class="eq"><i>U</i><sub>A→1</sub> = ' + fixed(M.bpU[0], 6, true) + '</span>, <span class="eq"><i>U</i><sub>A→2</sub> = ' + fixed(M.bpU[1], 6, true) + '</span>.',
+      'B receives the frozen messages <span class="eq"><i>Q</i><sub>2→B</sub> = ' + fixed(M.bpQ[2], 6, true) + '</span> and <span class="eq"><i>Q</i><sub>3→B</sub> = ' + fixed(M.bpQ[3], 6, true) + '</span>.',
+      'B returns <span class="eq"><i>U</i><sub>B→2</sub> = ' + fixed(M.bpU[2], 6, true) + '</span> and <span class="eq"><i>U</i><sub>B→3</sub> = ' + fixed(M.bpU[3], 6, true) + '</span>.',
+      'Each symbol forms its a-posteriori LLR <span class="eq"><i>B</i><sub>i</sub> = <i>L</i><sub>i</sub> + Σ<sub>a∋i</sub><i>U</i><sub>a→i</sub></span>. Thus <b><i>B</i></b> = ' + htmlVector(M.bpB, 6, true) + ' and σ(<b><i>B</i></b>) = ' + htmlVector(M.bpP, 6, false) + '.',
+      'Thresholding the a-posteriori LLRs gives <b>011</b>. Its syndrome is <b>(1, 0)</b>: A fails and B passes, so one BP iteration has not decoded a codeword.'
+    ],
+    gd: [
+      'Map the soft evidence to the bipolar scale: <span class="eq"><i>x</i><sup>(0)</sup> = 2<i>c</i> − 1 = ' + vector(M.x0, 3, true) + '</span>. Degree-two even parity requires a product of +1.',
+      'Freeze <b><i>x</i></b><sup>(0)</sup>. GD uses <span class="eq"><i>J</i><sub>p</sub> = (1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub>)² + (1 − <i>x</i><sub>2</sub><i>x</i><sub>3</sub>)²</span>, with <i>η</i> = 0.25. The display places each check’s term in ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub>i</sub> on its edge; GD is not BP message passing.',
+      'A reads <i>x</i><sub>1</sub><sup>(0)</sup> = −0.800 and <i>x</i><sub>2</sub><sup>(0)</sup> = +0.200. Its residual is <span class="eq"><i>r</i><sub>A</sub> = 1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub> = 1.160</span>.',
+      'A supplies the terms <span class="eq"><i>g</i><sub>A,1</sub> = −2<i>r</i><sub>A</sub><i>x</i><sub>2</sub> = −0.464</span> and <span class="eq"><i>g</i><sub>A,2</sub> = −2<i>r</i><sub>A</sub><i>x</i><sub>1</sub> = +1.856</span> in the two partial derivatives. These values are transient; they are not messages.',
+      'B reads <i>x</i><sub>2</sub><sup>(0)</sup> = +0.200 and <i>x</i><sub>3</sub><sup>(0)</sup> = +0.800. Its residual is <span class="eq"><i>r</i><sub>B</sub> = 0.840</span>.',
+      'B contributes <span class="eq"><i>g</i><sub>B,2</sub> = −1.344</span> and <span class="eq"><i>g</i><sub>B,3</sub> = −0.336</span>.',
+      'Aggregate once, then step simultaneously: ∇<i>J</i><sub>p</sub> = ' + htmlVector(M.gdGrad, 3, true) + ' and <span class="eq"><i>x</i><sup>(1)</sup> = Π<sub>[−1,1]³</sub>(<i>x</i><sup>(0)</sup> − 0.25∇<i>J</i><sub>p</sub>) = ' + vector(M.x1, 3, true) + '</span>. No coordinate clips; <i>J</i><sub>p</sub> falls from 2.051200 to ' + M.J1.toFixed(9) + '.',
+      'Thresholding at zero gives <b>011</b> with syndrome <b>(1, 0)</b>. <i>J</i><sub>p</sub> decreased, but check A remains violated after one step.'
+    ],
+    admm: [
+      'Use the source-defined state: <b><i>b</i></b><sup>0</sup> = <i>c</i>, <b><i>z</i></b><sub>A</sub><sup>0</sup> = (0.1, 0.6), <b><i>z</i></b><sub>B</sub><sup>0</sup> = (0.6, 0.9), all scaled dual variables <b><i>u</i></b><sup>0</sup> = 0, and ρ = 1.',
+      'ADMM first updates the shared variables from <b><i>z</i></b><sup>0</sup> and <b><i>u</i></b><sup>0</sup>. With this initialization, <span class="eq"><b><i>b</i></b><sup>1</sup> = (0.1, 0.6, 0.9)</span>; the first shared update is a no-op.',
+      'A forms its projection input jointly: <span class="eq"><b><i>q</i></b><sub>A</sub> = <b>S</b><sub>A</sub><b><i>b</i></b><sup>1</sup> + <b><i>u</i></b><sub>A</sub><sup>0</sup> = (0.10, 0.60)</span>.',
+      'Project the whole pair—not each coordinate separately—onto the degree-two parity polytope {(t, t): 0 ≤ t ≤ 1}. This gives <span class="eq"><b><i>z</i></b><sub>A</sub><sup>1</sup> = (0.35, 0.35)</span>.',
+      'B forms <span class="eq"><b><i>q</i></b><sub>B</sub> = (0.60, 0.90)</span> from the same <b><i>b</i></b><sup>1</sup> and <b><i>u</i></b><sup>0</sup> snapshot.',
+      'The joint projection gives <span class="eq"><b><i>z</i></b><sub>B</sub><sup>1</sup> = (0.75, 0.75)</span>.',
+      'Now update the scaled dual variables: <span class="eq"><b><i>u</i></b><sub>a</sub><sup>1</sup> = <b><i>u</i></b><sub>a</sub><sup>0</sup> + <b>S</b><sub>a</sub><b><i>b</i></b><sup>1</sup> − <b><i>z</i></b><sub>a</sub><sup>1</sup></span>. Hence <b><i>u</i></b><sub>A</sub><sup>1</sup> = (−0.25, +0.25) and <b><i>u</i></b><sub>B</sub><sup>1</sup> = (−0.15, +0.15).',
+      'The shared hard word is still <b>011</b>, with syndrome <b>(1, 0)</b>. The projected replicas are legal, but the primal residual norm ‖<b>S</b><sub>a</sub><b><i>b</i></b><sup>1</sup> − <b><i>z</i></b><sub>a</sub><sup>1</sup>‖ over all four edge coordinates is ' + M.gap.toFixed(9) + ', so ADMM has not converged.'
+    ]
+  };
+
+  var track = document.getElementById("track");
+  var cells = [];
+  [
+    { label: "initialize", from: 0, to: 1 },
+    { label: "check A", from: 2, to: 3 },
+    { label: "check B", from: 4, to: 5 },
+    { label: "finish", from: 6, to: 7 }
+  ].forEach(function (group) {
+    var wrap = document.createElement("div");
+    wrap.className = "track-group";
+    var row = document.createElement("div");
+    row.className = "track-cells";
+    for (var k = group.from; k <= group.to; k++) {
+      (function (index) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "beat";
+        b.setAttribute("aria-label", "Beat " + (index + 1) + ": " + BEATS[index].label);
+        b.title = "Beat " + (index + 1) + ": " + BEATS[index].label;
+        b.addEventListener("click", function () { T = index; pause(); });
+        row.appendChild(b);
+        cells[index] = b;
+      })(k);
+    }
+    var lab = document.createElement("span");
+    lab.className = "track-label";
+    lab.textContent = group.label;
+    wrap.appendChild(row);
+    wrap.appendChild(lab);
+    track.appendChild(wrap);
+  });
+
+  var T = 0, playing = false, target = null, speed = 1, lastTime = 0, shown = -1;
+  function render() {
+    var k, a;
+    if (Number.isInteger(T)) { k = T; a = 1; }
+    else {
+      k = Math.floor(T) + 1;
+      a = Math.min(1, (T - Math.floor(T)) * DURATION / MOTION);
+    }
+    if (reduced) a = 1;
+    var S = { k: k, a: a };
+    draw("bp", S);
+    draw("gd", S);
+    draw("admm", S);
+
+    document.getElementById("beat-name").textContent = "Beat " + (k + 1) + " / " + BEATS.length + " · " + BEATS[k].label;
+    ["bp", "gd", "admm"].forEach(function (method) {
+      document.getElementById(method + "-count").textContent = "Synchronized beat " + (k + 1) + " of " + BEATS.length;
+    });
+    if (shown !== k) {
+      shown = k;
+      ["bp", "gd", "admm"].forEach(function (method) {
+        document.getElementById(method + "-step").textContent = BEATS[k].label;
+        document.getElementById(method + "-say").innerHTML = CAP[method][k];
+      });
+      cells.forEach(function (cell, i) {
+        cell.classList.toggle("now", i === k);
+        cell.classList.toggle("done", i < k);
+      });
+    }
+  }
+  function frame(now) {
+    if (!playing) return;
+    var dt = Math.min(0.1, (now - lastTime) / 1000);
+    lastTime = now;
+    T += dt * speed / DURATION;
+    var stop = false;
+    if (target != null && T >= target) { T = target; stop = true; }
+    if (T >= LAST) { T = LAST; stop = true; }
+    render();
+    if (stop) pause(); else requestAnimationFrame(frame);
+  }
+  function play(to) {
+    if (T >= LAST) T = 0;
+    target = to == null ? null : to;
+    playing = true;
+    lastTime = performance.now();
+    document.getElementById("play").textContent = "Pause";
+    requestAnimationFrame(frame);
+  }
+  function pause() {
+    playing = false;
+    target = null;
+    document.getElementById("play").textContent = T >= LAST ? "Replay" : "Play";
+    render();
+  }
+  function next() {
+    if (!Number.isInteger(T)) { T = Math.ceil(T); pause(); return; }
+    if (T < LAST) play(T + 1);
+  }
+  function back() {
+    T = Number.isInteger(T) ? Math.max(0, T - 1) : Math.floor(T);
+    pause();
+  }
+
+  document.getElementById("play").addEventListener("click", function () { if (playing) pause(); else play(); });
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("back").addEventListener("click", back);
+  document.getElementById("restart").addEventListener("click", function () { T = 0; pause(); });
+  document.querySelectorAll(".speed button").forEach(function (button) {
+    button.addEventListener("click", function () {
+      speed = Number(button.getAttribute("data-speed"));
+      document.querySelectorAll(".speed button").forEach(function (b) {
+        b.setAttribute("aria-pressed", String(b === button));
+      });
+    });
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.target && event.target.closest && event.target.closest("button, input, select, textarea, summary")) return;
+    if (event.key === " ") { event.preventDefault(); if (playing) pause(); else play(); }
+    else if (event.key === "ArrowRight") { event.preventDefault(); next(); }
+    else if (event.key === "ArrowLeft") { event.preventDefault(); back(); }
+    else if (event.key === "Home") { event.preventDefault(); T = 0; pause(); }
+  });
+  var hash = /^#(?:beat|t)(\d+(?:\.\d+)?)$/.exec(location.hash);
+  if (hash) T = clip(Number(hash[1]), 0, LAST);
+  window.THREE_SYMBOL_ANIMATION = {
+    model: M,
+    beats: BEATS.slice(),
+    getBeat: function () { return T; },
+    setBeat: function (k) { T = clip(Number(k), 0, LAST); pause(); }
+  };
+  render();
+  if (!hash && !reduced) setTimeout(function () { if (!playing && T === 0) play(); }, 900);
+})();
+</script>
+</body>
+</html>

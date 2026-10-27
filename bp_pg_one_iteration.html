@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Six Bits, Two Checks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<style>
+/* Layout: one shared transport bar over two stacked panels, sum-product above and projected gradient below; each panel is the Tanner graph with its trace rows, and the beat's caption sits beside it. */
+:root{
+  --bg:#ffffff;
+  --fg:#000000;
+  --blue:#003D7C;
+  --orange:#EF7C00;
+  --msg:#003D7C;
+  --on-msg:#ffffff;
+  --on-orange:#000000;
+  --tint:#E2ECF6;
+  --box:#F5F8FB;
+  --edge:#93AAC4;
+  --rule:#C8D5E3;
+  --serif:"Times New Roman",Times,Tinos,"Liberation Serif",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1520; --fg:#EEF2F7; --blue:#8FB9E8; --orange:#F39A3D;
+    --msg:#3A78BF; --on-msg:#ffffff; --on-orange:#000000;
+    --tint:#1B2E46; --box:#121E2C; --edge:#4F6A88; --rule:#2A3C52;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1520; --fg:#EEF2F7; --blue:#8FB9E8; --orange:#F39A3D;
+  --msg:#3A78BF; --on-msg:#ffffff; --on-orange:#000000;
+  --tint:#1B2E46; --box:#121E2C; --edge:#4F6A88; --rule:#2A3C52;
+  color-scheme:dark;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:17px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 28px}
+header h1{font-size:23px;line-height:1.15;margin:0;font-weight:700;text-wrap:balance}
+header p{margin:3px 0 0;font-size:15px;line-height:1.4}
+.rule{display:flex;height:3px;margin-top:10px}
+.rule .rb{flex:7;background:var(--blue)}
+.rule .ro{flex:2;background:var(--orange)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;padding-block:10px;border-bottom:1px solid var(--rule)}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;font-size:16px;line-height:1.3;color:var(--fg);background:var(--bg);border:1px solid var(--blue);border-radius:4px;padding:4px 12px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+button.primary{background:var(--msg);border-color:var(--msg);color:var(--on-msg);min-width:5.4em}
+.track{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:flex-start}
+.grp{display:flex;flex-direction:column;gap:3px;font-size:13px;line-height:1.2}
+.cells{display:flex;gap:3px}
+.cell{width:22px;height:16px;padding:0;border-radius:2px}
+.cell.done{background:var(--tint)}
+.cell.now{background:var(--msg);border-color:var(--msg)}
+.speed{display:flex;gap:4px;align-items:center;margin-left:auto;font-size:15px}
+.speed span{margin-right:4px}
+.speed button{padding:2px 9px;font-size:15px}
+.speed button[aria-pressed="true"]{background:var(--tint)}
+
+.panel{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:6px 22px;align-items:center;padding-block:6px;border-bottom:1px solid var(--rule)}
+.fig{min-width:0;overflow-x:auto}
+.fig svg{display:block;width:100%;height:auto;max-height:max(230px,calc((100vh - 205px) / 2));min-width:620px}
+.cap{min-width:0}
+.cap h2{font-size:19px;line-height:1.25;margin:0}
+.count{display:block;font-size:15px;font-weight:400;font-variant-numeric:tabular-nums}
+.nw{white-space:nowrap}
+.step{font-weight:700;margin:6px 0 2px;font-size:16px}
+.say{margin:0;font-size:16px;min-height:7.4em}
+.cap sub,.cap sup{font-size:72%;line-height:0}
+@media (max-width:940px){
+  .panel{grid-template-columns:minmax(0,1fr)}
+  .fig svg{max-height:none}
+  .say{min-height:0}
+  .speed{margin-left:0}
+}
+@media (max-width:620px){
+  .fig::after{content:"Scroll the graph horizontally";display:block;color:var(--fg);opacity:.68;font-size:12px;text-align:right}
+}
+
+svg text{font-family:var(--serif);fill:var(--fg);font-size:15px;font-variant-numeric:tabular-nums}
+svg .title{font-size:13px;font-weight:700}
+svg .small{font-size:12px}
+svg .sep{stroke:var(--rule);stroke-width:1}
+svg .edge{stroke:var(--edge);stroke-width:1.6}
+svg .edge.on{stroke:var(--blue);stroke-width:3}
+svg .node{fill:var(--box);stroke:var(--blue);stroke-width:1.6}
+svg .node.on{stroke-width:3.4}
+svg .cbox{fill:var(--box);stroke:var(--rule);stroke-width:1}
+svg .hl{fill:var(--tint)}
+svg .arrow{fill:var(--blue)}
+svg .tok rect{stroke-width:1.6}
+svg .tok.bp rect{fill:var(--msg);stroke:var(--msg)}
+svg .tok.bp text{fill:var(--on-msg)}
+svg .tok.pg rect{fill:var(--bg);stroke:var(--blue);stroke-dasharray:5 3}
+svg .chip{fill:none}
+svg .chip.bad{fill:var(--orange)}
+svg .chiptext.bad{fill:var(--on-orange);font-weight:700}
+svg .pill.bad rect{fill:var(--orange)}
+svg .pill.bad text{fill:var(--on-orange)}
+svg .pill.ok rect{fill:var(--msg)}
+svg .pill.ok text{fill:var(--on-msg)}
+svg .ring{fill:none;stroke-width:2.4}
+svg .ring.ok{stroke:var(--blue)}
+svg .ring.bad{stroke:var(--orange)}
+svg .clipbox{fill:none;stroke:var(--blue);stroke-width:1.2}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px 28px;padding-block:12px 0;font-size:15px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend svg{flex:none;display:block}
+.legend .sw-bp{fill:var(--msg)}
+.legend .sw-pg{fill:var(--bg);stroke:var(--blue);stroke-width:1.4;stroke-dasharray:4 2.5}
+.legend .sw-or{fill:var(--orange)}
+.legend .sw-tint{fill:var(--tint);stroke:var(--rule)}
+.legend .sw-ar{fill:var(--blue)}
+.note{font-size:15px;margin:10px 0 0;max-width:96ch}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Six Bits, Two Checks</h1>
+    <p>One sum-product iteration (top) and one projected-gradient iteration with <i>η</i> = 0.25 (bottom) on the same Tanner graph. During the twelve edge-transfer beats, the realization shown sends one scalar along each edge in each direction: 12 = 2<i>E</i> with <i>E</i> = 6. The serial reveal is only visual: all BP forward messages are formed before a returned message is used, and every PG term is evaluated at the unchanged initial point. The sent word is <b><i>b</i></b> = (0, 1, 0, 1, 1, 1).</p>
+    <div class="rule" aria-hidden="true"><span class="rb"></span><span class="ro"></span></div>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Animation controls">
+    <div class="btns">
+      <button id="restart" type="button">Restart</button>
+      <button id="back" type="button">Back</button>
+      <button id="play" type="button" class="primary">Play</button>
+      <button id="next" type="button">Next</button>
+    </div>
+    <div class="track" id="track"></div>
+    <div class="speed" role="group" aria-label="Speed">
+      <span>Speed</span>
+      <button id="speed-05" type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+      <button id="speed-1" type="button" data-speed="1" aria-pressed="true">1×</button>
+      <button id="speed-2" type="button" data-speed="2" aria-pressed="false">2×</button>
+    </div>
+  </div>
+
+  <section class="panel" aria-label="Sum-product">
+    <div class="fig"><svg id="bp" viewBox="0 0 900 310" role="img" aria-label="Sum-product trace on the Tanner graph"></svg></div>
+    <div class="cap">
+      <h2>Sum-product (BP) <span class="count" id="bp-count"></span></h2>
+      <p class="step" id="bp-step"></p>
+      <p class="say" id="bp-say"></p>
+    </div>
+  </section>
+
+  <section class="panel" aria-label="Projected gradient">
+    <div class="fig"><svg id="pg" viewBox="0 0 900 310" role="img" aria-label="Projected-gradient trace on the Tanner graph"></svg></div>
+    <div class="cap">
+      <h2>Projected gradient (PG) <span class="count" id="pg-count"></span></h2>
+      <p class="step" id="pg-step"></p>
+      <p class="say" id="pg-say"></p>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span><svg width="58" height="20" viewBox="0 0 58 20" aria-hidden="true"><rect class="sw-bp" x="1" y="2" width="38" height="16" rx="8"/><path class="sw-ar" d="M56,10L46,4.5L46,15.5Z"/></svg>BP message <i>Q</i> or <i>U</i>; it stays on its directed edge, marked by an arrowhead.</span>
+    <span><svg width="40" height="20" viewBox="0 0 40 20" aria-hidden="true"><rect class="sw-pg" x="1" y="2" width="38" height="16" rx="8"/></svg>PG transfer: the shared <i>x</i><sub><i>i</i></sub>, or one check's term <i>g</i><sub><i>c</i>,<i>i</i></sub> in ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub><i>i</i></sub>. The PG calculation does not store a separate message for each direction on an edge.</span>
+    <span><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect class="sw-or" x="1" y="1" width="18" height="18" rx="3"/></svg>Wrong bit, or violated check.</span>
+    <span><svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true"><rect class="sw-tint" x="1" y="2" width="28" height="16" rx="2"/></svg>Changed in this beat.</span>
+  </div>
+  <p class="note">Space plays or pauses; the arrow keys step. The algorithmic values are computed in this page from the Tanner graph, the six input LLRs <i>L</i> = (−0.38, +0.48, +0.14, +4.78, +2.85, +1.10), and <i>η</i> = 0.25; the sent word is used only as the reference for marking errors. The values agree with the tables in sum_product_one_iteration.tex and projected_gradient_one_iteration.tex. The PG cost contains only the two parity terms, as in that note. A shared edge slot in the display does not make the two algorithms or their returned quantities identical.</p>
+</div>
+
+<script id="model">
+var MODEL = (() => {
+  const L = [-0.38, 0.48, 0.14, 4.78, 2.85, 1.10];
+  const nbr = [[1, 2, 5], [0, 3, 4]];
+  const chk = [1, 0, 0, 1, 1, 0];
+  const sent = [0, 1, 0, 1, 1, 1];
+  const eta = 0.25;
+  const prod = (v, idx) => idx.reduce((p, j) => p * v[j], 1);
+  const others = i => nbr[chk[i]].filter(j => j !== i);
+  const syn = b => nbr.map(n => n.reduce((s, j) => s ^ b[j], 0));
+
+  // Sum-product: Q = L on every edge (each bit has one check), t = tanh(Q/2).
+  const t = L.map(v => Math.tanh(v / 2));
+  const leaveBP = L.map((_, i) => prod(t, others(i)));
+  const U = leaveBP.map(p => -2 * Math.atanh(p));
+  const B = L.map((v, i) => v + U[i]);
+  const xi = B.map(v => Math.tanh(v / 2));
+  const bBP = B.map(v => (v >= 0 ? 1 : 0));
+
+  // Projected gradient on J_p(x) = sum_c (1 + prod_{j in N(c)} x_j)^2.
+  const x0 = L.map(v => Math.tanh(v / 2));
+  const r0 = nbr.map(n => 1 + prod(x0, n));
+  const J = x => nbr.reduce((s, n) => s + (1 + prod(x, n)) ** 2, 0);
+  const leavePG = L.map((_, i) => prod(x0, others(i)));
+  const g = leavePG.map((q, i) => 2 * r0[chk[i]] * q);
+  const z = x0.map((v, i) => v - eta * g[i]);
+  const x1 = z.map(v => Math.min(1, Math.max(-1, v)));
+  const bPG = x1.map(v => (v >= 0 ? 1 : 0));
+
+  const b0 = L.map(v => (v >= 0 ? 1 : 0));
+  return { L, nbr, chk, sent, eta, others, syn, t, leaveBP, U, B, xi, bBP,
+           x0, r0, J0: J(x0), J1: J(x1), leavePG, g, z, x1, bPG, b0 };
+})();
+</script>
+
+<script>
+(() => {
+  const M = MODEL;
+  const NS = 'http://www.w3.org/2000/svg';
+  const D = 3.8;        // seconds per beat at 1x
+  const A = 1.5;        // seconds of motion at the start of each beat
+  const ARR = 0.82;     // fraction of the motion at which a transfer arrives
+  const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const BX = i => 180 + 130 * i, BY = 168, BR = 19;
+  const CX = [375, 635], CY = 62, CW = 46, CH = 30;
+  const BOX = [{ x: 185, w: 150 }, { x: 680, w: 150 }];
+  const SLOTY = [46, 64, 82, 100];
+  const ROWY = [214, 234, 254, 274, 296];
+
+  const SUBD = '₀₁₂₃₄₅₆₇₈₉';
+  const sd = n => String(n).split('').map(d => SUBD[d]).join('');
+  const fmt = (v, d) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(d);
+  const ease = s => (s < 0.5 ? 2 * s * s : 1 - (-2 * s + 2) ** 2 / 2);
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+  const BEATS = [{ type: 'start' }];
+  for (let i = 0; i < 6; i++) BEATS.push({ type: 'v2c', i, c: M.chk[i] });
+  for (let i = 0; i < 6; i++) BEATS.push({ type: 'c2v', i, c: M.chk[i] });
+  BEATS.push({ type: 'update' }, { type: 'decide' });
+  const LAST = BEATS.length - 1;
+
+  // ---------- SVG helpers ----------
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const show = (e, on) => e.setAttribute('display', on ? 'inline' : 'none');
+  const MRE = /(?<![A-Za-z])([A-Za-zξη]̂?)(?![A-Za-z])/g;
+  function setM(t, s) {
+    if (t._s === s) return;
+    t._s = s;
+    while (t.firstChild) t.removeChild(t.firstChild);
+    let last = 0, m;
+    MRE.lastIndex = 0;
+    while ((m = MRE.exec(s))) {
+      if (m.index > last) t.appendChild(document.createTextNode(s.slice(last, m.index)));
+      el('tspan', { 'font-style': 'italic' }, t).textContent = m[1];
+      last = MRE.lastIndex;
+    }
+    if (last < s.length) t.appendChild(document.createTextNode(s.slice(last)));
+  }
+  function mtext(parent, x, y, s, cls, anchor) {
+    const t = el('text', { x, y }, parent);
+    if (cls) t.setAttribute('class', cls);
+    if (anchor) t.setAttribute('text-anchor', anchor);
+    setM(t, s);
+    return t;
+  }
+  const ends = i => ({ bx: BX(i), by: BY - BR, cx: CX[M.chk[i]], cy: CY + CH / 2 });
+  function along(i, s, fromBit) {
+    const e = ends(i), u = fromBit ? s : 1 - s;
+    return { x: e.bx + (e.cx - e.bx) * u, y: e.by + (e.cy - e.by) * u };
+  }
+  function tri(p, dx, dy) {
+    const n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n, nx = -uy, ny = ux;
+    const P = (a, b) => `${(p.x + a * ux + b * nx).toFixed(1)},${(p.y + a * uy + b * ny).toFixed(1)}`;
+    return `M${P(6, 0)}L${P(-5, 5)}L${P(-5, -5)}Z`;
+  }
+
+  // ---------- build one panel ----------
+  function build(svg, kind) {
+    const P = { kind };
+    const layer = () => el('g', {}, svg);
+    const Ledge = layer(), Larrow = layer(), Lbox = layer(), Lnode = layer(), Lrow = layer(), Lmark = layer(), Ltok = layer();
+
+    mtext(Lrow, 16, CY + 5, 'checks');
+    mtext(Lrow, 16, BY + 5, 'bits');
+    const labels = kind === 'bp'
+      ? ['L', 'U', 'B = L + U', 'ξ = tanh(B/2)', 'b̂⁽⁰⁾']
+      : ['x⁽⁰⁾', 'g', 'z = x − ηg', 'x⁽¹⁾ = Π(z)', 'b̂⁽⁰⁾'];
+    P.rowLab = labels.map((s, r) => mtext(Lrow, 16, ROWY[r] + 5, s));
+    el('line', { x1: 16, x2: 884, y1: 194, y2: 194, class: 'sep' }, Lrow);
+
+    P.edge = []; P.aQ = []; P.aU = [];
+    for (let i = 0; i < 6; i++) {
+      const e = ends(i);
+      P.edge[i] = el('line', { x1: e.bx, y1: e.by, x2: e.cx, y2: e.cy, class: 'edge' }, Ledge);
+      if (kind === 'bp') {
+        P.aQ[i] = el('path', { d: tri(along(i, 0.78, true), e.cx - e.bx, e.cy - e.by), class: 'arrow', display: 'none' }, Larrow);
+        P.aU[i] = el('path', { d: tri(along(i, 0.22, true), e.bx - e.cx, e.by - e.cy), class: 'arrow', display: 'none' }, Larrow);
+      }
+    }
+
+    P.box = [];
+    for (let c = 0; c < 2; c++) {
+      const Bx = BOX[c];
+      el('rect', { x: Bx.x, y: 10, width: Bx.w, height: kind === 'pg' ? 98 : 82, rx: 4, class: 'cbox' }, Lbox);
+      const title = mtext(Lbox, Bx.x + 10, 27, '', 'title');
+      const slot = (y) => ({
+        hl: el('rect', { x: Bx.x + 5, y: y - 13, width: Bx.w - 10, height: 17, rx: 2, class: 'hl', display: 'none' }, Lbox),
+        tx: mtext(Lbox, Bx.x + 10, y, '')
+      });
+      const slots = M.nbr[c].map((j, s) => Object.assign(slot(SLOTY[s]), { j }));
+      P.box[c] = { title, slots, rline: kind === 'pg' ? slot(SLOTY[3]) : null };
+    }
+
+    P.cnode = []; P.pill = [];
+    for (let c = 0; c < 2; c++) {
+      P.cnode[c] = el('rect', { x: CX[c] - CW / 2, y: CY - CH / 2, width: CW, height: CH, rx: 3, class: 'node' }, Lnode);
+      mtext(Lnode, CX[c], CY + 5, `c${sd(c)}`, '', 'middle');
+      const g = el('g', { class: 'pill' }, Lnode);
+      el('rect', { x: CX[c] - 34, y: 21, width: 68, height: 18, rx: 9 }, g);
+      const tx = mtext(g, CX[c], 34, '', 'small', 'middle');
+      P.pill[c] = { g, tx };
+    }
+
+    P.bnode = [];
+    for (let i = 0; i < 6; i++) {
+      P.bnode[i] = el('circle', { cx: BX(i), cy: BY, r: BR, class: 'node' }, Lnode);
+      mtext(Lnode, BX(i), BY + 5, `b${sd(i)}`, '', 'middle');
+    }
+
+    P.cell = ROWY.map((y, r) => Array.from({ length: 6 }, (_, i) => {
+      const chipRow = r === 4;
+      const bg = chipRow
+        ? el('rect', { x: BX(i) - 13, y: y - 10, width: 26, height: 19, rx: 3, class: 'chip' }, Lrow)
+        : el('rect', { x: BX(i) - 36, y: y - 9, width: 72, height: 18, rx: 2, class: 'hl', display: 'none' }, Lrow);
+      const tx = mtext(Lrow, BX(i), y + 5, '', '', 'middle');
+      return { bg, tx };
+    }));
+
+    if (kind === 'pg') {
+      P.clipbox = el('rect', { x: BX(3) - 36, y: ROWY[3] - 9, width: 72, height: 18, rx: 2, class: 'clipbox', display: 'none' }, Lmark);
+      P.cliptx = mtext(Lmark, BX(3) + 40, ROWY[3] + 4, 'clipped', 'small');
+      show(P.cliptx, false);
+    }
+    P.ring = el('circle', { cx: BX(2), cy: BY, r: 25, class: 'ring ' + (kind === 'bp' ? 'ok' : 'bad'), display: 'none' }, Lmark);
+
+    P.tok = el('g', { class: 'tok ' + kind, display: 'none' }, Ltok);
+    el('rect', { x: -38, y: -11, width: 76, height: 22, rx: 11 }, P.tok);
+    P.toktx = mtext(P.tok, 0, 5, '', '', 'middle');
+    return P;
+  }
+
+  const panels = [build(document.getElementById('bp'), 'bp'), build(document.getElementById('pg'), 'pg')];
+
+  // ---------- draw one panel at beat k, motion fraction a ----------
+  function draw(P, S) {
+    const bp = P.kind === 'bp';
+    const { k, a, beat } = S;
+    const moving = beat.type === 'v2c' || beat.type === 'c2v';
+
+    for (let i = 0; i < 6; i++) {
+      P.edge[i].classList.toggle('on', moving && beat.i === i);
+      if (bp) { show(P.aQ[i], S.v2c(i)); show(P.aU[i], S.c2v(i)); }
+    }
+
+    for (let c = 0; c < 2; c++) {
+      const box = P.box[c], cleared = !bp && S.cleared;
+      setM(box.title, cleared ? `at c${sd(c)}: cleared` : `at c${sd(c)}`);
+      let full = true;
+      for (const s of box.slots) {
+        const have = S.v2c(s.j) && !cleared;
+        if (!S.v2c(s.j)) full = false;
+        const v = bp ? M.t[s.j] : M.x0[s.j];
+        setM(s.tx, `${bp ? 't' : 'x'}${sd(s.j)} = ${have ? fmt(v, 4) : '·'}`);
+        const justIn = beat.type === 'v2c' && beat.i === s.j && have;
+        const used = beat.type === 'c2v' && beat.c === c && beat.i !== s.j;
+        show(s.hl, justIn || used);
+      }
+      if (box.rline) {
+        const have = full && !cleared;
+        setM(box.rline.tx, have ? `r = 1 + p = ${M.r0[c].toFixed(4)}` : '');
+        const completes = beat.type === 'v2c' && beat.c === c && beat.i === M.nbr[c][2] && have;
+        show(box.rline.hl, completes || (beat.type === 'c2v' && beat.c === c));
+      }
+      P.cnode[c].classList.toggle('on', beat.type === 'c2v' && beat.c === c);
+      const b = S.judged ? (bp ? M.bBP : M.bPG) : M.b0;
+      const bad = M.syn(b)[c] === 1;
+      P.pill[c].g.setAttribute('class', 'pill ' + (bad ? 'bad' : 'ok'));
+      setM(P.pill[c].tx, bad ? 'violated' : 'satisfied');
+    }
+
+    for (let i = 0; i < 6; i++) {
+      P.bnode[i].classList.toggle('on', (beat.type === 'v2c' && beat.i === i) || beat.type === 'update');
+      const C = P.cell;
+      setM(C[0][i].tx, bp ? fmt(M.L[i], 2) : fmt(M.x0[i], 4));
+      const back = S.c2v(i);
+      setM(C[1][i].tx, back ? fmt(bp ? M.U[i] : M.g[i], 4) : '');
+      show(C[1][i].bg, back && beat.type === 'c2v' && beat.i === i);
+      setM(C[2][i].tx, S.step1 ? fmt(bp ? M.B[i] : M.z[i], 4) : '');
+      show(C[2][i].bg, S.step1 && !S.step2 && k === 13);
+      setM(C[3][i].tx, S.step2 ? fmt(bp ? M.xi[i] : M.x1[i], 4) : '');
+      show(C[3][i].bg, S.step2 && k === 13);
+      const bh = S.decided ? (bp ? M.bBP : M.bPG)[i] : M.b0[i];
+      const wrong = bh !== M.sent[i];
+      C[4][i].bg.setAttribute('class', 'chip' + (wrong ? ' bad' : ''));
+      C[4][i].tx.setAttribute('class', 'chiptext' + (wrong ? ' bad' : ''));
+      setM(C[4][i].tx, String(bh));
+    }
+    setM(P.rowLab[4], S.decided ? 'b̂⁽¹⁾' : 'b̂⁽⁰⁾');
+
+    if (!bp) {
+      const clipped = S.step2 && M.z[3] !== M.x1[3];
+      show(P.clipbox, clipped); show(P.cliptx, clipped);
+    }
+    show(P.ring, S.judged);
+
+    // the scalar in transit
+    const t0 = beat.type === 'v2c' ? 0.04 : 0.22;
+    if (moving && a >= t0 && a < ARR) {
+      const u = clamp((a - t0) / (ARR - t0), 0, 1);
+      const s = 0.12 + 0.68 * ease(u);
+      const p = along(beat.i, s, beat.type === 'v2c');
+      P.tok.setAttribute('transform', `translate(${p.x.toFixed(1)},${p.y.toFixed(1)})`);
+      P.tok.setAttribute('opacity', clamp(Math.min((a - t0) / 0.08, (ARR - a) / 0.07), 0, 1).toFixed(3));
+      const i = beat.i;
+      const label = beat.type === 'v2c'
+        ? (bp ? `Q ${fmt(M.L[i], 2)}` : `x ${fmt(M.x0[i], 4)}`)
+        : (bp ? `U ${fmt(M.U[i], 4)}` : `g ${fmt(M.g[i], 4)}`);
+      setM(P.toktx, label);
+      show(P.tok, true);
+    } else {
+      show(P.tok, false);
+    }
+  }
+
+  // ---------- captions ----------
+  const I = s => `<i>${s}</i>`;
+  const cN = c => `${I('c')}${sd(c)}`;
+  const f6 = v => fmt(v, 6);
+  const times = v => (v < 0 ? `(${f6(v)})` : v.toFixed(6));
+  const prodH = (sym, idx) => idx.map(j => `${I(sym)}<sub>${j}</sub>`).join('');
+  const bhat = `<b><i>b̂</i></b>`, Hm = `<b>H</b>`;
+  // A relation whose sides never break inside; lines may break only around "=".
+  const eq = (...parts) => parts.map(p => `<span class="nw">${p}</span>`).join(' = ');
+  const word = b => `(${b.join(',&nbsp;')})`;
+
+  function caption(k) {
+    const b = BEATS[k];
+    if (b.type === 'start') return {
+      step: 'Start',
+      bp: `Each bit starts with its input LLR ${I('L')}<sub>${I('i')}</sub>; a positive value favours 1. Bit 2 has ${eq(`${I('L')}<sub>2</sub>`, '+0.14')}, so it leans towards 1, but the sent bit is 0. Check ${cN(0)} is violated.`,
+      pg: `Each bit starts at ${eq(`${I('x')}<sub>${I('i')}</sub>`, `tanh(${I('L')}<sub>${I('i')}</sub>/2)`)}. The cost ${eq(`${I('J')}<sub>p</sub>`, `(1 + ${prodH('x', M.nbr[0])})²&nbsp;+ (1 + ${prodH('x', M.nbr[1])})²`, M.J0.toFixed(6))} is 0 only at a ±1 point that satisfies both checks.`
+    };
+    if (b.type === 'v2c') {
+      const { i, c } = b, last = i === M.nbr[c][2];
+      return {
+        step: `Bit ${i} → ${cN(c)}`,
+        bp: `Bit ${i} sends ${eq(`${I('Q')}<sub>${i}→${cN(c)}</sub>`, `${I('L')}<sub>${i}</sub>`, fmt(M.L[i], 2))}. ${cN(c)} keeps it as ${eq(`${I('t')}<sub>${i}</sub>`, `tanh(${I('Q')}/2)`, f6(M.t[i]))}.`
+          + (i === 0 ? ` ${I('Q')} leaves out the receiving check's own reply; each bit here has one check, so ${eq(I('Q'), I('L'))}.` : '')
+          + (last ? ` ${cN(c)} now holds all three of its messages.` : ''),
+        pg: `Bit ${i} sends its current value ${eq(`${I('x')}<sub>${i}</sub>`, f6(M.x0[i]))}.`
+          + (i === 0 ? ` A bit with several checks would send this same value on each of its edges.` : '')
+          + (last ? ` ${cN(c)} now has all three values: ${eq(`${I('r')}<sub>${cN(c)}</sub>`, `1 + ${prodH('x', M.nbr[c])}`, M.r0[c].toFixed(6))}.` : '')
+      };
+    }
+    if (b.type === 'c2v') {
+      const { i, c } = b, o = M.others(i);
+      return {
+        step: `${cN(c)} → bit ${i}`,
+        bp: `${cN(c)} sends ${eq(`${I('U')}<sub>${cN(c)}→${i}</sub>`, `−2&nbsp;atanh(${prodH('t', o)})`)} ≈ ${eq(`−2&nbsp;atanh(${f6(M.leaveBP[i])})`, f6(M.U[i]))}. The product leaves out bit ${i}'s own message.`,
+        pg: `${cN(c)} returns its term ${eq(`${I('g')}<sub>${cN(c)},${i}</sub>`, `2${I('r')}<sub>${cN(c)}</sub>${prodH('x', o)}`)} ≈ ${eq(`${(2 * M.r0[c]).toFixed(6)} × ${times(M.leavePG[i])}`, f6(M.g[i]))} in ∂${I('J')}<sub>p</sub>/∂${I('x')}<sub>${i}</sub>. Bit ${i} adds it to ${I('g')}<sub>${i}</sub>; the PG calculation stores no ${I('Q')} or ${I('U')} message on that edge.`
+          + (i === 0 ? ` The forward quantities differ: BP sends ${I('Q')} = ${I('L')}, while PG exposes ${I('x')}<sup>(0)</sup>. Their transformed values coincide here because ${eq(`${I('t')}`, `tanh(${I('Q')}/2)`, `${I('x')}<sup>(0)</sup>`)}.` : '')
+      };
+    }
+    if (b.type === 'update') return {
+      step: 'Update at the bits',
+      bp: `Each bit adds its check's message: ${eq(`${I('B')}<sub>${I('i')}</sub>`, `${I('L')}<sub>${I('i')}</sub> + ${I('U')}<sub>${I('c')}→${I('i')}</sub>`)}. Bit 2: ${eq(`${fmt(M.L[2], 2)} ${M.U[2] < 0 ? '−' : '+'} ${Math.abs(M.U[2]).toFixed(6)}`, f6(M.B[2]))}, now below zero. On the same bipolar [−1,&nbsp;1] scale, ${eq(`${I('ξ')}<sub>2</sub>`, `tanh(${I('B')}<sub>2</sub>/2)`, f6(M.xi[2]))}.`,
+      pg: `Each bit steps against its gradient, ${eq(`${I('z')}<sub>${I('i')}</sub>`, `${I('x')}<sub>${I('i')}</sub> − 0.25${I('g')}<sub>${I('i')}</sub>`)}, then is projected onto [−1,&nbsp;1]. Bit 2: ${eq(`${f6(M.x0[2])} − ${(M.eta * M.g[2]).toFixed(6)}`, f6(M.z[2]))}, still above zero. Only ${eq(`${I('z')}<sub>3</sub>`, M.z[3].toFixed(6))} lies outside the box; it is clipped to 1.`
+    };
+    return {
+      step: 'Hard decisions',
+      bp: `${eq(bhat, word(M.bBP))} and ${eq(`${Hm}${bhat} mod 2`, word(M.syn(M.bBP)))}. Both checks hold: one iteration corrects bit 2.`,
+      pg: `${eq(bhat, word(M.bPG))} and ${eq(`${Hm}${bhat} mod 2`, word(M.syn(M.bPG)))}. ${I('J')}<sub>p</sub> falls from ${M.J0.toFixed(6)} to ${M.J1.toFixed(6)}, but ${eq(`${I('x')}<sub>2</sub><sup>(1)</sup>`, f6(M.x1[2]))} is still positive, so ${cN(0)} stays violated.`
+    };
+  }
+  const plain = k => {
+    const b = BEATS[k];
+    if (b.type === 'v2c') return `bit ${b.i} to check c${b.c}`;
+    if (b.type === 'c2v') return `check c${b.c} to bit ${b.i}`;
+    return { start: 'start', update: 'update at the bits', decide: 'hard decisions' }[b.type];
+  };
+
+  // ---------- transport ----------
+  const $ = id => document.getElementById(id);
+  const track = $('track');
+  const cells = [];
+  [['start', 0, 0], ['variable → check', 1, 6], ['check → variable', 7, 12], ['update', 13, 13], ['decide', 14, 14]]
+    .forEach(([label, from, to]) => {
+      const grp = document.createElement('div'); grp.className = 'grp';
+      const row = document.createElement('div'); row.className = 'cells';
+      for (let k = from; k <= to; k++) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'cell'; b.id = `beat-${k}`;
+        b.setAttribute('aria-label', `Beat ${k}: ${plain(k)}`);
+        b.title = `Beat ${k}: ${plain(k)}`;
+        b.addEventListener('click', () => { T = k; pause(); });
+        row.appendChild(b); cells[k] = b;
+      }
+      const lab = document.createElement('span'); lab.textContent = label;
+      grp.append(row, lab); track.appendChild(grp);
+    });
+
+  let T = 0, playing = false, target = null, speed = 1, lastTs = 0, shownK = -1;
+
+  function render() {
+    let k, a;
+    if (Number.isInteger(T)) { k = T; a = 1; }
+    else { k = Math.floor(T) + 1; a = Math.min(1, (T - Math.floor(T)) * D / A); }
+    if (reduced) a = 1;
+    const beat = BEATS[k];
+    const S = {
+      k, a, beat,
+      v2c: i => k > 1 + i || (k === 1 + i && a >= ARR),
+      c2v: i => k > 7 + i || (k === 7 + i && a >= ARR),
+      step1: k > 13 || (k === 13 && a >= 0.3),
+      step2: k > 13 || (k === 13 && a >= 0.62),
+      cleared: k > 13 || (k === 13 && a >= 0.1),
+      decided: k === 14 && a >= 0.3,
+      judged: k === 14 && a >= 0.6
+    };
+    panels.forEach(P => draw(P, S));
+
+    let n = 0;
+    for (let i = 0; i < 6; i++) n += S.v2c(i) + S.c2v(i);
+    $('bp-count').textContent = $('pg-count').textContent = `edge transfers ${n} / 12`;
+
+    if (k !== shownK) {
+      shownK = k;
+      const cap = caption(k);
+      $('bp-step').innerHTML = $('pg-step').innerHTML = cap.step;
+      $('bp-say').innerHTML = cap.bp;
+      $('pg-say').innerHTML = cap.pg;
+      cells.forEach((c, j) => { c.classList.toggle('now', j === k); c.classList.toggle('done', j < k); });
+    }
+  }
+
+  function frame(ts) {
+    if (!playing) return;
+    const dt = Math.min(0.1, (ts - lastTs) / 1000);
+    lastTs = ts;
+    T += dt * speed / D;
+    let stop = false;
+    if (target !== null && T >= target) { T = target; stop = true; }
+    if (T >= LAST) { T = LAST; stop = true; }
+    render();
+    if (stop) pause(); else requestAnimationFrame(frame);
+  }
+  function play(to) {
+    if (T >= LAST) T = 0;
+    target = to === undefined ? null : to;
+    playing = true;
+    lastTs = performance.now();
+    $('play').textContent = 'Pause';
+    requestAnimationFrame(frame);
+  }
+  function pause() {
+    playing = false; target = null;
+    $('play').textContent = T >= LAST ? 'Replay' : 'Play';
+    render();
+  }
+  function next() {
+    if (!Number.isInteger(T)) { T = Math.ceil(T); pause(); return; }
+    if (T >= LAST) return;
+    play(T + 1);
+  }
+  function back() {
+    T = Number.isInteger(T) ? Math.max(0, T - 1) : Math.floor(T);
+    pause();
+  }
+
+  $('play').addEventListener('click', () => (playing ? pause() : play()));
+  $('next').addEventListener('click', next);
+  $('back').addEventListener('click', back);
+  $('restart').addEventListener('click', () => { T = 0; pause(); });
+  document.querySelectorAll('.speed button').forEach(b => b.addEventListener('click', () => {
+    speed = Number(b.dataset.speed);
+    document.querySelectorAll('.speed button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  }));
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('button, input, select, textarea')) return;
+    if (e.key === ' ') { e.preventDefault(); playing ? pause() : play(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    else if (e.key === 'Home') { e.preventDefault(); T = 0; pause(); }
+  });
+
+  const m = /^#(?:beat|t)(\d+(?:\.\d+)?)$/.exec(location.hash);
+  if (m) { T = clamp(Number(m[1]), 0, LAST); render(); }
+  else { render(); if (!reduced) setTimeout(() => { if (!playing && T === 0) play(); }, 900); }
+})();
+</script>
+</body>
+</html>
