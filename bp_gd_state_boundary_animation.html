@@ -129,6 +129,15 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .hover .katex { font-size: 1.05em; }
 .hover-note { margin: .1em 0 0; font: .85em/1.35 var(--serif); }
 .hover-note .katex { font-size: 1.05em; }
+.hover.morph { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: center; overflow: visible; }
+.morph-step { grid-area: 1 / 1; white-space: nowrap; }
+.hover .dim { opacity: .26; }
+.morph-ghost { position: absolute; z-index: 2; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
+.sparkle {
+  position: absolute; z-index: 3; width: .8em; height: .8em; margin: -.4em 0 0 -.4em; pointer-events: none;
+  background: radial-gradient(circle, #fffbe6 0 22%, #ffc83d 48%, #e38b00 100%);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
 .math {
   position: relative; min-height: 150px; padding: 8px 12px; overflow-x: auto; overflow-y: hidden;
   background: var(--soft); border-radius: 8px; font: 16px/1.65 var(--serif);
@@ -505,8 +514,7 @@ html.fit .side-notes { margin-top: auto; }
   function blink(target, at) {
     let node = null;
     return { at, dur: 950,
-      init() { node = nodeOf(target); },
-      start() { if (!node) return; node.classList.remove("blink"); void node.offsetWidth; node.classList.add("blink"); },
+      start() { node = nodeOf(target); if (!node) return; node.classList.remove("blink"); void node.offsetWidth; node.classList.add("blink"); },
       end() { if (node) node.classList.remove("blink"); } };
   }
   function swap(target, at, html, cls) {
@@ -727,6 +735,19 @@ html.fit .side-notes { margin-top: auto; }
     J: R`J(\mathbf{x}) = \htmlClass{hC}{-\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i} + \htmlClass{hPar}{\frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2} + \htmlClass{hB}{\frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2}`,
     x: R`\mathbf{x}^{+} = \operatorname{clip}\bigl(\htmlClass{hX}{\mathbf{x}}-\htmlClass{hE}{\eta}\,\htmlClass{hD}{\mathbf{D}^{-1}}\htmlClass{hG}{\nabla J},\ -1,\ 1\bigr)`
   };
+  // r_a comes out of the parity term of J: dim the other terms, keep the parity term, name its bracket.
+  const J_CH = R`-\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i`;
+  const J_PAR = R`\frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(\htmlClass{mR}{1-\prod_{j\in a}x_j}\Bigr)^2`;
+  const J_BIN = R`\frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2`;
+  const R_DERIVATION = [
+    { tex: R`J(\mathbf{x}) = ${J_CH} + \htmlClass{mPar}{${J_PAR}} + ${J_BIN}`, note: R`objective function $J$` },
+    { tex: R`J(\mathbf{x}) = \htmlClass{dim}{${J_CH}} + \htmlClass{mPar}{${J_PAR}} + \htmlClass{dim}{${J_BIN}}`, note: R`parity term of $J$`, sparkle: ["mPar"] },
+    { tex: R`\htmlClass{mPar}{${J_PAR}}`, note: R`one squared term per check $a$`, keys: ["mPar"], sparkle: ["mPar"] },
+    { tex: R`\frac{w_{\mathrm{par}}}{n}\sum_a \htmlClass{mRa}{r_a}^2, \qquad \htmlClass{mDef}{r_a = \htmlClass{mR}{1-\prod_{j\in a}x_j}}`,
+      note: R`the bracket is named $r_a$`, keys: ["mR"], sparkle: ["mRa", "mR"], hold: 300 },
+    { tex: R`\htmlClass{mDef}{r_a = \htmlClass{mR}{1-\htmlClass{hP}{\prod_{j\in a}x_j}}}`,
+      note: R`$r_a = 0$ exactly when $\prod_{j\in a}x_j = 1$`, keys: ["mDef"], sparkle: ["mDef"] }
+  ];
   const NOTES = {
     agree: R`Each check here joins two bits and requires them to agree; therefore $U_{a\to i}$ is the other incoming $Q$.`,
     boundary: R`This page places the iteration boundary after the check calculation, so the four $U$ values feed the next variable calculation.`,
@@ -734,6 +755,118 @@ html.fit .side-notes { margin-top: auto; }
     curvature: R`$D_i = \tfrac{2w_{\mathrm{par}}\deg(i)+8w_{\mathrm{bin}}}{n}$, giving $\mathbf{D}=\left(${GD.curvature.map(v => +v.toFixed(6)).join(R`,\ `)}\right)$, accepted $\eta=${GD.accepted_step}$`,
     recompute: R`The displayed check terms in each partial derivative of the objective function are recomputed from the frozen $\mathbf{x}$ and combined by coordinate.`
   };
+  // A floating derivation: TeX steps cross-fade into each other while parts tagged
+  // \htmlClass{m...} glide to their new place and sparkle where they land.
+  function stepLayer(step) {
+    const layer = document.createElement("div");
+    layer.className = "morph-step";
+    layer.innerHTML = tex(step.tex, true) + (step.note ? `<p class="hover-note">${mixed(step.note)}</p>` : "");
+    return layer;
+  }
+  function extent(node, box, k) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    [node, ...node.querySelectorAll("*")].forEach(n => {
+      for (const r of n.getClientRects()) {
+        if (!r.width || !r.height) continue;
+        x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+      }
+    });
+    if (x0 === Infinity) return null;
+    return { x: (x0 - box.left) / k, y: (y0 - box.top) / k, w: (x1 - x0) / k, h: (y1 - y0) / k };
+  }
+  function morphStep(card, state, step, at, dur, seed) {
+    let from = null, to = null, ghosts = [], sparks = [], size = null;
+    let r = seed * 7919 % 233280;
+    const rand = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+    return { at, dur,
+      start() {
+        from = state.layer;
+        const w0 = card.offsetWidth, h0 = card.offsetHeight;
+        to = stepLayer(step);
+        to.style.opacity = "0";
+        card.appendChild(to);
+        const padX = card.offsetWidth - card.clientWidth + parseFloat(getComputedStyle(card).paddingLeft) * 2;
+        const padY = card.offsetHeight - card.clientHeight + parseFloat(getComputedStyle(card).paddingTop) + parseFloat(getComputedStyle(card).paddingBottom);
+        size = [w0, h0, to.offsetWidth + padX, to.offsetHeight + padY];
+        card.style.width = `${w0}px`; card.style.height = `${h0}px`;
+        const box = card.getBoundingClientRect(), k = box.width / card.offsetWidth || 1;
+        (step.keys || []).forEach(key => {
+          const a = from && from.querySelector(`.${key}`), b = to.querySelector(`.${key}`);
+          if (!a || !b) return;
+          const ea = extent(a, box, k), eb = extent(b, box, k);
+          if (!ea || !eb) return;
+          const ghost = document.createElement("span");
+          ghost.className = "katex morph-ghost";
+          ghost.style.fontSize = getComputedStyle(a).fontSize;
+          ghost.innerHTML = a.innerHTML;
+          card.appendChild(ghost);
+          a.style.visibility = "hidden";
+          b.style.opacity = "0";
+          ghosts.push({ ghost, b, from: [ea.x + ea.w / 2, ea.y + ea.h / 2], to: [eb.x + eb.w / 2, eb.y + eb.h / 2] });
+        });
+        (step.sparkle || []).forEach(key => {
+          const b = to.querySelector(`.${key}`), eb = b && extent(b, box, k);
+          if (!eb) return;
+          for (let n = 0; n < 16; n += 1) {
+            const spark = document.createElement("i");
+            spark.className = "sparkle";
+            card.appendChild(spark);
+            const side = rand() * 4 | 0, u = rand();
+            const x = side < 2 ? eb.x + u * eb.w : eb.x + (side === 2 ? -6 : eb.w + 6);
+            const y = side < 2 ? eb.y + (side === 0 ? -6 : eb.h + 6) : eb.y + u * eb.h;
+            sparks.push({ spark, x, y, delay: 0.3 + rand() * 0.45, life: 0.22 + rand() * 0.2, size: 0.7 + rand() * 1.1, spin: rand() * 180 - 90 });
+          }
+        });
+      },
+      apply(p) {
+        if (!to) return;
+        const e = ease(p);
+        if (from) from.style.opacity = String(Math.max(0, 1 - p / 0.4));
+        to.style.opacity = String(Math.min(1, Math.max(0, (p - 0.45) / 0.4)));
+        card.style.width = `${lerp(size[0], size[2], e)}px`;
+        card.style.height = `${lerp(size[1], size[3], e)}px`;
+        ghosts.forEach(g => {
+          g.ghost.style.left = `${lerp(g.from[0], g.to[0], e)}px`;
+          g.ghost.style.top = `${lerp(g.from[1], g.to[1], e) - 10 * Math.sin(Math.PI * p)}px`;
+        });
+        sparks.forEach(sp => {
+          const q = Math.min(1, Math.max(0, (p - sp.delay) / sp.life)), glow = Math.sin(Math.PI * q);
+          sp.spark.style.left = `${sp.x}px`;
+          sp.spark.style.top = `${sp.y - 6 * q}px`;
+          sp.spark.style.opacity = String(glow);
+          sp.spark.style.transform = `scale(${0.2 + sp.size * glow}) rotate(${sp.spin * q}deg)`;
+        });
+      },
+      end() {
+        if (!to) { to = stepLayer(step); card.appendChild(to); from = state.layer; }
+        if (from) from.remove();
+        ghosts.forEach(g => { g.ghost.remove(); g.b.style.opacity = ""; });
+        sparks.forEach(sp => sp.spark.remove());
+        ghosts = []; sparks = [];
+        to.style.opacity = "";
+        card.style.width = ""; card.style.height = "";
+        state.layer = to;
+      } };
+  }
+  function derivation(G, ev, at, steps, gap = 1300, dur = 950) {
+    const card = document.createElement("div");
+    card.className = "hover morph";
+    G.hoverLayer.appendChild(card);
+    const state = { layer: null };
+    ev.push({ at, dur: 450,
+      init() { card.replaceChildren(); state.layer = stepLayer(steps[0]); card.appendChild(state.layer); card.style.opacity = "0"; },
+      apply(p) { card.style.opacity = String(p); },
+      end() { card.style.opacity = ""; } });
+    ev.push(blink(card, at));
+    const part = name => () => card.querySelector(`.${name}`);
+    let t = at + gap;
+    for (let k = 1; k < steps.length; k += 1) {
+      ev.push(morphStep(card, state, steps[k], t, dur, k));
+      (steps[k].sparkle || []).forEach(key => ev.push(blink(part(key), t + dur)));
+      t += k < steps.length - 1 ? gap + (steps[k].hold || 0) : dur;
+    }
+    return { card, done: t, part };
+  }
   function hover(G, ev, at, src, note = "", until = null) {
     const card = document.createElement("div");
     card.className = "hover";
@@ -844,11 +977,11 @@ html.fit .side-notes { margin-top: auto; }
 
       const xc = xChips(GD.x0);
       gdTray = trayX0() + trayG(k);
-      const r = rChain(300, a);
-      const rh = hover(gg, ev, 300, F.r);
+      const rh = derivation(gg, ev, 300, R_DERIVATION);
+      const r = rChain(rh.done + 300, a);
       r.subs.forEach(at => ev.push(blink(rh.part("hP"), at)));
       edges.forEach((e, j) => {
-        ev.push(show(guide(gg, e), 300));
+        ev.push(show(guide(gg, e), r.t));
         const bit = EDGES[e].i;
         const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_${bit + 1} = ${tn(GD.x0[bit], 3)}`);
         ev.push(show(read, r.subs[j], 250), blink(read, r.subs[j]), blink(xc[bit], r.subs[j]));

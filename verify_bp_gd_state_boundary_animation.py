@@ -382,6 +382,9 @@ def browser_smoke(data: dict[str, Any]) -> str:
     substitution_dom = dump_dom(browser, base_url + "?at=1250#beat=3", 2500)
     assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 1250 ms"
     travel_dom = dump_dom(browser, base_url + "?at=2150#beat=3", 2500)
+    assert 'class="sparkle"' in travel_dom, (
+        "the r_a derivation is not sparkling between its first two steps at beat 3, 2150 ms"
+    )
     assert 'class="chip bp hot travelling' in travel_dom, (
         "no BP message label is travelling along its edge at beat 3, 2150 ms"
     )
