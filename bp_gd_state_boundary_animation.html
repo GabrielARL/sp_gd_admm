@@ -13,25 +13,23 @@
   --ink: #172126;
   --muted: #5e6b70;
   --line: #d5cfc4;
+  --tint: #faf8f3;
   --bp: #155b8a;
   --bp-soft: #dcebf4;
   --gd: #087d77;
   --gd-soft: #d9efeb;
   --focus: #78519b;
-  --focus-soft: #f0e8f6;
   --gold: #b67913;
   --good: #24704a;
   --bad: #a64040;
   --flash: #ffe3a1;
   --flash-ring: rgb(232 160 32 / 42%);
   --flash-ink: #b35a00;
-  --shadow: 0 12px 34px rgb(40 47 49 / 9%);
   --serif: Georgia, "Times New Roman", serif;
   --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background:
@@ -39,99 +37,65 @@ body {
     radial-gradient(circle at 96% 25rem, rgb(8 125 119 / 8%), transparent 32rem),
     var(--paper);
   color: var(--ink);
-  font: 16px/1.48 var(--sans);
+  font: 15px/1.5 var(--sans);
 }
 button, select { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .katex { font-size: 1.08em; }
 .tex-fallback { font: .88em ui-monospace, SFMono-Regular, Consolas, monospace; }
-.page { width: min(1320px, calc(100% - 28px)); margin: 0 auto; padding: 25px 0 42px; }
-.hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(290px, .55fr); gap: 18px; align-items: end; }
-.eyebrow { margin: 0 0 5px; color: var(--focus); font-size: .76rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
-h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--serif); letter-spacing: -.035em; }
-.lead { max-width: 79ch; margin: 14px 0 0; color: var(--muted); font-size: 1.03rem; }
-.thesis {
-  padding: 15px 17px;
-  background: rgb(255 253 248 / 82%);
-  border: 1px solid var(--line);
-  border-left: 5px solid var(--focus);
-  border-radius: 11px;
-  box-shadow: var(--shadow);
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .92em; }
+
+/* ---------- page frame: scrolls on narrow screens, fits one screen on wide ones ---------- */
+.deck { width: min(1440px, calc(100% - 24px)); margin: 0 auto; padding: 12px 0 28px; display: grid; gap: 10px; }
+.topbar {
+  display: grid; grid-template-columns: auto minmax(0, 1.1fr) minmax(160px, 1fr) auto; gap: 16px; align-items: center;
+  padding: 8px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
 }
-.thesis b { display: block; margin-bottom: 5px; color: var(--focus); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
-.thesis p { margin: 0; font: 1.08rem/1.42 var(--serif); }
-.basis {
-  display: flex; flex-wrap: wrap; gap: 7px 10px; align-items: center;
-  margin-top: 17px; padding: 10px 12px;
-  background: rgb(255 253 248 / 72%); border: 1px solid var(--line); border-radius: 10px;
-}
-.basis b { color: var(--muted); font-size: .73rem; letter-spacing: .07em; text-transform: uppercase; }
-.basis .pill { padding: 2px 8px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
-.controls {
-  position: sticky; top: 0; z-index: 30;
-  display: grid; grid-template-columns: auto minmax(240px, 1fr) auto; gap: 12px; align-items: center;
-  margin: 18px 0 9px; padding: 9px 11px;
-  background: rgb(243 240 232 / 94%); border: 1px solid var(--line); border-radius: 12px;
-  backdrop-filter: blur(10px);
-}
-.button-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.control {
-  min-height: 36px; padding: 6px 11px; color: var(--ink); background: var(--card);
-  border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
-}
+.button-row { display: flex; gap: 6px; align-items: center; }
+.control { min-height: 36px; padding: 5px 14px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .control:hover { border-color: var(--focus); }
-.control.primary { min-width: 5.4rem; color: #fff; background: var(--focus); border-color: var(--focus); }
-.control:focus-visible, .dot:focus-visible, summary:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-.readout { min-width: 0; }
-.readout b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.readout span { color: var(--muted); font-size: .79rem; }
-.speed { color: var(--muted); font-size: .8rem; white-space: nowrap; }
-.speed select { margin-left: 4px; padding: 5px; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
-.timeline { display: flex; gap: 5px; margin: 0 2px 13px; }
-.dot { height: 10px; min-width: 13px; flex: 1; padding: 0; background: #c9c3b8; border: 0; border-radius: 999px; cursor: pointer; }
-.dot.past { background: color-mix(in srgb, var(--focus) 42%, #c9c3b8); }
+.control.primary { min-width: 6rem; color: #fff; background: var(--focus); border-color: var(--focus); }
+.control:focus-visible, .dot:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.readout { display: flex; gap: 12px; align-items: baseline; min-width: 0; white-space: nowrap; }
+.readout b { font-size: 16px; }
+.readout > span { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; }
+.timeline { display: flex; gap: 5px; }
+.dot { height: 10px; min-width: 12px; flex: 1; padding: 0; background: #d3cdc2; border: 0; border-radius: 999px; cursor: pointer; }
+.dot.past { background: color-mix(in srgb, var(--focus) 42%, #d3cdc2); }
 .dot.now { background: var(--focus); box-shadow: 0 0 0 3px rgb(120 81 155 / 18%); }
-.stage { padding: clamp(15px, 2.3vw, 28px); background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
-.stage-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; align-items: start; }
-.beat-badge { padding: 6px 10px; color: #fff; background: var(--focus); border-radius: 999px; font-size: .73rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
-.stage h2 { margin: 0; font: 750 clamp(1.55rem, 3vw, 2.55rem)/1.07 var(--serif); letter-spacing: -.02em; }
-.stage-intro { max-width: 88ch; margin: 7px 0 0; color: var(--muted); }
-.clock {
-  display: flex; gap: 5px 13px; flex-wrap: wrap; align-items: baseline;
-  margin-top: 12px; padding: 7px 11px; color: var(--focus); background: var(--focus-soft); border-radius: 8px;
-}
-.clock b { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
-.clock span { color: var(--ink); font-size: .88rem; }
-.lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 15px; }
+.speed { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.speed select { margin-left: 4px; padding: 4px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.clock { margin: 0; padding: 0 4px; color: var(--muted); font-size: 12px; }
+.clock b { margin-right: 6px; color: var(--focus); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.clock > span + span { margin-left: 8px; }
+
+/* ---------- method lanes ---------- */
+.lanes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 16px; }
 .lane {
   --accent: var(--bp); --soft: var(--bp-soft);
-  min-width: 0; padding: 15px; background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--accent); border-radius: 12px;
+  min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 12px;
 }
 .lane.gd { --accent: var(--gd); --soft: var(--gd-soft); }
-.lane h3 { margin: 0; color: var(--accent); font: 750 1.24rem/1.15 var(--serif); }
-.kind { display: block; margin-top: 3px; color: var(--muted); font-size: .77rem; }
-.state-tray {
-  min-height: 76px; display: flex; gap: 6px; flex-wrap: wrap; align-content: flex-start;
-  margin-top: 10px; padding: 9px; background: #faf8f3; border: 1px solid var(--line); border-radius: 9px;
-}
-.state-tray::before { content: "STATE TRAY"; width: 100%; color: var(--muted); font-size: .65rem; font-weight: 850; letter-spacing: .08em; }
-.state-card, .scratch-card, .faded-card {
-  display: inline-flex; align-items: center; min-height: 28px; padding: 4px 8px; border-radius: 6px;
-  font: 700 .78rem/1.2 var(--serif); font-variant-numeric: tabular-nums;
-}
-.state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.14em; }
+.lane h2 { margin: 0; color: var(--accent); font: 700 24px/1.2 var(--serif); }
+.kind { display: block; margin-top: 2px; color: var(--muted); font: 13px/1.35 var(--sans); }
+.state-tray { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 42px; padding: 5px 8px; background: var(--tint); border-radius: 8px; }
+.state-tray::before { content: "STATE TRAY"; margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+.state-card, .scratch-card, .faded-card { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 9px; border-radius: 6px; font: 15px/1.2 var(--serif); }
+.state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.05em; }
 .state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
-.lane.bp .state-card { padding-right: 14px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
+.lane.bp .state-card { padding-right: 15px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
 .lane.bp .state-card.updated-card { background: var(--bp-soft); }
 .lane.bp .state-card.q-card { background: var(--bp-soft); border-style: dashed; }
-.lane.bp .state-card.fixed-card { padding-right: 8px; clip-path: none; border-style: double; }
+.lane.bp .state-card.fixed-card { padding-right: 9px; clip-path: none; border-style: double; border-width: 3px; }
 .scratch-card { color: var(--gd); background: var(--gd-soft); border: 2px dashed var(--gd); }
 .faded-card {
-  color: #8c8780; border: 1px dashed #aaa39a; opacity: .58; text-decoration: line-through;
+  color: #8c8780; border: 1px dashed #aaa39a; opacity: .62; font-size: 13px; text-decoration: line-through;
   background: linear-gradient(transparent calc(50% - 1px), #aaa39a calc(50% - 1px), #aaa39a calc(50% + 1px), transparent calc(50% + 1px)), #f0ede7;
 }
-.graph-wrap { position: relative; margin: 5px auto 0; container-type: inline-size; }
+.graph-wrap { position: relative; width: 100%; container-type: inline-size; }
 .graph { display: block; width: 100%; height: auto; }
-.graph text { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+.graph text { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
 .graph .base { stroke: #c5beb2; stroke-width: 3; }
 .graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
 .graph .dependency { stroke: var(--gd); stroke-width: 3; stroke-dasharray: 7 7; fill: none; animation: dash 1s linear infinite; }
@@ -139,112 +103,125 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
 .graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
 .graph .bit.hot, .graph .check.hot { stroke-width: 5; }
 .graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
-.graph .node-label { font-weight: 850; }
-.graph .small { fill: var(--muted); font-size: 10.5px; }
+.graph .node-label { font-size: 15px; font-weight: 800; }
+.graph .small { fill: var(--muted); font-size: 12px; }
 .graph .tick circle { fill: var(--good); }
 .graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
-.chips { position: absolute; inset: 0; pointer-events: none; font-size: 1.95cqw; }
+.chips { position: absolute; inset: 0; pointer-events: none; font-size: 2.15cqw; }
 .chip {
   position: absolute; z-index: 1; transform: translate(-50%, -50%);
-  padding: .18em .5em; color: var(--ink); white-space: nowrap; line-height: 1.15;
-  background: #fff; border: .14em solid var(--accent); border-radius: .5em;
+  padding: .16em .5em; color: var(--ink); white-space: nowrap; line-height: 1.15;
+  background: #fff; border: .12em solid var(--accent); border-radius: .5em;
 }
 .chip .katex { font-size: 1.14em; }
 .chip.gd { background: var(--gd-soft); border-style: dashed; }
 .chip.value { background: transparent; border-color: transparent; }
 .chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
 .chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
+/* general formulas float in the band above the Tanner graph while they are in use */
+.hover-layer { position: absolute; inset: 0 0 auto; height: 24.74%; display: grid; place-items: center; pointer-events: none; font-size: 2.75cqw; }
+.hover {
+  grid-area: 1 / 1; max-width: 97%; padding: .25em .9em .35em; color: var(--ink); text-align: center;
+  background: rgb(255 255 255 / 95%); border: .1em solid var(--accent); border-radius: .6em;
+  box-shadow: 0 .45em 1.3em rgb(23 33 38 / 14%); animation: float 3.6s ease-in-out infinite;
+}
+.hover .katex-display { margin: 0; }
+.hover .katex { font-size: 1.05em; }
+.hover-note { margin: .1em 0 0; font: .85em/1.35 var(--serif); }
+.hover-note .katex { font-size: 1.05em; }
 .math {
-  position: relative; min-height: 128px; margin-top: 3px; padding: 9px 11px; overflow-x: auto; overflow-y: hidden;
-  background: var(--soft); border-radius: 8px; font: 1rem/1.7 var(--serif);
+  position: relative; min-height: 150px; padding: 8px 12px; overflow-x: auto; overflow-y: hidden;
+  background: var(--soft); border-radius: 8px; font: 16px/1.65 var(--serif);
 }
 .math .line { display: block; white-space: nowrap; padding: 1px 0; }
-.math .line.block { padding: 4px 0; }
-.math .katex { font-size: 1.12em; }
+.math .line.block { padding: 3px 0; }
+.math .katex { font-size: 1.2em; }
 .math .outcome { color: var(--accent); }
 .flying { position: absolute; z-index: 3; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
-.explain { min-height: 4.7em; margin: 8px 0 0; }
-.focus-panel { position: relative; min-height: 116px; margin-top: 14px; padding: 14px; overflow: hidden; background: #faf7f1; border: 1px solid var(--line); border-radius: 12px; }
-.focus-title { margin: 0 0 8px; color: var(--focus); font-size: .72rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
-.focus-panel p { margin: 5px 0; }
-.basis-grid, .mechanism-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.basis-grid > div, .mechanism-grid > div { padding: 9px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.explain { margin: 0; font-size: 16px; line-height: 1.45; }
+
+/* ---------- side column: the beat's contrast, legend, scope ---------- */
+.side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.focus-panel { position: relative; padding: 14px 16px; overflow: hidden; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--focus); border-radius: 12px; font-size: 16.5px; }
+.focus-title { margin: 0 0 10px; color: var(--focus); font-size: 13px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.basis-grid, .mechanism-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mechanism-grid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.mechanism-grid > div > b { display: inline; margin-right: .35em; }
+.basis-grid > div, .mechanism-grid > div { padding: 9px 10px; background: var(--tint); border-radius: 8px; }
 .basis-grid b, .mechanism-grid b { display: block; margin-bottom: 3px; color: var(--focus); }
-.basis-grid span, .mechanism-grid span { color: var(--muted); font-size: .82rem; }
-.action-contrast { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
-.action-box { padding: 11px; background: #fff; border: 2px solid var(--line); border-radius: 10px; text-align: center; }
+.basis-grid > div > span, .mechanism-grid > div > span { font-size: 15.5px; }
+.action-contrast { display: grid; gap: 6px; }
+.action-box { padding: 9px 12px; background: var(--tint); border-left: 4px solid var(--line); border-radius: 6px; }
 .action-box.bp { border-color: var(--bp); }
-.action-box.gd { border-color: var(--gd); border-style: dashed; }
-.action-box b { display: block; margin-bottom: 4px; }
-.versus { color: var(--focus); font: 850 1.3rem var(--serif); }
-.boundary-demo { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 4px 0; }
-.cross-lane { position: relative; min-height: 95px; padding: 10px; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 9px; }
-.cross-lane b { display: block; margin-bottom: 7px; color: var(--accent); }
+.action-box.gd { border-color: var(--gd); }
+.action-box b { display: block; margin-bottom: 2px; }
+.versus { color: var(--focus); font: italic 700 15px var(--serif); text-align: center; }
+.boundary-demo { position: relative; display: grid; gap: 8px; }
+.cross-lane { position: relative; padding: 9px 10px; overflow: hidden; background: var(--tint); border-radius: 8px; }
+.cross-lane b { display: block; margin-bottom: 6px; color: var(--accent); font-size: 15.5px; }
 .crossing { display: flex; gap: 5px; flex-wrap: wrap; animation: cross 1.35s ease-in-out both; }
 .crossing .state-card { color: var(--accent); border-color: var(--accent); }
-.temporary { margin-top: 7px; color: var(--muted); font-size: .76rem; animation: disappear 1.35s ease both; }
+.temporary { margin-top: 6px; color: var(--muted); font-size: 14px; animation: disappear 1.35s ease both; }
 .scanner { position: absolute; top: 0; bottom: 0; left: 0; width: 4px; background: var(--focus); box-shadow: 0 0 16px var(--focus); animation: scan 1.6s ease-in-out infinite; }
-.equation-contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.equation-card { padding: 12px; background: #fff; border: 2px solid var(--accent); border-radius: 10px; text-align: center; }
+.equation-contrast { display: grid; gap: 8px; }
+.equation-card { padding: 9px 12px; background: var(--tint); border-left: 4px solid var(--accent); border-radius: 6px; text-align: center; }
 .equation-card.bp { --accent: var(--bp); }
 .equation-card.gd { --accent: var(--gd); }
 .equation-card b { display: block; color: var(--accent); }
-.equation-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 7px; font: 750 clamp(.91rem, 1.65vw, 1.14rem)/1.35 var(--serif); font-variant-numeric: tabular-nums; }
-.neq, .equal { font-family: KaTeX_Main, "Times New Roman", serif; }
-.neq { color: var(--bad); font-size: 2rem; }
-.equal { color: var(--good); font-size: 2rem; }
-.conclusion { margin-top: 10px; padding: 10px 12px; color: #fff; background: var(--focus); border-radius: 9px; text-align: center; font: 750 1.1rem/1.4 var(--serif); }
-.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; color: var(--muted); font-size: .82rem; }
-.legend span { display: inline-flex; gap: 7px; align-items: center; }
-.sample { width: 32px; height: 15px; background: #fff; border: 2px solid var(--bp); border-radius: 4px; }
+.equation-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 6px; font: 17px/1.35 var(--serif); }
+.equation-row .katex { font-size: 1.12em; }
+.neq, .equal { font-family: KaTeX_Main, "Times New Roman", serif; font-size: 2rem; }
+.neq { color: var(--bad); }
+.equal { color: var(--good); }
+.conclusion { margin-top: 10px; padding: 10px 12px; color: #fff; background: var(--focus); border-radius: 8px; font: 700 16px/1.4 var(--serif); }
+.side-notes { display: grid; gap: 10px; margin-top: auto; }
+.legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; color: var(--muted); font-size: 12.5px; }
+.legend > span { display: flex; gap: 7px; align-items: center; }
+.sample { flex: none; width: 30px; height: 14px; background: #fff; border: 2px solid var(--bp); border-radius: 4px; }
 .sample.arrow { clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%); }
 .sample.arrow.q { background: var(--bp-soft); border-style: dashed; }
 .sample.temp { border-color: var(--gd); border-style: dashed; }
 .sample.scalar { border-color: var(--gd); }
 .sample.flash { background: var(--flash); border-color: var(--gold); }
-.scope, .derivation { margin-top: 13px; padding: 10px 12px; background: rgb(255 253 248 / 78%); border: 1px solid var(--line); border-radius: 10px; }
+.sample.formula { border: 1px solid var(--muted); box-shadow: 0 3px 7px rgb(23 33 38 / 18%); }
+.scope { margin: 0; font-size: 12.5px; line-height: 1.45; }
 .scope b { color: var(--bad); }
-.scope p { margin: 0; }
-.derivation summary { color: var(--focus); cursor: pointer; font-weight: 800; }
-.formula-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
-.formula-grid section { min-width: 0; padding: 11px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
-.formula-grid h3 { margin: 0 0 7px; font: 750 1.08rem var(--serif); }
-.formula-grid p { margin: 6px 0; font: .96rem/1.55 var(--serif); }
-.formula-grid .eq { margin: 2px 0; overflow-x: auto; overflow-y: hidden; }
-.formula-grid .katex-display { margin: .45em 0; }
-.source-note { margin: 12px 0 0; color: var(--muted); font-size: .77rem; }
-code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; }
-.chip.blink, .state-card.blink, .scratch-card.blink { animation: flash .95s ease-in-out; }
+.source-note { margin: 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+
+.chip.blink, .state-card.blink, .scratch-card.blink, .hover.blink { animation: flash .95s ease-in-out; }
 .chip.travelling { animation: flash .5s ease-in-out infinite; }
-.chip.sign.blink, .math .blink, .focus-panel .blink { animation: ink .95s ease-in-out; }
+.chip.sign.blink, .math .blink, .hover .blink, .focus-panel .blink { animation: ink .95s ease-in-out; }
 @keyframes flash { 15%, 55% { background-color: var(--flash); box-shadow: 0 0 0 .3em var(--flash-ring); } 35%, 75% { box-shadow: none; } }
 @keyframes ink { 15%, 55% { color: var(--flash-ink); text-shadow: 0 0 .45em var(--flash-ring); } 35%, 75% { text-shadow: none; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.12em); } }
 @keyframes dash { to { stroke-dashoffset: -32; } }
 @keyframes cross { from { transform: translateX(-13px); opacity: .65; } to { transform: translateX(14px); opacity: 1; } }
 @keyframes disappear { 0% { opacity: .75; } 70%, 100% { opacity: .14; filter: blur(1px); } }
 @keyframes scan { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 4px); opacity: 0; } }
-@media (max-width: 930px) {
-  .hero { grid-template-columns: 1fr; }
-  .lanes { grid-template-columns: 1fr; }
-  .controls { grid-template-columns: 1fr; }
-  .controls { position: static; }
-  .speed { justify-self: start; }
-  .basis-grid, .mechanism-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .explain { min-height: 0; }
+
+@media (min-width: 900px) {
+  .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); }
+  .lane { grid-row: span 5; display: grid; grid-template-rows: subgrid; }
+  .side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .side-notes { margin-top: 0; }
 }
-@media (max-width: 590px) {
-  .page { width: min(100% - 16px, 1320px); padding-top: 14px; }
-  .stage { padding: 10px; }
-  .stage-head { grid-template-columns: 1fr; }
-  .beat-badge { justify-self: start; }
-  .lane { padding: 10px; }
-  .basis-grid, .mechanism-grid, .equation-contrast, .boundary-demo, .formula-grid { grid-template-columns: 1fr; }
-  .action-contrast { grid-template-columns: 1fr; }
-  .versus { text-align: center; }
-  .equation-row { grid-template-columns: 1fr; }
-  .neq, .equal { line-height: .8; }
-  .math .line.prose { white-space: normal; }
+@media (max-width: 899px) {
+  .topbar { grid-template-columns: 1fr; }
+  .readout { white-space: normal; flex-wrap: wrap; }
 }
+/* one 1920 x 1000 screen, scaled to the window by fit() */
+html.fit, html.fit body { height: 100%; overflow: hidden; }
+html.fit .deck {
+  position: fixed; top: 0; left: 0; width: 1920px; height: 1000px; margin: 0; padding: 14px 24px;
+  grid-template-columns: 712px 712px 416px; grid-template-rows: 52px 20px minmax(0, 1fr); gap: 8px 16px; transform-origin: 0 0;
+}
+html.fit .topbar, html.fit .clock { grid-column: 1 / -1; }
+html.fit .clock { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+html.fit .lanes { grid-column: 1 / span 2; grid-row: 3; min-height: 0; grid-template-columns: 712px 712px; grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+html.fit .lane { grid-row: 1 / span 5; }
+html.fit .math { min-height: 0; }
+html.fit .side { grid-column: 3; grid-row: 3; display: flex; min-height: 0; overflow: hidden; }
+html.fit .side-notes { margin-top: auto; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
   .scanner { left: 50% !important; opacity: 1 !important; }
@@ -252,27 +229,9 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 </style>
 </head>
 <body>
-<main class="page">
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Focused mechanism animation · three bits · two checks</p>
-      <h1>Same Tanner graph. Different state.</h1>
-      <p class="lead">Watch belief propagation (BP) using the sum-product algorithm and the repository’s native projected gradient descent revisit the fixed parity-check graph. The three channel LLRs are fixed. Their state distinction becomes visible at the iteration boundary and at the shared bit in iteration 2.</p>
-    </div>
-    <aside class="thesis">
-      <b>The point to see</b>
-      <p>Graph traversal alone does not describe the algorithmic distinction shown here. What matters is what each method represents, indexes by edge or bit, retains, and uses to calculate its next state.</p>
-    </aside>
-  </header>
-
-  <div class="basis" aria-label="Fixed comparison basis">
-    <b>Fixed comparison basis</b>
-    <span class="pill tex">\mathbf{H} = \left[\begin{smallmatrix}1&amp;1&amp;0\\0&amp;1&amp;1\end{smallmatrix}\right]</span>
-    <span class="pill tex">\mathbf{L} = \left(-\ln 9,\ \ln\tfrac{3}{2},\ \ln 2\right)</span>
-    <span>For BP, positive <span class="tex">L_i</span> favours bit 1; for GD, <span class="tex">\boldsymbol{\ell} = -\mathbf{L}</span> and <span class="tex">x_i = +1</span> favours bit 0.</span>
-  </div>
-
-  <nav class="controls" aria-label="Animation controls">
+<main class="deck" id="deck">
+  <h1 class="sr-only">BP versus projected GD: what crosses the iteration boundary?</h1>
+  <nav class="topbar" aria-label="Animation controls">
     <div class="button-row">
       <button class="control" id="back" type="button" aria-label="Previous beat">← Back</button>
       <button class="control primary" id="play" type="button">Play</button>
@@ -283,6 +242,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       <b id="beat-readout">Beat 1 of 10</b>
       <span id="beat-subtitle">Fixed graph and channel evidence</span>
     </div>
+    <div class="timeline" id="timeline" aria-label="Animation timeline"></div>
     <label class="speed">Speed
       <select id="speed" aria-label="Playback speed">
         <option value="0.65">0.65×</option>
@@ -292,83 +252,53 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       </select>
     </label>
   </nav>
-  <div class="timeline" id="timeline" aria-label="Animation timeline"></div>
+  <p class="clock">
+    <b>Synchronized explanation clock</b>
+    <span>Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.</span>
+    <span>All GD terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential GD update.</span>
+  </p>
 
-  <section class="stage" aria-labelledby="stage-title">
-    <div class="stage-head">
-      <span class="beat-badge" id="beat-badge">Set the basis</span>
-      <div>
-        <h2 id="stage-title">Fix what both methods are allowed to see</h2>
-        <p class="stage-intro" id="stage-intro"></p>
+  <section class="lanes" id="lanes">
+    <article class="lane bp" aria-labelledby="bp-heading">
+      <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
+      <div class="state-tray" id="bp-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="bp-graph" viewBox="0 0 620 388" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+        <div class="chips" id="bp-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="bp-hover"></div>
       </div>
-    </div>
-    <div class="clock">
-      <b>Synchronized explanation clock</b>
-      <span>Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.</span>
-      <span>All GD terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential GD update.</span>
-    </div>
+      <div class="math" id="bp-math"></div>
+      <p class="explain" id="bp-explain"></p>
+    </article>
 
-    <div class="lanes" id="lanes">
-      <article class="lane bp" aria-labelledby="bp-heading">
-        <h3 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h3>
-        <div class="state-tray" id="bp-state"></div>
-        <div class="graph-wrap">
-          <svg class="graph" id="bp-graph" viewBox="0 0 620 350" role="img" aria-label="Belief-propagation Tanner graph"></svg>
-          <div class="chips" id="bp-chips" aria-hidden="true"></div>
-        </div>
-        <div class="math" id="bp-math"></div>
-        <p class="explain" id="bp-explain"></p>
-      </article>
-
-      <article class="lane gd" aria-labelledby="gd-heading">
-        <h3 id="gd-heading">Projected gradient descent (GD)<span class="kind">one scalar per bit, with <span class="tex">x_i = +1</span> favouring bit 0 · dashed cards are temporary calculations, not messages</span></h3>
-        <div class="state-tray" id="gd-state"></div>
-        <div class="graph-wrap">
-          <svg class="graph" id="gd-graph" viewBox="0 0 620 350" role="img" aria-label="Tanner graph showing projected gradient descent dependencies"></svg>
-          <div class="chips" id="gd-chips" aria-hidden="true"></div>
-        </div>
-        <div class="math" id="gd-math"></div>
-        <p class="explain" id="gd-explain"></p>
-      </article>
-    </div>
-
-    <div class="focus-panel" id="focus-panel"></div>
+    <article class="lane gd" aria-labelledby="gd-heading">
+      <h2 id="gd-heading">Projected gradient descent (GD)<span class="kind">one scalar per bit, with <span class="tex">x_i = +1</span> favouring bit 0 · dashed cards are temporary calculations, not messages</span></h2>
+      <div class="state-tray" id="gd-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="gd-graph" viewBox="0 0 620 388" role="img" aria-label="Tanner graph showing projected gradient descent dependencies"></svg>
+        <div class="chips" id="gd-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="gd-hover"></div>
+      </div>
+      <div class="math" id="gd-math"></div>
+      <p class="explain" id="gd-explain"></p>
+    </article>
   </section>
 
-  <div class="legend" aria-label="Visual legend">
-    <span><i class="sample arrow" aria-hidden="true"></i> retained BP <span class="tex">U</span> at this boundary</span>
-    <span><i class="sample arrow q" aria-hidden="true"></i> newly calculated BP <span class="tex">Q</span></span>
-    <span><i class="sample scalar" aria-hidden="true"></i> retained GD bit state</span>
-    <span><i class="sample temp" aria-hidden="true"></i> temporary GD calculation</span>
-    <span><i class="sample flash" aria-hidden="true"></i> value just substituted or calculated</span>
-  </div>
-
-  <aside class="scope">
-    <p><b>Evidence boundary:</b> this page explains a mechanism using a validated three-bit endpoint trace. It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble. The native methods still differ in objective function, check calculation, update rule, projection, and stopping behavior.</p>
-  </aside>
-
-  <details class="derivation">
-    <summary>Math and conventions used by the animation</summary>
-    <div class="formula-grid">
-      <section>
-        <h3>Belief propagation using the sum-product algorithm</h3>
-        <div class="eq tex display">Q_{i\to a}^{(t)} = L_i + \sum_{b\in N(i)\setminus a} U_{b\to i}^{(t-1)}</div>
-        <p>Each check here joins two bits and requires them to agree; therefore <span class="tex">U_{a\to i}</span> is the other incoming <span class="tex">Q</span>.</p>
-        <div class="eq tex display">\Lambda_i^{(t)} = L_i + \sum_{a\in N(i)} U_{a\to i}^{(t)}</div>
-        <p>This page places the iteration boundary after the check calculation, so the four <span class="tex">U</span> values feed the next variable calculation.</p>
-      </section>
-      <section>
-        <h3>Native projected gradient descent</h3>
-        <div class="eq tex display">J(\mathbf{x}) = -\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i + \frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2 + \frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2</div>
-        <div class="eq tex display">g_{a,i} = -\frac{2w_{\mathrm{par}}}{n}\,r_a\prod_{j\in a,\,j\neq i}x_j, \qquad r_a = 1-\prod_{j\in a}x_j</div>
-        <div class="eq tex display">D_i = \frac{2w_{\mathrm{par}}\deg(i)+8w_{\mathrm{bin}}}{n}, \qquad \mathbf{D} = (1.866667,\ 3.2,\ 1.866667)</div>
-        <div class="eq tex display">\mathbf{x}^{+} = \operatorname{clip}\bigl(\mathbf{x}-\eta\,\mathbf{D}^{-1}\nabla J,\ -1,\ 1\bigr)</div>
-        <p>with <span class="tex">w_{\mathrm{ch}}=1</span>, <span class="tex">w_{\mathrm{par}}=2</span>, <span class="tex">w_{\mathrm{bin}}=0.2</span> and accepted <span class="tex">\eta=0.2</span>.</p>
-        <p>The displayed check terms in each partial derivative of the objective function are recomputed from the frozen <span class="tex">\mathbf{x}</span> and combined by coordinate.</p>
-      </section>
+  <aside class="side">
+    <div class="focus-panel" id="focus-panel"></div>
+    <div class="side-notes">
+      <div class="legend" aria-label="Visual legend">
+        <span><i class="sample arrow" aria-hidden="true"></i><span>retained BP <span class="tex">U</span> at this boundary</span></span>
+        <span><i class="sample arrow q" aria-hidden="true"></i><span>newly calculated BP <span class="tex">Q</span></span></span>
+        <span><i class="sample scalar" aria-hidden="true"></i> retained GD bit state</span>
+        <span><i class="sample temp" aria-hidden="true"></i> temporary GD calculation</span>
+        <span><i class="sample flash" aria-hidden="true"></i> value just substituted or calculated</span>
+        <span><i class="sample formula" aria-hidden="true"></i> general formula in use</span>
+      </div>
+      <p class="scope"><b>Evidence boundary:</b> this page explains a mechanism using a validated three-bit endpoint trace. It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble. The native methods still differ in objective function, check calculation, update rule, projection, and stopping behavior.</p>
+      <p class="source-note">Values are tied to <code>experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The topology matches <code>three_symbols_two_checks.html</code>; this focused page uses the channel evidence and objective function from the retained projected gradient descent trace rather than that page’s parity-only teaching step. Equations are typeset with KaTeX 0.16.11.</p>
     </div>
-  </details>
-  <p class="source-note">Values are tied to <code>experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The topology matches <code>three_symbols_two_checks.html</code>; this focused page uses the channel evidence and objective function from the retained projected gradient descent trace rather than that page’s parity-only teaching step. Equations are typeset with KaTeX 0.16.11.</p>
+  </aside>
 </main>
 
 <script id="animation-data" type="application/json">
@@ -421,26 +351,16 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   const USLOT = [R`A\to 1`, R`A\to 2`, R`B\to 2`, R`B\to 3`];
   const QSLOT = [R`1\to A`, R`2\to A`, R`2\to B`, R`3\to B`];
   const BEATS = [
-    { badge: "Set the basis", title: "Fix what both methods are allowed to see", subtitle: "Fixed graph and channel evidence",
-      intro: "The parity-check matrix and the three channel LLRs are fixed. BP and GD express that evidence in different coordinates before either algorithm updates." },
-    { badge: "State before work", title: "Count the independently retained values", subtitle: "Four addressed BP slots versus three GD scalars",
-      intro: "The first visual difference is the state container: BP has a value for each directed Tanner incidence in this phase; GD has one relaxed scalar for each bit." },
-    { badge: "Check A reads", title: "The same Tanner incidences become active", subtitle: "A touches bits 1 and 2",
-      intro: "The synchronized highlight shows traversal only. BP calculates variable-to-check messages; GD check A reads the frozen scalar vector." },
-    { badge: "Check A acts", title: "A produces different kinds of quantities", subtitle: "Addressed BP messages versus temporary GD terms",
-      intro: "BP writes check-to-variable messages into addressed edge slots. GD calculates check A’s contribution to the gradient of the objective function in place." },
-    { badge: "Check B reads", title: "Both now revisit the second pair of incidences", subtitle: "B touches bits 2 and 3",
-      intro: "Again the highlighted edges agree, but the values presented to the check and their algorithmic roles do not." },
-    { badge: "Check B acts", title: "B repeats the representational contrast", subtitle: "Persistent edge values versus temporary calculation cards",
-      intro: "BP writes two more addressed messages. GD calculates two more terms that enter a partial derivative of the objective function; those terms have not become messages." },
-    { badge: "Calculate next state", title: "Now watch how each method combines information", subtitle: "BP recurrence versus one projected gradient descent step",
-      intro: "BP keeps the check-to-variable values separately indexed. GD sums all terms for each coordinate, scales the gradient, and updates one scalar per bit." },
-    { badge: "Boundary scanner", title: "Ask what is needed after iteration 1", subtitle: "Retained state crosses; temporary calculations fade",
-      intro: R`For this displayed BP schedule, four addressed $U$ values feed the next variable calculation. For GD, the updated $\mathbf{x}$ is the independent state needed to continue; derivative terms are recomputable from $\mathbf{x}$.` },
-    { badge: "Iteration 2", title: "The shared bit makes the distinction visible", subtitle: R`BP supplies two different $Q$ values; both GD checks read one $x_2$`,
-      intro: R`Iteration 1 hid BP’s recipient indexing because all incoming $U$ values began at zero. Iteration 2 exposes it with opposite signs at bit 2.` },
-    { badge: "Mechanism", title: "The shared graph is not the whole mechanism", subtitle: "Representation, addressing, retention, and next-state use",
-      intro: "The graph determines which quantities interact. The algorithms still differ in the state they carry and in the operation that turns current information into the next state." }
+    { subtitle: "Fixed graph and channel evidence" },
+    { subtitle: "Four addressed BP slots versus three GD scalars" },
+    { subtitle: "A touches bits 1 and 2" },
+    { subtitle: "Addressed BP messages versus temporary GD terms" },
+    { subtitle: "B touches bits 2 and 3" },
+    { subtitle: "Persistent edge values versus temporary calculation cards" },
+    { subtitle: "BP recurrence versus one projected gradient descent step" },
+    { subtitle: "Retained state crosses; temporary calculations fade" },
+    { subtitle: R`BP supplies two different $Q$ values; both GD checks read one $x_2$` },
+    { subtitle: "Representation, addressing, retention, and next-state use" }
   ];
   const BP_EXPLAIN = [
     "The fixed LLR vector is expressed with positive values favouring bit 1.",
@@ -468,9 +388,10 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   ];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
-  const VW = 620, VH = 350;
-  const PX = [105, 310, 515], PY = 228, CX = [205, 415], CY = 52, BIT_R = 27;
-  const SLOT_T = [0.42, 0.58, 0.58, 0.42];
+  const VW = 620, VH = 388;
+  const PX = [90, 310, 530], PY = 274, CX = [200, 420], CY = 132, BIT_R = 26;
+  const SLOT_T = [0.38, 0.62, 0.62, 0.38];
+  const DECK_W = 1920, DECK_H = 1000;
   const TIME = { sub: 650, fly: 600, stagger: 170, res: 250, gap: 500, travel: 1100, hold: 2600 };
   let current = 0, playing = false, frozen = false, speed = 1;
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -603,8 +524,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       init() { sym = root.querySelector(symSel); val = root.querySelector(valSel); if (val) val.style.opacity = "0"; },
       start() {
         if (!sym || !val) return;
-        const box = root.getBoundingClientRect();
-        const centre = rect => [rect.left - box.left + root.scrollLeft + rect.width / 2, rect.top - box.top + root.scrollTop + rect.height / 2];
+        const box = root.getBoundingClientRect(), k = box.width / root.offsetWidth || 1;
+        const centre = rect => [(rect.left - box.left + rect.width / 2) / k + root.scrollLeft, (rect.top - box.top + rect.height / 2) / k + root.scrollTop];
         from = centre(sym.getBoundingClientRect());
         to = centre(val.getBoundingClientRect());
         clone = document.createElement("span");
@@ -720,7 +641,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   function edgePoint(e, t) { const { i, a } = EDGES[e]; return [lerp(PX[i], CX[a], t), lerp(PY, CY, t)]; }
   const atBit = e => (BIT_R + 3) / Math.hypot(CX[EDGES[e].a] - PX[EDGES[e].i], PY - CY);
   const AT_CHECK = (PY - (CY + 22)) / (PY - CY);
-  const below = (i, row = 0) => [PX[i], PY + 51 + row * 32];
+  const below = (i, row = 0) => [PX[i], PY + 48 + row * 30];
   function activeEdges(k) {
     if (k === 2 || k === 3) return [0, 1];
     if (k === 4 || k === 5) return [2, 3];
@@ -745,10 +666,12 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     });
     [0, 1, 2].forEach(i => {
       svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
-      svgEl(nodes, "text", { x: PX[i], y: PY + 4, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
+      svgEl(nodes, "text", { x: PX[i], y: PY + 5, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
     });
-    svgEl(nodes, "text", { x: 15, y: 342, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
-    return { method, svg, layer, flows, nodes };
+    svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
+    const hoverLayer = $(`${method}-hover`);
+    hoverLayer.replaceChildren();
+    return { method, svg, layer, flows, nodes, hoverLayer };
   }
   function place(node, xy) { node.style.left = `${(xy[0] / VW) * 100}%`; node.style.top = `${(xy[1] / VH) * 100}%`; }
   function chip(G, xy, src, cls = "") {
@@ -793,6 +716,32 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       } });
     ev.push(blink(label, at + TIME.travel));
     return { label, land: at + TIME.travel };
+  }
+
+  // A general formula floats above the graph while it is in use; its terms blink as values are substituted.
+  const F = {
+    q: R`Q^{(t)}_{i\to a} = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{b\in N(i)\setminus a} U^{(t-1)}_{b\to i}}`,
+    lam: R`\Lambda^{(t)}_i = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{a\in N(i)} U^{(t)}_{a\to i}}`,
+    r: R`r_a = 1-\htmlClass{hP}{\prod_{j\in a}x_j}`,
+    g: R`g_{a,i} = -\htmlClass{hW}{\frac{2w_{\mathrm{par}}}{n}}\,\htmlClass{hR}{r_a}\htmlClass{hP}{\prod_{j\in a,\,j\neq i}x_j}`,
+    J: R`J(\mathbf{x}) = \htmlClass{hC}{-\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i} + \htmlClass{hPar}{\frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2} + \htmlClass{hB}{\frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2}`,
+    x: R`\mathbf{x}^{+} = \operatorname{clip}\bigl(\htmlClass{hX}{\mathbf{x}}-\htmlClass{hE}{\eta}\,\htmlClass{hD}{\mathbf{D}^{-1}}\htmlClass{hG}{\nabla J},\ -1,\ 1\bigr)`
+  };
+  const NOTES = {
+    agree: R`Each check here joins two bits and requires them to agree; therefore $U_{a\to i}$ is the other incoming $Q$.`,
+    boundary: R`This page places the iteration boundary after the check calculation, so the four $U$ values feed the next variable calculation.`,
+    weights: R`with $n=${GD.n}$, $w_{\mathrm{ch}}=${GD.weights.channel}$, $w_{\mathrm{par}}=${GD.weights.parity}$, $w_{\mathrm{bin}}=${GD.weights.binary}$ and accepted $\eta=${GD.accepted_step}$`,
+    curvature: R`$D_i = \tfrac{2w_{\mathrm{par}}\deg(i)+8w_{\mathrm{bin}}}{n}$, giving $\mathbf{D}=\left(${GD.curvature.map(v => +v.toFixed(6)).join(R`,\ `)}\right)$, accepted $\eta=${GD.accepted_step}$`,
+    recompute: R`The displayed check terms in each partial derivative of the objective function are recomputed from the frozen $\mathbf{x}$ and combined by coordinate.`
+  };
+  function hover(G, ev, at, src, note = "", until = null) {
+    const card = document.createElement("div");
+    card.className = "hover";
+    card.innerHTML = (src ? tex(src, true) : "") + (note ? `<p class="hover-note">${mixed(note)}</p>` : "");
+    G.hoverLayer.appendChild(card);
+    ev.push(show(card, at, 450), blink(card, at));
+    if (until !== null) ev.push(hide(card, until, 350));
+    return { card, part: name => () => card.querySelector(`.${name}`) };
   }
 
   // ---------- beat scripts ----------
@@ -847,7 +796,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
         ["-", M(R`\tfrac{4}{3}`), "(", M(tn(GD.residual[name], 6, false)), ")(", M(tn(GD.x0[other], 6, false)), ")"],
         tn(GD.g[name][j]));
     };
-    const rChip = a => chip(gg, [CX[a], CY + 40], R`r_${a === 0 ? "A" : "B"} = ${tn(GD.residual[a === 0 ? "A" : "B"], 3, false)}`);
+    const rChip = a => chip(gg, [CX[a] + (a === 0 ? -89 : 89), CY], R`r_${a === 0 ? "A" : "B"} = ${tn(GD.residual[a === 0 ? "A" : "B"], 3, false)}`);
     let bpTray = "", gdTray = "";
 
     if (k === 0) {
@@ -856,11 +805,13 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const c = chain(B, 300, R`\mathbf{L}`, vecParts(["L_1", "L_2", "L_3"]), vecParts(BP.L.map(v => tn(v))), null);
       lc.forEach((node, i) => ev.push(show(node, c.lands[i], 250), blink(node, c.lands[i]),
         show(bpCard(`L${i}`), c.lands[i], 250), blink(bpCard(`L${i}`), c.lands[i])));
-      formula(B, c.next, R`Q_{i\to a} = L_i + \sum_{b\in N(i)\setminus a} U_{b\to i}`);
+      hover(bg, ev, c.next, F.q);
 
       const xc = xChips(GD.x0);
       gdTray = trayX0();
       const g1 = chain(G, 300, R`\boldsymbol{\ell}`, [R`-\mathbf{L}`], null, vecT(GD.ell));
+      const jh = hover(gg, ev, 300, F.J);
+      ev.push(blink(jh.part("hC"), g1.done));
       const g2 = chain(G, g1.next, R`\mathbf{x}^{(0)}`, [R`\tanh\left(\boldsymbol{\ell}/2\right)`], null, vecParts(GD.x0.map(v => tn(v))));
       xc.forEach((node, i) => ev.push(show(node, g2.comps[i], 250), blink(node, g2.comps[i]),
         show(gdCard(`x${i}`), g2.comps[i], 250), blink(gdCard(`x${i}`), g2.comps[i])));
@@ -881,10 +832,12 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const a = k === 2 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
       const lc = lChips();
       bpTray = trayU(k);
+      const qh = hover(bg, ev, 300, F.q);
       let t = 300;
       edges.forEach(e => {
         const c = qChain(t, e, 1);
-        ev.push(blink(lc[EDGES[e].i], c.subs[0]));
+        ev.push(blink(lc[EDGES[e].i], c.subs[0]), blink(qh.part("hL"), c.subs[0]));
+        if (c.subs.length > 1) ev.push(blink(qh.part("hU"), c.subs[1]));
         message(bg, e, "up", qLabel(e, 1), c.done, ev);
         t = c.next;
       });
@@ -892,6 +845,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const xc = xChips(GD.x0);
       gdTray = trayX0() + trayG(k);
       const r = rChain(300, a);
+      const rh = hover(gg, ev, 300, F.r);
+      r.subs.forEach(at => ev.push(blink(rh.part("hP"), at)));
       edges.forEach((e, j) => {
         ev.push(show(guide(gg, e), 300));
         const bit = EDGES[e].i;
@@ -905,9 +860,11 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const a = k === 3 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
       lChips();
       bpTray = trayU(k - 1);
+      const ah = hover(bg, ev, 300, "", NOTES.agree);
       let t = 300;
       edges.forEach(e => {
         const c = uChain(t, e);
+        ev.push(blink(ah.card, c.subs[0]));
         const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
         ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
         t = c.next;
@@ -916,9 +873,11 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const xc = xChips(GD.x0);
       gdTray = trayX0() + trayG(k);
       const rc = rChip(a);
+      const gh = hover(gg, ev, 300, F.g, NOTES.weights);
       t = 300;
       [0, 1].forEach(j => {
         const g = gChain(t, a, j);
+        ev.push(blink(gh.part("hW"), g.subs[0]), blink(gh.part("hR"), g.subs[1]), blink(gh.part("hP"), g.subs[2]));
         const bits = a === 0 ? [0, 1] : [1, 2];
         ev.push(blink(rc, g.subs[1]), blink(xc[bits[1 - j]], g.subs[2]));
         const name = a === 0 ? "A" : "B";
@@ -930,11 +889,12 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const lc = lChips();
       bpTray = trayU(5);
       const uc = uChips(BP.u1);
-      const f = formula(B, 300, R`\Lambda^{(1)}_i = L_i + \sum_{a\in N(i)} U^{(1)}_{a\to i}`);
-      const c = chain(B, f.next, R`\Lambda^{(1)}_2`,
+      const lh = hover(bg, ev, 300, F.lam);
+      const c = chain(B, 700, R`\Lambda^{(1)}_2`,
         [M("L_2"), " + ", M(R`U^{(1)}_{A\to 2}`), " + ", M(R`U^{(1)}_{B\to 2}`)],
         [M(tp(BP.L[1])), " + ", M(tp(BP.u1[1])), " + ", M(tp(BP.u1[2]))], tn(BP.posterior1[1]), { aligned: true });
       ev.push(blink(lc[1], c.subs[0]), blink(uc[1], c.subs[1]), blink(uc[2], c.subs[2]));
+      ev.push(blink(lh.part("hL"), c.subs[0]), blink(lh.part("hU"), c.subs[1]), blink(lh.part("hU"), c.subs[2]));
       const lam = BP.posterior1.map((v, i) => chip(bg, below(i, 1), R`\Lambda^{(1)}_${i + 1} = ${tn(v, 3)}`, "value"));
       ev.push(show(lam[1], c.done, 250), blink(lam[1], c.done));
       const vec = chain(B, c.next, R`\boldsymbol{\Lambda}^{(1)}`, null, null, vecParts(BP.posterior1.map(v => tn(v))));
@@ -946,8 +906,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const terms = [
         chip(gg, edgePoint(1, SLOT_T[1]), R`g_{A,2} = ${tn(GD.g.A[1], 3)}`),
         chip(gg, edgePoint(2, SLOT_T[2]), R`g_{B,2} = ${tn(GD.g.B[0], 3)}`),
-        chip(gg, [208, PY], R`\text{channel } ${tn(GD.channel_partial[1], 3)}`),
-        chip(gg, [412, PY], R`\text{binary } ${tn(GD.binary_partial[1], 3)}`)
+        chip(gg, [200, PY], R`\text{channel } ${tn(GD.channel_partial[1], 3)}`),
+        chip(gg, [420, PY], R`\text{binary } ${tn(GD.binary_partial[1], 3)}`)
       ];
       const grad = chain(G, 300, R`\frac{\partial J}{\partial x_2}`,
         [M(R`g_{A,2}`), " + ", M(R`g_{B,2}`), R` + \underbrace{`, M(R`-\tfrac{w_{\mathrm{ch}}}{2n}\ell_2`),
@@ -955,6 +915,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
         sumParts([GD.g.A[1], GD.g.B[0], GD.channel_partial[1], GD.binary_partial[1]]),
         tn(GD.gradient[1]), { aligned: true });
       terms.forEach((node, j) => ev.push(show(node, 300), blink(node, grad.subs[j]), hide(node, grad.done + 450)));
+      const jh = hover(gg, ev, 300, F.J, "", grad.next - 250);
+      ev.push(blink(jh.part("hPar"), grad.subs[0]), blink(jh.part("hPar"), grad.subs[1]), blink(jh.part("hC"), grad.subs[2]), blink(jh.part("hB"), grad.subs[3]));
       const sum = chip(gg, below(1, 1), R`\partial J/\partial x_2 = ${tn(GD.gradient[1], 3)}`);
       ev.push(show(sum, grad.done, 250), blink(sum, grad.done), show(gdCard("grad"), grad.done, 250), blink(gdCard("grad"), grad.done));
       const upd = chain(G, grad.next, R`x^{(1)}_2`,
@@ -963,6 +925,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
           M(tn(GD.gradient[1], 6, false)), "}{", M(tn(GD.curvature[1], 1, false)), R`}\Bigr)`],
         tn(GD.x1[1]), { aligned: true });
       ev.push(blink(xc[1], upd.subs[0]), blink(sum, upd.subs[2]));
+      const xh = hover(gg, ev, grad.next, F.x, NOTES.curvature);
+      ev.push(blink(xh.part("hX"), upd.subs[0]), blink(xh.part("hE"), upd.subs[1]), blink(xh.part("hG"), upd.subs[2]), blink(xh.part("hD"), upd.subs[3]));
       xc.forEach((node, i) => {
         ev.push(morph(node, upd.done, 800, p => tex(R`x_${i + 1} = ${tn(lerp(GD.x0[i], GD.x1[i], p), 3)}`)), blink(node, upd.done + 800));
         ev.push(morph(gdCard(`x${i}`), upd.done, 800, p => tex(p === 0 ? xLabel(i, GD.x0[i], 0) : xLabel(i, lerp(GD.x0[i], GD.x1[i], p), 1, p < 1 ? 3 : 6))),
@@ -972,10 +936,11 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       lChips();
       bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
       const uc = uChips(BP.u1);
+      hover(bg, ev, 300, "", NOTES.boundary);
       const c = chain(B, 300, R`\mathbf{U}^{(1)}`, null, null, vecParts(BP.u1.map(v => tn(v))));
       uc.forEach((node, e) => {
         const p = edgePoint(e, SLOT_T[e]);
-        ev.push(show(tickMark(bg, p[0], p[1] - 26), c.comps[e], 250), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
+        ev.push(show(tickMark(bg, p[0], p[1] - 25), c.comps[e], 250), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
       });
       const p1 = prose(B, c.next, R`next variable phase reads $\mathbf{L}$ and $\mathbf{U}^{(1)}$`);
       const p2 = prose(B, p1.next, R`$Q^{(2)}$ is then recomputed for each recipient check`);
@@ -983,6 +948,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 
       const xc = xChips(GD.x1);
       gdTray = trayX1() + `<span class="faded-card" data-card="faded"><span>${mixed(R`$r$, $g$, $\nabla J$, $\mathbf{D}$, and $\mathbf{d}$ are recomputed`)}</span></span>`;
+      hover(gg, ev, 300, "", NOTES.recompute);
       const g = chain(G, 300, R`\text{state needed to continue: }\mathbf{x}^{(1)}`, null, null, vecParts(GD.x1.map(v => tn(v))));
       xc.forEach((node, i) => ev.push(show(tickMark(gg, PX[i] + 24, PY - 26), g.comps[i], 250), blink(node, g.comps[i]), blink(gdCard(`x${i}`), g.comps[i])));
       const p3 = prose(G, g.next, R`check terms are recalculated from the next frozen $\mathbf{x}$`);
@@ -994,6 +960,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const xc = xChips(GD.x1);
       gdTray = trayX1();
       [1, 2].forEach(e => { const line = guide(gg, e); if (animate) ev.push(show(line, 300)); });
+      const qh = hover(bg, ev, 300, F.q);
+      const gh = hover(gg, ev, 300, animate ? F.r : F.J);
       if (animate) {
         [0, 3].forEach(e => {
           const m = message(bg, e, "up", qLabel(e, 2), 300, ev, "", SLOT_T[e]);
@@ -1002,21 +970,21 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
         let t = 900, last = 0;
         [1, 2].forEach((e, j) => {
           const c = qChain(t, e, 2);
-          ev.push(blink(lc[1], c.subs[0]));
+          ev.push(blink(lc[1], c.subs[0]), blink(qh.part("hL"), c.subs[0]), blink(qh.part("hU"), c.subs[1]));
           const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
           ev.push(show(bpCard(`q${e}`), m.land, 250), blink(bpCard(`q${e}`), m.land));
           const r = chain(G, c.done - TIME.sub, R`\text{${j === 0 ? "A" : "B"} reads } x^{(1)}_2`, null, null, tn(GD.x1[1]));
           const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(GD.x1[1], 3)}`);
-          ev.push(show(read, r.done, 250), blink(read, r.done), blink(xc[1], r.done));
+          ev.push(show(read, r.done, 250), blink(read, r.done), blink(xc[1], r.done), blink(gh.part("hP"), r.done));
           t = c.next; last = m.land;
         });
-        const ne = chip(bg, [310, 94], R`\neq`, "sign"), eq = chip(gg, [310, 94], "=", "sign");
+        const ne = chip(bg, [310, CY + 16], R`\neq`, "sign"), eq = chip(gg, [310, CY + 16], "=", "sign");
         ev.push(show(ne, last + 200, 300), blink(ne, last + 200), show(eq, last + 200, 300), blink(eq, last + 200));
       } else {
         [0, 1, 2, 3].forEach(e => message(bg, e, "up", qLabel(e, 2), 0, null, e === 1 || e === 2 ? "hot" : "", SLOT_T[e]));
         [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(GD.x1[1], 3)}`));
-        chip(bg, [310, 94], R`\neq`, "sign");
-        chip(gg, [310, 94], "=", "sign");
+        chip(bg, [310, CY + 16], R`\neq`, "sign");
+        chip(gg, [310, CY + 16], "=", "sign");
         const p1 = prose(B, 300, R`$Q_{i\to a}$ excludes the preceding $U$ from recipient $a$`);
         prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
         const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{a\in N(i)} g_{a,i} + \text{channel term} + \text{binary term}`);
@@ -1045,16 +1013,12 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 
   function render() {
     const beat = BEATS[current];
-    $("beat-badge").textContent = beat.badge;
-    $("stage-title").textContent = beat.title;
-    $("stage-intro").innerHTML = mixed(beat.intro);
     $("beat-readout").textContent = `Beat ${current + 1} of ${BEATS.length}`;
     $("beat-subtitle").innerHTML = mixed(beat.subtitle);
     $("bp-explain").innerHTML = mixed(BP_EXPLAIN[current]);
     $("gd-explain").innerHTML = mixed(GD_EXPLAIN[current]);
     const focus = $("focus-panel");
     focus.innerHTML = focusHTML(current);
-    placeFocus();
     const { events, end } = script(current);
     const focusAt = current <= 1 || current === 9 ? 600 : Math.max(600, end - 600);
     events.push({ at: focusAt, dur: 450,
@@ -1073,13 +1037,14 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
   }
   function updatePlay() { $("play").textContent = playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
-  function placeFocus() {
-    const lanes = $("lanes"), focus = $("focus-panel");
-    if (window.matchMedia("(max-width:590px)").matches && current >= 7) {
-      lanes.parentNode.insertBefore(focus, lanes);
-    } else {
-      lanes.parentNode.insertBefore(focus, lanes.nextSibling);
-    }
+  // On wide windows the whole page is one 1920 x 1000 screen scaled to fit; narrow windows scroll.
+  function fit() {
+    const deck = $("deck"), w = window.innerWidth, h = window.innerHeight;
+    const on = w >= 1100 && h >= 560 && w / h >= 1.35;
+    document.documentElement.classList.toggle("fit", on);
+    if (!on) { deck.style.transform = ""; return; }
+    const s = Math.min(w / DECK_W, h / DECK_H);
+    deck.style.transform = `translate(${(w - DECK_W * s) / 2}px, ${(h - DECK_H * s) / 2}px) scale(${s})`;
   }
   function advance() {
     if (current >= BEATS.length - 1) { playing = false; updatePlay(); return; }
@@ -1103,6 +1068,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     render();
   }
 
+  fit();
   document.querySelectorAll(".tex").forEach(node => { node.innerHTML = tex(node.textContent.trim(), node.classList.contains("display")); });
   const timeline = $("timeline");
   BEATS.forEach((beat, index) => {
@@ -1117,7 +1083,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   $("next").addEventListener("click", () => goTo(current + 1));
   $("restart").addEventListener("click", () => goTo(0));
   $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
-  window.addEventListener("resize", placeFocus);
+  window.addEventListener("resize", fit);
   document.addEventListener("keydown", event => {
     if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
     if (event.key === " ") { event.preventDefault(); play(); }
@@ -1149,16 +1115,23 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
         snapshot.textContent = visibleText($(sourceId));
         snapshots.appendChild(snapshot);
       };
+      const overflow = [];
       for (let k = 0; k < BEATS.length; k += 1) {
         current = k; render();
-        if (!$("stage-title").textContent || !$("bp-math").textContent || !$("gd-math").textContent || !$("focus-panel").textContent) throw new Error(`empty beat ${k + 1}`);
+        if (!$("beat-subtitle").textContent || !$("bp-math").textContent || !$("gd-math").textContent || !$("focus-panel").textContent) throw new Error(`empty beat ${k + 1}`);
         if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
         if (k === 6) {
           saveSnapshot("smoke-beat7-bp-math", "bp-math");
           saveSnapshot("smoke-beat7-gd-math", "gd-math");
         }
         if (k === 8) saveSnapshot("smoke-beat9-focus", "focus-panel");
+        if (document.documentElement.classList.contains("fit")) {
+          document.querySelectorAll(".deck, .lanes, .lane, .side, .math, .hover-layer, .clock, .readout, .focus-panel").forEach(node => {
+            if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`beat ${k + 1}: ${node.className || node.id}`);
+          });
+        }
       }
+      document.documentElement.dataset.layoutOverflow = overflow.length ? overflow.join("; ") : (document.documentElement.classList.contains("fit") ? "none" : "not-fit");
       document.body.appendChild(snapshots);
       if (!$("focus-panel").querySelector(".mechanism-grid")) throw new Error("final mechanism grid missing");
       current = 8; render();

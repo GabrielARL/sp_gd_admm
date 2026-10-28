@@ -270,7 +270,6 @@ def check_wording_and_structure(html: str) -> None:
     match = prohibited.search(visible) or prohibited.search(html)
     assert match is None, f"prohibited or misleading wording: {match.group(0)!r}"
     required = (
-        "Same Tanner graph. Different state.",
         "Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.",
         "All GD terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential GD update.",
         "dashed cards are temporary calculations, not messages",
@@ -296,7 +295,7 @@ def check_wording_and_structure(html: str) -> None:
     assert 'class="equal">=' in html
 
 
-def dump_dom(browser: str, url: str, virtual_time_budget: int) -> str:
+def dump_dom(browser: str, url: str, virtual_time_budget: int, window_size: str = "1910,940") -> str:
     with tempfile.TemporaryDirectory(prefix="bp-gd-state-animation-chrome-") as profile:
         command = [
             browser,
@@ -305,6 +304,7 @@ def dump_dom(browser: str, url: str, virtual_time_budget: int) -> str:
             "--disable-gpu",
             "--disable-dev-shm-usage",
             "--allow-file-access-from-files",
+            f"--window-size={window_size}",
             f"--user-data-dir={profile}",
             f"--virtual-time-budget={virtual_time_budget}",
             "--dump-dom",
@@ -334,6 +334,10 @@ def browser_smoke(data: dict[str, Any]) -> str:
     assert 'class="katex-error"' not in smoke_dom, "KaTeX reported a TeX error"
     assert 'data-animation-smoke="passed"' in smoke_dom, "browser smoke did not pass"
     assert 'data-animation-smoke-beats="10"' in smoke_dom, "not every beat rendered"
+    overflow = re.search(r'data-layout-overflow="([^"]*)"', smoke_dom)
+    assert overflow is not None and overflow.group(1) == "none", (
+        f"one-screen layout clips content at 1910x940: {overflow.group(1) if overflow else 'not measured'}"
+    )
     assert "Beat 1 of 10" in smoke_dom, "smoke cycle did not reset to beat 1"
 
     snapshots = extract_element_text(
