@@ -1,0 +1,5 @@
+manifest_sha256 = "37cb01922f4c988c13358f734de6f888f0fcf7cfdee2f07201786019897692f2"
+replay_passed = true
+science_file_sha256 = "4536c5cdd20505fad290e58c7e1b7bcfbec729f1486cc3b5881903be98464137"
+status = "valid_parallel_transfer"
+validation_passed = true

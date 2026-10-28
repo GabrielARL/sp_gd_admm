@@ -30,9 +30,14 @@ and stopping behavior.
 The sealed 24-frame RQ2 anchor supplies a first long-code consequence for the
 state candidate inside the locked exact-SP recurrence: full exact SP recovered
 a parity-valid transmitted word on all 24 frames, whereas persistent `qbar`
-tying did so on none. This anchor passed its registered expansion gate, but it
-is descriptive, is not pooled with the held-out set, and does not close native
-BP-versus-projected-GD attribution.
+tying did so on none. A complete four-thread Windows transfer then reproduced
+the direction on all 200 frozen held-out frames: full exact SP recovered the
+parity-valid transmitted word on 200/200 frames and persistent `qbar` tying on
+0/200. The transfer passes its validation and two-pass scientific replay, but
+its parallel schedule and GNU gzip version differ from the frozen execution
+contract. It is supporting transfer evidence rather than the canonical
+registered confirmation, and it does not close native BP-versus-projected-GD
+attribution.
 
 ## What was isolated
 
@@ -262,13 +267,43 @@ satisfy the expansion rule. The full arm stopped after 14--44 message-passing
 iterations, with mean `18.2083`, while every tied run reached the 80-iteration
 cap.
 
-The anchor is descriptive only and will not be pooled into held-out inference.
-Its gate authorizes the preregistered 200-frame held-out confirmation, which is
-still incomplete. The first manifest-bound attempt was intentionally stopped
-after about 26 minutes, during native preflight, before the atomic runner wrote
-any frame, endpoint, science, or manifest output. It contributes no held-out
-outcome. A future complete result must pass validation and its in-run
-deterministic replay before it is reportable.
+The anchor is descriptive only and is not pooled into held-out inference. Its
+gate authorized the preregistered 200-frame held-out confirmation. The first
+manifest-bound attempt was intentionally stopped after about 26 minutes,
+during native preflight, before the atomic runner wrote any frame, endpoint,
+science, or manifest output. It contributes no held-out outcome.
+
+### Retained parallel held-out transfer
+
+The `2026-10-28_heldout_parallel_windows_v1` record evaluates all 200 frozen
+held-out frames. It has `status = valid_parallel_transfer`,
+`validation_passed = true`, passed native full-state equivalence and all frame
+gates, and reproduced scientific SHA-256
+`4d45b9d6ef3c86391f8880348ac79d2910096e8ca02c00d528120c74454f302c`
+on both complete passes. Its registered endpoints agree:
+
+| Endpoint | Full success | Persistent-`qbar` success | Full-only discordance | Risk difference, full minus tied |
+|---|---:|---:|---:|---:|
+| Parity validity | 200/200 | 0/200 | 200 | 1 |
+| Equality to the transmitted word | 200/200 | 0/200 | 200 | 1 |
+
+For each endpoint, the registered two-sided 97.5% Newcombe method-10 interval
+is `[0.96534624278665548, 1]`. The exact two-sided McNemar p-value is
+`1.2446030555722283e-60`, and its Holm-adjusted value across the two endpoints
+is `2.4892061111444567e-60`. Full exact SP stopped after 12--70
+message-passing iterations, with mean `18.485`; every tied run reached the
+80-iteration cap.
+
+Independent frames ran concurrently with four Julia threads and one BLAS
+thread per process, and the snapshot used GNU gzip 1.14. The frozen registered
+protocol specifies one Julia thread, one BLAS thread, and GNU gzip 1.10. This
+result therefore establishes a parallel transfer of the scoped recovery
+consequence within the locked exact-SP recurrence; it does not replace the
+canonical registered confirmation. The next run is the unmodified original
+runner on the same frozen frames in the registered single-thread Linux
+environment, without parameter changes. Only after that record passes should
+the project preregister the next one-mechanism-at-a-time native-attribution
+bridge.
 
 As a reporting invariant, parity-validity and transmitted-word-equality flags
 are void unless the sealed result simultaneously records `status = valid`,

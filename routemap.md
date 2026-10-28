@@ -73,7 +73,7 @@ and is not required to answer either research question.
 | `RQ1-ENDPOINT-001` | Controlled-to-native endpoint bridge | **Complete; valid endpoint reproduction** | `endpoint_v3` reproduces native exact SP and the scalar `coral_exact_gradient` endpoint and enumerates their remaining non-equivalences. |
 | `RQ1-DECISION-001` | Mechanism decision | **Partially resolved; native attribution open** | Recipient-specific variable-to-check calculation and update operator are validated candidate trajectory mechanisms; no unique native BP-versus-GD cause is established. |
 | `RQ2-AWGN-001` | Preregistered paired AWGN anchor | **Complete; valid sealed descriptive anchor** | `anchor_v2` passes validation, deterministic replay, native full-arm equivalence, and the registered expansion gate. Full exact SP succeeds on 24/24 frames and persistent `qbar` tying on 0/24 for both registered endpoints. |
-| `RQ2-CONFIRM-001` | Held-out paired confirmation | **Interrupted before output; not completed** | `heldout_v1` was intentionally stopped after about 26 minutes at the user's request. The atomic runner had emitted no frame, endpoint, science, or manifest files, so no held-out outcome exists. The anchor will not be pooled into a future confirmation. |
+| `RQ2-CONFIRM-001` | Held-out paired confirmation | **Parallel transfer complete; canonical confirmation pending** | `heldout_parallel_windows_v1` is a valid four-thread Windows transfer on all 200 frozen frames: full exact SP succeeds on 200/200 and persistent `qbar` tying on 0/200 for both endpoints. It is not a substitute for the registered one-thread execution record. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -98,8 +98,9 @@ gate into evidence or require mutually exclusive branches to be run.
 | `BPGD-APP-012` | Build or revise animation from the validated trace | validated trace |
 
 The user separately authorized staging and a local commit on 2026-10-28 after
-stopping the held-out run. Push, publication, and hosting remain outside that
-authorization.
+stopping the first held-out run, then authorized pushing the retained parallel
+transfer and updated research record to `main` on 2026-10-28. Publication and
+hosting remain outside that authorization.
 
 ## Current artifact register
 
@@ -125,6 +126,7 @@ experimental evidence merely because it runs.
 | `experiments/rq2_qbar_awgn_001/freeze/2026-10-28_v2` | Included | Eligible immutable input and source freeze for 24 anchor plus 200 held-out identities. Input-table SHA-256 is `01a712d7c61498148aea92f54ea521101d8535b0ef56d095774b2d95bf6e8cb3`; freeze-manifest SHA-256 is `da5ac35be6daaa2a5652b1bdc28c2952c9526e74a03ab2ea72ef15de6c4c7204`. Held-out decoders were not executed while producing the freeze. |
 | `experiments/rq2_qbar_awgn_001/results/2026-10-28_anchor_v2` | Included | Eligible valid sealed descriptive anchor. Full succeeds 24/24 versus tied 0/24 for parity validity and transmitted-word equality; native equivalence, validation, replay, checksums, and the registered expansion gate pass. This anchor is not pooled into held-out inference. |
 | `experiments/rq2_qbar_awgn_001/results/2026-10-28_heldout_v1/INTERRUPTED.md` | Included | Audit record for the intentionally stopped held-out attempt. The process ended during native preflight before atomic output; no held-out frames or endpoints are evidence. |
+| `experiments/rq2_qbar_awgn_001/results/2026-10-28_heldout_parallel_windows_v1` | Included | Valid parallel Windows transfer over the 200 frozen held-out frames. Validation, all frame gates, native full-state equivalence, checksums, and two-pass scientific replay pass. Full exact SP is 200/200 and persistent `qbar` tying is 0/200 for both registered endpoints. Four Julia threads and GNU gzip 1.14 differ from the frozen one-thread, gzip-1.10 execution contract, so this is supporting transfer evidence rather than the canonical confirmatory record. |
 | `rq1_mechanism_animation.html` and verifier | Included | Sixteen-beat explanatory animation. Sixty-eight embedded scientific values and five eligible source hashes pass automated and browser validation. |
 | `mechanism_report.md` | Included | Mechanism-first RQ1/RQ2 report with the native-attribution boundary retained. |
 
@@ -444,9 +446,28 @@ The valid AWGN anchor now authorizes the preregistered 200 frozen held-out
 noise realizations. Preserve seeds, hashes, denominators, failures, and
 stopping reasons. The first held-out attempt was intentionally interrupted
 after about 26 minutes, during native preflight, before the atomic runner wrote
-any frame or endpoint output. It is incomplete and contributes no outcome. A
-future complete run must pass validation and its in-run deterministic replay
-before it is reportable. Do not substitute or pool the descriptive anchor.
+any frame or endpoint output. It is incomplete and contributes no outcome.
+
+The retained `2026-10-28_heldout_parallel_windows_v1` result is a complete
+four-thread Windows transfer over the frozen 200-frame set. It has
+`status = valid_parallel_transfer`, `validation_passed = true`, passed native
+full-state equivalence and all frame gates, and reproduced the same scientific
+SHA-256 on two complete passes. For both parity validity and equality to the
+transmitted word, full exact SP succeeds on 200/200 frames and persistent
+`qbar` tying succeeds on 0/200, giving 200 full-only discordances and a risk
+difference of `1`. The registered 97.5% paired-proportion interval is
+`[0.96534624278665548, 1]`; the exact two-sided McNemar p-value is
+`1.2446030555722283e-60`, and its Holm-adjusted value is
+`2.4892061111444567e-60` for each endpoint.
+
+This transfer ran independent frames concurrently with four Julia threads and
+used GNU gzip 1.14. The frozen confirmation instead specifies one Julia thread,
+one BLAS thread, and GNU gzip 1.10. The transfer therefore supports the scoped
+recovery consequence within the locked exact-SP recurrence but does not replace
+the canonical registered execution record. The next required execution is the
+original runner on the same frozen frames in the registered single-thread
+Linux environment, with deterministic replay and no tuning. Do not substitute
+or pool the descriptive anchor.
 
 The retained report must state the tested code, cases, changed mechanism, work
 budget, metric, and denominator. Do not generalize a toy case or a small fixed
@@ -548,3 +569,15 @@ outcome: observed difference | no observed difference
 - **2026-10-28:** The user explicitly authorized staging and committing all
   research artifacts, including invalidated and interrupted audit records, to
   `main`. Push and publication were not authorized by that instruction.
+- **2026-10-28:** The four-thread Windows held-out transfer passes validation,
+  native full-state equivalence, all per-frame gates, checksums, and two-pass
+  scientific replay. Full exact SP is 200/200 and persistent `qbar` tying is
+  0/200 for both registered endpoints. Because the run departs from the frozen
+  one-thread and GNU gzip 1.10 environment, it is retained as a parallel
+  transfer and does not close the canonical confirmatory gate.
+- **2026-10-28:** The next execution is the unmodified frozen held-out runner
+  on the registered one-thread Linux environment. If it passes, update the
+  mechanism report and route map; then preregister a one-mechanism-at-a-time
+  native-attribution bridge. Do not retune this RQ2 protocol or introduce ADMM.
+- **2026-10-28:** The user authorized pushing the parallel transfer result and
+  updated research record to `main`.

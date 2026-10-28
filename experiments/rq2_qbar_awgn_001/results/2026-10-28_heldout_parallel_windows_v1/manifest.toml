@@ -1,0 +1,38 @@
+anchor_completion_sha256 = "14d719210453aad01de46560dda58b2580e830cb1bf08bbe1ef7e05642430c20"
+blas_threads = 1
+created_utc = "2026-10-28T08:19:18.047"
+exact_command = "julia --repo work\\sp_gd_admm_lf --phase heldout --frames 10001:10200 --passes 2 --output outputs\\rq2_heldout_parallel_windows_v1"
+experiment_id = "BPGD-RQ2-QBAR-AWGN-001"
+freeze_manifest_sha256 = "da5ac35be6daaa2a5652b1bdc28c2952c9526e74a03ab2ea72ef15de6c4c7204"
+gzip = """gzip 1.14\nCopyright (C) 2025 Free Software Foundation, Inc.\nCopyright (C) 1993 Jean-loup Gailly.\nThis is free software.  You may redistribute copies of it under the terms of\nthe GNU General Public License <https://www.gnu.org/licenses/gpl.html>.\nThere is NO WARRANTY, to the extent permitted by law.\n\nWritten by Jean-loup Gailly."""
+input_freeze_sha256 = "01a712d7c61498148aea92f54ea521101d8535b0ef56d095774b2d95bf6e8cb3"
+julia_threads = 4
+julia_version = "1.12.6"
+original_runner_sha256 = "7352899cfe58b24f4d7b7b1c32981e3db6202858c3dd5586442fc08828f80142"
+parallel_wrapper_sha256 = "319292e2912645fb20391ff758cf03fb9c0fcef0a452f70e02a0a42b307561d1"
+phase = "heldout"
+schema_version = "bpgd-rq2-qbar-awgn-001/parallel-transfer-manifest-v1"
+science_file_sha256 = "4536c5cdd20505fad290e58c7e1b7bcfbec729f1486cc3b5881903be98464137"
+status = "valid_parallel_transfer"
+validation_passed = true
+
+[deterministic_replay]
+first_sha256 = "4d45b9d6ef3c86391f8880348ac79d2910096e8ca02c00d528120c74454f302c"
+passed = true
+passes = 2
+scope = "scientific states, categorical work, hashes, and gates; excludes runtime"
+second_sha256 = "4d45b9d6ef3c86391f8880348ac79d2910096e8ca02c00d528120c74454f302c"
+
+[source_gate]
+execution_deviation = "independent frames execute concurrently; each frame retains the original decoder calculation and one BLAS thread"
+julia_threads = 4
+original_registered_julia_threads = 1
+passed = true
+
+    [source_gate.checks]
+    active_project = true
+    blas_threads = true
+    frozen_source_hashes = true
+    jade_head = true
+    julia_version = true
+    parallel_worker_threads = true
