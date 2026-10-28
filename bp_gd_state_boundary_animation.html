@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="en" data-animation-ready="false" data-animation-smoke="not-run" data-animation-smoke-beats="0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BP versus projected GD: what crosses the iteration boundary?</title>
+<style>
+:root {
+  --paper: #f3f0e8;
+  --card: #fffdf8;
+  --ink: #172126;
+  --muted: #5e6b70;
+  --line: #d5cfc4;
+  --bp: #155b8a;
+  --bp-soft: #dcebf4;
+  --gd: #087d77;
+  --gd-soft: #d9efeb;
+  --focus: #78519b;
+  --focus-soft: #f0e8f6;
+  --gold: #b67913;
+  --good: #24704a;
+  --bad: #a64040;
+  --shadow: 0 12px 34px rgb(40 47 49 / 9%);
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 6% 0%, rgb(21 91 138 / 9%), transparent 31rem),
+    radial-gradient(circle at 96% 25rem, rgb(8 125 119 / 8%), transparent 32rem),
+    var(--paper);
+  color: var(--ink);
+  font: 16px/1.48 var(--sans);
+}
+button, select { font: inherit; }
+.page { width: min(1320px, calc(100% - 28px)); margin: 0 auto; padding: 25px 0 42px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(290px, .55fr); gap: 18px; align-items: end; }
+.eyebrow { margin: 0 0 5px; color: var(--focus); font-size: .76rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--serif); letter-spacing: -.035em; }
+.lead { max-width: 79ch; margin: 14px 0 0; color: var(--muted); font-size: 1.03rem; }
+.thesis {
+  padding: 15px 17px;
+  background: rgb(255 253 248 / 82%);
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--focus);
+  border-radius: 11px;
+  box-shadow: var(--shadow);
+}
+.thesis b { display: block; margin-bottom: 5px; color: var(--focus); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
+.thesis p { margin: 0; font: 1.08rem/1.42 var(--serif); }
+.basis {
+  display: flex; flex-wrap: wrap; gap: 7px 10px; align-items: center;
+  margin-top: 17px; padding: 10px 12px;
+  background: rgb(255 253 248 / 72%); border: 1px solid var(--line); border-radius: 10px;
+}
+.basis b { color: var(--muted); font-size: .73rem; letter-spacing: .07em; text-transform: uppercase; }
+.basis code { padding: 3px 7px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.controls {
+  position: sticky; top: 0; z-index: 30;
+  display: grid; grid-template-columns: auto minmax(240px, 1fr) auto; gap: 12px; align-items: center;
+  margin: 18px 0 9px; padding: 9px 11px;
+  background: rgb(243 240 232 / 94%); border: 1px solid var(--line); border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+.button-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.control {
+  min-height: 36px; padding: 6px 11px; color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+}
+.control:hover { border-color: var(--focus); }
+.control.primary { min-width: 5.4rem; color: #fff; background: var(--focus); border-color: var(--focus); }
+.control:focus-visible, .dot:focus-visible, summary:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.readout { min-width: 0; }
+.readout b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.readout span { color: var(--muted); font-size: .79rem; }
+.speed { color: var(--muted); font-size: .8rem; white-space: nowrap; }
+.speed select { margin-left: 4px; padding: 5px; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 6px; }
+.timeline { display: flex; gap: 5px; margin: 0 2px 13px; }
+.dot { height: 10px; min-width: 13px; flex: 1; padding: 0; background: #c9c3b8; border: 0; border-radius: 999px; cursor: pointer; }
+.dot.past { background: color-mix(in srgb, var(--focus) 42%, #c9c3b8); }
+.dot.now { background: var(--focus); box-shadow: 0 0 0 3px rgb(120 81 155 / 18%); }
+.stage { padding: clamp(15px, 2.3vw, 28px); background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+.stage-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; align-items: start; }
+.beat-badge { padding: 6px 10px; color: #fff; background: var(--focus); border-radius: 999px; font-size: .73rem; font-weight: 850; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.stage h2 { margin: 0; font: 750 clamp(1.55rem, 3vw, 2.55rem)/1.07 var(--serif); letter-spacing: -.02em; }
+.stage-intro { max-width: 88ch; margin: 7px 0 0; color: var(--muted); }
+.clock {
+  display: flex; gap: 5px 13px; flex-wrap: wrap; align-items: baseline;
+  margin-top: 12px; padding: 7px 11px; color: var(--focus); background: var(--focus-soft); border-radius: 8px;
+}
+.clock b { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+.clock span { color: var(--ink); font-size: .88rem; }
+.lanes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 15px; }
+.lane {
+  --accent: var(--bp); --soft: var(--bp-soft);
+  min-width: 0; padding: 15px; background: #fff; border: 1px solid var(--line); border-top: 5px solid var(--accent); border-radius: 12px;
+}
+.lane.gd { --accent: var(--gd); --soft: var(--gd-soft); }
+.lane h3 { margin: 0; color: var(--accent); font: 750 1.24rem/1.15 var(--serif); }
+.kind { display: block; margin-top: 3px; color: var(--muted); font-size: .77rem; }
+.state-tray {
+  min-height: 76px; display: flex; gap: 6px; flex-wrap: wrap; align-content: flex-start;
+  margin-top: 10px; padding: 9px; background: #faf8f3; border: 1px solid var(--line); border-radius: 9px;
+}
+.state-tray::before { content: "STATE TRAY"; width: 100%; color: var(--muted); font-size: .65rem; font-weight: 850; letter-spacing: .08em; }
+.state-card, .scratch-card, .faded-card {
+  display: inline-flex; align-items: center; min-height: 28px; padding: 4px 8px; border-radius: 6px;
+  font: 700 .78rem/1.2 var(--serif); font-variant-numeric: tabular-nums;
+}
+.state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
+.lane.bp .state-card { padding-right: 14px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
+.lane.bp .state-card.updated-card { background: var(--bp-soft); }
+.lane.bp .state-card.q-card { background: var(--bp-soft); border-style: dashed; }
+.lane.bp .state-card.fixed-card { padding-right: 8px; clip-path: none; border-style: double; }
+.scratch-card { color: var(--gd); background: var(--gd-soft); border: 2px dashed var(--gd); animation: appear .45s ease both; }
+.faded-card { color: #8c8780; background: #f0ede7; border: 1px dashed #aaa39a; opacity: .58; text-decoration: line-through; }
+.graph { display: block; width: 100%; height: auto; margin: 5px auto 0; }
+.graph text { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
+.graph .base { stroke: #c5beb2; stroke-width: 3; }
+.graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
+.graph .dependency { stroke: var(--gd); stroke-width: 3; stroke-dasharray: 7 7; fill: none; animation: dash 1s linear infinite; }
+.graph .message { stroke: var(--bp); stroke-width: 3.5; fill: none; stroke-dasharray: 9 7; animation: dash 1s linear infinite; }
+.graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
+.graph .bit.hot, .graph .check.hot { stroke-width: 5; }
+.graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
+.graph .node-label { font-weight: 850; }
+.graph .node-value { font-family: var(--serif); font-size: 13px; font-weight: 750; }
+.graph .small { fill: var(--muted); font-size: 10.5px; }
+.graph .tag rect { fill: #fff; stroke: var(--accent); stroke-width: 1.6; }
+.graph .tag.bp rect { stroke-width: 2.2; }
+.graph .tag.gd rect { fill: var(--gd-soft); stroke-dasharray: 5 4; }
+.graph .tag text { font-size: 10.5px; font-weight: 750; }
+.graph .big-sign { fill: var(--focus); font: 850 28px var(--serif); }
+.graph .tick circle { fill: var(--good); }
+.graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
+.math {
+  min-height: 94px; margin-top: 3px; padding: 9px 11px; overflow-x: auto;
+  background: var(--soft); border-radius: 8px; font: 1rem/1.58 var(--serif);
+}
+.math .line { display: block; white-space: nowrap; }
+.explain { min-height: 4.7em; margin: 8px 0 0; }
+.focus-panel { position: relative; min-height: 116px; margin-top: 14px; padding: 14px; overflow: hidden; background: #faf7f1; border: 1px solid var(--line); border-radius: 12px; }
+.focus-title { margin: 0 0 8px; color: var(--focus); font-size: .72rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.focus-panel p { margin: 5px 0; }
+.basis-grid, .mechanism-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.basis-grid > div, .mechanism-grid > div { padding: 9px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.basis-grid b, .mechanism-grid b { display: block; margin-bottom: 3px; color: var(--focus); }
+.basis-grid span, .mechanism-grid span { color: var(--muted); font-size: .82rem; }
+.action-contrast { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
+.action-box { padding: 11px; background: #fff; border: 2px solid var(--line); border-radius: 10px; text-align: center; }
+.action-box.bp { border-color: var(--bp); }
+.action-box.gd { border-color: var(--gd); border-style: dashed; }
+.action-box b { display: block; margin-bottom: 4px; }
+.versus { color: var(--focus); font: 850 1.3rem var(--serif); }
+.boundary-demo { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; padding: 4px 0; }
+.cross-lane { position: relative; min-height: 95px; padding: 10px; overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 9px; }
+.cross-lane b { display: block; margin-bottom: 7px; color: var(--accent); }
+.crossing { display: flex; gap: 5px; flex-wrap: wrap; animation: cross 1.35s ease-in-out both; }
+.crossing .state-card { color: var(--accent); border-color: var(--accent); }
+.temporary { margin-top: 7px; color: var(--muted); font-size: .76rem; animation: disappear 1.35s ease both; }
+.scanner { position: absolute; top: 0; bottom: 0; left: 0; width: 4px; background: var(--focus); box-shadow: 0 0 16px var(--focus); animation: scan 1.6s ease-in-out infinite; }
+.equation-contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.equation-card { padding: 12px; background: #fff; border: 2px solid var(--accent); border-radius: 10px; text-align: center; }
+.equation-card.bp { --accent: var(--bp); }
+.equation-card.gd { --accent: var(--gd); }
+.equation-card b { display: block; color: var(--accent); }
+.equation-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 7px; font: 750 clamp(.91rem, 1.65vw, 1.14rem)/1.35 var(--serif); font-variant-numeric: tabular-nums; }
+.neq { color: var(--bad); font-size: 2rem; }
+.equal { color: var(--good); font-size: 2rem; }
+.conclusion { margin-top: 10px; padding: 10px 12px; color: #fff; background: var(--focus); border-radius: 9px; text-align: center; font: 750 1.1rem/1.4 var(--serif); }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; color: var(--muted); font-size: .82rem; }
+.legend span { display: inline-flex; gap: 7px; align-items: center; }
+.sample { width: 32px; height: 15px; background: #fff; border: 2px solid var(--bp); border-radius: 4px; }
+.sample.arrow { clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 0 100%); }
+.sample.arrow.q { background: var(--bp-soft); border-style: dashed; }
+.sample.temp { border-color: var(--gd); border-style: dashed; }
+.sample.scalar { border-color: var(--gd); }
+.scope, .derivation { margin-top: 13px; padding: 10px 12px; background: rgb(255 253 248 / 78%); border: 1px solid var(--line); border-radius: 10px; }
+.scope b { color: var(--bad); }
+.scope p { margin: 0; }
+.derivation summary { color: var(--focus); cursor: pointer; font-weight: 800; }
+.formula-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
+.formula-grid section { min-width: 0; padding: 11px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.formula-grid h3 { margin: 0 0 7px; font: 750 1.08rem var(--serif); }
+.formula-grid p { margin: 6px 0; overflow-x: auto; font: .96rem/1.55 var(--serif); white-space: nowrap; }
+.source-note { margin: 12px 0 0; color: var(--muted); font-size: .77rem; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; }
+@keyframes dash { to { stroke-dashoffset: -32; } }
+@keyframes appear { from { opacity: 0; transform: translateY(-7px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes cross { from { transform: translateX(-13px); opacity: .65; } to { transform: translateX(14px); opacity: 1; } }
+@keyframes disappear { 0% { opacity: .75; } 70%, 100% { opacity: .14; filter: blur(1px); } }
+@keyframes scan { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 4px); opacity: 0; } }
+@media (max-width: 930px) {
+  .hero { grid-template-columns: 1fr; }
+  .lanes { grid-template-columns: 1fr; }
+  .controls { grid-template-columns: 1fr; }
+  .controls { position: static; }
+  .speed { justify-self: start; }
+  .basis-grid, .mechanism-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .explain { min-height: 0; }
+}
+@media (max-width: 590px) {
+  .page { width: min(100% - 16px, 1320px); padding-top: 14px; }
+  .stage { padding: 10px; }
+  .stage-head { grid-template-columns: 1fr; }
+  .beat-badge { justify-self: start; }
+  .lane { padding: 10px; }
+  .basis-grid, .mechanism-grid, .equation-contrast, .boundary-demo, .formula-grid { grid-template-columns: 1fr; }
+  .action-contrast { grid-template-columns: 1fr; }
+  .versus { text-align: center; }
+  .equation-row { grid-template-columns: 1fr; }
+  .neq, .equal { line-height: .8; }
+  .math .line { margin-bottom: .18rem; white-space: normal; overflow-wrap: anywhere; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+  .scanner { left: 50% !important; opacity: 1 !important; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Focused mechanism animation · three bits · two checks</p>
+      <h1>Same Tanner graph. Different state.</h1>
+      <p class="lead">Watch belief propagation (BP) using the sum-product algorithm and the repository’s native projected gradient descent revisit the fixed parity-check graph. The three channel LLRs are fixed. Their state distinction becomes visible at the iteration boundary and at the shared bit in iteration 2.</p>
+    </div>
+    <aside class="thesis">
+      <b>The point to see</b>
+      <p>Graph traversal alone does not describe the algorithmic distinction shown here. What matters is what each method represents, indexes by edge or bit, retains, and uses to calculate its next state.</p>
+    </aside>
+  </header>
+
+  <div class="basis" aria-label="Fixed comparison basis">
+    <b>Fixed comparison basis</b>
+    <code>H = [[1,1,0],[0,1,1]]</code>
+    <code>L = (−ln 9, ln(3/2), ln 2)</code>
+    <span>For BP, positive <i>L</i> favours bit 1; for GD, <i>ℓ</i>=−<i>L</i> and <i>x</i>=+1 favours bit 0.</span>
+  </div>
+
+  <nav class="controls" aria-label="Animation controls">
+    <div class="button-row">
+      <button class="control" id="back" type="button" aria-label="Previous beat">← Back</button>
+      <button class="control primary" id="play" type="button">Play</button>
+      <button class="control" id="next" type="button" aria-label="Next beat">Next →</button>
+      <button class="control" id="restart" type="button">Restart</button>
+    </div>
+    <div class="readout" aria-live="polite">
+      <b id="beat-readout">Beat 1 of 10</b>
+      <span id="beat-subtitle">Fixed graph and channel evidence</span>
+    </div>
+    <label class="speed">Speed
+      <select id="speed" aria-label="Playback speed">
+        <option value="0.65">0.65×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </label>
+  </nav>
+  <div class="timeline" id="timeline" aria-label="Animation timeline"></div>
+
+  <section class="stage" aria-labelledby="stage-title">
+    <div class="stage-head">
+      <span class="beat-badge" id="beat-badge">Set the basis</span>
+      <div>
+        <h2 id="stage-title">Fix what both methods are allowed to see</h2>
+        <p class="stage-intro" id="stage-intro"></p>
+      </div>
+    </div>
+    <div class="clock">
+      <b>Synchronized explanation clock</b>
+      <span>Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.</span>
+      <span>All GD terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential GD update.</span>
+    </div>
+
+    <div class="lanes" id="lanes">
+      <article class="lane bp" aria-labelledby="bp-heading">
+        <h3 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h3>
+        <div class="state-tray" id="bp-state"></div>
+        <svg class="graph" id="bp-graph" viewBox="0 0 620 330" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+        <div class="math" id="bp-math"></div>
+        <p class="explain" id="bp-explain"></p>
+      </article>
+
+      <article class="lane gd" aria-labelledby="gd-heading">
+        <h3 id="gd-heading">Projected gradient descent (GD)<span class="kind">one scalar per bit, with <i>x</i>=+1 favouring bit 0 · dashed cards are temporary calculations, not messages</span></h3>
+        <div class="state-tray" id="gd-state"></div>
+        <svg class="graph" id="gd-graph" viewBox="0 0 620 330" role="img" aria-label="Tanner graph showing projected gradient descent dependencies"></svg>
+        <div class="math" id="gd-math"></div>
+        <p class="explain" id="gd-explain"></p>
+      </article>
+    </div>
+
+    <div class="focus-panel" id="focus-panel"></div>
+  </section>
+
+  <div class="legend" aria-label="Visual legend">
+    <span><i class="sample arrow" aria-hidden="true"></i> retained BP <i>U</i> at this boundary</span>
+    <span><i class="sample arrow q" aria-hidden="true"></i> newly calculated BP <i>Q</i></span>
+    <span><i class="sample scalar" aria-hidden="true"></i> retained GD bit state</span>
+    <span><i class="sample temp" aria-hidden="true"></i> temporary GD calculation</span>
+  </div>
+
+  <aside class="scope">
+    <p><b>Evidence boundary:</b> this page explains a mechanism using a validated three-bit endpoint trace. It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble. The native methods still differ in objective function, check calculation, update rule, projection, and stopping behavior.</p>
+  </aside>
+
+  <details class="derivation">
+    <summary>Math and conventions used by the animation</summary>
+    <div class="formula-grid">
+      <section>
+        <h3>Belief propagation using the sum-product algorithm</h3>
+        <p><i>Q</i><sub>i→a</sub><sup>(t)</sup> = <i>L</i><sub>i</sub> + Σ<sub>b∈N(i)\a</sub><i>U</i><sub>b→i</sub><sup>(t−1)</sup></p>
+        <p>Each check here joins two bits and requires them to agree; therefore <i>U</i><sub>a→i</sub> is the other incoming <i>Q</i>.</p>
+        <p>Λ<sub>i</sub><sup>(t)</sup> = <i>L</i><sub>i</sub> + Σ<sub>a∈N(i)</sub><i>U</i><sub>a→i</sub><sup>(t)</sup></p>
+        <p>This page places the iteration boundary after the check calculation, so the four <i>U</i> values feed the next variable calculation.</p>
+      </section>
+      <section>
+        <h3>Native projected gradient descent</h3>
+        <p><i>J</i>(<b>x</b>) = −(<i>w</i><sub>ch</sub>/(2<i>n</i>))Σ<sub>i</sub>ℓ<sub>i</sub><i>x</i><sub>i</sub> + (<i>w</i><sub>par</sub>/<i>n</i>)Σ<sub>a</sub>(1−∏<sub>j∈a</sub><i>x</i><sub>j</sub>)² + (<i>w</i><sub>bin</sub>/<i>n</i>)Σ<sub>i</sub>(1−<i>x</i><sub>i</sub>²)²</p>
+        <p><i>g</i><sub>a,i</sub> = −(2<i>w</i><sub>par</sub>/<i>n</i>)<i>r</i><sub>a</sub>∏<sub>j∈a,j≠i</sub><i>x</i><sub>j</sub>, &nbsp; <i>r</i><sub>a</sub> = 1−∏<sub>j∈a</sub><i>x</i><sub>j</sub></p>
+        <p><i>D</i><sub>i</sub> = (2<i>w</i><sub>par</sub> deg(<i>i</i>)+8<i>w</i><sub>bin</sub>)/<i>n</i>, giving <b>D</b> = (1.866667, 3.2, 1.866667).</p>
+        <p><b>x</b><sup>+</sup> = clip(<b>x</b> − η<b>D</b><sup>−1</sup>∇<i>J</i>, −1, 1), with <i>w</i><sub>ch</sub>=1, <i>w</i><sub>par</sub>=2, <i>w</i><sub>bin</sub>=0.2 and accepted η=0.2.</p>
+        <p>The displayed check terms in each partial derivative of the objective function are recomputed from the frozen <b>x</b> and combined by coordinate.</p>
+      </section>
+    </div>
+  </details>
+  <p class="source-note">Values are tied to <code>experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The topology matches <code>three_symbols_two_checks.html</code>; this focused page uses the channel evidence and objective function from the retained projected gradient descent trace rather than that page’s parity-only teaching step.</p>
+</main>
+
+<script id="animation-data" type="application/json">
+{
+  "schema": "bp-gd-state-boundary-animation/v1",
+  "source": {
+    "path": "experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json",
+    "sha256": "c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"
+  },
+  "graph": {"checks": [[1, 2], [2, 3]], "edge_order": ["1-A", "2-A", "2-B", "3-B"]},
+  "bp": {
+    "L": [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453],
+    "u0": [0.0, 0.0, 0.0, 0.0],
+    "q1": [-2.1972245773362196, 0.4054651081081644, 0.4054651081081644, 0.6931471805599453],
+    "u1": [0.40546510810816433, -2.1972245773362196, 0.6931471805599453, 0.40546510810816433],
+    "posterior1": [-1.7917594692280552, -1.0986122886681098, 1.0986122886681096],
+    "q2": [-2.1972245773362196, 1.0986122886681096, -1.7917594692280552, 0.6931471805599453]
+  },
+  "gd": {
+    "ell": [2.1972245773362196, -0.4054651081081644, -0.6931471805599453],
+    "x0": [0.8, -0.19999999999999998, -0.3333333333333333],
+    "n": 3,
+    "weights": {"channel": 1.0, "parity": 2.0, "binary": 0.2},
+    "residual": {"A": 1.16, "B": 0.9333333333333333},
+    "g": {"A": [0.3093333333333333, -1.2373333333333334], "B": [0.4148148148148148, 0.24888888888888888]},
+    "channel_partial": [-0.3662040962227033, 0.0675775180180274, 0.11552453009332421],
+    "binary_partial": [-0.0768, 0.051199999999999996, 0.07901234567901234],
+    "gradient": [-0.13367076288936997, -0.7037410005004913, 0.4434257646612254],
+    "curvature": [1.8666666666666665, 3.1999999999999997, 1.8666666666666665],
+    "direction": [0.0716093372621625, 0.21991906265640354, -0.23754951678279934],
+    "accepted_step": 0.2,
+    "x1": [0.8143218674524325, -0.15601618746871926, -0.38084323668989317],
+    "loss_before": 1.2555753472472062,
+    "loss_after": 1.2036294788150355,
+    "active_projection_coordinates": []
+  },
+  "beat_count": 10
+}
+</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("animation-data").textContent);
+  const BP = DATA.bp, GD = DATA.gd;
+  const EDGES = [
+    { i: 0, a: 0, label: "1→A" }, { i: 1, a: 0, label: "2→A" },
+    { i: 1, a: 1, label: "2→B" }, { i: 2, a: 1, label: "3→B" }
+  ];
+  const BEATS = [
+    { badge: "Set the basis", title: "Fix what both methods are allowed to see", subtitle: "Fixed graph and channel evidence",
+      intro: "The parity-check matrix and the three channel LLRs are fixed. BP and GD express that evidence in different coordinates before either algorithm updates." },
+    { badge: "State before work", title: "Count the independently retained values", subtitle: "Four addressed BP slots versus three GD scalars",
+      intro: "The first visual difference is the state container: BP has a value for each directed Tanner incidence in this phase; GD has one relaxed scalar for each bit." },
+    { badge: "Check A reads", title: "The same Tanner incidences become active", subtitle: "A touches bits 1 and 2",
+      intro: "The synchronized highlight shows traversal only. BP calculates variable-to-check messages; GD check A reads the frozen scalar vector." },
+    { badge: "Check A acts", title: "A produces different kinds of quantities", subtitle: "Addressed BP messages versus temporary GD terms",
+      intro: "BP writes check-to-variable messages into addressed edge slots. GD calculates check A’s contribution to the gradient of the objective function in place." },
+    { badge: "Check B reads", title: "Both now revisit the second pair of incidences", subtitle: "B touches bits 2 and 3",
+      intro: "Again the highlighted edges agree, but the values presented to the check and their algorithmic roles do not." },
+    { badge: "Check B acts", title: "B repeats the representational contrast", subtitle: "Persistent edge values versus temporary calculation cards",
+      intro: "BP writes two more addressed messages. GD calculates two more terms that enter a partial derivative of the objective function; those terms have not become messages." },
+    { badge: "Calculate next state", title: "Now watch how each method combines information", subtitle: "BP recurrence versus one projected gradient descent step",
+      intro: "BP keeps the check-to-variable values separately indexed. GD sums all terms for each coordinate, scales the gradient, and updates one scalar per bit." },
+    { badge: "Boundary scanner", title: "Ask what is needed after iteration 1", subtitle: "Retained state crosses; temporary calculations fade",
+      intro: "For this displayed BP schedule, four addressed U values feed the next variable calculation. For GD, the updated x is the independent state needed to continue; derivative terms are recomputable from x." },
+    { badge: "Iteration 2", title: "The shared bit makes the distinction visible", subtitle: "BP supplies two different Q values; both GD checks read one x₂",
+      intro: "Iteration 1 hid BP’s recipient indexing because all incoming U values began at zero. Iteration 2 exposes it with opposite signs at bit 2." },
+    { badge: "Mechanism", title: "The shared graph is not the whole mechanism", subtitle: "Representation, addressing, retention, and next-state use",
+      intro: "The graph determines which quantities interact. The algorithms still differ in the state they carry and in the operation that turns current information into the next state." }
+  ];
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const PX = [105, 310, 515], PY = 250, CX = [205, 415], CY = 57;
+  let current = 0, playing = false, timer = null, speed = 1;
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function sf(value, digits = 6, sign = true) {
+    const v = Math.abs(value) < 0.5 * Math.pow(10, -digits) ? 0 : value;
+    const prefix = sign && v >= 0 ? "+" : "";
+    return (prefix + v.toFixed(digits)).replace(/-/g, "−");
+  }
+  function vec(values, digits = 6) { return "(" + values.map(v => sf(v, digits)).join(", ") + ")"; }
+  function line(text) { return `<span class="line">${text}</span>`; }
+  function stateCard(label, extra = "") { return `<span class="state-card${extra ? " " + extra : ""}">${label}</span>`; }
+  function qCard(label) { return stateCard(label, "q-card"); }
+  function fixedCard(label) { return stateCard(label, "fixed-card"); }
+  function scratch(label) { return `<span class="scratch-card">${label}</span>`; }
+  function faded(label) { return `<span class="faded-card">${label}</span>`; }
+
+  function el(parent, name, attrs = {}, text = null) {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    if (text !== null) node.textContent = text;
+    parent.appendChild(node);
+    return node;
+  }
+  function addMarker(svg, color, id) {
+    const defs = el(svg, "defs");
+    const marker = el(defs, "marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    el(marker, "path", { d: "M 0 0 L 10 5 L 0 10 z", fill: color });
+  }
+  function edgePoints(edge) { return { bit: [PX[edge.i], PY], check: [CX[edge.a], CY] }; }
+  function tag(svg, x, y, text, method, hot = false) {
+    const width = Math.max(82, Math.min(150, 17 + text.length * 5.7));
+    const group = el(svg, "g", { class: `tag ${method}` + (hot ? " hot" : "") });
+    el(group, "rect", { x: x - width / 2, y: y - 13, width, height: 26, rx: 6 });
+    el(group, "text", { x, y: y + 4, "text-anchor": "middle" }, text);
+  }
+  function tick(svg, x, y) {
+    const group = el(svg, "g", { class: "tick" });
+    el(group, "circle", { cx: x, cy: y, r: 10 });
+    el(group, "path", { d: `M ${x - 5} ${y} l 4 4 l 7 -8` });
+  }
+  function activeEdges(k) {
+    if (k === 2 || k === 3) return [0, 1];
+    if (k === 4 || k === 5) return [2, 3];
+    if (k === 8) return [1, 2];
+    return k === 0 ? [0, 1, 2, 3] : [];
+  }
+  function drawBase(svg, method, k) {
+    svg.replaceChildren();
+    addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
+    const active = activeEdges(k);
+    EDGES.forEach((edge, index) => {
+      const p = edgePoints(edge);
+      el(svg, "line", { x1: p.bit[0], y1: p.bit[1], x2: p.check[0], y2: p.check[1], class: "base" + (active.includes(index) ? " active" : "") });
+    });
+    el(svg, "g", { class: "flow-layer" });
+    const nodes = el(svg, "g", { class: "node-layer" });
+    [0, 1].forEach(a => {
+      const hot = (a === 0 && (k === 2 || k === 3)) || (a === 1 && (k === 4 || k === 5)) || k === 8;
+      el(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
+      el(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
+    });
+    const values = method === "bp" ? BP.L : (k >= 6 ? GD.x1 : GD.x0);
+    values.forEach((value, i) => {
+      const hot = k === 8 && i === 1;
+      el(nodes, "circle", { cx: PX[i], cy: PY, r: 29, class: "bit" + (hot ? " hot" : "") });
+      el(nodes, "text", { x: PX[i], y: PY - 3, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
+      el(nodes, "text", { x: PX[i], y: PY + 15, "text-anchor": "middle", class: "node-value" }, method === "bp" ? `L ${sf(value, 3)}` : `x ${sf(value, 3)}`);
+    });
+    el(nodes, "text", { x: 15, y: 315, class: "small" }, method === "bp" ? "arrowheads identify BP message direction; dashes animate motion" : "dashed guides = factor dependence, not message motion");
+  }
+  function drawFlow(svg, edgeIndex, direction, label, method, hot = false) {
+    const p = edgePoints(EDGES[edgeIndex]);
+    const from = direction === "up" ? p.bit : p.check;
+    const to = direction === "up" ? p.check : p.bit;
+    const flowLayer = svg.querySelector(".flow-layer") || svg;
+    el(flowLayer, "line", {
+      x1: from[0], y1: from[1], x2: to[0], y2: to[1],
+      class: method === "bp" ? "message" : "dependency",
+      "marker-end": method === "bp" ? `url(#${method}-arrow)` : ""
+    });
+    const mx = (p.bit[0] + p.check[0]) / 2;
+    const my = (p.bit[1] + p.check[1]) / 2 + (edgeIndex % 2 === 0 ? -4 : 5);
+    tag(svg, mx, my, label, method, hot);
+  }
+  function drawBP(k) {
+    const svg = $("bp-graph");
+    drawBase(svg, "bp", k);
+    if (k === 1) BP.u0.forEach((v, e) => tag(svg, (PX[EDGES[e].i] + CX[EDGES[e].a]) / 2, 160, `U ${sf(v, 1)}`, "bp"));
+    if (k === 2) [0, 1].forEach(e => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(BP.q1[e], 3)}`, "bp", true));
+    if (k === 3) [0, 1].forEach(e => drawFlow(svg, e, "down", `U A→${EDGES[e].i + 1} ${sf(BP.u1[e], 3)}`, "bp", true));
+    if (k === 4) [2, 3].forEach(e => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(BP.q1[e], 3)}`, "bp", true));
+    if (k === 5) [2, 3].forEach(e => drawFlow(svg, e, "down", `U B→${EDGES[e].i + 1} ${sf(BP.u1[e], 3)}`, "bp", true));
+    if (k === 6 || k === 7) {
+      BP.u1.forEach((v, e) => {
+        const p = edgePoints(EDGES[e]);
+        tag(svg, (p.bit[0] + p.check[0]) / 2, (p.bit[1] + p.check[1]) / 2, `U ${sf(v, 3)}`, "bp");
+        if (k === 7) tick(svg, (p.bit[0] + p.check[0]) / 2 + 44, (p.bit[1] + p.check[1]) / 2 - 12);
+      });
+      if (k === 6) BP.posterior1.forEach((v, i) => el(svg, "text", { x: PX[i], y: 294, "text-anchor": "middle", class: "node-value" }, `Λ¹ ${sf(v, 3)}`));
+    }
+    if (k >= 8) {
+      BP.q2.forEach((v, e) => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(v, 3)}`, "bp", e === 1 || e === 2));
+      el(svg, "text", { x: 310, y: 122, "text-anchor": "middle", class: "big-sign" }, "≠");
+    }
+  }
+  function gdRead(svg, edgeIndices, checkName, residual, k) {
+    edgeIndices.forEach(e => drawFlow(svg, e, "up", `reads x${EDGES[e].i + 1} ${sf(k >= 8 ? GD.x1[EDGES[e].i] : GD.x0[EDGES[e].i], 3)}`, "gd", true));
+    const a = checkName === "A" ? 0 : 1;
+    tag(svg, CX[a], 105, `r${checkName} = ${residual.toFixed(6)}`, "gd", true);
+  }
+  function drawGD(k) {
+    const svg = $("gd-graph");
+    drawBase(svg, "gd", k);
+    if (k === 2) gdRead(svg, [0, 1], "A", GD.residual.A, k);
+    if (k === 3) {
+      tag(svg, 176, 130, `gA,1 ${sf(GD.g.A[0], 3)}`, "gd", true);
+      tag(svg, 270, 168, `gA,2 ${sf(GD.g.A[1], 3)}`, "gd", true);
+    }
+    if (k === 4) gdRead(svg, [2, 3], "B", GD.residual.B, k);
+    if (k === 5) {
+      tag(svg, 350, 168, `gB,2 ${sf(GD.g.B[0], 3)}`, "gd", true);
+      tag(svg, 448, 130, `gB,3 ${sf(GD.g.B[1], 3)}`, "gd", true);
+    }
+    if (k === 6) {
+      tag(svg, 310, 165, `∂J/∂x2 ${sf(GD.gradient[1], 6)}`, "gd", true);
+      el(svg, "text", { x: 310, y: 205, "text-anchor": "middle", class: "node-value" }, `x₂: ${sf(GD.x0[1], 3)} → ${sf(GD.x1[1], 6)}`);
+    }
+    if (k === 7) GD.x1.forEach((v, i) => tick(svg, PX[i] + 27, PY - 24));
+    if (k >= 8) {
+      drawFlow(svg, 1, "up", `x₂ ${sf(GD.x1[1], 3)}`, "gd", true);
+      drawFlow(svg, 2, "up", `x₂ ${sf(GD.x1[1], 3)}`, "gd", true);
+      el(svg, "text", { x: 310, y: 122, "text-anchor": "middle", class: "big-sign" }, "=");
+    }
+  }
+
+  function renderState(k) {
+    let bp = "", gd = "";
+    if (k === 0) {
+      bp = BP.L.map((v, i) => fixedCard(`L${i + 1} ${sf(v, 3)}`)).join("");
+      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
+    } else if (k === 1) {
+      bp = BP.u0.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 1)}`)).join("");
+      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
+    } else if (k <= 5) {
+      bp = BP.u0.map((initial, e) => {
+        const updated = (e < 2 && k >= 3) || (e >= 2 && k >= 5);
+        const value = updated ? BP.u1[e] : initial;
+        return stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(value, updated ? 3 : 1)}`, updated ? "updated-card" : "");
+      }).join("");
+      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
+      if (k >= 3) gd += scratch(`gA,1 ${sf(GD.g.A[0], 3)}`) + scratch(`gA,2 ${sf(GD.g.A[1], 3)}`);
+      if (k >= 5) gd += scratch(`gB,2 ${sf(GD.g.B[0], 3)}`) + scratch(`gB,3 ${sf(GD.g.B[1], 3)}`);
+    } else if (k === 6) {
+      bp = BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("");
+      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("") + scratch(`∇J ${vec(GD.gradient, 3)}`);
+    } else if (k === 7) {
+      bp = BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("") + faded("Q and Λ are recomputed");
+      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("") + faded("r, g, ∇J, D, and d are recomputed");
+    } else {
+      bp = BP.q2.map((v, e) => qCard(`Q${EDGES[e].label} ${sf(v, 3)}`)).join("");
+      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("");
+    }
+    $("bp-state").innerHTML = bp;
+    $("gd-state").innerHTML = gd;
+  }
+
+  function renderText(k) {
+    const bpMath = [
+      [line(`<i>L</i> = ${vec(BP.L)}`), line(`<i>Q</i><sub>i→a</sub> = <i>L</i><sub>i</sub> + Σ<sub>b∈N(i)\\a</sub><i>U</i><sub>b→i</sub>`) ],
+      [line(`<i>U</i><sup>(0)</sup> = ${vec(BP.u0, 1)}`), line(`four slots are indexed by check and bit`) ],
+      [line(`<i>Q</i><sub>1→A</sub> = ${sf(BP.q1[0])}`), line(`<i>Q</i><sub>2→A</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>B→2</sub><sup>(0)</sup> = ${sf(BP.q1[1])}`) ],
+      [line(`<i>U</i><sub>A→1</sub><sup>(1)</sup> = <i>Q</i><sub>2→A</sub><sup>(1)</sup> = ${sf(BP.u1[0])}`), line(`<i>U</i><sub>A→2</sub><sup>(1)</sup> = <i>Q</i><sub>1→A</sub><sup>(1)</sup> = ${sf(BP.u1[1])}`) ],
+      [line(`<i>Q</i><sub>2→B</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>A→2</sub><sup>(0)</sup> = ${sf(BP.q1[2])}`), line(`<i>Q</i><sub>3→B</sub> = ${sf(BP.q1[3])}`) ],
+      [line(`<i>U</i><sub>B→2</sub><sup>(1)</sup> = ${sf(BP.u1[2])}`), line(`<i>U</i><sub>B→3</sub><sup>(1)</sup> = ${sf(BP.u1[3])}`) ],
+      [line(`Λ<sup>(1)</sup> = <i>L</i> + Σ<i>U</i><sup>(1)</sup> = ${vec(BP.posterior1)}`), line(`the four <i>U</i><sup>(1)</sup> values remain separately indexed`) ],
+      [line(`next variable phase reads <i>L</i> and <i>U</i><sup>(1)</sup>`), line(`<i>Q</i><sup>(2)</sup> is then recomputed for each recipient check`) ],
+      [line(`<i>Q</i><sub>2→A</sub><sup>(2)</sup> = ${sf(BP.L[1])} + ${sf(BP.u1[2])} = ${sf(BP.q2[1])}`), line(`<i>Q</i><sub>2→B</sub><sup>(2)</sup> = ${sf(BP.L[1])} + (${sf(BP.u1[1])}) = ${sf(BP.q2[2])}`) ],
+      [line(`<i>Q</i><sub>i→a</sub> excludes the preceding <i>U</i> from recipient <i>a</i>`), line(`one bit can therefore supply different values to neighboring checks`) ]
+    ];
+    const gdMath = [
+      [line(`ℓ = −<i>L</i> = ${vec(GD.ell)}`), line(`<b>x</b><sup>(0)</sup> = tanh(ℓ/2) = ${vec(GD.x0)}`) ],
+      [line(`retained state: <b>x</b><sup>(0)</sup> = ${vec(GD.x0)}`), line(`one independently updated scalar per bit`) ],
+      [line(`<i>r</i><sub>A</sub> = 1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub> = ${GD.residual.A.toFixed(6)}`), line(`A reads the frozen <i>x</i><sub>1</sub> and <i>x</i><sub>2</sub>`) ],
+      [line(`<i>g</i><sub>A,1</sub> = ${sf(GD.g.A[0])}`), line(`<i>g</i><sub>A,2</sub> = ${sf(GD.g.A[1])}`) ],
+      [line(`<i>r</i><sub>B</sub> = 1 − <i>x</i><sub>2</sub><i>x</i><sub>3</sub> = ${GD.residual.B.toFixed(6)}`), line(`B reads the same frozen <i>x</i><sub>2</sub> and <i>x</i><sub>3</sub>`) ],
+      [line(`<i>g</i><sub>B,2</sub> = ${sf(GD.g.B[0])}`), line(`<i>g</i><sub>B,3</sub> = ${sf(GD.g.B[1])}`) ],
+      [line(`∂<i>J</i>/∂<i>x</i><sub>2</sub> = ${sf(GD.g.A[1])} + ${sf(GD.g.B[0])} + ${sf(GD.channel_partial[1])} + ${sf(GD.binary_partial[1])} = ${sf(GD.gradient[1])}`), line(`<i>x</i><sub>2</sub><sup>(1)</sup> = clip(${sf(GD.x0[1])} − 0.2(${sf(GD.gradient[1])})/3.2) = ${sf(GD.x1[1])}`) ],
+      [line(`state needed to continue: <b>x</b><sup>(1)</sup> = ${vec(GD.x1)}`), line(`check terms are recalculated from the next frozen <b>x</b>`) ],
+      [line(`A reads <i>x</i><sub>2</sub><sup>(1)</sup> = ${sf(GD.x1[1])}`), line(`B reads <i>x</i><sub>2</sub><sup>(1)</sup> = ${sf(GD.x1[1])}`) ],
+      [line(`∂<i>J</i>/∂<i>x</i><sub>i</sub> = Σ<sub>a∈N(i)</sub><i>g</i><sub>a,i</sub> + channel term + binary term`), line(`one combined coordinate update produces one new <i>x</i><sub>i</sub>`) ]
+    ];
+    const bpExplain = [
+      "The fixed LLR vector is expressed with positive values favouring bit 1.",
+      "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
+      "A receives two Q messages. In iteration 1, the value from bit 2 equals L₂ because the other incoming U is still zero.",
+      "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
+      "B receives the frozen variable-to-check values for bits 2 and 3.",
+      "B writes its two check-to-variable messages into the B→2 and B→3 slots.",
+      "The a-posteriori LLR is useful for a decision, but the separately addressed U values feed the next variable calculation in this displayed schedule.",
+      "The solid U cards cross the scanner. Q and the a-posteriori LLR can be recalculated from the fixed L and retained U values.",
+      "Bit 2 now supplies a positive Q to A and a negative Q to B because each calculation excludes the message from its recipient check.",
+      "BP preserves which check supplied the preceding information and uses that address when calculating the next Q."
+    ];
+    const gdExplain = [
+      "The sign-related coordinate uses xᵢ=+1 to favour bit 0. This is the native scalar convention, not BP’s message representation.",
+      "The independent state has three coordinates. The checks do not own separate copies of x₂ in this method.",
+      "A evaluates r_A=1−x₁x₂ from the frozen scalar vector. The dashed guide means mathematical dependence, not a traveling message.",
+      "The g terms are contributions to two coordinates of the gradient. They are temporary calculations for this update.",
+      "B reads the same x₂ value that A read because there is one retained scalar for bit 2.",
+      "B’s terms are also temporary. They will be combined with A’s terms and the channel and binary terms by coordinate.",
+      "At bit 2, four contributions become one gradient coordinate. The update is x←clip(x−ηD⁻¹∇J); equivalently x←clip(x+ηd) for d=−D⁻¹∇J.",
+      "Only x⁽¹⁾ is independent state needed by the next GD calculation. An implementation may cache diagnostics, but they are deterministic functions of x.",
+      "Both checks read x₂⁽¹⁾=−0.156016. Their subsequent derivative terms may differ, but the retained bit state is not indexed by recipient check.",
+      "Projected GD combines the terms entering each partial derivative of the objective function into one coordinate update. It does not preserve those terms as independently addressed BP messages."
+    ];
+    $("bp-math").innerHTML = bpMath[k].join("");
+    $("gd-math").innerHTML = gdMath[k].join("");
+    $("bp-explain").textContent = bpExplain[k];
+    $("gd-explain").textContent = gdExplain[k];
+  }
+
+  function focusHTML(k) {
+    if (k === 0) return `<p class="focus-title">The controlled visual question</p><div class="basis-grid"><div><b>Graph</b><span>Checks A={1,2}, B={2,3}</span></div><div><b>Channel evidence</b><span>L is fixed exactly</span></div><div><b>BP coordinate</b><span>positive L favours bit 1</span></div><div><b>GD coordinate</b><span>x=+1 favours bit 0</span></div></div>`;
+    if (k === 1) return `<p class="focus-title">See the state before seeing the arithmetic</p><div class="action-contrast"><div class="action-box bp"><b>BP: four addressed slots</b>U<sub>A→1</sub>, U<sub>A→2</sub>, U<sub>B→2</sub>, U<sub>B→3</sub></div><span class="versus">versus</span><div class="action-box gd"><b>GD: three shared bit coordinates</b>x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub></div></div>`;
+    if (k === 2 || k === 4) return `<p class="focus-title">The same incidences participate; representation does not match</p><div class="action-contrast"><div class="action-box bp"><b>BP</b>directed Q messages are calculated for one recipient check</div><span class="versus">same highlighted incidences</span><div class="action-box gd"><b>GD</b>dashed dependence guides show which frozen x coordinates enter a check term</div></div>`;
+    if (k === 3 || k === 5) return `<p class="focus-title">Do not give the two outputs the same visual grammar</p><div class="action-contrast"><div class="action-box bp"><b>BP output</b>an addressed U message is written into an edge slot</div><span class="versus">not the same object</span><div class="action-box gd"><b>GD calculation</b>a dashed g card appears locally and will be combined by coordinate</div></div>`;
+    if (k === 6) return `<p class="focus-title">Two next-state operators</p><div class="action-contrast"><div class="action-box bp"><b>BP recurrence</b>retain separately indexed U; use exclusion when forming the next Q</div><span class="versus">versus</span><div class="action-box gd"><b>Projected gradient descent step</b>sum derivative terms; apply D<sup>−1</sup>, step size, and box projection to one x</div></div>`;
+    if (k === 7) return `<p class="focus-title">Iteration-boundary scanner</p><div class="boundary-demo"><div class="cross-lane" style="--accent:var(--bp)"><b>BP: these addressed values feed the next variable calculation</b><div class="crossing">${BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("")}</div><div class="temporary">Q and Λ are recalculated when needed.</div></div><div class="cross-lane" style="--accent:var(--gd)"><b>GD: this scalar vector is sufficient to continue</b><div class="crossing">${GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 3)}`)).join("")}</div><div class="temporary">r, g, ∇J, D and d fade; each can be recomputed from x and fixed parameters.</div></div><div class="scanner" aria-hidden="true"></div></div>`;
+    if (k === 8) return `<p class="focus-title">The key visual at bit 2</p><div class="equation-contrast"><div class="equation-card bp"><b>BP: value indexed by recipient check</b><div class="equation-row"><span>Q<sub>2→A</sub><sup>(2)</sup><br>${sf(BP.q2[1])}</span><span class="neq">≠</span><span>Q<sub>2→B</sub><sup>(2)</sup><br>${sf(BP.q2[2])}</span></div></div><div class="equation-card gd"><b>GD: one retained bit state</b><div class="equation-row"><span>A reads x<sub>2</sub><sup>(1)</sup><br>${sf(GD.x1[1])}</span><span class="equal">=</span><span>B reads x<sub>2</sub><sup>(1)</sup><br>${sf(GD.x1[1])}</span></div></div></div>`;
+    return `<p class="focus-title">What the viewer should now be able to say</p><div class="mechanism-grid"><div><b>Representation</b><span>BP uses directed edge messages; GD uses bit scalars.</span></div><div><b>Addressing</b><span>BP’s Q is indexed by recipient check; GD’s x is indexed by bit.</span></div><div><b>Retention</b><span>Addressed BP state and GD x survive; GD’s displayed check terms are recomputable.</span></div><div><b>Next-state calculation</b><span>BP applies a message recurrence; GD combines derivatives and projects a coordinate step.</span></div></div><div class="conclusion">The Tanner incidences are revisited. What differs is the state represented, indexed, retained, and supplied to the next calculation.</div>`;
+  }
+
+  function render() {
+    const beat = BEATS[current];
+    $("beat-badge").textContent = beat.badge;
+    $("stage-title").textContent = beat.title;
+    $("stage-intro").textContent = beat.intro;
+    $("beat-readout").textContent = `Beat ${current + 1} of ${BEATS.length}`;
+    $("beat-subtitle").textContent = beat.subtitle;
+    renderState(current);
+    drawBP(current);
+    drawGD(current);
+    renderText(current);
+    $("focus-panel").innerHTML = focusHTML(current);
+    placeFocus();
+    document.querySelectorAll(".dot").forEach((dot, index) => {
+      dot.classList.toggle("past", index < current);
+      dot.classList.toggle("now", index === current);
+      dot.setAttribute("aria-current", index === current ? "step" : "false");
+    });
+    $("play").textContent = playing ? "Pause" : (current === BEATS.length - 1 ? "Replay" : "Play");
+    if (!location.search.includes("smoke=1")) history.replaceState(null, "", `#beat=${current + 1}`);
+  }
+  function placeFocus() {
+    const lanes = $("lanes"), focus = $("focus-panel");
+    if (window.matchMedia("(max-width:590px)").matches && current >= 7) {
+      lanes.parentNode.insertBefore(focus, lanes);
+    } else {
+      lanes.parentNode.insertBefore(focus, lanes.nextSibling);
+    }
+  }
+  function stop() { playing = false; if (timer !== null) clearTimeout(timer); timer = null; render(); }
+  function schedule() {
+    if (!playing) return;
+    const delay = current >= 6 ? 7200 : 4800;
+    timer = setTimeout(() => {
+      if (current >= BEATS.length - 1) { stop(); return; }
+      current += 1; render(); schedule();
+    }, delay / speed);
+  }
+  function play() {
+    if (playing) { stop(); return; }
+    if (current >= BEATS.length - 1) current = 0;
+    playing = true; render(); schedule();
+  }
+  function move(delta) { stop(); current = Math.max(0, Math.min(BEATS.length - 1, current + delta)); render(); }
+
+  const timeline = $("timeline");
+  BEATS.forEach((beat, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button"; dot.className = "dot"; dot.title = `Beat ${index + 1}: ${beat.subtitle}`;
+    dot.setAttribute("aria-label", dot.title);
+    dot.addEventListener("click", () => { stop(); current = index; render(); });
+    timeline.appendChild(dot);
+  });
+  $("play").addEventListener("click", play);
+  $("back").addEventListener("click", () => move(-1));
+  $("next").addEventListener("click", () => move(1));
+  $("restart").addEventListener("click", () => { stop(); current = 0; render(); });
+  $("speed").addEventListener("change", event => { speed = Number(event.target.value); if (playing) { clearTimeout(timer); schedule(); } });
+  window.addEventListener("resize", placeFocus);
+  document.addEventListener("keydown", event => {
+    if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
+    if (event.key === " ") { event.preventDefault(); play(); }
+    if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
+    if (event.key === "Home") { event.preventDefault(); stop(); current = 0; render(); }
+  });
+  const match = /^#beat=(\d+)$/.exec(location.hash);
+  if (match) current = Math.max(0, Math.min(BEATS.length - 1, Number(match[1]) - 1));
+
+  window.BP_GD_STATE_ANIMATION = {
+    data: DATA, beats: BEATS.slice(),
+    getBeat: () => current,
+    setBeat: index => { stop(); current = Math.max(0, Math.min(BEATS.length - 1, Number(index))); render(); }
+  };
+  render();
+  document.documentElement.dataset.animationReady = "true";
+  if (location.search.includes("smoke=1")) {
+    try {
+      const snapshots = document.createElement("section");
+      snapshots.id = "animation-smoke-snapshots";
+      snapshots.hidden = true;
+      const saveSnapshot = (id, sourceId) => {
+        const snapshot = document.createElement("p");
+        snapshot.id = id;
+        snapshot.textContent = $(sourceId).textContent;
+        snapshots.appendChild(snapshot);
+      };
+      for (let k = 0; k < BEATS.length; k += 1) {
+        current = k; render();
+        if (!$("stage-title").textContent || !$("bp-math").textContent || !$("gd-math").textContent || !$("focus-panel").textContent) throw new Error(`empty beat ${k + 1}`);
+        if (k === 6) {
+          saveSnapshot("smoke-beat7-bp-math", "bp-math");
+          saveSnapshot("smoke-beat7-gd-math", "gd-math");
+        }
+        if (k === 8) saveSnapshot("smoke-beat9-focus", "focus-panel");
+      }
+      document.body.appendChild(snapshots);
+      if (!$("focus-panel").querySelector(".mechanism-grid")) throw new Error("final mechanism grid missing");
+      current = 8; render();
+      if (!$("focus-panel").querySelector(".neq") || !$("focus-panel").querySelector(".equal")) throw new Error("iteration-2 contrast missing");
+      current = 7; render();
+      if (!$("focus-panel").querySelector(".boundary-demo")) throw new Error("boundary scanner missing");
+      current = 0; render();
+      document.documentElement.dataset.animationSmoke = "passed";
+      document.documentElement.dataset.animationSmokeBeats = String(BEATS.length);
+    } catch (error) {
+      document.documentElement.dataset.animationSmoke = `failed: ${error.message}`;
+    }
+  } else if (!reduced && !match && window.innerWidth > 930) {
+    setTimeout(() => { if (!playing && current === 0) play(); }, 900);
+  }
+})();
+</script>
+</body>
+</html>
