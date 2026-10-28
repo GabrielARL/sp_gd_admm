@@ -1,0 +1,3 @@
+split,endpoint,pairs,both_success,full_only_success,tied_only_success,both_failure,risk_difference_full_minus_tied,interval_confidence_level,interval_lower,interval_upper,mcnemar_exact_two_sided_pvalue,holm_adjusted_pvalue
+anchor,parity_valid,24,0,24,0,0,1,0.97499999999999998,0.75520686891852573,1,1.1920928955078125e-07,2.384185791015625e-07
+anchor,transmitted_equal,24,0,24,0,0,1,0.97499999999999998,0.75520686891852573,1,1.1920928955078125e-07,2.384185791015625e-07

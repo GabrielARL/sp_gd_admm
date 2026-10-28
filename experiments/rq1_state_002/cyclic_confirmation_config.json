@@ -1,0 +1,13 @@
+{
+  "schema_version": "rq1-state-002/v2",
+  "case_ids": [
+    "cyclic_four_bit"
+  ],
+  "experiment_id": "RQ1-STATE-002-CYCLE-CONFIRM",
+  "intervention_iteration": 2,
+  "iterations": 2,
+  "notes": "Separate confirmation after the primary tree and degree-one controls; the fourth check is linearly dependent.",
+  "treatments": [
+    "pulse"
+  ]
+}

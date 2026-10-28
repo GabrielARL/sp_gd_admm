@@ -1,0 +1,192 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check_id": "VAL-001",
+      "description": "configured LLRs and positive-bit convention reproduce the frozen definition",
+      "observed": {
+        "llr_max_abs_error": 0.0,
+        "positive_llr_bit": 1
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "llr_max_abs": 1e-12,
+        "positive_llr_bit": 1
+      }
+    },
+    {
+      "check_id": "VAL-002",
+      "description": "u1 equals F_full(0)",
+      "observed": 0.0,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-003",
+      "description": "configured edge order equals the frozen executable edge order",
+      "observed": [
+        [
+          0,
+          0,
+          "b0-c0"
+        ],
+        [
+          1,
+          0,
+          "b1-c0"
+        ],
+        [
+          1,
+          1,
+          "b1-c1"
+        ],
+        [
+          2,
+          1,
+          "b2-c1"
+        ]
+      ],
+      "passed": true,
+      "threshold_or_expected": [
+        [
+          0,
+          0,
+          "b0-c0"
+        ],
+        [
+          1,
+          0,
+          "b1-c0"
+        ],
+        [
+          1,
+          1,
+          "b1-c1"
+        ],
+        [
+          2,
+          1,
+          "b2-c1"
+        ]
+      ]
+    },
+    {
+      "check_id": "VAL-004",
+      "description": "full executable map agrees with J*u+c",
+      "observed": 0.0,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-005",
+      "description": "full analytic Jacobian agrees with central finite differences",
+      "observed": 1.397779669787269e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-006",
+      "description": "full analytic residual gradient agrees with central finite differences",
+      "observed": 2.796221032497215e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-007",
+      "description": "full objective-function zero is a map fixed point",
+      "observed": 0.0,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-008",
+      "description": "qbar_tied executable map agrees with J*u+c",
+      "observed": 1.1102230246251565e-16,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-009",
+      "description": "qbar_tied analytic Jacobian agrees with central finite differences",
+      "observed": 6.988898348936345e-11,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-010",
+      "description": "qbar_tied analytic residual gradient agrees with central finite differences",
+      "observed": 1.4899026457015907e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-011",
+      "description": "qbar_tied objective-function zero is a map fixed point",
+      "observed": 7.850462293418876e-17,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-012",
+      "description": "both (I-J)^T(I-J) matrices have the frozen shared maximum eigenvalue",
+      "observed": {
+        "errors": {
+          "full": 8.881784197001252e-16,
+          "qbar_tied": 8.881784197001252e-16
+        },
+        "shared_max_error": 1.7763568394002505e-15
+      },
+      "passed": true,
+      "threshold_or_expected": 1e-10
+    },
+    {
+      "check_id": "VAL-013",
+      "description": "alpha is the reciprocal of each (I-J)^T(I-J) maximum eigenvalue",
+      "observed": 4.440892098500626e-16,
+      "passed": true,
+      "threshold_or_expected": 1e-10
+    },
+    {
+      "check_id": "VAL-014",
+      "description": "post-update hard decisions and syndromes recompute from retained states",
+      "observed": true,
+      "passed": true,
+      "threshold_or_expected": true
+    },
+    {
+      "check_id": "VAL-015",
+      "description": "the complete LLR-convention sign transform preserves all four cells",
+      "observed": {
+        "all_cells_passed": true,
+        "maximum_numeric_error": 0.0
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "all_cells_passed": true,
+        "maximum_numeric_error": 1e-12
+      }
+    },
+    {
+      "check_id": "VAL-016",
+      "description": "pure scientific calculation replays deterministically",
+      "observed": {
+        "first": "7dd166387313a6701c59d89aceec321133c771c33a4ddfcf9e96bcdb377ab2a8",
+        "second": "7dd166387313a6701c59d89aceec321133c771c33a4ddfcf9e96bcdb377ab2a8"
+      },
+      "passed": true,
+      "threshold_or_expected": "exact digest equality"
+    },
+    {
+      "check_id": "VAL-017",
+      "description": "each direct cell reaches its map fixed point on the frozen anchor",
+      "observed": {
+        "full": 0.0,
+        "qbar_tied": 5.551115123125783e-17
+      },
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    }
+  ],
+  "number_passed": 17,
+  "number_total": 17
+}

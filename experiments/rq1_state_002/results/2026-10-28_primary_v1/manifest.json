@@ -1,0 +1,33 @@
+{
+  "all_trace_validations_passed": true,
+  "created_utc": "2026-10-28T04:48:09.721860+00:00",
+  "experiment_id": "RQ1-STATE-002",
+  "output_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_state_002/results/2026-10-28_primary_v1",
+  "overwrite_policy": "result directory must not exist",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "run_config_sha256": "3068d8435978aef8ddae9c5945551e16d9c365966eab0d1157fe1ef80e379c3a",
+  "schema_version": "rq1-state-002/v1",
+  "source_hashes": {
+    "cyclic_confirmation_config.json": "30c322da5a9f0b6bfd236f97d05308eb5869bbe3c5e8a166d82e00b9c4ca2ef2",
+    "experiment_card.md": "63616fc014c2b406435b14b24fd3c8c9c7e722fc224ea9cd56abc94eb6ef28b3",
+    "rq1_state_002.py": "14cda5c9672b1416e2c8de13a2af5c07abb0815a2a46e4d31c17d31f074e41e3",
+    "test_rq1_state_002.py": "10c804e668976dcfb9a09c1b5ba98715b8c4457a5eb4193c7653ccf1c761e37d"
+  },
+  "trace_sha256": {
+    "degree_one_six_bit__persistent.json": "d54d18d3a7fde8121a857935d3d64ccd99f887a3fb13cd0a857a97ea1bf3a9f3",
+    "degree_one_six_bit__pulse.json": "67b2f688dccc67f276d24ba3c21d6f6773575cd04b9f681d6fc6c5f1c27ade2e",
+    "nonzero_sum_tree__persistent.json": "5dc4f3935033af48ddc2111642fc86f8bd64da46e476b7e1fb39213373c51d13",
+    "nonzero_sum_tree__pulse.json": "b4fd6e9223046e732725dd3050f223fc1f0f8064d07ab3ee7fb727a63711d77e",
+    "symmetric_tree__persistent.json": "e3bd841142a3fecf87490cf10adba4afbc9a4c78589654b4b3d4903e110818f5",
+    "symmetric_tree__pulse.json": "9d75ea9fd293b3cdbf677c25048a0639cc4eaaa51c65d780d5fdc3e613d29c45"
+  },
+  "trace_validation_passed": {
+    "degree_one_six_bit__persistent.json": true,
+    "degree_one_six_bit__pulse.json": true,
+    "nonzero_sum_tree__persistent.json": true,
+    "nonzero_sum_tree__pulse.json": true,
+    "symmetric_tree__persistent.json": true,
+    "symmetric_tree__pulse.json": true
+  }
+}

@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Six Bits, Three Methods</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<style>
+/* Layout: a sticky turn bar over three stacked method panels (BP, GD, ADMM); each panel pairs the two-star Tanner graph with a worksheet of the expressions its current turn animates. */
+:root {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --ink: #111820;
+  --muted: #526172;
+  --line: #cbd6e2;
+  --edge: #93a7bb;
+  --soft: #edf3f8;
+  --bp: #164f86;
+  --gd: #087b83;
+  --admm: #9b5d00;
+  --bad: #c24c16;
+  --good: #197148;
+  --on-accent: #ffffff;
+  --bar-offset: 130px;
+  --serif: "Times New Roman", Times, Tinos, "Liberation Serif", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c131c; --surface: #121d29; --ink: #eef3f7; --muted: #a3b1bf;
+    --line: #2d4155; --edge: #58718a; --soft: #192b3d;
+    --bp: #8fc1ee; --gd: #72d0d1; --admm: #ffc06b;
+    --bad: #ff9a70; --good: #81d2a7; --on-accent: #0c131c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c131c; --surface: #121d29; --ink: #eef3f7; --muted: #a3b1bf;
+  --line: #2d4155; --edge: #58718a; --soft: #192b3d;
+  --bp: #8fc1ee; --gd: #72d0d1; --admm: #ffc06b;
+  --bad: #ff9a70; --good: #81d2a7; --on-accent: #0c131c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.45;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 20; background: var(--bg); }
+button { font-family: inherit; }
+.wrap {
+  min-width: 0;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 30px;
+}
+.eyebrow { color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+h1 { margin: 2px 0 5px; font-size: clamp(26px, 2.8vw, 36px); line-height: 1.1; text-wrap: balance; }
+.lead { max-width: 112ch; margin: 0; font-size: 16px; }
+.rule { display: grid; grid-template-columns: 1fr 1fr 1fr; height: 4px; margin-top: 12px; }
+.rule span:nth-child(1) { background: var(--bp); }
+.rule span:nth-child(2) { background: var(--gd); }
+.rule span:nth-child(3) { background: var(--admm); }
+
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px 18px;
+  flex-wrap: wrap;
+  padding-block: 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.btns, .speed, .mode { display: flex; align-items: center; gap: 6px; }
+.bar button {
+  min-height: 38px;
+  border: 1px solid var(--bp);
+  border-radius: 5px;
+  padding: 5px 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 16px;
+  cursor: pointer;
+}
+.bar button:hover { background: var(--soft); }
+.bar button:focus-visible, summary:focus-visible { outline: 3px solid var(--admm); outline-offset: 2px; }
+.bar button.primary { min-width: 6.5em; color: var(--on-accent); background: var(--bp); font-weight: 700; }
+.bar button:disabled { opacity: .45; cursor: default; }
+.upnext { min-width: 230px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.upnext b { font-weight: 700; }
+.track { display: flex; align-items: flex-start; gap: 10px; flex: 1 1 320px; }
+.track-group { display: flex; flex-direction: column; gap: 3px; }
+.track-cells { display: flex; gap: 3px; flex-wrap: wrap; }
+.track .turn {
+  width: 24px; height: 24px; min-height: 24px; padding: 0;
+  border: 2px solid var(--line);
+  border-radius: 3px;
+  background: var(--surface);
+}
+.track .turn.bp { border-color: var(--bp); }
+.track .turn.gd { border-color: var(--gd); }
+.track .turn.admm { border-color: var(--admm); }
+.track .turn.done.bp { background: var(--bp); }
+.track .turn.done.gd { background: var(--gd); }
+.track .turn.done.admm { background: var(--admm); }
+.track .turn.now { outline: 2px solid var(--ink); outline-offset: 1px; }
+.track-label { color: var(--muted); font-size: 12px; line-height: 1.1; }
+.mode, .speed { color: var(--muted); font-size: 14px; }
+.mode button, .speed button { padding: 2px 8px; font-size: 14px; }
+.mode button[aria-pressed="true"], .speed button[aria-pressed="true"] { background: var(--soft); font-weight: 700; }
+.speed { margin-left: auto; }
+
+.panel {
+  --accent: var(--bp);
+  margin-top: 12px;
+  padding: 10px 12px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--accent);
+  border-radius: 8px;
+  scroll-margin-top: var(--bar-offset);
+  transition: box-shadow .25s;
+}
+.panel.gd { --accent: var(--gd); }
+.panel.admm { --accent: var(--admm); }
+.panel.running { box-shadow: 0 0 0 2px var(--accent), 0 4px 16px color-mix(in srgb, var(--ink) 10%, transparent); }
+.phead { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; }
+.phead h2 { margin: 0; color: var(--accent); font-size: 21px; line-height: 1.15; }
+.kind { color: var(--muted); font-size: 14px; }
+.pstate { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.badge { padding: 1px 9px; border-radius: 10px; font-size: 13px; font-weight: 700; border: 1px solid var(--accent); color: var(--accent); }
+.badge.run { background: var(--accent); color: var(--on-accent); }
+.pbody { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 10px 18px; align-items: start; margin-top: 6px; }
+.fig { position: relative; min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-gutter: stable; }
+.fig svg { display: block; width: 100%; min-width: 600px; height: auto; }
+.fig-hint { display: none; position: sticky; left: 8px; width: max-content; margin: -24px 0 4px 8px; padding: 1px 7px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: color-mix(in srgb, var(--surface) 92%, transparent); font-size: 12px; pointer-events: none; }
+.sheet {
+  min-width: 0;
+  min-height: 230px;
+  padding: 7px 9px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 15.5px;
+  line-height: 1.42;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.sheet-head { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+.line { padding: 2px 6px; border-radius: 4px; }
+.line + .line { margin-top: 1px; }
+.line.now { background: var(--soft); box-shadow: inset 3px 0 0 var(--accent); }
+.seg.off { display: none; }
+.seg.fresh { background: color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 3px; }
+.note { color: var(--muted); font-size: 14px; }
+.nw { white-space: normal; overflow-wrap: anywhere; }
+.sheet sub, .sheet sup { font-size: 70%; line-height: 0; }
+.sheet sub sub { font-size: 85%; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 12px; color: var(--muted); font-size: 14px; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.key { width: 29px; height: 14px; border: 2px solid currentColor; border-radius: 8px; }
+.key.bp { color: var(--bp); background: var(--bp); }
+.key.gd { color: var(--gd); border-style: dashed; }
+.key.admm { color: var(--admm); background: color-mix(in srgb, var(--admm) 16%, transparent); border-radius: 3px; }
+.key.wrong { color: var(--bad); background: var(--bad); }
+.scope { margin-top: 12px; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 7px; font-size: 15px; }
+.scope summary { color: var(--muted); cursor: pointer; font-weight: 700; }
+.scope p { max-width: 112ch; margin: 7px 0 0; }
+.foot { max-width: 112ch; margin: 10px 0 0; color: var(--muted); font-size: 14px; }
+
+svg text { fill: var(--ink); font-family: var(--serif); font-variant-numeric: tabular-nums; }
+svg .edge { stroke: var(--edge); stroke-width: 2; }
+svg .edge.active { stroke: var(--accent); stroke-width: 4; }
+svg .symbol { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+svg .symbol.changed { fill: var(--soft); stroke-width: 4; }
+svg .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2; }
+svg .check.active { stroke-width: 4; }
+svg .label { font-size: 15px; font-weight: 700; }
+svg .value { font-size: 13px; font-weight: 700; }
+svg .sym { font-size: 14px; }
+svg .tiny { fill: var(--muted); font-size: 12px; }
+svg .ledger { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+svg .ledger-row { fill: var(--soft); }
+svg .lt { font-size: 12.5px; }
+svg .lh { font-size: 12.5px; font-weight: 700; }
+svg .token rect { fill: var(--accent); stroke: var(--accent); stroke-width: 1.4; }
+svg .token text { fill: var(--on-accent); font-size: 11.5px; font-weight: 700; }
+svg .token.gd rect { fill: var(--surface); stroke-dasharray: 4 2; }
+svg .token.gd text { fill: var(--gd); }
+svg .token.admm rect { fill: var(--surface); }
+svg .token.admm text { fill: var(--admm); }
+svg .pass rect { fill: var(--good); }
+svg .fail rect { fill: var(--bad); }
+svg .pass text, svg .fail text { fill: var(--on-accent); font-size: 11.5px; font-weight: 700; }
+svg .chip { fill: none; stroke: var(--line); stroke-width: 1; }
+svg .chip.wrong { fill: var(--bad); stroke: var(--bad); }
+svg .chiptext { font-size: 13px; font-weight: 700; }
+svg .chiptext.wrong { fill: var(--on-accent); }
+
+@media (max-width: 1060px) {
+  .pbody { grid-template-columns: minmax(0, 1fr); }
+  .sheet { min-height: 0; }
+  .speed { margin-left: 0; }
+}
+@media (max-width: 620px) {
+  .btns { width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .bar .btns button, .bar button.primary { min-width: 0; padding-inline: 6px; }
+  .bar button { min-height: 44px; padding-inline: 11px; }
+  .mode button, .speed button { min-height: 44px; padding-inline: 10px; }
+  .upnext { min-width: 0; width: 100%; }
+  .track { flex-basis: 100%; gap: 8px; flex-wrap: nowrap; }
+  .track-group { width: 140px; flex: 0 0 140px; }
+  .track-cells { display: grid; grid-template-columns: repeat(3, 44px); gap: 4px; }
+  .track .turn { width: 44px; height: 44px; min-height: 44px; }
+  .mode, .speed { flex-wrap: wrap; }
+  .fig-hint { display: block; }
+  .panel { padding: 8px; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Six bits · two checks · synchronized display</div>
+    <h1>BP, Projected GD, and ADMM, Taking Turns</h1>
+    <p class="lead">Each press of <b>Next</b> reveals one stage of one method, in the order BP → GD → ADMM → BP → … .
+      A stage is one check’s calculation or the bits’ update, and the method’s worksheet shows each expression while it is animated.
+      Within an iteration, both checks use the same frozen input state: the <i>c</i><sub>0</sub> then <i>c</i><sub>1</sub> order is a presentation order, not a sequential recomputation. The example is the six-bit one:
+      <i>L</i> = (−0.38, +0.48, +0.14, +4.78, +2.85, +1.10), <i>c</i><sub>0</sub> joins bits 1, 2, 5,
+      <i>c</i><sub>1</sub> joins bits 0, 3, 4, and the sent word is 010111. Each method runs two iterations.</p>
+    <div class="rule" aria-hidden="true"><span></span><span></span><span></span></div>
+  </header>
+
+  <nav class="bar" aria-label="Turn controls">
+    <div class="btns">
+      <button id="restart" type="button">Restart</button>
+      <button id="back" type="button">Back</button>
+      <button id="next" type="button" class="primary">Next</button>
+      <button id="play" type="button">Play all</button>
+    </div>
+    <div class="upnext" id="upnext" aria-live="polite"></div>
+    <div class="track" id="track"></div>
+    <div class="mode" role="group" aria-label="What one Next reveals" aria-describedby="mode-help">
+      <span>Each Next reveals</span>
+      <button id="mode-stage" type="button" data-mode="stage" aria-pressed="true">one stage</button>
+      <button id="mode-iter" type="button" data-mode="iter" aria-pressed="false">one iteration</button>
+      <span class="track-label" id="mode-help">Changing mode restarts.</span>
+    </div>
+    <div class="speed" role="group" aria-label="Animation speed">
+      <span>Speed</span>
+      <button id="speed-05" type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+      <button id="speed-1" type="button" data-speed="1" aria-pressed="true">1×</button>
+      <button id="speed-2" type="button" data-speed="2" aria-pressed="false">2×</button>
+    </div>
+  </nav>
+
+  <section class="panel bp" id="panel-bp" aria-labelledby="bp-title">
+    <div class="phead">
+      <h2 id="bp-title">Belief propagation (BP)</h2>
+      <span class="kind">LLR messages <i>Q</i> and <i>U</i>, kept on directed edges</span>
+      <span class="pstate" id="bp-state"></span>
+    </div>
+    <div class="pbody">
+      <div class="fig" tabindex="0" aria-label="Scrollable belief-propagation graph"><svg id="bp-graph" viewBox="0 0 900 250" role="img" aria-label="Belief propagation on the six-bit Tanner graph"></svg><span class="fig-hint" aria-hidden="true">↔ drag to inspect both checks</span></div>
+      <div class="sheet" id="bp-sheet"></div>
+    </div>
+  </section>
+
+  <section class="panel gd" id="panel-gd" aria-labelledby="gd-title">
+    <div class="phead">
+      <h2 id="gd-title">Projected gradient descent (GD)</h2>
+      <span class="kind">Current values <i>x</i> and partial derivatives <i>g</i>; only <i>x</i> is kept</span>
+      <span class="pstate" id="gd-state"></span>
+    </div>
+    <div class="pbody">
+      <div class="fig" tabindex="0" aria-label="Scrollable projected-gradient graph"><svg id="gd-graph" viewBox="0 0 900 250" role="img" aria-label="Projected gradient descent on the six-bit Tanner graph"></svg><span class="fig-hint" aria-hidden="true">↔ drag to inspect both checks</span></div>
+      <div class="sheet" id="gd-sheet"></div>
+    </div>
+  </section>
+
+  <section class="panel admm" id="panel-admm" aria-labelledby="admm-title">
+    <div class="phead">
+      <h2 id="admm-title">ADMM</h2>
+      <span class="kind">Replica variables <i>z</i> and scaled dual variables <i>u</i>, kept for each check</span>
+      <span class="pstate" id="admm-state"></span>
+    </div>
+    <div class="pbody">
+      <div class="fig" tabindex="0" aria-label="Scrollable ADMM graph"><svg id="admm-graph" viewBox="0 0 900 250" role="img" aria-label="ADMM on the six-bit Tanner graph"></svg><span class="fig-hint" aria-hidden="true">↔ drag to inspect both checks</span></div>
+      <div class="sheet" id="admm-sheet"></div>
+    </div>
+  </section>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="key bp" aria-hidden="true"></i>BP message</span>
+    <span><i class="key gd" aria-hidden="true"></i>GD value or check-associated partial derivative, used once</span>
+    <span><i class="key admm" aria-hidden="true"></i>ADMM bit value or target <i>z</i> − <i>u</i></span>
+    <span>Box beside each check: what that method holds for the check’s three edges</span>
+    <span><i class="key wrong" aria-hidden="true"></i>Red hard decision: differs from the sent bit</span>
+  </div>
+
+  <details class="scope">
+    <summary>Symbols, and what the turns do not claim</summary>
+    <p>BP owns <i>L</i>, <i>Q</i>, <i>t</i>, <i>U</i>, <i>B</i>; GD owns <i>x</i>, <i>x̃</i>, <i>r</i>, <i>g</i>, <i>η</i>; ADMM owns <i>p</i>, <i>b</i>, <i>z</i>, <i>u</i>, <i>ρ</i>, <b>S</b><sub><i>c</i></sub>.
+      All three use the checks <i>c</i><sub>0</sub>, <i>c</i><sub>1</sub> and the matrix <b>H</b>; <b><i>b̂</i></b> denotes each method's own hard-decision estimate.
+      ADMM’s evidence is written <i>p</i> here because <i>c</i> names the checks, and GD’s gradient step is written <i>x̃</i> so that <i>z</i> stays ADMM’s.</p>
+    <p>The controlled quantities shared across the three methods are the parity-check matrix <b>H</b>, the vector of channel LLRs <b><i>L</i></b>, and the reference sent word. GD starts from <b><i>x</i></b><sup>(0)</sup> = tanh(<b><i>L</i></b>/2), and ADMM uses <b><i>p</i></b> = σ(<b><i>L</i></b>). They share the display turn order, not one objective. BP computes LLR messages;
+      GD lowers <i>J</i><sub>p</sub> = Σ<sub><i>c</i></sub>(1 + Π<sub><i>j</i>∈<i>N</i>(<i>c</i>)</sub><i>x</i><sub><i>j</i></sub>)² with <i>η</i> = 0.25;
+      ADMM minimizes ½‖<b><i>b</i></b> − <b><i>p</i></b>‖² with each check’s bits kept in the parity polytope PP<sub>3</sub>, with <i>ρ</i> = 1, as in the three-symbol page.
+      Only BP’s <i>Q</i> and <i>U</i> are messages. Each GD quantity <i>g</i><sub><i>c</i>,<i>i</i></sub> is the partial derivative of <i>J</i><sub><i>c</i></sub> with respect to <i>x</i><sub><i>i</i></sub>; the check-associated partial derivatives are summed to form ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub><i>i</i></sub> and then discarded after the step.
+      ADMM’s <b><i>z</i></b><sub><i>c</i></sub> and <b><i>u</i></b><sub><i>c</i></sub> persist between iterations. Equal reveal time is not a claim of equal arithmetic, state or computational cost.</p>
+    <p>These two checks do not share a bit. The page therefore isolates each local calculation, but it does not exercise BP aggregation from multiple neighboring checks or ADMM consensus between overlapping local replicas. It is a mechanism demonstration, not evidence that one decoder has better error-rate performance.</p>
+  </details>
+  <p class="foot" id="foot"></p>
+</main>
+
+<script id="model">
+var MODEL = (function () {
+  "use strict";
+  var L = [-0.38, 0.48, 0.14, 4.78, 2.85, 1.10];
+  var CHECKS = [[1, 2, 5], [0, 3, 4]];
+  var SENT = [0, 1, 0, 1, 1, 1];
+  var ETA = 0.25, RHO = 1, ITERS = 2;
+
+  function clip(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function sum(a) { return a.reduce(function (s, v) { return s + v; }, 0); }
+  function dot(a, b) { return a.reduce(function (s, v, i) { return s + v * b[i]; }, 0); }
+  function norm(a) { return Math.sqrt(dot(a, a)); }
+  function checksOf(i) { return [0, 1].filter(function (c) { return CHECKS[c].indexOf(i) >= 0; }); }
+  function slot(c, i) { return CHECKS[c].indexOf(i); }
+  function leave(row, s) { return row.reduce(function (p, v, s2) { return s2 === s ? p : p * v; }, 1); }
+  function syn(w) { return CHECKS.map(function (n) { return n.reduce(function (s, j) { return s ^ w[j]; }, 0); }); }
+  var DEG = L.map(function (_, i) { return checksOf(i).length; });
+  var b0 = L.map(function (v) { return v >= 0 ? 1 : 0; });
+
+  // Sum-product, flooding schedule.
+  var bp = [], Uprev = CHECKS.map(function (n) { return n.map(function () { return 0; }); });
+  var k;
+  for (k = 1; k <= ITERS; k++) {
+    var Q = CHECKS.map(function (n, c) {
+      return n.map(function (i) {
+        return L[i] + checksOf(i).filter(function (a) { return a !== c; })
+          .reduce(function (s, a) { return s + Uprev[a][slot(a, i)]; }, 0);
+      });
+    });
+    var t = Q.map(function (row) { return row.map(function (q) { return Math.tanh(q / 2); }); });
+    var U = t.map(function (row) { return row.map(function (_, s) { return -2 * Math.atanh(leave(row, s)); }); });
+    var B = L.map(function (l, i) { return l + checksOf(i).reduce(function (s, a) { return s + U[a][slot(a, i)]; }, 0); });
+    var hb = B.map(function (v) { return v >= 0 ? 1 : 0; });
+    bp.push({ Q: Q, t: t, U: U, B: B, hard: hb, syn: syn(hb) });
+    Uprev = U;
+  }
+
+  // Projected gradient on J_p(x) = sum_c (1 + prod_{j in N(c)} x_j)^2.
+  function Jp(x) { return sum(CHECKS.map(function (n) { var r = 1 + n.reduce(function (p, j) { return p * x[j]; }, 1); return r * r; })); }
+  var x = L.map(function (v) { return Math.tanh(v / 2); }), x0 = x.slice(), gd = [];
+  for (k = 1; k <= ITERS; k++) {
+    var xs = CHECKS.map(function (n) { return n.map(function (j) { return x[j]; }); });
+    var r = xs.map(function (row) { return 1 + row.reduce(function (p, v) { return p * v; }, 1); });
+    var gc = xs.map(function (row, c) { return row.map(function (_, s) { return 2 * r[c] * leave(row, s); }); });
+    var g = L.map(function (_, i) { return checksOf(i).reduce(function (s, a) { return s + gc[a][slot(a, i)]; }, 0); });
+    var xt = x.map(function (v, i) { return v - ETA * g[i]; });
+    var xn = xt.map(function (v) { return clip(v, -1, 1); });
+    var clipped = [];
+    xt.forEach(function (v, i) { if (v !== xn[i]) clipped.push(i); });
+    var hg = xn.map(function (v) { return v >= 0 ? 1 : 0; });
+    gd.push({ x: x.slice(), r: r, gc: gc, g: g, xt: xt, xn: xn, clipped: clipped, J0: Jp(x), J1: Jp(xn), hard: hg, syn: syn(hg) });
+    x = xn;
+  }
+
+  // Euclidean projection onto the even-parity polytope: clip to the box, find the one
+  // facet that can be violated, and if it is, slide along that facet's normal.
+  function projPP(v) {
+    var d = v.length, zc = v.map(function (a) { return clip(a, 0, 1); });
+    var th = zc.map(function (a) { return a > 0.5 ? 1 : 0; });
+    if (sum(th) % 2 === 0) {
+      var m = 0;
+      for (var i = 1; i < d; i++) if (Math.abs(zc[i] - 0.5) < Math.abs(zc[m] - 0.5)) m = i;
+      th[m] = 1 - th[m];
+    }
+    var f = th.map(function (a) { return a ? 1 : -1; }), rhs = sum(th) - 1, lhs = dot(f, zc);
+    var boxed = v.some(function (a, i) { return a !== zc[i]; });
+    if (lhs <= rhs + 1e-12) return { z: zc, inside: true, boxed: boxed, f: f, rhs: rhs, lhs: lhs, beta: 0 };
+    var lo = 0, hi = Math.max.apply(null, v.map(Math.abs)) + 2;
+    for (var n = 0; n < 200; n++) {
+      var mid = (lo + hi) / 2;
+      if (dot(f, v.map(function (a, j) { return clip(a - mid * f[j], 0, 1); })) > rhs) lo = mid; else hi = mid;
+    }
+    var beta = (lo + hi) / 2;
+    return { z: v.map(function (a, j) { return clip(a - beta * f[j], 0, 1); }), inside: false, boxed: boxed, f: f, rhs: rhs, lhs: lhs, beta: beta };
+  }
+
+  // ADMM on 1/2 ||b - p||^2 with S_c b in PP_3, rho = 1, started as on the three-symbol page:
+  // b(1) = p, z(0) = S p, u(0) = 0. Round k: project, update the ledger, then update the bits.
+  var p = L.map(function (v) { return 1 / (1 + Math.exp(-v)); });
+  var b = p.slice(), u = CHECKS.map(function (n) { return n.map(function () { return 0; }); });
+  var zPrev = CHECKS.map(function (n) { return n.map(function (j) { return p[j]; }); });
+  var admm = [];
+  for (k = 1; k <= ITERS; k++) {
+    var vin = CHECKS.map(function (n, c) { return n.map(function (j, s) { return b[j] + u[c][s]; }); });
+    var proj = vin.map(projPP);
+    var z = proj.map(function (o) { return o.z; });
+    var un = CHECKS.map(function (n, c) { return n.map(function (j, s) { return u[c][s] + b[j] - z[c][s]; }); });
+    var tgt = CHECKS.map(function (n, c) { return n.map(function (j, s) { return z[c][s] - un[c][s]; }); });
+    var bn = p.map(function (pi, i) {
+      return clip((pi + RHO * checksOf(i).reduce(function (s, a) { return s + tgt[a][slot(a, i)]; }, 0)) / (1 + RHO * DEG[i]), 0, 1);
+    });
+    var prim = [], dual = [];
+    CHECKS.forEach(function (n, c) { n.forEach(function (j, s) { prim.push(b[j] - z[c][s]); dual.push(RHO * (z[c][s] - zPrev[c][s])); }); });
+    var ha = bn.map(function (v) { return v >= 0.5 ? 1 : 0; });
+    admm.push({ b: b.slice(), u0: u, vin: vin, proj: proj, z: z, u: un, tgt: tgt, bn: bn,
+                primal: norm(prim), dual: norm(dual), hard: ha, syn: syn(ha) });
+    b = bn; u = un; zPrev = z;
+  }
+
+  // Guard the numerical teaching example against silent drift when the model or
+  // displayed constants are edited.
+  function assertNear(actual, expected, label) {
+    if (Math.abs(actual - expected) > 1e-9) throw new Error(label + ": " + actual + " != " + expected);
+  }
+  function assertWord(actual, expected, label) {
+    if (actual.join("") !== expected.join("")) throw new Error(label + ": " + actual.join("") + " != " + expected.join(""));
+  }
+  assertWord(syn(SENT), [0, 0], "sent-word syndrome");
+  assertNear(bp[0].B[0], -3.094951483342476, "BP iteration-1 B0");
+  assertWord(bp[0].hard, SENT, "BP iteration-1 hard decision");
+  assertNear(gd[0].J1, 1.2177268506585996, "GD iteration-1 objective");
+  assertWord(gd[1].hard, SENT, "GD iteration-2 hard decision");
+  assertNear(admm[0].primal, 0.19810012804017457, "ADMM iteration-1 primal residual");
+  assertNear(admm[1].primal, 0, "ADMM iteration-2 primal residual");
+  assertWord(admm[1].syn, [1, 0], "ADMM iteration-2 hard-decision syndrome");
+
+  return { L: L, checks: CHECKS, sent: SENT, eta: ETA, rho: RHO, iters: ITERS, deg: DEG, b0: b0,
+           syn: syn, slot: slot, bp: bp, x0: x0, gd: gd, p: p, admm: admm, projPP: projPP };
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var M = MODEL;
+  var ALGS = ["bp", "gd", "admm"];
+  var NAME = { bp: "BP", gd: "GD", admm: "ADMM" };
+  var GAP = 0.9;
+  var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- formatting ----------
+  var SUBD = "₀₁₂₃₄₅₆₇₈₉";
+  function sd(n) { return String(n).split("").map(function (d) { return SUBD[+d]; }).join(""); }
+  function I(s) { return "<i>" + s + "</i>"; }
+  function BV(s) { return "<b><i>" + s + "</i></b>"; }
+  function BM(s) { return "<b>" + s + "</b>"; }
+  function sub(s) { return "<sub>" + s + "</sub>"; }
+  function it(k) { return "<sup>(" + k + ")</sup>"; }
+  function nw(s) { return '<span class="nw">' + s + "</span>"; }
+  function cn(c) { return I("c") + sd(c); }
+  function tidy(v, d) { return Math.abs(v) < 0.5 * Math.pow(10, -d) ? 0 : v; }
+  function fs(v, d) { v = tidy(v, d); return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(d); }
+  function fu(v, d) { v = tidy(v, d); return (v < 0 ? "−" : "") + Math.abs(v).toFixed(d); }
+  function vec(a, d, signed) { return nw("(" + a.map(function (v) { return signed ? fs(v, d) : fu(v, d); }).join(", ") + ")"); }
+  function word(w) { return nw("(" + w.join(", ") + ")"); }
+  function plusTerm(v, d) { return v < 0 ? "− " + fu(-v, d) : "+ " + fu(v, d); }
+  function minusTerm(v, d) { return v < 0 ? "+ " + fu(-v, d) : "− " + fu(v, d); }
+  function passText(syn) {
+    var f = [];
+    syn.forEach(function (s, c) { if (s) f.push(cn(c)); });
+    return f.length ? f.join(" and ") + " fails" : "both checks pass";
+  }
+  function flips(before, after) {
+    var out = [];
+    after.forEach(function (v, i) { if (v !== before[i]) out.push("bit " + i + " flips to " + v); });
+    return out.length ? out.join(", ").replace(/^b/, "B") + "." : null;
+  }
+  function others(c, i) { return M.checks[c].filter(function (j) { return j !== i; }); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function ease(t) { t = clamp(t, 0, 1); return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+
+  // ---------- the sub-steps each method animates ----------
+  var SUBS = { bp: [], gd: [], admm: [] };
+  function add(alg, o) { o.alg = alg; o.ai = SUBS[alg].length; SUBS[alg].push(o); }
+  function stageOf(c) { return "c" + c; }
+
+  M.bp.forEach(function (R, idx) {
+    var k = idx + 1, prevHard = idx ? M.bp[idx - 1].hard : M.b0;
+    [0, 1].forEach(function (c) {
+      M.checks[c].forEach(function (i, s) {
+        add("bp", {
+          iter: k, stage: stageOf(c), kind: "in", c: c, i: i, dur: 1.4,
+          segs: [
+            nw(I("Q") + sub(i + "→" + cn(c)) + it(k) + " = " + I("L") + sub(i) + " + Σ" + sub(I("a") + "∈" + I("N") + "(" + i + ")∖{" + I("c") + "}") + I("U") + sub(I("a") + "→" + i) + it(k - 1)),
+            "= " + nw(I("L") + sub(i) + " = " + fs(M.L[i], 2)),
+            "→ " + nw(I("t") + sub(i) + " = tanh(" + I("Q") + "/2) = " + fs(R.t[c][s], 6))
+          ],
+          at: [0, 0.15, 0.8],
+          tok: { up: true, label: "Q " + fs(R.Q[c][s], 2), t0: 0.18, t1: 0.78 },
+          note: c === 0 && s === 0
+            ? (k === 1 ? "Bit " + i + " has no other check, so the sum is empty and " + I("Q") + " = " + I("L") + "."
+                       : "Iteration " + k + " starts from the same messages: each bit still has one check, so " + I("Q") + " = " + I("L") + ".")
+            : null,
+          apply: function (S) { S.box[c][s][0] = R.Q[c][s]; }
+        });
+      });
+      M.checks[c].forEach(function (i, s) {
+        var o = others(c, i);
+        add("bp", {
+          iter: k, stage: stageOf(c), kind: "out", c: c, i: i, dur: 1.9,
+          segs: [
+            nw(I("U") + sub(cn(c) + "→" + i) + it(k) + " = −2 atanh(" + o.map(function (j) { return I("t") + sub(j); }).join("") + ")"),
+            "= " + nw("−2 atanh((" + fs(R.t[c][M.slot(c, o[0])], 6) + ")(" + fs(R.t[c][M.slot(c, o[1])], 6) + "))"),
+            "= " + nw(fs(R.U[c][s], 6))
+          ],
+          at: [0, 0.16, 0.34],
+          tok: { up: false, label: "U " + fs(R.U[c][s], 4), t0: 0.4, t1: 0.95 },
+          note: k === 1 && c === 0 && s === 0 ? "The product leaves out bit " + i + "’s own message." : null,
+          apply: function (S) { S.box[c][s][1] = R.U[c][s]; }
+        });
+      });
+    });
+    add("bp", {
+      iter: k, stage: "bits", kind: "update", dur: 2.6,
+      segs: [
+        nw(I("B") + sub(I("i")) + it(k) + " = " + I("L") + sub(I("i")) + " + Σ" + sub(I("c") + "∋" + I("i")) + I("U") + sub(I("c") + "→" + I("i")) + it(k)),
+        "→ " + nw(BV("B") + it(k) + " = ") + vec(R.B, 4, true)
+      ],
+      at: [0, 0.3], morph: R.B, morphSym: "B",
+      apply: function (S) { S.val = R.B.slice(); S.sym = "B"; }
+    });
+    add("bp", {
+      iter: k, stage: "bits", kind: "decide", dur: 2.2,
+      segs: [
+        nw(BV("b̂") + " = 1[" + BV("B") + it(k) + " ≥ 0] = ") + word(R.hard),
+        nw("(" + BM("H") + BV("b̂") + ") mod 2 = ") + word(R.syn) + ": " + passText(R.syn)
+      ],
+      at: [0, 0.4], applyAt: 0.05,
+      note: flips(prevHard, R.hard) || (k > 1 ? "No bit changes: every bit has degree one, so BP’s second message-passing iteration repeats the first." : null),
+      apply: function (S) { S.hard = R.hard.slice(); S.syn = R.syn.slice(); }
+    });
+  });
+
+  M.gd.forEach(function (R, idx) {
+    var k = idx + 1, prevHard = idx ? M.gd[idx - 1].hard : M.b0;
+    [0, 1].forEach(function (c) {
+      var n = M.checks[c];
+      n.forEach(function (i, s) {
+        add("gd", {
+          iter: k, stage: stageOf(c), kind: "in", c: c, i: i, dur: 1.4,
+          segs: [nw(cn(c) + " reads " + I("x") + sub(i) + it(k - 1)), "= " + nw(fs(R.x[i], 6))],
+          at: [0, 0.8],
+          tok: { up: true, label: "x " + fs(R.x[i], 4), t0: 0.15, t1: 0.78 },
+          note: k === 1 && c === 0 && s === 0 ? "Each adjacent check would read this same current value from a bit that belongs to several checks." : null,
+          apply: function (S) { S.box[c][s][0] = R.x[i]; }
+        });
+      });
+      add("gd", {
+        iter: k, stage: stageOf(c), kind: "calc", c: c, dur: 2.2,
+        segs: [
+          nw(I("r") + sub(cn(c)) + " = 1 + " + n.map(function (j) { return I("x") + sub(j); }).join("")),
+          "= " + nw("1 + " + n.map(function (j) { return "(" + fs(R.x[j], 6) + ")"; }).join("")),
+          "= " + nw(fu(R.r[c], 6))
+        ],
+        at: [0, 0.25, 0.55], applyAt: 0.55,
+        note: k === 1 && c === 0 ? I("J") + sub(cn(c)) + " = " + I("r") + sub(cn(c)) + "² is zero only when the three values multiply to −1." : null,
+        apply: function (S) { S.foot[c] = R.r[c]; }
+      });
+      n.forEach(function (i, s) {
+        var o = others(c, i);
+        add("gd", {
+          iter: k, stage: stageOf(c), kind: "out", c: c, i: i, dur: 1.9,
+          segs: [
+            nw(I("g") + sub(cn(c) + "," + i) + " = ∂" + I("J") + sub(cn(c)) + "/∂" + I("x") + sub(i) + " = 2" + I("r") + sub(cn(c)) + o.map(function (j) { return I("x") + sub(j); }).join("")),
+            "= " + nw("2(" + fu(R.r[c], 6) + ")" + o.map(function (j) { return "(" + fs(R.x[j], 6) + ")"; }).join("")),
+            "= " + nw(fs(R.gc[c][s], 6))
+          ],
+          at: [0, 0.16, 0.34],
+          tok: { up: false, label: "g " + fs(R.gc[c][s], 4), t0: 0.4, t1: 0.95 },
+          apply: function (S) { S.box[c][s][1] = R.gc[c][s]; }
+        });
+      });
+    });
+    add("gd", {
+      iter: k, stage: "bits", kind: "update", dur: 2.6,
+      segs: [
+        nw(I("g") + sub(I("i")) + " = Σ" + sub(I("c") + "∋" + I("i")) + I("g") + sub(I("c") + "," + I("i")) + ": ") + nw(BV("g") + " = ") + vec(R.g, 4, true),
+        nw(BV("x̃") + " = " + BV("x") + it(k - 1) + " − " + I("η") + BV("g") + " = ") + vec(R.xt, 4, true)
+      ],
+      at: [0, 0.3], morph: R.xt, morphSym: "x̃",
+      apply: function (S) { S.val = R.xt.slice(); S.sym = "x̃"; }
+    });
+    var clipText = R.clipped.length
+      ? R.clipped.map(function (j) { return nw(I("x̃") + sub(j) + " = " + fu(R.xt[j], 6)); }).join(" and ") +
+        (R.clipped.length > 1 ? " are" : " is") + " clipped to the box"
+      : "nothing is clipped";
+    add("gd", {
+      iter: k, stage: "bits", kind: "update", dur: 2.2,
+      segs: [nw(BV("x") + it(k) + " = Π" + sub("[−1, 1]⁶") + "(" + BV("x̃") + ") = ") + vec(R.xn, 4, true), clipText],
+      at: [0, 0.4], morph: R.xn, morphSym: "x",
+      note: "GD keeps only " + BV("x") + it(k) + "; the check-associated partial derivatives are discarded.",
+      apply: function (S) {
+        S.val = R.xn.slice(); S.sym = "x"; S.clipped = R.clipped.slice();
+        S.box = S.box.map(function (rows) { return rows.map(function () { return [null, null]; }); });
+        S.foot = [null, null];
+      }
+    });
+    add("gd", {
+      iter: k, stage: "bits", kind: "decide", dur: 2.4,
+      segs: [
+        nw(BV("b̂") + " = 1[" + BV("x") + it(k) + " ≥ 0] = ") + word(R.hard),
+        nw("(" + BM("H") + BV("b̂") + ") mod 2 = ") + word(R.syn) + ": " + passText(R.syn),
+        nw(I("J") + sub("p") + ": " + fu(R.J0, 6) + " → " + fu(R.J1, 6))
+      ],
+      at: [0, 0.3, 0.6], applyAt: 0.05,
+      note: flips(prevHard, R.hard) || (R.syn[0] || R.syn[1] ? nw(I("x") + sub(2) + it(k) + " = " + fs(R.xn[2], 6)) + " is still positive." : null),
+      apply: function (S) { S.hard = R.hard.slice(); S.syn = R.syn.slice(); }
+    });
+  });
+
+  function projText(o) {
+    var all = o.f.every(function (s) { return s > 0; });
+    if (o.inside) return all
+      ? "already inside PP" + sub("3") + ": sum " + fu(o.lhs, 4) + " ≤ 2 and no entry exceeds the other two together"
+      : "already inside PP" + sub("3");
+    if (all) return "sum " + fu(o.lhs, 4) + " > 2: lower all three by " + nw(I("β") + " = " + fu(o.beta, 6));
+    return "one entry exceeds the other two together: move along that facet by " + nw(I("β") + " = " + fu(o.beta, 6));
+  }
+
+  M.admm.forEach(function (R, idx) {
+    var k = idx + 1, prevHard = idx ? M.admm[idx - 1].hard : M.b0;
+    [0, 1].forEach(function (c) {
+      var n = M.checks[c];
+      n.forEach(function (i, s) {
+        add("admm", {
+          iter: k, stage: stageOf(c), kind: "in", c: c, i: i, dur: 1.4,
+          segs: [
+            nw(cn(c) + " reads " + I("b") + sub(i) + it(k) + " = " + fu(R.b[i], 6)),
+            "→ " + nw(I("b") + sub(i) + " + " + I("u") + sub(cn(c) + "," + i) + it(k - 1) + " = " + fu(R.b[i], 6) + " " + plusTerm(R.u0[c][s], 6) + " = " + fu(R.vin[c][s], 6))
+          ],
+          at: [0, 0.8],
+          tok: { up: true, label: "b " + fu(R.b[i], 4), t0: 0.15, t1: 0.78 },
+          apply: function () {}
+        });
+      });
+      var o = R.proj[c];
+      add("admm", {
+        iter: k, stage: stageOf(c), kind: "calc", c: c, dur: 2.8,
+        segs: [
+          nw(BV("z") + sub(cn(c)) + it(k) + " = Π" + sub("PP₃") + "(" + BM("S") + sub(cn(c)) + BV("b") + it(k) + " + " + BV("u") + sub(cn(c)) + it(k - 1) + ")"),
+          "= " + nw("Π" + sub("PP₃")) + vec(R.vin[c], 4, false),
+          projText(o),
+          "→ " + nw(BV("z") + sub(cn(c)) + it(k) + " = ") + vec(R.z[c], 4, false)
+        ],
+        at: [0, 0.2, 0.45, 0.7], applyAt: 0.7,
+        note: o.inside && c === 0 && k === 1
+          ? "The projection moves the three entries together. Here it moves nothing, so bit 2 keeps " + nw(I("p") + sub(2) + " = " + fu(M.p[2], 4)) + ", above 0.5."
+          : null,
+        apply: function (S) { n.forEach(function (j, s) { S.box[c][s][0] = R.z[c][s]; }); }
+      });
+      add("admm", {
+        iter: k, stage: stageOf(c), kind: "calc", c: c, dur: 2.2,
+        segs: [
+          nw(BV("u") + sub(cn(c)) + it(k) + " = " + BV("u") + sub(cn(c)) + it(k - 1) + " + " + BM("S") + sub(cn(c)) + BV("b") + it(k) + " − " + BV("z") + sub(cn(c)) + it(k)),
+          "= " + vec(R.u0[c], 4, true) + " + " + vec(n.map(function (j) { return R.b[j]; }), 4, false) + " − " + vec(R.z[c], 4, false),
+          "= " + vec(R.u[c], 4, true)
+        ],
+        at: [0, 0.25, 0.55], applyAt: 0.55,
+        note: k === 1 && c === 0 ? BV("u") + sub(cn(c)) + " is the scaled dual variable: the signed disagreement this check has accumulated." : null,
+        apply: function (S) { n.forEach(function (j, s) { S.box[c][s][1] = R.u[c][s]; }); }
+      });
+      n.forEach(function (i, s) {
+        add("admm", {
+          iter: k, stage: stageOf(c), kind: "out", c: c, i: i, dur: 1.9,
+          segs: [
+            nw(I("z") + sub(cn(c) + "," + i) + it(k) + " − " + I("u") + sub(cn(c) + "," + i) + it(k)),
+            "= " + nw(fu(R.z[c][s], 6) + " " + minusTerm(R.u[c][s], 6)),
+            "= " + nw(fu(R.tgt[c][s], 6))
+          ],
+          at: [0, 0.16, 0.34],
+          tok: { up: false, label: "z−u " + fu(R.tgt[c][s], 4), t0: 0.4, t1: 0.95 },
+          apply: function () {}
+        });
+      });
+    });
+    add("admm", {
+      iter: k, stage: "bits", kind: "residual", dur: 2.2,
+      segs: [
+        "residuals evaluated after the replica and dual updates, before the bit update:",
+        nw("‖" + BM("S") + BV("b") + it(k) + " − " + BV("z") + it(k) + "‖ = " + fu(R.primal, 6)) + ", " +
+          nw(I("ρ") + "‖" + BV("z") + it(k) + " − " + BV("z") + it(k - 1) + "‖ = " + fu(R.dual, 6))
+      ],
+      at: [0, 0.35],
+      apply: function () {}
+    });
+    add("admm", {
+      iter: k, stage: "bits", kind: "update", dur: 3.0,
+      segs: [
+        nw(I("b") + sub(I("i")) + it(k + 1) + " = clip" + sub("[0, 1]") + "[(" + I("p") + sub(I("i")) + " + " + I("ρ") + "Σ" + sub(I("c") + "∋" + I("i")) + "(" + I("z") + sub(I("c") + "," + I("i")) + " − " + I("u") + sub(I("c") + "," + I("i")) + ")) / (1 + " + I("ρ") + I("d") + sub(I("i")) + ")]"),
+        "with " + nw(I("ρ") + " = 1, " + I("d") + sub(I("i")) + " = 1:") + " " + nw(BV("b") + it(k + 1) + " = ") + vec(R.bn, 4, false)
+      ],
+      at: [0, 0.3], morph: R.bn, morphSym: "b",
+      apply: function (S) { S.val = R.bn.slice(); }
+    });
+    var still = R.primal < 1e-9 && R.dual < 1e-9;
+    add("admm", {
+      iter: k, stage: "bits", kind: "decide", dur: 2.6,
+      segs: [
+        nw(BV("b̂") + " = 1[" + BV("b") + it(k + 1) + " ≥ 0.5] = ") + word(R.hard),
+        nw("(" + BM("H") + BV("b̂") + ") mod 2 = ") + word(R.syn) + ": " + passText(R.syn)
+      ],
+      at: [0, 0.4], applyAt: 0.05,
+      note: flips(prevHard, R.hard) || (still
+        ? "Both residuals evaluated before the bit update are zero: ADMM has stopped moving at a fractional point that is feasible in each parity polytope. Its hard-decision estimate fails " + cn(0) + "."
+        : "No bit changes."),
+      apply: function (S) { S.hard = R.hard.slice(); S.syn = R.syn.slice(); }
+    });
+  });
+
+  // ---------- starting worksheets ----------
+  var INIT = {
+    bp: [
+      nw(I("L") + sub(I("i")) + " = log [Pr(" + I("b") + sub(I("i")) + " = 1 | " + I("y") + sub(I("i")) + ") / Pr(" + I("b") + sub(I("i")) + " = 0 | " + I("y") + sub(I("i")) + ")]") + "; a positive value favours 1",
+      nw(BV("L") + " = ") + vec(M.L, 2, true),
+      nw(BV("b̂") + it(0) + " = 1[" + BV("L") + " ≥ 0] = ") + word(M.b0) + ", " + nw("(" + BM("H") + BV("b̂") + ") mod 2 = ") + word(M.syn(M.b0)) + ": " + passText(M.syn(M.b0)) + "; bit 2 is wrong"
+    ],
+    gd: [
+      nw(BV("x") + it(0) + " = tanh(" + BV("L") + "/2) = ") + vec(M.x0, 4, true),
+      nw(I("J") + sub("p") + "(" + BV("x") + ") = " + I("r") + sub(cn(0)) + "² + " + I("r") + sub(cn(1)) + "²") + ", " + nw(I("r") + sub(I("c")) + " = 1 + Π" + sub(I("j") + "∈" + I("N") + "(" + I("c") + ")") + I("x") + sub(I("j"))),
+      nw(I("J") + sub("p") + "(" + BV("x") + it(0) + ") = " + fu(M.gd[0].J0, 6)) + "; step size " + nw(I("η") + " = " + M.eta)
+    ],
+    admm: [
+      nw(I("p") + sub(I("i")) + " = Pr(" + I("b") + sub(I("i")) + " = 1 | " + I("y") + sub(I("i")) + ") = σ(" + I("L") + sub(I("i")) + ")") + ": " + nw(BV("p") + " = ") + vec(M.p, 4, false),
+      "minimize " + nw("½‖" + BV("b") + " − " + BV("p") + "‖²") + " with " + nw(BM("S") + sub(I("c")) + BV("b") + " ∈ PP" + sub("3")) + " for each check; PP" + sub("3") + " holds 000, 011, 101, 110 and every point between them",
+      nw(BV("b") + it(1) + " = " + BV("p")) + ", " + nw(BV("z") + sub(I("c")) + it(0) + " = " + BM("S") + sub(I("c")) + BV("p")) + ", " + nw(BV("u") + sub(I("c")) + it(0) + " = 0") + ", " + nw(I("ρ") + " = " + M.rho)
+    ]
+  };
+
+  // ---------- turns ----------
+  var MODE = "stage";
+  var STAGES = ["c0", "c1", "bits"];
+  function stageName(st) { return st === "bits" ? "bits update" : st ? "check " + cn(+st.slice(1)) : "whole iteration"; }
+  function stagePlain(st) { return st === "bits" ? "bits update" : st ? "check c" + st.slice(1) : "whole iteration"; }
+  function mkTurn(a, k, st) {
+    var subs = SUBS[a].filter(function (s) { return s.iter === k && (st === null || s.stage === st); });
+    return { alg: a, iter: k, stage: st, subs: subs, dur: subs.reduce(function (t, s) { return t + s.dur; }, 0) };
+  }
+  function buildTurns() {
+    var out = [];
+    for (var k = 1; k <= M.iters; k++) {
+      if (MODE === "stage") STAGES.forEach(function (st) { ALGS.forEach(function (a) { out.push(mkTurn(a, k, st)); }); });
+      else ALGS.forEach(function (a) { out.push(mkTurn(a, k, null)); });
+    }
+    return out;
+  }
+  var turns = buildTurns();
+
+  var tau = 0, run = null, auto = false, paused = false, speed = 1, last = 0, raf = 0;
+
+  function position() {
+    var P = {};
+    ALGS.forEach(function (a) { P[a] = { done: 0, act: null, p: 0 }; });
+    for (var j = 0; j < tau; j++) P[turns[j].alg].done += turns[j].subs.length;
+    if (run) {
+      var tr = turns[tau], q = P[tr.alg], t = Math.max(0, run.t), acc = 0;
+      for (var n = 0; n < tr.subs.length; n++) {
+        var s = tr.subs[n];
+        if (t >= acc + s.dur) { q.done++; acc += s.dur; }
+        else { q.act = s; q.p = (t - acc) / s.dur; break; }
+      }
+    }
+    return P;
+  }
+
+  function initState(a) {
+    var S = {
+      box: M.checks.map(function (n) { return n.map(function () { return [null, null]; }); }),
+      foot: [null, null], hard: M.b0.slice(), syn: M.syn(M.b0), clipped: []
+    };
+    if (a === "bp") { S.val = M.L.slice(); S.sym = "L"; }
+    if (a === "gd") { S.val = M.x0.slice(); S.sym = "x"; }
+    if (a === "admm") {
+      S.val = M.p.slice(); S.sym = "b";
+      S.box = M.checks.map(function (n) { return n.map(function (j) { return [M.p[j], 0]; }); });
+    }
+    return S;
+  }
+
+  // ---------- graph ----------
+  var NS = "http://www.w3.org/2000/svg";
+  var POS = [545, 95, 225, 675, 805, 355];   // x of bit i: c0's star on the left, c1's on the right
+  var CX = [225, 675], CY = 50, BY = 168, R = 24;
+  var BOXX = [6, 744], BOXW = 150;
+  var PILLX = [300, 600];
+  var COLS = { bp: ["Q", "U"], gd: ["x", "g"], admm: ["z", "u"] };
+
+  function svgEl(parent, tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    Object.keys(attrs || {}).forEach(function (key) { e.setAttribute(key, attrs[key]); });
+    if (text != null) e.textContent = text;
+    parent.appendChild(e);
+    return e;
+  }
+  function textAt(parent, x, y, s, cls, anchor) {
+    return svgEl(parent, "text", { x: x, y: y, "class": cls || "", "text-anchor": anchor || "middle" }, s);
+  }
+  function mlabel(parent, x, y, letter, tail, cls, anchor) {
+    var t = svgEl(parent, "text", { x: x, y: y, "class": cls || "", "text-anchor": anchor || "middle" });
+    svgEl(t, "tspan", { "font-style": "italic" }, letter);
+    if (tail) t.appendChild(document.createTextNode(tail));
+    return t;
+  }
+  function ends(c, i) { return { bx: POS[i], by: BY - R, cx: CX[c], cy: CY + 17 }; }
+  function boxVal(a, col, v) {
+    if (v == null) return "·";
+    if (a === "bp" && col === 0) return fs(v, 2);
+    if (a === "admm" && col === 0) return fu(v, 4);
+    return fs(v, 4);
+  }
+  function nodeVal(a, v) { return a === "admm" ? fu(v, 3) : fs(v, 3); }
+
+  function draw(a, q) {
+    var svg = document.getElementById(a + "-graph");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    var S = initState(a), n;
+    for (n = 0; n < q.done; n++) SUBS[a][n].apply(S);
+    var act = q.act, p = q.p;
+    var graphLabel = NAME[a] + " on the six-bit Tanner graph";
+    if (act) graphLabel += ", iteration " + act.iter + ", " + stagePlain(act.stage);
+    svg.setAttribute("aria-label", graphLabel);
+    if (act && !act.morph) {
+      var at = act.applyAt != null ? act.applyAt : act.tok ? act.tok.t1 : act.at[act.at.length - 1];
+      if (p >= at) act.apply(S);
+    }
+    var vals = S.val.slice(), sym = S.sym, e = 0;
+    if (act && act.morph) {
+      e = ease((p - 0.3) / 0.5);
+      vals = vals.map(function (v, i) { return v + (act.morph[i] - v) * e; });
+      if (e >= 0.5) sym = act.morphSym;
+    }
+    var moving = act && act.tok;
+    var allBits = act && (act.kind === "update" || act.kind === "decide");
+
+    var iter = act ? act.iter : q.done ? SUBS[a][q.done - 1].iter : 0;
+    textAt(svg, 450, 112, iter ? "iteration " + iter : "start", "tiny", "middle");
+
+    M.checks.forEach(function (nb, c) {
+      nb.forEach(function (i) {
+        var E = ends(c, i);
+        svgEl(svg, "line", { x1: E.bx, y1: E.by, x2: E.cx, y2: E.cy,
+          "class": "edge" + (moving && act.c === c && act.i === i ? " active" : "") });
+      });
+    });
+
+    M.checks.forEach(function (nb, c) {
+      var x = BOXX[c], h = a === "gd" ? 96 : 80;
+      svgEl(svg, "rect", { x: x, y: 8, width: BOXW, height: h, rx: 5, "class": "ledger" });
+      mlabel(svg, x + 10, 25, "c", sd(c), "lh", "start");
+      mlabel(svg, x + 92, 25, COLS[a][0], "", "lh", "end");
+      mlabel(svg, x + 142, 25, COLS[a][1], "", "lh", "end");
+      nb.forEach(function (i, s) {
+        var y = 43 + 17 * s;
+        if (act && act.c === c && act.i === i) svgEl(svg, "rect", { x: x + 4, y: y - 12, width: BOXW - 8, height: 16, rx: 3, "class": "ledger-row" });
+        textAt(svg, x + 16, y, "bit " + i, "lt", "start");
+        textAt(svg, x + 92, y, boxVal(a, 0, S.box[c][s][0]), "lt", "end");
+        textAt(svg, x + 142, y, boxVal(a, 1, S.box[c][s][1]), "lt", "end");
+      });
+      if (a === "gd") {
+        var ft = mlabel(svg, x + 16, 94, "r", " = " + (S.foot[c] == null ? "·" : fu(S.foot[c], 4)), "lt", "start");
+        ft.setAttribute("text-anchor", "start");
+      }
+      svgEl(svg, "rect", { x: CX[c] - 26, y: CY - 17, width: 52, height: 34, rx: 4,
+        "class": "check" + (act && act.c === c && !act.tok ? " active" : act && act.c === c && act.kind === "out" ? " active" : "") });
+      mlabel(svg, CX[c], CY + 5, "c", sd(c), "label", "middle");
+      var pg = svgEl(svg, "g", { "class": S.syn[c] ? "fail" : "pass" });
+      svgEl(pg, "rect", { x: PILLX[c] - 34, y: CY - 10, width: 68, height: 20, rx: 10 });
+      textAt(pg, PILLX[c], CY + 4, S.syn[c] ? "fails" : "passes", "", "middle");
+    });
+
+    for (var i = 0; i < 6; i++) {
+      var ring = allBits || (moving && act.kind === "in" && act.i === i) || (moving && act.kind === "out" && act.i === i && p >= act.tok.t1);
+      svgEl(svg, "circle", { cx: POS[i], cy: BY, r: R, "class": "symbol" + (ring ? " changed" : "") });
+      textAt(svg, POS[i], BY + 5, nodeVal(a, vals[i]), "value", "middle");
+      mlabel(svg, POS[i], BY + 44, sym, sd(i), "sym", "middle");
+      var wrong = S.hard[i] !== M.sent[i];
+      svgEl(svg, "rect", { x: POS[i] - 11, y: 223, width: 22, height: 19, rx: 3, "class": "chip" + (wrong ? " wrong" : "") });
+      textAt(svg, POS[i], 237, String(S.hard[i]), "chiptext" + (wrong ? " wrong" : ""), "middle");
+      if (S.clipped.indexOf(i) >= 0 && !(act && act.morph)) textAt(svg, POS[i] + 29, BY + 4, "clipped", "tiny", "start");
+    }
+
+    if (moving && p >= act.tok.t0 && p < act.tok.t1) {
+      var E = ends(act.c, act.i), u = ease((p - act.tok.t0) / (act.tok.t1 - act.tok.t0));
+      var s = 0.08 + 0.84 * u, fx = act.tok.up ? E.bx : E.cx, fy = act.tok.up ? E.by : E.cy;
+      var tx = act.tok.up ? E.cx : E.bx, ty = act.tok.up ? E.cy : E.by;
+      var x = fx + (tx - fx) * s, y = fy + (ty - fy) * s;
+      var w = Math.max(64, 14 + act.tok.label.length * 6.2);
+      var gtok = svgEl(svg, "g", { "class": "token " + a, opacity: clamp(Math.min(u / 0.12, (1 - u) / 0.1), 0, 1).toFixed(3) });
+      svgEl(gtok, "rect", { x: x - w / 2, y: y - 11, width: w, height: 22, rx: a === "admm" ? 4 : 11 });
+      textAt(gtok, x, y + 4, act.tok.label.replace(/-/g, "−"), "", "middle");
+    }
+    return S;
+  }
+
+  // ---------- worksheets ----------
+  var sheets = {};
+  function lineHTML(sub) {
+    var segs = sub.segs.map(function (s) { return '<span class="seg">' + s + "</span>"; }).join(" ");
+    return segs + (sub.note ? '<div class="note">' + sub.note + "</div>" : "");
+  }
+  function sheet(a, q) {
+    var el = document.getElementById(a + "-sheet");
+    var ref = q.act || (q.done ? SUBS[a][q.done - 1] : null);
+    var key = ref ? ref.iter + "|" + ref.stage : "init";
+    var cache = sheets[a];
+    if (!cache || cache.key !== key) {
+      el.innerHTML = "";
+      var head = document.createElement("div");
+      head.className = "sheet-head";
+      var left = document.createElement("span");
+      left.innerHTML = ref ? "Iteration " + ref.iter + " · " + stageName(ref.stage) : "Start";
+      var right = document.createElement("span");
+      head.appendChild(left); head.appendChild(right);
+      el.appendChild(head);
+      var lines = [];
+      if (!ref) {
+        INIT[a].forEach(function (h) { var d = document.createElement("div"); d.className = "line"; d.innerHTML = h; el.appendChild(d); });
+      } else {
+        SUBS[a].filter(function (s) { return s.iter === ref.iter && s.stage === ref.stage; }).forEach(function (s) {
+          var d = document.createElement("div");
+          d.className = "line";
+          d.innerHTML = lineHTML(s);
+          el.appendChild(d);
+          lines.push({ sub: s, el: d, segs: d.querySelectorAll(".seg"), note: d.querySelector(".note") });
+        });
+      }
+      cache = sheets[a] = { key: key, lines: lines, right: right };
+    }
+    cache.right.textContent = q.act ? "running" : "";
+    cache.lines.forEach(function (L) {
+      var s = L.sub;
+      if (s.ai < q.done) {
+        L.el.hidden = false; L.el.classList.remove("now");
+        L.segs.forEach(function (g) { g.classList.remove("off", "fresh"); });
+        if (L.note) L.note.hidden = false;
+      } else if (q.act === s) {
+        L.el.hidden = false; L.el.classList.add("now");
+        var shown = -1;
+        L.segs.forEach(function (g, j) { var on = q.p >= s.at[j]; g.classList.toggle("off", !on); if (on) shown = j; });
+        L.segs.forEach(function (g, j) { g.classList.toggle("fresh", j === shown); });
+        if (L.note) L.note.hidden = q.p < s.at[s.at.length - 1];
+      } else {
+        L.el.hidden = true;
+      }
+    });
+  }
+
+  // ---------- page state ----------
+  var OP_LABEL = {
+    bp: "Q/U messages shown",
+    gd: "x/g values shown",
+    admm: "b/(z−u) values shown"
+  };
+  function operations(a, q) {
+    var ref = q.act || (q.done ? SUBS[a][q.done - 1] : null);
+    if (!ref) return 0;
+    var n = 0;
+    for (var j = 0; j < q.done; j++) {
+      var s = SUBS[a][j];
+      if (s.iter === ref.iter && s.tok) n++;
+    }
+    if (q.act && q.act.tok && q.p >= q.act.tok.t1) n++;
+    return n;
+  }
+  function turnText(tr) { return NAME[tr.alg] + " · iteration " + tr.iter + " · " + stageName(tr.stage); }
+  function turnPlain(tr) { return NAME[tr.alg] + ", iteration " + tr.iter + ", " + stagePlain(tr.stage); }
+
+  var track = document.getElementById("track");
+  var cells = [];
+  function buildTrack() {
+    track.innerHTML = "";
+    cells = [];
+    for (var k = 1; k <= M.iters; k++) {
+      var grp = document.createElement("div");
+      grp.className = "track-group";
+      var row = document.createElement("div");
+      row.className = "track-cells";
+      turns.forEach(function (tr, j) {
+        if (tr.iter !== k) return;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "turn " + tr.alg;
+        b.id = "turn-" + j;
+        b.title = "Turn " + (j + 1) + ": " + turnPlain(tr);
+        b.setAttribute("aria-label", b.title);
+        b.addEventListener("click", function () { jumpTo(j); });
+        row.appendChild(b);
+        cells[j] = b;
+      });
+      var lab = document.createElement("span");
+      lab.className = "track-label";
+      lab.textContent = "iteration " + k;
+      grp.appendChild(row); grp.appendChild(lab);
+      track.appendChild(grp);
+    }
+  }
+
+  function render() {
+    var P = position();
+    var runningAlg = run ? turns[tau].alg : null;
+    var nextAlg = !run && tau < turns.length ? turns[tau].alg : null;
+    ALGS.forEach(function (a) {
+      draw(a, P[a]);
+      sheet(a, P[a]);
+      if (runningAlg === a) focusGraph(a, P[a]);
+      var panel = document.getElementById("panel-" + a);
+      panel.classList.toggle("running", runningAlg === a);
+      var stEl = document.getElementById(a + "-state");
+      var ref = P[a].act || (P[a].done ? SUBS[a][P[a].done - 1] : null);
+      var badge = runningAlg === a ? '<span class="badge run">running</span>' : nextAlg === a ? '<span class="badge">next</span>' : "";
+      var html = (ref ? "iteration " + ref.iter + " · " + OP_LABEL[a] + " " + operations(a, P[a]) + " / 12" : "not started") + badge;
+      if (stEl._h !== html) { stEl.innerHTML = html; stEl._h = html; }
+    });
+    var up = document.getElementById("upnext");
+    var upHtml = run ? "<b>Now:</b> " + turnText(turns[tau])
+      : tau < turns.length ? "<b>Next:</b> " + turnText(turns[tau])
+      : "<b>Done:</b> all " + turns.length + " turns have run";
+    if (up._h !== upHtml) { up.innerHTML = upHtml; up._h = upHtml; }
+    cells.forEach(function (c, j) {
+      c.classList.toggle("done", j < tau);
+      c.classList.toggle("now", j === tau);
+      if (j === tau) c.setAttribute("aria-current", "step"); else c.removeAttribute("aria-current");
+    });
+    document.getElementById("back").disabled = tau === 0 && !run;
+    document.getElementById("next").disabled = tau >= turns.length && !run;
+    document.getElementById("play").textContent = auto ? (paused ? "Resume" : "Pause") : "Play all";
+  }
+
+  var barEl = document.querySelector(".bar");
+  var graphFocusKey = "";
+  var panelFocusKey = "";
+  function syncBarOffset() {
+    document.documentElement.style.setProperty("--bar-offset", Math.ceil(barEl.getBoundingClientRect().height + 16) + "px");
+  }
+  function resetGraphViewports() {
+    document.querySelectorAll(".fig").forEach(function (fig) { fig.scrollLeft = 0; });
+  }
+  function focusGraph(a, q) {
+    if (!q.act) return;
+    var stage = q.act.stage || "bits";
+    var key = a + "|" + stage;
+    if (key === graphFocusKey) return;
+    graphFocusKey = key;
+    var fig = document.querySelector("#panel-" + a + " .fig");
+    var max = Math.max(0, fig.scrollWidth - fig.clientWidth);
+    var left = q.act.c === 0 ? 0 : q.act.c === 1 ? max : max / 2;
+    fig.scrollTo({ left: left, behavior: reduced ? "auto" : "smooth" });
+  }
+  function focusPanel(a) {
+    var key = tau + "|" + a;
+    if (key === panelFocusKey) return;
+    panelFocusKey = key;
+    var el = document.getElementById("panel-" + a);
+    // Keep vertical focus immediate: a simultaneous smooth horizontal graph scroll
+    // can otherwise cancel the panel scroll in Chromium on narrow screens.
+    el.scrollIntoView({ block: "start", behavior: "auto" });
+  }
+  function tick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  function frame(now) {
+    raf = 0;
+    var dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    if (run && !paused) {
+      run.t += dt * speed;
+      if (reduced && run.t >= 0) run.t = turns[tau].dur;
+      if (run.t >= turns[tau].dur) {
+        tau++;
+        run = null;
+        if (auto && tau < turns.length) { run = { t: reduced ? -2.5 : -GAP }; graphFocusKey = ""; }
+        else auto = false;
+      }
+    }
+    render();
+    if (run) focusPanel(turns[tau].alg);
+    if (run && !paused) raf = requestAnimationFrame(frame);
+  }
+  function startTurn() {
+    if (tau >= turns.length) return;
+    run = { t: 0 };
+    paused = false;
+    graphFocusKey = ""; panelFocusKey = "";
+    render();
+    focusPanel(turns[tau].alg);
+    tick();
+  }
+  function next() {
+    if (run) { tau++; run = null; auto = false; paused = false; render(); return; }
+    startTurn();
+  }
+  function back() {
+    auto = false; paused = false;
+    if (run) run = null; else tau = Math.max(0, tau - 1);
+    render();
+  }
+  function jumpTo(j) {
+    auto = false; paused = false;
+    tau = j;
+    startTurn();
+  }
+  function togglePlay() {
+    if (auto && !paused) { paused = true; render(); return; }
+    if (auto && paused) { paused = false; tick(); render(); return; }
+    if (tau >= turns.length) { tau = 0; }
+    auto = true;
+    if (!run) startTurn(); else { paused = false; tick(); }
+    render();
+  }
+  function setMode(m) {
+    if (m === MODE) return;
+    MODE = m;
+    turns = buildTurns();
+    tau = 0; run = null; auto = false; paused = false; graphFocusKey = ""; panelFocusKey = "";
+    document.querySelectorAll(".mode button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === m)); });
+    buildTrack();
+    resetGraphViewports();
+    render();
+  }
+
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("back").addEventListener("click", back);
+  document.getElementById("play").addEventListener("click", togglePlay);
+  document.getElementById("restart").addEventListener("click", function () { tau = 0; run = null; auto = false; paused = false; graphFocusKey = ""; panelFocusKey = ""; resetGraphViewports(); render(); });
+  document.querySelectorAll(".mode button").forEach(function (b) { b.addEventListener("click", function () { setMode(b.getAttribute("data-mode")); }); });
+  document.querySelectorAll(".speed button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      speed = Number(b.getAttribute("data-speed"));
+      document.querySelectorAll(".speed button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+    });
+  });
+  document.addEventListener("keydown", function (ev) {
+    var blocked = ev.target && ev.target.closest && ev.target.closest("input, select, textarea, summary, [contenteditable], .fig");
+    var onButton = ev.target && ev.target.closest && ev.target.closest("button");
+    if (blocked || (onButton && ev.key === " ")) return;
+    if (ev.key === " " || ev.key === "ArrowRight") { ev.preventDefault(); next(); }
+    else if (ev.key === "ArrowLeft") { ev.preventDefault(); back(); }
+    else if (ev.key === "p" || ev.key === "P") { ev.preventDefault(); togglePlay(); }
+    else if (ev.key === "Home") { ev.preventDefault(); tau = 0; run = null; auto = false; graphFocusKey = ""; panelFocusKey = ""; resetGraphViewports(); render(); }
+  });
+
+  var lastBp = M.bp[M.iters - 1], lastGd = M.gd[M.iters - 1], lastAd = M.admm[M.iters - 1];
+  function ends2(R) { return word(R.hard) + " (" + passText(R.syn) + ")"; }
+  document.getElementById("foot").innerHTML =
+    "Space or → runs the next turn (or finishes the one running), ← goes back one turn, P plays all turns; click a cell in the track to replay that turn. " +
+    "After two iterations BP ends at " + ends2(lastBp) + ", GD at " + ends2(lastGd) + ", and ADMM at " + ends2(lastAd) + ".";
+
+  window.SIX_BIT_ROUND_ROBIN = {
+    model: M, subs: SUBS,
+    turns: function () { return turns; },
+    set: function (j, frac) { tau = clamp(j, 0, turns.length); run = frac != null && tau < turns.length ? { t: frac * turns[tau].dur } : null; paused = true; auto = false; render(); }
+  };
+
+  syncBarOffset();
+  if (window.ResizeObserver) new ResizeObserver(syncBarOffset).observe(barEl);
+  window.addEventListener("resize", syncBarOffset);
+  buildTrack();
+  var h = /^#t(\d+)(?:\.(\d+))?$/.exec(location.hash);
+  if (h) {
+    tau = clamp(Number(h[1]), 0, turns.length);
+    if (h[2] && tau < turns.length) { run = { t: Number("0." + h[2]) * turns[tau].dur }; paused = true; }
+  }
+  render();
+})();
+</script>
+</body>
+</html>

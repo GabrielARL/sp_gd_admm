@@ -1,0 +1,1535 @@
+{
+  "experiment_id": "RQ1-UPDATE-001",
+  "provenance": {
+    "configuration_sha256": "41fe4cf2c25a5397eeefe8827b7ea16093246f95aa853a0d5b2b2d7c8fe5e639",
+    "created_utc": "2026-10-28T04:52:46.409131+00:00",
+    "exact_command": "python3 experiments/rq1_update_001/rq1_update_001.py --output-dir experiments/rq1_update_001/retained/anchor_v1",
+    "git": {
+      "branch": "main",
+      "head": "a8a8fdd4a48c9d7b21fdd443f23ef9c3e5791828",
+      "status_porcelain_v1": [
+        "?? .agents/skills/sp-gd-admm-mechanism-study/SKILL.md",
+        "?? .agents/skills/sp-gd-admm-terminology/SKILL.md",
+        "?? .agents/skills/sp-gd-admm-writing/SKILL.md",
+        "?? AGENTS.md",
+        "?? experiments/rq1_state_002/__pycache__/rq1_state_002.cpython-310.pyc",
+        "?? experiments/rq1_state_002/__pycache__/test_rq1_state_002.cpython-310.pyc",
+        "?? experiments/rq1_state_002/cyclic_confirmation_config.json",
+        "?? experiments/rq1_state_002/experiment_card.md",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/cyclic_four_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/cyclic_four_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__pulse.json",
+        "?? experiments/rq1_state_002/rq1_state_002.py",
+        "?? experiments/rq1_state_002/test_rq1_state_002.py",
+        "?? experiments/rq1_update_001/__pycache__/rq1_update_001.cpython-310.pyc",
+        "?? experiments/rq1_update_001/__pycache__/test_rq1_update_001.cpython-310.pyc",
+        "?? experiments/rq1_update_001/config.json",
+        "?? experiments/rq1_update_001/experiment_card.md",
+        "?? experiments/rq1_update_001/rq1_update_001.py",
+        "?? experiments/rq1_update_001/test_rq1_update_001.py",
+        "?? mailboxes_and_arrows.html",
+        "?? routemap.md",
+        "?? six_bits_round_robin.html",
+        "?? twelve_bits_round_robin.html"
+      ]
+    },
+    "runtime": {
+      "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+      "process_id": 2173661,
+      "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+      "python_executable": "/usr/bin/python3"
+    },
+    "source_bundle_sha256": "1639e245546b5d1edbdb70005fd34f1354d4acabcc386a8013d6ca69ad90ae88",
+    "source_hashes": {
+      "experiments/rq1_update_001/config.json": "114abeb5e1f315f1a13b5c71ecb1db8fc2766f25b5b2ac88b3b09a7bef53897a",
+      "experiments/rq1_update_001/experiment_card.md": "3b59cd67c73d5be7245188804308b4f4b66f337e983e62943abe5593d8f1bcc5",
+      "experiments/rq1_update_001/rq1_update_001.py": "94eee7ad5c52bab18dd9a49f8103a2085bbb10ebde8c12c10fce10de01bc2bf6",
+      "experiments/rq1_update_001/test_rq1_update_001.py": "cdc568a072c5cdd1b1736657c4c0842425d84fb0180e587d780a6a6e210dd2dc"
+    },
+    "working_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm"
+  },
+  "run_status": "valid",
+  "scientific_payload_sha256": "fa1b85b782d835db8165ac28b0a64299562becf84fea9a30cbb55ed44988c1cf",
+  "scientific_result": {
+    "alpha": 0.3819660112501051,
+    "alpha_expression": "(3 - sqrt(5)) / 2",
+    "cells": {
+      "full__direct": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "after_state": [
+          1.0986122886681096,
+          -2.1972245773362196,
+          0.6931471805599453,
+          -1.7917594692280552
+        ],
+        "alpha": null,
+        "before_state": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "cell_id": "full__direct",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -1.09861228866811,
+            -1.0986122886681098,
+            -1.09861228866811
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            1
+          ],
+          "syndrome": [
+            0,
+            0
+          ],
+          "valid_codeword": true
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "gradient_before": [
+          -0.6931471805599452,
+          -2.1972245773362196,
+          0.6931471805599452,
+          2.1972245773362196
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "map_evaluation_after": {
+          "input_state": [
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -1.7917594692280552
+          ],
+          "output_state": [
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -1.7917594692280552
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ]
+        },
+        "map_evaluation_before": {
+          "input_state": [
+            0.4054651081081644,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644
+          ],
+          "output_state": [
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -1.7917594692280552
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ]
+        },
+        "objective_after": 0.0,
+        "objective_before": 2.654124428584265,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 4,
+            "jacobian_transpose_accumulations": 0,
+            "jacobian_transpose_nonzero_products": 0,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 0,
+            "recipient_average_scalings": 0,
+            "residual_subtractions": 0,
+            "state_assignments": 4,
+            "state_update_subtractions": 0,
+            "step_size_multiplications": 0,
+            "variable_node_additions": 2
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "fixed-point solve",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "direct",
+        "residual_after": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "residual_before": [
+          -0.6931471805599452,
+          0.0,
+          0.0,
+          2.1972245773362196
+        ],
+        "residual_norm_after": 0.0,
+        "residual_norm_before": 2.3039637273986173,
+        "state_map": "full",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 3,
+          "persistent_dynamic_values_between_updates": 4,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 0,
+          "temporary_qbar_values": 0,
+          "temporary_residual_values": 0,
+          "temporary_variable_to_check_values": 4
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          0.6931471805599452,
+          0.0,
+          0.0,
+          -2.1972245773362196
+        ]
+      },
+      "full__true_residual_gradient": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "after_state": [
+          0.670223771875903,
+          -1.3579594697104058,
+          0.42838851679220663,
+          -0.43379999951764947
+        ],
+        "alpha": 0.3819660112501051,
+        "before_state": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "cell_id": "full__true_residual_gradient",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -1.5270008054603166,
+            -0.5241058448100349,
+            0.2593471810422958
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          -0.16362985302446797,
+          0.3205707455412218,
+          -0.10112881074327068,
+          0.518694362084592
+        ],
+        "gradient_before": [
+          -0.6931471805599452,
+          -2.1972245773362196,
+          0.6931471805599452,
+          2.1972245773362196
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "map_evaluation_after": {
+          "input_state": [
+            0.670223771875903,
+            -1.3579594697104058,
+            0.42838851679220663,
+            -0.43379999951764947
+          ],
+          "output_state": [
+            0.833853624900371,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.9524943616022414
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.05932036835093524,
+            0.6931471805599453
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            0.833853624900371,
+            -0.9524943616022414,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            0.833853624900371,
+            -0.9524943616022414,
+            0.6931471805599453
+          ]
+        },
+        "map_evaluation_before": {
+          "input_state": [
+            0.4054651081081644,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644
+          ],
+          "output_state": [
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -1.7917594692280552
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ]
+        },
+        "objective_after": 0.535140820488699,
+        "objective_before": 2.654124428584265,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 4,
+            "jacobian_transpose_accumulations": 2,
+            "jacobian_transpose_nonzero_products": 2,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 0,
+            "recipient_average_scalings": 0,
+            "residual_subtractions": 4,
+            "state_assignments": 0,
+            "state_update_subtractions": 4,
+            "step_size_multiplications": 4,
+            "variable_node_additions": 2
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "fixed-point solve",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "true_residual_gradient",
+        "residual_after": [
+          -0.16362985302446797,
+          0.8392651076258137,
+          -0.26475866376773866,
+          0.518694362084592
+        ],
+        "residual_before": [
+          -0.6931471805599452,
+          0.0,
+          0.0,
+          2.1972245773362196
+        ],
+        "residual_norm_after": 1.0345441706265606,
+        "residual_norm_before": 2.3039637273986173,
+        "state_map": "full",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 3,
+          "persistent_dynamic_values_between_updates": 4,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 4,
+          "temporary_qbar_values": 0,
+          "temporary_residual_values": 4,
+          "temporary_variable_to_check_values": 4
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          0.2647586637677386,
+          0.8392651076258137,
+          -0.26475866376773866,
+          -0.8392651076258139
+        ]
+      },
+      "qbar_tied__direct": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "after_state": [
+          -0.3465735902799728,
+          -2.1972245773362196,
+          0.6931471805599453,
+          -0.3465735902799728
+        ],
+        "alpha": null,
+        "before_state": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "cell_id": "qbar_tied__direct",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -2.5437981676161923,
+            -1.0986122886681098,
+            0.3465735902799725
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "gradient_before": [
+          0.7520386983881372,
+          -0.7520386983881372,
+          -0.7520386983881372,
+          0.7520386983881372
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ]
+        ],
+        "map_evaluation_after": {
+          "input_state": [
+            -0.3465735902799728,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.3465735902799728
+          ],
+          "output_state": [
+            -0.3465735902799728,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.3465735902799728
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            -0.3465735902799728,
+            0.6931471805599453
+          ]
+        },
+        "map_evaluation_before": {
+          "input_state": [
+            0.4054651081081644,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644
+          ],
+          "output_state": [
+            -0.3465735902799728,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.3465735902799728
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            -0.3465735902799728,
+            0.6931471805599453
+          ]
+        },
+        "objective_after": 0.0,
+        "objective_before": 0.5655622038733236,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 4,
+            "jacobian_transpose_accumulations": 0,
+            "jacobian_transpose_nonzero_products": 0,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 1,
+            "recipient_average_scalings": 1,
+            "residual_subtractions": 0,
+            "state_assignments": 4,
+            "state_update_subtractions": 0,
+            "step_size_multiplications": 0,
+            "variable_node_additions": 2
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "fixed-point solve",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "direct",
+        "residual_after": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "residual_before": [
+          0.7520386983881372,
+          0.0,
+          0.0,
+          0.7520386983881372
+        ],
+        "residual_norm_after": 0.0,
+        "residual_norm_before": 1.063543326689913,
+        "state_map": "qbar_tied",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 3,
+          "persistent_dynamic_values_between_updates": 4,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 0,
+          "temporary_qbar_values": 3,
+          "temporary_residual_values": 0,
+          "temporary_variable_to_check_values": 4
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          -0.7520386983881372,
+          0.0,
+          0.0,
+          -0.7520386983881372
+        ]
+      },
+      "qbar_tied__true_residual_gradient": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "after_state": [
+          0.11821188617912676,
+          -1.909971355407182,
+          0.980400402488983,
+          0.11821188617912676
+        ],
+        "alpha": 0.3819660112501051,
+        "before_state": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "cell_id": "qbar_tied__true_residual_gradient",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -2.079012691157093,
+            -0.5241058448100346,
+            0.811359066739072
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1
+          ],
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          0.17753225453006188,
+          0.10972096739897569,
+          0.1097209673989758,
+          0.17753225453006188
+        ],
+        "gradient_before": [
+          0.7520386983881372,
+          -0.7520386983881372,
+          -0.7520386983881372,
+          0.7520386983881372
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ]
+        ],
+        "map_evaluation_after": {
+          "input_state": [
+            0.11821188617912676,
+            -1.909971355407182,
+            0.980400402488983,
+            0.11821188617912676
+          ],
+          "output_state": [
+            -0.059320368350935127,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.059320368350935127
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.059320368350935127,
+            0.6931471805599453
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.3858655105971474,
+            -1.5045062472990176,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            -0.059320368350935127,
+            -0.059320368350935127,
+            0.6931471805599453
+          ]
+        },
+        "map_evaluation_before": {
+          "input_state": [
+            0.4054651081081644,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644
+          ],
+          "output_state": [
+            -0.3465735902799728,
+            -2.1972245773362196,
+            0.6931471805599453,
+            -0.3465735902799728
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            0.6931471805599453
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -2.1972245773362196,
+            1.0986122886681096,
+            -1.7917594692280552,
+            0.6931471805599453
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            -0.3465735902799728,
+            -0.3465735902799728,
+            0.6931471805599453
+          ]
+        },
+        "objective_after": 0.11403211490713963,
+        "objective_before": 0.5655622038733236,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 4,
+            "jacobian_transpose_accumulations": 4,
+            "jacobian_transpose_nonzero_products": 4,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 1,
+            "recipient_average_scalings": 1,
+            "residual_subtractions": 4,
+            "state_assignments": 0,
+            "state_update_subtractions": 4,
+            "step_size_multiplications": 4,
+            "variable_node_additions": 2
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "fixed-point solve",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "true_residual_gradient",
+        "residual_after": [
+          0.17753225453006188,
+          0.28725322192903757,
+          0.2872532219290377,
+          0.17753225453006188
+        ],
+        "residual_before": [
+          0.7520386983881372,
+          0.0,
+          0.0,
+          0.7520386983881372
+        ],
+        "residual_norm_after": 0.4775607079882926,
+        "residual_norm_before": 1.063543326689913,
+        "state_map": "qbar_tied",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 3,
+          "persistent_dynamic_values_between_updates": 4,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 4,
+          "temporary_qbar_values": 3,
+          "temporary_residual_values": 4,
+          "temporary_variable_to_check_values": 4
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          -0.2872532219290376,
+          0.28725322192903757,
+          0.2872532219290377,
+          -0.2872532219290376
+        ]
+      }
+    },
+    "channel_llrs": [
+      -2.1972245773362196,
+      0.4054651081081644,
+      0.6931471805599453
+    ],
+    "classification": "controlled mechanism bench",
+    "edge_order": [
+      {
+        "bit": 0,
+        "check": 0,
+        "coordinate": 0,
+        "label": "b0-c0"
+      },
+      {
+        "bit": 1,
+        "check": 0,
+        "coordinate": 1,
+        "label": "b1-c0"
+      },
+      {
+        "bit": 1,
+        "check": 1,
+        "coordinate": 2,
+        "label": "b1-c1"
+      },
+      {
+        "bit": 2,
+        "check": 1,
+        "coordinate": 3,
+        "label": "b2-c1"
+      }
+    ],
+    "effect_classification": {
+      "decoding_performance_result": false,
+      "interaction_detected": true,
+      "native_projected_gd_result": false,
+      "scope": "one-update trajectory effects on the declared three-bit anchor",
+      "state_effect_detected": true,
+      "update_effect_detected": true
+    },
+    "experiment_id": "RQ1-UPDATE-001",
+    "factorial_contrasts": {
+      "interaction_l2_norm": 1.484908686870001,
+      "interaction_vector": [
+        0.8931739932513061,
+        -0.5520118856967762,
+        0.5520118856967764,
+        -0.8931739932513063
+      ],
+      "orientation": {
+        "interaction": "(tied gradient - tied direct) - (full gradient - full direct)",
+        "state": "qbar_tied minus full, averaged over update operators",
+        "update": "true_residual_gradient minus direct, averaged over state maps"
+      },
+      "state_effect_l2_norm": 1.465181905609834,
+      "state_effect_vector": [
+        -0.9985988823224292,
+        -0.2760059428483881,
+        0.2760059428483882,
+        0.9985988823224292
+      ],
+      "update_effect_l2_norm": 1.071596172705627,
+      "update_effect_vector": [
+        0.018198479833446496,
+        0.5632591647774257,
+        0.011247279080649514,
+        0.9113724730847527
+      ]
+    },
+    "first_divergences": {
+      "state_within_direct": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -1.09861228866811,
+          "right": -2.5437981676161923,
+          "right_minus_left": -1.4451858789480823
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__direct",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 1.0986122886681096,
+          "right": -0.3465735902799728,
+          "right_minus_left": -1.4451858789480823
+        }
+      },
+      "state_within_gradient": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -1.5270008054603166,
+          "right": -2.079012691157093,
+          "right_minus_left": -0.5520118856967764
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__true_residual_gradient",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 0.670223771875903,
+          "right": 0.11821188617912676,
+          "right_minus_left": -0.5520118856967762
+        }
+      },
+      "update_within_full": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -1.09861228866811,
+          "right": -1.5270008054603166,
+          "right_minus_left": -0.4283885167922066
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "full__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 1.0986122886681096,
+          "right": 0.670223771875903,
+          "right_minus_left": -0.4283885167922066
+        }
+      },
+      "update_within_tied": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -2.5437981676161923,
+          "right": -2.079012691157093,
+          "right_minus_left": 0.4647854764590993
+        },
+        "first_divergent_update": 1,
+        "left_cell": "qbar_tied__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": -0.3465735902799728,
+          "right": 0.11821188617912676,
+          "right_minus_left": 0.46478547645909957
+        }
+      }
+    },
+    "llr_convention": "positive LLR favors bit 0; hard decision is 0 for a-posteriori LLR >= 0 and 1 otherwise",
+    "parity_check_matrix": [
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        1
+      ]
+    ],
+    "research_question": "RQ1",
+    "scope_note": "BP-residual gradient control only; not native projected GD and not a decoding-performance experiment",
+    "start_decision": {
+      "a_posteriori_llrs": [
+        -1.7917594692280552,
+        -1.0986122886681098,
+        1.0986122886681096
+      ],
+      "hard_decision_estimate": [
+        1,
+        1,
+        0
+      ],
+      "syndrome": [
+        0,
+        1
+      ],
+      "valid_codeword": false
+    },
+    "start_state": [
+      0.4054651081081644,
+      -2.1972245773362196,
+      0.6931471805599453,
+      0.4054651081081644
+    ],
+    "start_state_definition": "u1 = F_full(0)",
+    "state_map_properties": {
+      "full": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "fixed_point": [
+          1.0986122886681096,
+          -2.1972245773362196,
+          0.6931471805599453,
+          -1.7917594692280552
+        ],
+        "fixed_point_residual": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "maximum_eigenvalue": 2.618033988749894,
+        "objective_at_fixed_point": 0.0,
+        "residual_hessian": [
+          [
+            1.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            2.0,
+            0.0,
+            -1.0
+          ],
+          [
+            -1.0,
+            0.0,
+            2.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "residual_hessian_eigenvalues": [
+          0.381966011250105,
+          0.381966011250105,
+          2.618033988749894,
+          2.618033988749894
+        ],
+        "residual_jacobian": [
+          [
+            1.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            1.0
+          ]
+        ]
+      },
+      "qbar_tied": {
+        "affine_offset": [
+          0.4054651081081644,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644
+        ],
+        "fixed_point": [
+          -0.34657359027997275,
+          -2.1972245773362196,
+          0.6931471805599453,
+          -0.34657359027997275
+        ],
+        "fixed_point_residual": [
+          5.551115123125783e-17,
+          0.0,
+          0.0,
+          5.551115123125783e-17
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.5,
+            0.5,
+            0.0
+          ]
+        ],
+        "maximum_eigenvalue": 2.618033988749896,
+        "objective_at_fixed_point": 3.0814879110195774e-33,
+        "residual_hessian": [
+          [
+            1.0,
+            -0.5,
+            -0.5,
+            0.0
+          ],
+          [
+            -0.5,
+            1.5,
+            0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5,
+            1.5,
+            -0.5
+          ],
+          [
+            0.0,
+            -0.5,
+            -0.5,
+            1.0
+          ]
+        ],
+        "residual_hessian_eigenvalues": [
+          0.38196601125010493,
+          1.0,
+          1.0000000000000002,
+          2.618033988749896
+        ],
+        "residual_jacobian": [
+          [
+            1.0,
+            -0.5,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            -0.5,
+            -0.5,
+            1.0
+          ]
+        ]
+      }
+    },
+    "update_budget": {
+      "early_stopping": false,
+      "updates": 1
+    }
+  },
+  "validation": {
+    "all_passed": true,
+    "checks": [
+      {
+        "check_id": "VAL-001",
+        "description": "configured LLRs reproduce the frozen logarithmic expressions",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-002",
+        "description": "u1 equals F_full(0)",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-003",
+        "description": "configured edge order equals the frozen executable edge order",
+        "observed": [
+          [
+            0,
+            0,
+            "b0-c0"
+          ],
+          [
+            1,
+            0,
+            "b1-c0"
+          ],
+          [
+            1,
+            1,
+            "b1-c1"
+          ],
+          [
+            2,
+            1,
+            "b2-c1"
+          ]
+        ],
+        "passed": true,
+        "threshold_or_expected": [
+          [
+            0,
+            0,
+            "b0-c0"
+          ],
+          [
+            1,
+            0,
+            "b1-c0"
+          ],
+          [
+            1,
+            1,
+            "b1-c1"
+          ],
+          [
+            2,
+            1,
+            "b2-c1"
+          ]
+        ]
+      },
+      {
+        "check_id": "VAL-004",
+        "description": "full executable map agrees with J*u+c",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-005",
+        "description": "full analytic Jacobian agrees with central finite differences",
+        "observed": 1.397779669787269e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-006",
+        "description": "full analytic residual gradient agrees with central finite differences",
+        "observed": 2.796221032497215e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-007",
+        "description": "full residual-objective zero is a map fixed point",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-008",
+        "description": "qbar_tied executable map agrees with J*u+c",
+        "observed": 1.1102230246251565e-16,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-009",
+        "description": "qbar_tied analytic Jacobian agrees with central finite differences",
+        "observed": 6.988898348936345e-11,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-010",
+        "description": "qbar_tied analytic residual gradient agrees with central finite differences",
+        "observed": 1.4899026457015907e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-011",
+        "description": "qbar_tied residual-objective zero is a map fixed point",
+        "observed": 7.850462293418876e-17,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-012",
+        "description": "both (I-J)^T(I-J) matrices have the frozen shared maximum eigenvalue",
+        "observed": {
+          "errors": {
+            "full": 8.881784197001252e-16,
+            "qbar_tied": 8.881784197001252e-16
+          },
+          "shared_max_error": 1.7763568394002505e-15
+        },
+        "passed": true,
+        "threshold_or_expected": 1e-10
+      },
+      {
+        "check_id": "VAL-013",
+        "description": "alpha is the reciprocal of each (I-J)^T(I-J) maximum eigenvalue",
+        "observed": 4.440892098500626e-16,
+        "passed": true,
+        "threshold_or_expected": 1e-10
+      },
+      {
+        "check_id": "VAL-014",
+        "description": "post-update hard decisions and syndromes recompute from retained states",
+        "observed": true,
+        "passed": true,
+        "threshold_or_expected": true
+      },
+      {
+        "check_id": "VAL-015",
+        "description": "pure scientific calculation replays deterministically",
+        "observed": {
+          "first": "fa1b85b782d835db8165ac28b0a64299562becf84fea9a30cbb55ed44988c1cf",
+          "second": "fa1b85b782d835db8165ac28b0a64299562becf84fea9a30cbb55ed44988c1cf"
+        },
+        "passed": true,
+        "threshold_or_expected": "exact digest equality"
+      },
+      {
+        "check_id": "VAL-016",
+        "description": "each direct cell reaches its map fixed point on the frozen anchor",
+        "observed": {
+          "full": 0.0,
+          "qbar_tied": 5.551115123125783e-17
+        },
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      }
+    ],
+    "number_passed": 16,
+    "number_total": 16
+  }
+}

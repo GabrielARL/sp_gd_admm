@@ -1,0 +1,11 @@
+{
+  "configuration_sha256": "41fe4cf2c25a5397eeefe8827b7ea16093246f95aa853a0d5b2b2d7c8fe5e639",
+  "experiment_id": "RQ1-UPDATE-001",
+  "files": {
+    "result.json": "f40b1958618d573494b394918a89fdfa47625383d0307c1bed670dc846b500c3",
+    "validation.json": "1d2e18038e5265727d1c9e1ce1570a9d3131a340fe267a4c292390539508c059"
+  },
+  "scientific_payload_sha256": "fa1b85b782d835db8165ac28b0a64299562becf84fea9a30cbb55ed44988c1cf",
+  "source_bundle_sha256": "1639e245546b5d1edbdb70005fd34f1354d4acabcc386a8013d6ca69ad90ae88",
+  "write_policy": "new directory only; existing paths are never overwritten"
+}

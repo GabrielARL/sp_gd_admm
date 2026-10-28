@@ -1,0 +1,3387 @@
+{
+  "evidence_eligible": true,
+  "experiment_id": "RQ1-UPDATE-CYCLE-001",
+  "provenance": {
+    "configuration_sha256": "63c6482f2f5fbeee3a271df73d18b03a42c8b1b98a8fefd55801c46873662f64",
+    "created_utc": "2026-10-28T04:58:13.784520+00:00",
+    "exact_command": "python3 experiments/rq1_update_cycle_001/rq1_update_cycle_001.py --output-dir experiments/rq1_update_cycle_001/retained/confirmation_v1",
+    "git": {
+      "branch": "main",
+      "head": "a8a8fdd4a48c9d7b21fdd443f23ef9c3e5791828",
+      "status_porcelain_v1": [
+        "?? .agents/skills/sp-gd-admm-mechanism-study/SKILL.md",
+        "?? .agents/skills/sp-gd-admm-terminology/SKILL.md",
+        "?? .agents/skills/sp-gd-admm-writing/SKILL.md",
+        "?? AGENTS.md",
+        "?? experiments/rq1_endpoint_001/config.toml",
+        "?? experiments/rq1_endpoint_001/experiment_card.md",
+        "?? experiments/rq1_endpoint_001/rq1_endpoint_001.jl",
+        "?? experiments/rq1_state_002/__pycache__/rq1_state_002.cpython-310.pyc",
+        "?? experiments/rq1_state_002/__pycache__/test_rq1_state_002.cpython-310.pyc",
+        "?? experiments/rq1_state_002/cyclic_confirmation_config.json",
+        "?? experiments/rq1_state_002/experiment_card.md",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/cyclic_four_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/cyclic_four_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/cyclic_four_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/MANIFEST.sha256",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/degree_one_six_bit__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/degree_one_six_bit__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/manifest.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__pulse.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/run_config.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/symmetric_tree__persistent.json",
+        "?? experiments/rq1_state_002/results/2026-10-28_primary_v3/symmetric_tree__pulse.json",
+        "?? experiments/rq1_state_002/rq1_state_002.py",
+        "?? experiments/rq1_state_002/test_rq1_state_002.py",
+        "?? experiments/rq1_update_001/__pycache__/rq1_update_001.cpython-310.pyc",
+        "?? experiments/rq1_update_001/config.json",
+        "?? experiments/rq1_update_001/experiment_card.md",
+        "?? experiments/rq1_update_001/retained/anchor_v1/INVALIDATED.md",
+        "?? experiments/rq1_update_001/retained/anchor_v1/manifest.json",
+        "?? experiments/rq1_update_001/retained/anchor_v1/result.json",
+        "?? experiments/rq1_update_001/retained/anchor_v1/validation.json",
+        "?? experiments/rq1_update_001/retained/anchor_v2/manifest.json",
+        "?? experiments/rq1_update_001/retained/anchor_v2/result.json",
+        "?? experiments/rq1_update_001/retained/anchor_v2/validation.json",
+        "?? experiments/rq1_update_001/rq1_update_001.py",
+        "?? experiments/rq1_update_001/test_rq1_update_001.py",
+        "?? experiments/rq1_update_cycle_001/config.json",
+        "?? experiments/rq1_update_cycle_001/experiment_card.md",
+        "?? experiments/rq1_update_cycle_001/rq1_update_cycle_001.py",
+        "?? experiments/rq1_update_cycle_001/test_rq1_update_cycle_001.py",
+        "?? mailboxes_and_arrows.html",
+        "?? routemap.md",
+        "?? six_bits_round_robin.html",
+        "?? twelve_bits_round_robin.html"
+      ]
+    },
+    "runtime": {
+      "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+      "process_id": 2181302,
+      "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+      "python_executable": "/usr/bin/python3"
+    },
+    "source_bundle_sha256": "4a2ca263b4d0e7b90fe0a39264801cbfc7e82eee162d4c6c3d54f32a06b4e33e",
+    "source_hashes": {
+      "experiments/rq1_update_cycle_001/config.json": "d8adc1a5c753b637c362e2acc5e3218963a7e61d73bc91bd556ccf2ff52810f2",
+      "experiments/rq1_update_cycle_001/experiment_card.md": "f1c0fdc384385e315e52bf4c6c21176b4808884626004ede3f8028ac172b6d1c",
+      "experiments/rq1_update_cycle_001/rq1_update_cycle_001.py": "43c3c736fe332acbac6a74b03360bb3ab6c5adcd34dfee5b4eee835947964923",
+      "experiments/rq1_update_cycle_001/test_rq1_update_cycle_001.py": "508d1707caf827b576394bf9bfbc8562882bc8f877fa7b46e216d9690df72f00"
+    },
+    "working_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm"
+  },
+  "run_status": "valid",
+  "scientific_payload_sha256": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2",
+  "scientific_result": {
+    "alpha": 0.3819660112501051,
+    "alpha_expression": "(3 - sqrt(5)) / 2",
+    "alpha_selection_rule": "transferred unchanged from RQ1-UPDATE-001; no cycle-specific retuning",
+    "cells": {
+      "full__direct": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "after_state": [
+          1.0986122886681096,
+          1.791759469228055,
+          -1.0986122886681098,
+          1.791759469228055,
+          -1.7917594692280552,
+          -1.0986122886681098,
+          1.0986122886681096,
+          -1.7917594692280552
+        ],
+        "alpha": null,
+        "before_state": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "cell_id": "full__direct",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            0.693147180559945,
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.40546510810816416
+          ],
+          "hard_decision_estimate": [
+            1,
+            1,
+            0,
+            1
+          ],
+          "syndrome": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -0.6931471805599454,
+            -1.0986122886681098,
+            2.1972245773362196,
+            -0.4054651081081644
+          ],
+          "hard_decision_estimate": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          -0.4054651081081644,
+          0.287682072451781,
+          0.4054651081081646,
+          3.295836866004329,
+          -3.295836866004329,
+          -2.6026896854443837,
+          2.6026896854443837,
+          -0.2876820724517808
+        ],
+        "gradient_before": [
+          -0.2876820724517808,
+          0.4054651081081646,
+          -3.295836866004329,
+          -0.4054651081081644,
+          2.6026896854443837,
+          3.295836866004329,
+          0.2876820724517809,
+          -2.6026896854443837
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_parity_enumeration": {
+          "maximum_absolute_error": 0.0,
+          "records": [
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": 1.0986122886681096,
+              "executable_check_to_variable_llr": 1.0986122886681096,
+              "output_coordinate": 0,
+              "output_label": "b0-c0",
+              "recipient_bit": 0,
+              "source_bit": 1,
+              "source_q": 1.0986122886681096
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": 1.791759469228055,
+              "executable_check_to_variable_llr": 1.791759469228055,
+              "output_coordinate": 1,
+              "output_label": "b0-c3",
+              "recipient_bit": 0,
+              "source_bit": 3,
+              "source_q": 1.791759469228055
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -1.0986122886681098,
+              "executable_check_to_variable_llr": -1.0986122886681098,
+              "output_coordinate": 2,
+              "output_label": "b1-c0",
+              "recipient_bit": 1,
+              "source_bit": 0,
+              "source_q": -1.0986122886681098
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": 1.791759469228055,
+              "executable_check_to_variable_llr": 1.791759469228055,
+              "output_coordinate": 3,
+              "output_label": "b1-c1",
+              "recipient_bit": 1,
+              "source_bit": 2,
+              "source_q": 1.791759469228055
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": -1.7917594692280552,
+              "executable_check_to_variable_llr": -1.7917594692280552,
+              "output_coordinate": 4,
+              "output_label": "b2-c1",
+              "recipient_bit": 2,
+              "source_bit": 1,
+              "source_q": -1.7917594692280552
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": -1.0986122886681098,
+              "executable_check_to_variable_llr": -1.0986122886681098,
+              "output_coordinate": 5,
+              "output_label": "b2-c2",
+              "recipient_bit": 2,
+              "source_bit": 3,
+              "source_q": -1.0986122886681098
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 1.0986122886681096,
+              "executable_check_to_variable_llr": 1.0986122886681096,
+              "output_coordinate": 6,
+              "output_label": "b3-c2",
+              "recipient_bit": 3,
+              "source_bit": 2,
+              "source_q": 1.0986122886681096
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": -1.7917594692280552,
+              "executable_check_to_variable_llr": -1.7917594692280552,
+              "output_coordinate": 7,
+              "output_label": "b3-c3",
+              "recipient_bit": 3,
+              "source_bit": 0,
+              "source_q": -1.7917594692280552
+            }
+          ]
+        },
+        "map_evaluation_after": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            1.0986122886681096,
+            1.791759469228055,
+            -1.0986122886681098,
+            1.791759469228055,
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096,
+            -1.7917594692280552
+          ],
+          "output_state": [
+            2.197224577336219,
+            2.197224577336219,
+            -0.4054651081081646,
+            -0.4054651081081645,
+            -0.6931471805599454,
+            -0.6931471805599454,
+            -1.09861228866811,
+            -1.09861228866811
+          ],
+          "qbar_by_bit": [
+            -0.7520386983881373,
+            0.7520386983881369,
+            -0.7520386983881373,
+            0.7520386983881369
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -0.4054651081081646,
+            -1.09861228866811,
+            2.197224577336219,
+            -0.6931471805599454,
+            -0.4054651081081645,
+            -1.09861228866811,
+            -0.6931471805599454,
+            2.197224577336219
+          ],
+          "variable_to_check_used": [
+            -0.4054651081081646,
+            -1.09861228866811,
+            2.197224577336219,
+            -0.6931471805599454,
+            -0.4054651081081645,
+            -1.09861228866811,
+            -0.6931471805599454,
+            2.197224577336219
+          ]
+        },
+        "map_evaluation_before": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            0.4054651081081644,
+            1.0986122886681098,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644,
+            1.0986122886681098,
+            0.6931471805599453,
+            -2.1972245773362196
+          ],
+          "output_state": [
+            1.0986122886681096,
+            1.791759469228055,
+            -1.0986122886681098,
+            1.791759469228055,
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096,
+            -1.7917594692280552
+          ],
+          "qbar_by_bit": [
+            -1.4451858789480825,
+            -0.3465735902799728,
+            1.4451858789480823,
+            0.3465735902799726
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ],
+          "variable_to_check_used": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ]
+        },
+        "objective_after": 6.679599771874276,
+        "objective_before": 6.679599771874276,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 8,
+            "jacobian_transpose_accumulations": 0,
+            "jacobian_transpose_nonzero_products": 0,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 0,
+            "recipient_average_scalings": 0,
+            "residual_subtractions": 0,
+            "state_assignments": 8,
+            "state_update_subtractions": 0,
+            "step_size_multiplications": 0,
+            "variable_node_additions": 8
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "rank and nullspace calculations",
+            "local parity enumeration",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization",
+            "qbar values calculated only for aligned diagnostics in the full cell"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "direct",
+        "residual_after": [
+          -1.0986122886681096,
+          -0.40546510810816416,
+          -0.6931471805599452,
+          2.1972245773362196,
+          -1.0986122886681098,
+          -0.4054651081081644,
+          2.1972245773362196,
+          -0.6931471805599452
+        ],
+        "residual_before": [
+          -0.6931471805599452,
+          -0.6931471805599452,
+          -1.0986122886681098,
+          -1.0986122886681096,
+          2.1972245773362196,
+          2.1972245773362196,
+          -0.4054651081081643,
+          -0.4054651081081644
+        ],
+        "residual_norm_after": 3.65502387731579,
+        "residual_norm_before": 3.65502387731579,
+        "state_map": "full",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 4,
+          "persistent_dynamic_values_between_updates": 8,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 0,
+          "temporary_qbar_values": 0,
+          "temporary_residual_values": 0,
+          "temporary_variable_to_check_values": 8
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          0.6931471805599452,
+          0.6931471805599452,
+          1.0986122886681098,
+          1.0986122886681096,
+          -2.1972245773362196,
+          -2.1972245773362196,
+          0.4054651081081643,
+          0.4054651081081644
+        ]
+      },
+      "full__true_residual_gradient": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "after_state": [
+          0.5153498818307348,
+          0.9437383986229415,
+          -0.938326915897499,
+          0.8480210706051134,
+          -0.5886738895628176,
+          -0.16028537277061083,
+          0.5832624068373748,
+          -1.2030855796652375
+        ],
+        "alpha": 0.3819660112501051,
+        "before_state": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "cell_id": "full__true_residual_gradient",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -0.7381362968825433,
+            0.3151592628157789,
+            -0.05581208177348318,
+            0.4787891158402471
+          ],
+          "hard_decision_estimate": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "syndrome": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -0.6931471805599454,
+            -1.0986122886681098,
+            2.1972245773362196,
+            -0.4054651081081644
+          ],
+          "hard_decision_estimate": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          -1.2169254127227904,
+          -1.0532955596983222,
+          0.3709713445892622,
+          1.053295559698322,
+          -0.5346011976137303,
+          -0.37097134458926206,
+          1.2169254127227904,
+          0.5346011976137304
+        ],
+        "gradient_before": [
+          -0.2876820724517808,
+          0.4054651081081646,
+          -3.295836866004329,
+          -0.4054651081081644,
+          2.6026896854443837,
+          3.295836866004329,
+          0.2876820724517809,
+          -2.6026896854443837
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_parity_enumeration": {
+          "maximum_absolute_error": 0.0,
+          "records": [
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": 1.0986122886681096,
+              "executable_check_to_variable_llr": 1.0986122886681096,
+              "output_coordinate": 0,
+              "output_label": "b0-c0",
+              "recipient_bit": 0,
+              "source_bit": 1,
+              "source_q": 1.0986122886681096
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": 1.791759469228055,
+              "executable_check_to_variable_llr": 1.791759469228055,
+              "output_coordinate": 1,
+              "output_label": "b0-c3",
+              "recipient_bit": 0,
+              "source_bit": 3,
+              "source_q": 1.791759469228055
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -1.0986122886681098,
+              "executable_check_to_variable_llr": -1.0986122886681098,
+              "output_coordinate": 2,
+              "output_label": "b1-c0",
+              "recipient_bit": 1,
+              "source_bit": 0,
+              "source_q": -1.0986122886681098
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": 1.791759469228055,
+              "executable_check_to_variable_llr": 1.791759469228055,
+              "output_coordinate": 3,
+              "output_label": "b1-c1",
+              "recipient_bit": 1,
+              "source_bit": 2,
+              "source_q": 1.791759469228055
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": -1.7917594692280552,
+              "executable_check_to_variable_llr": -1.7917594692280552,
+              "output_coordinate": 4,
+              "output_label": "b2-c1",
+              "recipient_bit": 2,
+              "source_bit": 1,
+              "source_q": -1.7917594692280552
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": -1.0986122886681098,
+              "executable_check_to_variable_llr": -1.0986122886681098,
+              "output_coordinate": 5,
+              "output_label": "b2-c2",
+              "recipient_bit": 2,
+              "source_bit": 3,
+              "source_q": -1.0986122886681098
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 1.0986122886681096,
+              "executable_check_to_variable_llr": 1.0986122886681096,
+              "output_coordinate": 6,
+              "output_label": "b3-c2",
+              "recipient_bit": 3,
+              "source_bit": 2,
+              "source_q": 1.0986122886681096
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": -1.7917594692280552,
+              "executable_check_to_variable_llr": -1.7917594692280552,
+              "output_coordinate": 7,
+              "output_label": "b3-c3",
+              "recipient_bit": 3,
+              "source_bit": 0,
+              "source_q": -1.7917594692280552
+            }
+          ]
+        },
+        "map_evaluation_after": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            0.5153498818307348,
+            0.9437383986229415,
+            -0.938326915897499,
+            0.8480210706051134,
+            -0.5886738895628176,
+            -0.16028537277061083,
+            0.5832624068373748,
+            -1.2030855796652375
+          ],
+          "output_state": [
+            1.2534861787132778,
+            1.6818746955054846,
+            -1.253486178713278,
+            0.5328618077893345,
+            -0.5328618077893346,
+            -0.10447329099712777,
+            0.10447329099712765,
+            -1.6818746955054849
+          ],
+          "qbar_by_bit": [
+            -1.4676804371093815,
+            0.36031218546197163,
+            0.31866754939323105,
+            0.7887007022541784
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -1.253486178713278,
+            -1.6818746955054849,
+            1.2534861787132778,
+            -0.5328618077893346,
+            0.5328618077893345,
+            0.10447329099712765,
+            -0.10447329099712777,
+            1.6818746955054846
+          ],
+          "variable_to_check_used": [
+            -1.253486178713278,
+            -1.6818746955054849,
+            1.2534861787132778,
+            -0.5328618077893346,
+            0.5328618077893345,
+            0.10447329099712765,
+            -0.10447329099712777,
+            1.6818746955054846
+          ]
+        },
+        "map_evaluation_before": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            0.4054651081081644,
+            1.0986122886681098,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644,
+            1.0986122886681098,
+            0.6931471805599453,
+            -2.1972245773362196
+          ],
+          "output_state": [
+            1.0986122886681096,
+            1.791759469228055,
+            -1.0986122886681098,
+            1.791759469228055,
+            -1.7917594692280552,
+            -1.0986122886681098,
+            1.0986122886681096,
+            -1.7917594692280552
+          ],
+          "qbar_by_bit": [
+            -1.4451858789480825,
+            -0.3465735902799728,
+            1.4451858789480823,
+            0.3465735902799726
+          ],
+          "state_map": "full",
+          "variable_to_check_full": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ],
+          "variable_to_check_used": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ]
+        },
+        "objective_after": 0.8765245596330349,
+        "objective_before": 6.679599771874276,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 8,
+            "jacobian_transpose_accumulations": 8,
+            "jacobian_transpose_nonzero_products": 8,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 0,
+            "recipient_average_scalings": 0,
+            "residual_subtractions": 8,
+            "state_assignments": 0,
+            "state_update_subtractions": 8,
+            "step_size_multiplications": 8,
+            "variable_node_additions": 8
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "rank and nullspace calculations",
+            "local parity enumeration",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization",
+            "qbar values calculated only for aligned diagnostics in the full cell"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "true_residual_gradient",
+        "residual_after": [
+          -0.738136296882543,
+          -0.7381362968825431,
+          0.3151592628157791,
+          0.315159262815779,
+          -0.05581208177348307,
+          -0.05581208177348307,
+          0.4787891158402472,
+          0.4787891158402473
+        ],
+        "residual_before": [
+          -0.6931471805599452,
+          -0.6931471805599452,
+          -1.0986122886681098,
+          -1.0986122886681096,
+          2.1972245773362196,
+          2.1972245773362196,
+          -0.4054651081081643,
+          -0.4054651081081644
+        ],
+        "residual_norm_after": 1.3240276127279482,
+        "residual_norm_before": 3.65502387731579,
+        "state_map": "full",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 4,
+          "persistent_dynamic_values_between_updates": 8,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 8,
+          "temporary_qbar_values": 0,
+          "temporary_residual_values": 8,
+          "temporary_variable_to_check_values": 8
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          0.10988477372257044,
+          -0.15487389004516827,
+          1.2588976614387206,
+          0.15487389004516816,
+          -0.994138997670982,
+          -1.2588976614387206,
+          -0.10988477372257044,
+          0.994138997670982
+        ]
+      },
+      "qbar_tied__direct": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "after_state": [
+          -0.3465735902799728,
+          0.3465735902799726,
+          -1.4451858789480825,
+          1.4451858789480823,
+          -0.3465735902799728,
+          0.3465735902799726,
+          1.4451858789480823,
+          -1.4451858789480825
+        ],
+        "alpha": null,
+        "before_state": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "cell_id": "qbar_tied__direct",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -2.19722457733622,
+            0.40546510810816416,
+            0.6931471805599451,
+            1.0986122886681096
+          ],
+          "hard_decision_estimate": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "syndrome": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -0.6931471805599454,
+            -1.0986122886681098,
+            2.1972245773362196,
+            -0.4054651081081644
+          ],
+          "hard_decision_estimate": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          -1.5040773967762742,
+          -1.5040773967762742,
+          1.5040773967762742,
+          1.5040773967762742,
+          -1.5040773967762742,
+          -1.5040773967762742,
+          1.5040773967762742,
+          1.5040773967762742
+        ],
+        "gradient_before": [
+          1.5040773967762742,
+          1.5040773967762742,
+          -1.5040773967762744,
+          -1.5040773967762742,
+          1.5040773967762742,
+          1.5040773967762742,
+          -1.5040773967762742,
+          -1.5040773967762742
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_parity_enumeration": {
+          "maximum_absolute_error": 0.0,
+          "records": [
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -0.3465735902799728,
+              "executable_check_to_variable_llr": -0.3465735902799728,
+              "output_coordinate": 0,
+              "output_label": "b0-c0",
+              "recipient_bit": 0,
+              "source_bit": 1,
+              "source_q": -0.3465735902799728
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": 0.3465735902799726,
+              "executable_check_to_variable_llr": 0.3465735902799726,
+              "output_coordinate": 1,
+              "output_label": "b0-c3",
+              "recipient_bit": 0,
+              "source_bit": 3,
+              "source_q": 0.3465735902799726
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -1.4451858789480825,
+              "executable_check_to_variable_llr": -1.4451858789480825,
+              "output_coordinate": 2,
+              "output_label": "b1-c0",
+              "recipient_bit": 1,
+              "source_bit": 0,
+              "source_q": -1.4451858789480825
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": 1.4451858789480823,
+              "executable_check_to_variable_llr": 1.4451858789480823,
+              "output_coordinate": 3,
+              "output_label": "b1-c1",
+              "recipient_bit": 1,
+              "source_bit": 2,
+              "source_q": 1.4451858789480823
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": -0.3465735902799728,
+              "executable_check_to_variable_llr": -0.3465735902799728,
+              "output_coordinate": 4,
+              "output_label": "b2-c1",
+              "recipient_bit": 2,
+              "source_bit": 1,
+              "source_q": -0.3465735902799728
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 0.3465735902799726,
+              "executable_check_to_variable_llr": 0.3465735902799726,
+              "output_coordinate": 5,
+              "output_label": "b2-c2",
+              "recipient_bit": 2,
+              "source_bit": 3,
+              "source_q": 0.3465735902799726
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 1.4451858789480823,
+              "executable_check_to_variable_llr": 1.4451858789480823,
+              "output_coordinate": 6,
+              "output_label": "b3-c2",
+              "recipient_bit": 3,
+              "source_bit": 2,
+              "source_q": 1.4451858789480823
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": -1.4451858789480825,
+              "executable_check_to_variable_llr": -1.4451858789480825,
+              "output_coordinate": 7,
+              "output_label": "b3-c3",
+              "recipient_bit": 3,
+              "source_bit": 0,
+              "source_q": -1.4451858789480825
+            }
+          ]
+        },
+        "map_evaluation_after": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            -0.3465735902799728,
+            0.3465735902799726,
+            -1.4451858789480825,
+            1.4451858789480823,
+            -0.3465735902799728,
+            0.3465735902799726,
+            1.4451858789480823,
+            -1.4451858789480825
+          ],
+          "output_state": [
+            0.4054651081081643,
+            1.0986122886681096,
+            -2.1972245773362196,
+            0.6931471805599452,
+            0.4054651081081643,
+            1.0986122886681096,
+            0.6931471805599452,
+            -2.1972245773362196
+          ],
+          "qbar_by_bit": [
+            -2.1972245773362196,
+            0.4054651081081643,
+            0.6931471805599452,
+            1.0986122886681096
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -1.8506509870562469,
+            -2.5437981676161923,
+            1.8506509870562466,
+            -1.039720770839918,
+            1.0397207708399179,
+            0.3465735902799725,
+            -0.3465735902799727,
+            2.543798167616192
+          ],
+          "variable_to_check_used": [
+            -2.1972245773362196,
+            -2.1972245773362196,
+            0.4054651081081643,
+            0.4054651081081643,
+            0.6931471805599452,
+            0.6931471805599452,
+            1.0986122886681096,
+            1.0986122886681096
+          ]
+        },
+        "map_evaluation_before": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            0.4054651081081644,
+            1.0986122886681098,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644,
+            1.0986122886681098,
+            0.6931471805599453,
+            -2.1972245773362196
+          ],
+          "output_state": [
+            -0.3465735902799728,
+            0.3465735902799726,
+            -1.4451858789480825,
+            1.4451858789480823,
+            -0.3465735902799728,
+            0.3465735902799726,
+            1.4451858789480823,
+            -1.4451858789480825
+          ],
+          "qbar_by_bit": [
+            -1.4451858789480825,
+            -0.3465735902799728,
+            1.4451858789480823,
+            0.3465735902799726
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ],
+          "variable_to_check_used": [
+            -1.4451858789480825,
+            -1.4451858789480825,
+            -0.3465735902799728,
+            -0.3465735902799728,
+            1.4451858789480823,
+            1.4451858789480823,
+            0.3465735902799726,
+            0.3465735902799726
+          ]
+        },
+        "objective_after": 2.262248815493294,
+        "objective_before": 2.262248815493294,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 8,
+            "jacobian_transpose_accumulations": 0,
+            "jacobian_transpose_nonzero_products": 0,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 4,
+            "recipient_average_scalings": 4,
+            "residual_subtractions": 0,
+            "state_assignments": 8,
+            "state_update_subtractions": 0,
+            "step_size_multiplications": 0,
+            "variable_node_additions": 8
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "rank and nullspace calculations",
+            "local parity enumeration",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "direct",
+        "residual_after": [
+          -0.7520386983881371,
+          -0.752038698388137,
+          0.7520386983881371,
+          0.7520386983881371,
+          -0.7520386983881371,
+          -0.752038698388137,
+          0.7520386983881371,
+          0.7520386983881371
+        ],
+        "residual_before": [
+          0.7520386983881372,
+          0.7520386983881372,
+          -0.7520386983881371,
+          -0.752038698388137,
+          0.7520386983881372,
+          0.7520386983881372,
+          -0.752038698388137,
+          -0.7520386983881371
+        ],
+        "residual_norm_after": 2.127086653379826,
+        "residual_norm_before": 2.127086653379826,
+        "state_map": "qbar_tied",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 4,
+          "persistent_dynamic_values_between_updates": 8,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 0,
+          "temporary_qbar_values": 4,
+          "temporary_residual_values": 0,
+          "temporary_variable_to_check_values": 8
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          -0.7520386983881372,
+          -0.7520386983881372,
+          0.7520386983881371,
+          0.752038698388137,
+          -0.7520386983881372,
+          -0.7520386983881372,
+          0.752038698388137,
+          0.7520386983881371
+        ]
+      },
+      "qbar_tied__true_residual_gradient": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "after_state": [
+          -0.16904133574991076,
+          0.5241058448100346,
+          -1.6227181334781444,
+          1.2676536244180205,
+          -0.16904133574991076,
+          0.5241058448100346,
+          1.2676536244180205,
+          -1.6227181334781444
+        ],
+        "alpha": 0.3819660112501051,
+        "before_state": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "cell_id": "qbar_tied__true_residual_gradient",
+        "decision_after": {
+          "a_posteriori_llrs": [
+            -1.8421600682760957,
+            0.050400599048040506,
+            1.0482116896200693,
+            0.7435477796079859
+          ],
+          "hard_decision_estimate": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "syndrome": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "decision_before": {
+          "a_posteriori_llrs": [
+            -0.6931471805599454,
+            -1.0986122886681098,
+            2.1972245773362196,
+            -0.4054651081081644
+          ],
+          "hard_decision_estimate": [
+            0,
+            0,
+            1,
+            0
+          ],
+          "syndrome": [
+            0,
+            1,
+            1,
+            0
+          ],
+          "transmitted_word_recovery": null,
+          "valid_codeword": false
+        },
+        "early_stopping": false,
+        "gradient_after": [
+          -0.7939483786560266,
+          -0.7939483786560267,
+          0.7939483786560266,
+          0.7939483786560266,
+          -0.7939483786560266,
+          -0.7939483786560267,
+          0.7939483786560267,
+          0.7939483786560267
+        ],
+        "gradient_before": [
+          1.5040773967762742,
+          1.5040773967762742,
+          -1.5040773967762744,
+          -1.5040773967762742,
+          1.5040773967762742,
+          1.5040773967762742,
+          -1.5040773967762742,
+          -1.5040773967762742
+        ],
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_parity_enumeration": {
+          "maximum_absolute_error": 0.0,
+          "records": [
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -0.3465735902799728,
+              "executable_check_to_variable_llr": -0.3465735902799728,
+              "output_coordinate": 0,
+              "output_label": "b0-c0",
+              "recipient_bit": 0,
+              "source_bit": 1,
+              "source_q": -0.3465735902799728
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": 0.3465735902799726,
+              "executable_check_to_variable_llr": 0.3465735902799726,
+              "output_coordinate": 1,
+              "output_label": "b0-c3",
+              "recipient_bit": 0,
+              "source_bit": 3,
+              "source_q": 0.3465735902799726
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 0,
+              "enumerated_check_to_variable_llr": -1.4451858789480825,
+              "executable_check_to_variable_llr": -1.4451858789480825,
+              "output_coordinate": 2,
+              "output_label": "b1-c0",
+              "recipient_bit": 1,
+              "source_bit": 0,
+              "source_q": -1.4451858789480825
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": 1.4451858789480823,
+              "executable_check_to_variable_llr": 1.4451858789480823,
+              "output_coordinate": 3,
+              "output_label": "b1-c1",
+              "recipient_bit": 1,
+              "source_bit": 2,
+              "source_q": 1.4451858789480823
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 1,
+              "enumerated_check_to_variable_llr": -0.3465735902799728,
+              "executable_check_to_variable_llr": -0.3465735902799728,
+              "output_coordinate": 4,
+              "output_label": "b2-c1",
+              "recipient_bit": 2,
+              "source_bit": 1,
+              "source_q": -0.3465735902799728
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 0.3465735902799726,
+              "executable_check_to_variable_llr": 0.3465735902799726,
+              "output_coordinate": 5,
+              "output_label": "b2-c2",
+              "recipient_bit": 2,
+              "source_bit": 3,
+              "source_q": 0.3465735902799726
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 2,
+              "enumerated_check_to_variable_llr": 1.4451858789480823,
+              "executable_check_to_variable_llr": 1.4451858789480823,
+              "output_coordinate": 6,
+              "output_label": "b3-c2",
+              "recipient_bit": 3,
+              "source_bit": 2,
+              "source_q": 1.4451858789480823
+            },
+            {
+              "absolute_error": 0.0,
+              "check": 3,
+              "enumerated_check_to_variable_llr": -1.4451858789480825,
+              "executable_check_to_variable_llr": -1.4451858789480825,
+              "output_coordinate": 7,
+              "output_label": "b3-c3",
+              "recipient_bit": 3,
+              "source_bit": 0,
+              "source_q": -1.4451858789480825
+            }
+          ]
+        },
+        "map_evaluation_after": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            -0.16904133574991076,
+            0.5241058448100346,
+            -1.6227181334781444,
+            1.2676536244180205,
+            -0.16904133574991076,
+            0.5241058448100346,
+            1.2676536244180205,
+            -1.6227181334781444
+          ],
+          "output_state": [
+            0.22793285357810245,
+            0.921080034138048,
+            -2.019692322806158,
+            0.8706794350900071,
+            0.22793285357810245,
+            0.921080034138048,
+            0.8706794350900071,
+            -2.019692322806158
+          ],
+          "qbar_by_bit": [
+            -2.019692322806158,
+            0.22793285357810245,
+            0.8706794350900071,
+            0.921080034138048
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -1.673118732526185,
+            -2.3662659130861305,
+            1.673118732526185,
+            -1.21725302536998,
+            1.2172530253699798,
+            0.5241058448100345,
+            -0.5241058448100346,
+            2.3662659130861305
+          ],
+          "variable_to_check_used": [
+            -2.019692322806158,
+            -2.019692322806158,
+            0.22793285357810245,
+            0.22793285357810245,
+            0.8706794350900071,
+            0.8706794350900071,
+            0.921080034138048,
+            0.921080034138048
+          ]
+        },
+        "map_evaluation_before": {
+          "check_source_edge_by_output_coordinate": [
+            2,
+            7,
+            0,
+            4,
+            3,
+            6,
+            5,
+            1
+          ],
+          "input_state": [
+            0.4054651081081644,
+            1.0986122886681098,
+            -2.1972245773362196,
+            0.6931471805599453,
+            0.4054651081081644,
+            1.0986122886681098,
+            0.6931471805599453,
+            -2.1972245773362196
+          ],
+          "output_state": [
+            -0.3465735902799728,
+            0.3465735902799726,
+            -1.4451858789480825,
+            1.4451858789480823,
+            -0.3465735902799728,
+            0.3465735902799726,
+            1.4451858789480823,
+            -1.4451858789480825
+          ],
+          "qbar_by_bit": [
+            -1.4451858789480825,
+            -0.3465735902799728,
+            1.4451858789480823,
+            0.3465735902799726
+          ],
+          "state_map": "qbar_tied",
+          "variable_to_check_full": [
+            -1.0986122886681098,
+            -1.7917594692280552,
+            1.0986122886681096,
+            -1.7917594692280552,
+            1.791759469228055,
+            1.0986122886681096,
+            -1.0986122886681098,
+            1.791759469228055
+          ],
+          "variable_to_check_used": [
+            -1.4451858789480825,
+            -1.4451858789480825,
+            -0.3465735902799728,
+            -0.3465735902799728,
+            1.4451858789480823,
+            1.4451858789480823,
+            0.3465735902799726,
+            0.3465735902799726
+          ]
+        },
+        "objective_after": 0.6303540279705335,
+        "objective_before": 2.262248815493294,
+        "operation_categories": {
+          "algorithm_core": {
+            "degree_two_check_transfers": 8,
+            "jacobian_transpose_accumulations": 16,
+            "jacobian_transpose_nonzero_products": 16,
+            "nonlinear_check_functions": 0,
+            "recipient_average_additions": 4,
+            "recipient_average_scalings": 4,
+            "residual_subtractions": 8,
+            "state_assignments": 0,
+            "state_update_subtractions": 8,
+            "step_size_multiplications": 8,
+            "variable_node_additions": 8
+          },
+          "excluded_diagnostics": [
+            "finite-difference evaluations",
+            "rank and nullspace calculations",
+            "local parity enumeration",
+            "objective-after evaluation",
+            "hard decision and syndrome",
+            "hashing and serialization"
+          ],
+          "weighted_scalar_total_reported": false
+        },
+        "operator": "true_residual_gradient",
+        "residual_after": [
+          -0.3969741893280132,
+          -0.3969741893280133,
+          0.3969741893280134,
+          0.3969741893280134,
+          -0.3969741893280132,
+          -0.3969741893280133,
+          0.3969741893280134,
+          0.3969741893280134
+        ],
+        "residual_before": [
+          0.7520386983881372,
+          0.7520386983881372,
+          -0.7520386983881371,
+          -0.752038698388137,
+          0.7520386983881372,
+          0.7520386983881372,
+          -0.752038698388137,
+          -0.7520386983881371
+        ],
+        "residual_norm_after": 1.1228125649194824,
+        "residual_norm_before": 2.127086653379826,
+        "state_map": "qbar_tied",
+        "storage_counts": {
+          "fixed_channel_llrs_not_counted_as_dynamic_state": 4,
+          "persistent_dynamic_values_between_updates": 8,
+          "persistent_state_description": "check-to-variable state u",
+          "temporary_gradient_values": 8,
+          "temporary_qbar_values": 4,
+          "temporary_residual_values": 8,
+          "temporary_variable_to_check_values": 8
+        },
+        "update_budget": 1,
+        "update_displacement": [
+          -0.5745064438580751,
+          -0.5745064438580751,
+          0.5745064438580751,
+          0.5745064438580753,
+          -0.5745064438580751,
+          -0.5745064438580751,
+          0.5745064438580753,
+          0.5745064438580751
+        ]
+      }
+    },
+    "channel_llrs": [
+      -2.1972245773362196,
+      0.4054651081081644,
+      0.6931471805599453,
+      1.0986122886681098
+    ],
+    "classification": "separate second-graph confirmation",
+    "edge_order": [
+      {
+        "bit": 0,
+        "check": 0,
+        "coordinate": 0,
+        "label": "b0-c0"
+      },
+      {
+        "bit": 0,
+        "check": 3,
+        "coordinate": 1,
+        "label": "b0-c3"
+      },
+      {
+        "bit": 1,
+        "check": 0,
+        "coordinate": 2,
+        "label": "b1-c0"
+      },
+      {
+        "bit": 1,
+        "check": 1,
+        "coordinate": 3,
+        "label": "b1-c1"
+      },
+      {
+        "bit": 2,
+        "check": 1,
+        "coordinate": 4,
+        "label": "b2-c1"
+      },
+      {
+        "bit": 2,
+        "check": 2,
+        "coordinate": 5,
+        "label": "b2-c2"
+      },
+      {
+        "bit": 3,
+        "check": 2,
+        "coordinate": 6,
+        "label": "b3-c2"
+      },
+      {
+        "bit": 3,
+        "check": 3,
+        "coordinate": 7,
+        "label": "b3-c3"
+      }
+    ],
+    "experiment_id": "RQ1-UPDATE-CYCLE-001",
+    "factorial_contrasts": {
+      "interaction_l2_norm": 2.1595188093747844,
+      "interaction_vector": [
+        0.7607946613674368,
+        1.0255533251351756,
+        -0.3378176273006728,
+        0.7662061440928798,
+        -1.0255533251351756,
+        -0.7607946613674369,
+        0.337817627300673,
+        -0.7662061440928796
+      ],
+      "orientation": {
+        "interaction": "(tied gradient - tied direct) - (full gradient - full direct)",
+        "state": "qbar_tied minus full, averaged over update operators",
+        "update": "true_residual_gradient minus direct, averaged over state maps"
+      },
+      "state_effect_l2_norm": 2.130829937421622,
+      "state_effect_vector": [
+        -1.064788548264364,
+        -0.9324092163804946,
+        -0.5154824039303091,
+        0.0365294817664672,
+        0.9324092163804946,
+        1.0647885482643638,
+        0.5154824039303092,
+        -0.03652948176646709
+      ],
+      "update_effect_l2_norm": 1.190807282140601,
+      "update_effect_vector": [
+        -0.20286507615365634,
+        -0.3352444080375257,
+        -0.008623440879725552,
+        -0.5606353265765016,
+        0.6903089170976497,
+        0.5579295852137804,
+        -0.3464410681803982,
+        0.20557081751637785
+      ]
+    },
+    "first_divergences": {
+      "state_within_direct": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": 0.693147180559945,
+          "right": -2.19722457733622,
+          "right_minus_left": -2.890371757896165
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__direct",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 1.0986122886681096,
+          "right": -0.3465735902799728,
+          "right_minus_left": -1.4451858789480823
+        }
+      },
+      "state_within_gradient": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -0.7381362968825433,
+          "right": -1.8421600682760957,
+          "right_minus_left": -1.1040237713935523
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__true_residual_gradient",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 0.5153498818307348,
+          "right": -0.16904133574991076,
+          "right_minus_left": -0.6843912175806456
+        }
+      },
+      "update_within_full": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": 0.693147180559945,
+          "right": -0.7381362968825433,
+          "right_minus_left": -1.4312834774424883
+        },
+        "first_divergent_update": 1,
+        "left_cell": "full__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "full__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": 1.0986122886681096,
+          "right": 0.5153498818307348,
+          "right_minus_left": -0.5832624068373747
+        }
+      },
+      "update_within_tied": {
+        "a_posteriori_llr": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0",
+          "left": -2.19722457733622,
+          "right": -1.8421600682760957,
+          "right_minus_left": 0.3550645090601243
+        },
+        "first_divergent_update": 1,
+        "left_cell": "qbar_tied__direct",
+        "pre_update_states_equal": true,
+        "right_cell": "qbar_tied__true_residual_gradient",
+        "state": {
+          "coordinate": 0,
+          "found": true,
+          "label": "b0-c0",
+          "left": -0.3465735902799728,
+          "right": -0.16904133574991076,
+          "right_minus_left": 0.17753225453006205
+        }
+      }
+    },
+    "interpretation_limits": {
+      "admm_included": false,
+      "native_projected_gd": false,
+      "performance_claim": false,
+      "transmitted_word_registered": false
+    },
+    "llr_convention": "positive LLR favors bit 1; hard decision is 1 for a-posteriori LLR >= 0 and 0 otherwise",
+    "llr_definition": "L_i = ln(P(b_i=1|y_i)/P(b_i=0|y_i))",
+    "parity_check_matrix": [
+      [
+        1,
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        1
+      ],
+      [
+        1,
+        0,
+        0,
+        1
+      ]
+    ],
+    "preregistered_prediction_results": {
+      "difference_in_differences_vector_nonzero": true,
+      "hard_decision_was_preregistered": false,
+      "state_effect_vector_nonzero": true,
+      "update_effect_vector_nonzero": true
+    },
+    "preregistered_predictions": {
+      "difference_in_differences_vector_nonzero": true,
+      "hard_decision_note": "no hard-decision estimate or syndrome is predicted before execution",
+      "hard_decision_prediction": null,
+      "state_effect_vector_nonzero": true,
+      "update_effect_vector_nonzero": true
+    },
+    "research_question": "RQ1",
+    "scope_note": "second-graph BP-residual gradient confirmation only; not native projected GD and not a decoding-performance experiment",
+    "sign_transform_invariance": {
+      "all_cells_passed": true,
+      "cells": {
+        "full__direct": {
+          "cell_id": "full__direct",
+          "hard_decision_preserved": true,
+          "maximum_soft_negation_error": 0.0,
+          "objective_invariance_error": 0.0,
+          "passed": true,
+          "soft_negation_errors": {
+            "a_posteriori_x": 0.0,
+            "after_state_u": 0.0,
+            "before_state_u": 0.0,
+            "channel_llr": 0.0,
+            "gradient": 0.0,
+            "map_output_u": 0.0,
+            "qbar": 0.0,
+            "residual": 0.0,
+            "variable_to_check_q_full": 0.0,
+            "variable_to_check_q_used": 0.0
+          },
+          "syndrome_preserved": true,
+          "tolerance": 1e-12,
+          "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+          "transformed_hard_decision_estimate": [
+            1,
+            1,
+            0,
+            1
+          ],
+          "transformed_syndrome": [
+            0,
+            1,
+            1,
+            0
+          ]
+        },
+        "full__true_residual_gradient": {
+          "cell_id": "full__true_residual_gradient",
+          "hard_decision_preserved": true,
+          "maximum_soft_negation_error": 0.0,
+          "objective_invariance_error": 0.0,
+          "passed": true,
+          "soft_negation_errors": {
+            "a_posteriori_x": 0.0,
+            "after_state_u": 0.0,
+            "before_state_u": 0.0,
+            "channel_llr": 0.0,
+            "gradient": 0.0,
+            "map_output_u": 0.0,
+            "qbar": 0.0,
+            "residual": 0.0,
+            "variable_to_check_q_full": 0.0,
+            "variable_to_check_q_used": 0.0
+          },
+          "syndrome_preserved": true,
+          "tolerance": 1e-12,
+          "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+          "transformed_hard_decision_estimate": [
+            0,
+            1,
+            0,
+            1
+          ],
+          "transformed_syndrome": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "qbar_tied__direct": {
+          "cell_id": "qbar_tied__direct",
+          "hard_decision_preserved": true,
+          "maximum_soft_negation_error": 0.0,
+          "objective_invariance_error": 0.0,
+          "passed": true,
+          "soft_negation_errors": {
+            "a_posteriori_x": 0.0,
+            "after_state_u": 0.0,
+            "before_state_u": 0.0,
+            "channel_llr": 0.0,
+            "gradient": 0.0,
+            "map_output_u": 0.0,
+            "qbar": 0.0,
+            "residual": 0.0,
+            "variable_to_check_q_full": 0.0,
+            "variable_to_check_q_used": 0.0
+          },
+          "syndrome_preserved": true,
+          "tolerance": 1e-12,
+          "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+          "transformed_hard_decision_estimate": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "transformed_syndrome": [
+            1,
+            0,
+            0,
+            1
+          ]
+        },
+        "qbar_tied__true_residual_gradient": {
+          "cell_id": "qbar_tied__true_residual_gradient",
+          "hard_decision_preserved": true,
+          "maximum_soft_negation_error": 0.0,
+          "objective_invariance_error": 0.0,
+          "passed": true,
+          "soft_negation_errors": {
+            "a_posteriori_x": 0.0,
+            "after_state_u": 0.0,
+            "before_state_u": 0.0,
+            "channel_llr": 0.0,
+            "gradient": 0.0,
+            "map_output_u": 0.0,
+            "qbar": 0.0,
+            "residual": 0.0,
+            "variable_to_check_q_full": 0.0,
+            "variable_to_check_q_used": 0.0
+          },
+          "syndrome_preserved": true,
+          "tolerance": 1e-12,
+          "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+          "transformed_hard_decision_estimate": [
+            0,
+            1,
+            1,
+            1
+          ],
+          "transformed_syndrome": [
+            1,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "source_positive_llr_bit": 1,
+      "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+      "transformed_positive_llr_bit": 0
+    },
+    "start_decision": {
+      "a_posteriori_llrs": [
+        -0.6931471805599454,
+        -1.0986122886681098,
+        2.1972245773362196,
+        -0.4054651081081644
+      ],
+      "hard_decision_estimate": [
+        0,
+        0,
+        1,
+        0
+      ],
+      "syndrome": [
+        0,
+        1,
+        1,
+        0
+      ],
+      "transmitted_word_recovery": null,
+      "valid_codeword": false
+    },
+    "start_state": [
+      0.4054651081081644,
+      1.0986122886681098,
+      -2.1972245773362196,
+      0.6931471805599453,
+      0.4054651081081644,
+      1.0986122886681098,
+      0.6931471805599453,
+      -2.1972245773362196
+    ],
+    "start_state_definition": "u1 = F_full(0)",
+    "state_map_properties": {
+      "full": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "fixed_point_system": {
+          "consistent": true,
+          "free_columns": [
+            6,
+            7
+          ],
+          "inconsistent_rows": [],
+          "nullity": 2,
+          "nullspace_basis": [
+            [
+              -0.0,
+              1.0,
+              1.0,
+              -0.0,
+              1.0,
+              -0.0,
+              1.0,
+              0.0
+            ],
+            [
+              1.0,
+              -0.0,
+              -0.0,
+              1.0,
+              -0.0,
+              1.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "particular_solution": [
+            2.197224577336219,
+            1.0986122886681098,
+            -1.0986122886681098,
+            1.791759469228055,
+            -0.6931471805599454,
+            1.0986122886681098,
+            0.0,
+            0.0
+          ],
+          "pivot_columns": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "rank_augmented": 6,
+          "rank_matrix": 6,
+          "rref_augmented": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              2.197224577336219
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              1.0986122886681098
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              -1.0986122886681098
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              1.791759469228055
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              -1.0,
+              0.0,
+              -0.6931471805599454
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              -1.0,
+              1.0986122886681098
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "gradient_descent_stability_upper_bound": 0.5000000000000002,
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "maximum_eigenvalue": 3.9999999999999982,
+        "objective_hessian": [
+          [
+            2.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            2.0,
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            2.0,
+            0.0,
+            -1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0,
+            2.0,
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            2.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            2.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            2.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            2.0
+          ]
+        ],
+        "objective_hessian_eigenvalues": [
+          0.0,
+          0.0,
+          1.9999999999999991,
+          1.9999999999999991,
+          1.9999999999999991,
+          1.9999999999999991,
+          3.9999999999999982,
+          3.9999999999999982
+        ],
+        "residual_jacobian": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            -1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "transferred_alpha": 0.3819660112501051,
+        "transferred_alpha_in_open_stability_interval": true
+      },
+      "qbar_tied": {
+        "affine_offset": [
+          0.4054651081081644,
+          1.0986122886681098,
+          -2.1972245773362196,
+          0.6931471805599453,
+          0.4054651081081644,
+          1.0986122886681098,
+          0.6931471805599453,
+          -2.1972245773362196
+        ],
+        "fixed_point_system": {
+          "consistent": true,
+          "free_columns": [
+            7
+          ],
+          "inconsistent_rows": [],
+          "nullity": 1,
+          "nullspace_basis": [
+            [
+              0.9999999999999999,
+              1.0,
+              1.0,
+              1.0,
+              0.9999999999999999,
+              1.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "particular_solution": [
+            1.8506509870562464,
+            2.543798167616192,
+            0.0,
+            2.8903717578961645,
+            1.8506509870562464,
+            2.543798167616192,
+            2.8903717578961645,
+            0.0
+          ],
+          "pivot_columns": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "rank_augmented": 7,
+          "rank_matrix": 7,
+          "rref_augmented": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -0.9999999999999999,
+              1.8506509870562464
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              2.543798167616192
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              2.8903717578961645
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              -0.9999999999999999,
+              1.8506509870562464
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              -1.0,
+              2.543798167616192
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              -1.0,
+              2.8903717578961645
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          ]
+        },
+        "gradient_descent_stability_upper_bound": 0.5000000000000004,
+        "jacobian": [
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.5,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "maximum_eigenvalue": 3.999999999999997,
+        "objective_hessian": [
+          [
+            1.5,
+            0.5,
+            -1.0,
+            -0.5,
+            0.0,
+            0.0,
+            0.0,
+            -0.5
+          ],
+          [
+            0.5,
+            1.5,
+            -0.5,
+            0.0,
+            0.0,
+            0.0,
+            -0.5,
+            -1.0
+          ],
+          [
+            -1.0,
+            -0.5,
+            1.5,
+            0.5,
+            -0.5,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            -0.5,
+            0.0,
+            0.5,
+            1.5,
+            -1.0,
+            -0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -0.5,
+            -1.0,
+            1.5,
+            0.5,
+            -0.5,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            -0.5,
+            0.5,
+            1.5,
+            -1.0,
+            -0.5
+          ],
+          [
+            0.0,
+            -0.5,
+            0.0,
+            0.0,
+            -0.5,
+            -1.0,
+            1.5,
+            0.5
+          ],
+          [
+            -0.5,
+            -1.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.5,
+            0.5,
+            1.5
+          ]
+        ],
+        "objective_hessian_eigenvalues": [
+          -1.0920164934890779e-16,
+          0.38196601125010476,
+          0.38196601125010526,
+          0.9999999999999991,
+          0.9999999999999996,
+          2.618033988749892,
+          2.6180339887498936,
+          3.999999999999997
+        ],
+        "residual_jacobian": [
+          [
+            1.0,
+            0.0,
+            -0.5,
+            -0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            -0.5,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            -0.5,
+            -0.5,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -0.5,
+            -0.5,
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            -0.5,
+            -0.5
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.5,
+            -0.5,
+            1.0,
+            0.0
+          ],
+          [
+            -0.5,
+            -0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "transferred_alpha": 0.3819660112501051,
+        "transferred_alpha_in_open_stability_interval": true
+      }
+    },
+    "update_budget": {
+      "early_stopping": false,
+      "updates": 1
+    }
+  },
+  "validation": {
+    "all_passed": true,
+    "checks": [
+      {
+        "check_id": "VAL-001",
+        "description": "frozen matrix, edges, LLRs, convention, alpha, budget, and no hard prediction",
+        "observed": {
+          "alpha_abs": 0.0,
+          "budget": {
+            "early_stopping": false,
+            "updates": 1
+          },
+          "edge_order_equal": true,
+          "hard_prediction": null,
+          "llr_max_abs": 0.0,
+          "matrix_equal": true,
+          "positive_llr_bit": 1
+        },
+        "passed": true,
+        "threshold_or_expected": "exact protocol identity; numeric errors <= 1e-12"
+      },
+      {
+        "check_id": "VAL-002",
+        "description": "u1 equals F_full(0)",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-003",
+        "description": "full executable map agrees with J*u+c",
+        "observed": 0.0,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-004",
+        "description": "full analytic Jacobian agrees with central finite differences",
+        "observed": 1.397779669787269e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-005",
+        "description": "full analytic gradient agrees with central finite differences",
+        "observed": 8.018119501684851e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-006",
+        "description": "full fixed-point system rank, consistency, solution, and nullspace validate",
+        "observed": {
+          "consistent": true,
+          "nullity": 2,
+          "nullspace_max_abs_error": 0.0,
+          "particular_solution_max_abs_error": 4.440892098500626e-16,
+          "rank_augmented": 6,
+          "rank_matrix": 6,
+          "spectral_rank": 6
+        },
+        "passed": true,
+        "threshold_or_expected": {
+          "basis_count_equals_nullity": true,
+          "consistent": true,
+          "numeric_max_abs": 1e-11,
+          "spectral_rank_equals_rref_rank": true
+        }
+      },
+      {
+        "check_id": "VAL-007",
+        "description": "qbar_tied executable map agrees with J*u+c",
+        "observed": 1.1102230246251565e-16,
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-008",
+        "description": "qbar_tied analytic Jacobian agrees with central finite differences",
+        "observed": 1.5215562143566785e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-009",
+        "description": "qbar_tied analytic gradient agrees with central finite differences",
+        "observed": 2.9798075118492307e-10,
+        "passed": true,
+        "threshold_or_expected": 1e-08
+      },
+      {
+        "check_id": "VAL-010",
+        "description": "qbar_tied fixed-point system rank, consistency, solution, and nullspace validate",
+        "observed": {
+          "consistent": true,
+          "nullity": 1,
+          "nullspace_max_abs_error": 1.1102230246251565e-16,
+          "particular_solution_max_abs_error": 4.440892098500626e-16,
+          "rank_augmented": 7,
+          "rank_matrix": 7,
+          "spectral_rank": 7
+        },
+        "passed": true,
+        "threshold_or_expected": {
+          "basis_count_equals_nullity": true,
+          "consistent": true,
+          "numeric_max_abs": 1e-11,
+          "spectral_rank_equals_rref_rank": true
+        }
+      },
+      {
+        "check_id": "VAL-011",
+        "description": "transferred alpha is retained and its cycle-specific stability interval is recorded",
+        "observed": {
+          "full": {
+            "alpha": 0.3819660112501051,
+            "inside": true,
+            "lambda_max": 3.9999999999999982,
+            "upper_bound": 0.5000000000000002
+          },
+          "qbar_tied": {
+            "alpha": 0.3819660112501051,
+            "inside": true,
+            "lambda_max": 3.999999999999997,
+            "upper_bound": 0.5000000000000004
+          }
+        },
+        "passed": true,
+        "threshold_or_expected": "alpha=(3-sqrt(5))/2 and 0<alpha<2/lambda_max for both maps"
+      },
+      {
+        "check_id": "VAL-012",
+        "description": "complete LLR-convention sign transform preserves all cells",
+        "observed": {
+          "all_cells_passed": true,
+          "maximum_numeric_error": 0.0
+        },
+        "passed": true,
+        "threshold_or_expected": {
+          "all_cells_passed": true,
+          "maximum_numeric_error": 1e-12
+        }
+      },
+      {
+        "check_id": "VAL-013",
+        "description": "degree-two check outputs agree with local valid-assignment enumeration",
+        "observed": {
+          "full__direct": 0.0,
+          "full__true_residual_gradient": 0.0,
+          "qbar_tied__direct": 0.0,
+          "qbar_tied__true_residual_gradient": 0.0
+        },
+        "passed": true,
+        "threshold_or_expected": 1e-12
+      },
+      {
+        "check_id": "VAL-014",
+        "description": "hard-decision estimates and syndromes independently recompute",
+        "observed": true,
+        "passed": true,
+        "threshold_or_expected": true
+      },
+      {
+        "check_id": "VAL-015",
+        "description": "three preregistered vector predictions pass without a hard-decision prediction",
+        "observed": {
+          "hard_decision_was_preregistered": false,
+          "interaction_norm": 2.1595188093747844,
+          "state_norm": 2.130829937421622,
+          "update_norm": 1.190807282140601
+        },
+        "passed": true,
+        "threshold_or_expected": {
+          "each_norm_greater_than": 1e-12,
+          "hard_decision_was_preregistered": false
+        }
+      },
+      {
+        "check_id": "VAL-016",
+        "description": "pure scientific calculation replays deterministically",
+        "observed": {
+          "first": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2",
+          "second": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2"
+        },
+        "passed": true,
+        "threshold_or_expected": "exact digest equality"
+      }
+    ],
+    "number_passed": 16,
+    "number_total": 16
+  }
+}

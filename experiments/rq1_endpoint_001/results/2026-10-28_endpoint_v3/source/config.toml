@@ -1,0 +1,46 @@
+schema_version = "rq1-endpoint-001/v1"
+experiment_id = "RQ1-ENDPOINT-001"
+research_question = "RQ1"
+classification = "controlled native-endpoint bridge"
+
+[scope]
+admm_included = false
+broad_awgn_run = false
+performance_claim = false
+
+[graph]
+checks = [[1, 2], [2, 3]]
+edge_order = ["b0-c0", "b1-c0", "b1-c1", "b2-c1"]
+
+[channel_evidence]
+convention = "L_i = log(P(bit_i=1|y_i)/P(bit_i=0|y_i)); positive favors bit 1"
+expressions = ["-log(9)", "log(3/2)", "log(2)"]
+values = [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453]
+
+[projected_gradient]
+teaching_step = 0.25
+parity_weight = 2.0
+binary_weight = 0.2
+native_initial_step = 0.2
+native_steps = 30
+maximum_backtracks = 16
+box_lower = -1.0
+box_upper = 1.0
+
+[belief_propagation]
+fixed_sweeps = 2
+llr_clip = 20.0
+
+[validation]
+absolute_tolerance = 1.0e-12
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 2.0e-8
+native_composition_tolerance = 2.0e-12
+
+[sources]
+jade_repo = "/home/gabiel/Documents/GitHub/JadeJcade"
+current_runner = "/home/gabiel/Documents/GitHub/JadeJcade/experiments/jade_awgn/run_three_receivers.jl"
+archived_runner = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-0to2-step0p5-20261012/source/run_three_receivers.jl"
+archived_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+archived_commit = "f44641e48fb9ade33c8c17598dd3f65b77f6205c"
+archived_attempt = "R5-AWGN-ISOLATION-R050-001"

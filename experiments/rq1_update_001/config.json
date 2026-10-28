@@ -1,0 +1,63 @@
+{
+  "experiment_id": "RQ1-UPDATE-001",
+  "research_question": "RQ1",
+  "classification": "controlled mechanism bench",
+  "graph": {
+    "parity_check_matrix": [
+      [1, 1, 0],
+      [0, 1, 1]
+    ],
+    "edge_order": [
+      {"coordinate": 0, "bit": 0, "check": 0, "label": "b0-c0"},
+      {"coordinate": 1, "bit": 1, "check": 0, "label": "b1-c0"},
+      {"coordinate": 2, "bit": 1, "check": 1, "label": "b1-c1"},
+      {"coordinate": 3, "bit": 2, "check": 1, "label": "b2-c1"}
+    ]
+  },
+  "channel_llrs": {
+    "definition": "L_i = ln(P(b_i=1|y_i)/P(b_i=0|y_i))",
+    "convention": "positive LLR favors bit 1; hard decision is 1 for a-posteriori LLR >= 0 and 0 otherwise",
+    "positive_llr_bit": 1,
+    "expressions": ["-ln(9)", "ln(3/2)", "ln(2)"],
+    "values": [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453]
+  },
+  "initialization": {
+    "expression": "u1 = F_full(0)",
+    "meaning": "check-to-variable state after one full BP message-passing iteration from zero check-to-variable messages"
+  },
+  "state_maps": ["full", "qbar_tied"],
+  "update_operators": ["direct", "true_residual_gradient"],
+  "residual_objective": "R_s(u) = 0.5 * ||u - F_s(u)||_2^2",
+  "gradient": "grad R_s(u) = (I - J_s)^T * (u - F_s(u))",
+  "gradient_step": {
+    "alpha_expression": "(3 - sqrt(5)) / 2",
+    "alpha": 0.3819660112501051,
+    "selection_rule": "reciprocal of the shared maximum eigenvalue of (I-J_s)^T(I-J_s), preregistered before inspecting the four cell outputs"
+  },
+  "budget": {
+    "updates": 1,
+    "early_stopping": false
+  },
+  "finite_difference": {
+    "central_step": 1e-6,
+    "jacobian_max_abs_tolerance": 1e-8,
+    "gradient_max_abs_tolerance": 1e-8
+  },
+  "numeric_tolerances": {
+    "affine_map_max_abs": 1e-12,
+    "fixed_point_residual_max_abs": 1e-12,
+    "spectral_max_abs": 1e-10,
+    "sign_transform_max_abs": 1e-12,
+    "deterministic_replay": 0.0
+  },
+  "sign_transform_control": {
+    "description": "equivalent bit-0-positive representation",
+    "transform": "ell=-L, q0=-q1, u0=-u1, x0=-x1",
+    "positive_llr_bit": 0
+  },
+  "scope": {
+    "native_projected_gd": false,
+    "performance_claim": false,
+    "admm_included": false
+  }
+}

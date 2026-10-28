@@ -1,0 +1,26 @@
+{
+  "absolute_validation_tolerance": 1e-12,
+  "case_ids": [
+    "cyclic_four_bit"
+  ],
+  "configuration_source": {
+    "effective_fields_match": true,
+    "file": "cyclic_confirmation_config.json",
+    "sha256": "4410c9522ba503801b9d211c6e089805abab64a6536531e31d1694680a20c213"
+  },
+  "experiment_id": "RQ1-STATE-002-CYCLE-CONFIRM",
+  "intervention_iteration": 2,
+  "iterations": 2,
+  "notes": "Separate confirmation after the primary tree and degree-one controls; the fourth check is linearly dependent.",
+  "schema_version": "rq1-state-002/v2",
+  "treatments": [
+    "pulse"
+  ],
+  "variants": [
+    "full",
+    "qbar_collapse",
+    "delta_shadow_ignored",
+    "qbar_delta_reconstruct",
+    "posterior_copy_diagnostic"
+  ]
+}

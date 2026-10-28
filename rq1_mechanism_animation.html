@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en" data-rq1-ready="false" data-rq1-smoke="not-run">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RQ1: What first separates BP from projected gradient descent?</title>
+<style>
+:root {
+  --paper: #f4f0e8;
+  --card: #fffdf8;
+  --ink: #172126;
+  --muted: #5e6b70;
+  --line: #d7d0c3;
+  --bp: #155b8a;
+  --bp-soft: #dbeaf3;
+  --tie: #b45f28;
+  --tie-soft: #f4e2d4;
+  --grad: #087d77;
+  --grad-soft: #d9efeb;
+  --ok: #24704a;
+  --bad: #a64040;
+  --focus: #7a4fa3;
+  --shadow: 0 12px 36px rgb(42 48 50 / 9%);
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 0%, rgb(21 91 138 / 8%), transparent 31rem),
+    radial-gradient(circle at 94% 28rem, rgb(8 125 119 / 7%), transparent 32rem),
+    var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--sans);
+}
+button { font: inherit; }
+.page { width: min(1260px, calc(100% - 28px)); margin: 0 auto; padding: 26px 0 42px; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 18px; align-items: end; }
+.eyebrow { margin: 0 0 4px; color: var(--bp); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: .76rem; }
+h1 { max-width: 21ch; margin: 0; font: 700 clamp(2rem, 5vw, 4.2rem)/.98 var(--serif); letter-spacing: -.035em; }
+.lead { max-width: 75ch; margin: 14px 0 0; color: var(--muted); font-size: 1.02rem; }
+.question { padding: 15px 17px; background: rgb(255 253 248 / 72%); border: 1px solid var(--line); border-left: 5px solid var(--focus); border-radius: 10px; box-shadow: var(--shadow); }
+.question strong { display: block; margin-bottom: 5px; font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; color: var(--focus); }
+.question p { margin: 0; font-family: var(--serif); font-size: 1.08rem; }
+.controls {
+  position: sticky; top: 0; z-index: 20;
+  display: grid; grid-template-columns: auto minmax(230px, 1fr) auto; gap: 12px; align-items: center;
+  margin: 22px 0 12px; padding: 10px 12px;
+  background: rgb(244 240 232 / 92%); backdrop-filter: blur(10px);
+  border: 1px solid var(--line); border-radius: 12px;
+}
+.controls-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.control {
+  min-height: 36px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 8px;
+  color: var(--ink); background: var(--card); cursor: pointer;
+}
+.control:hover { border-color: var(--bp); }
+.control.primary { color: white; border-color: var(--bp); background: var(--bp); min-width: 5.4rem; }
+.control:disabled { opacity: .4; cursor: default; }
+.control:focus-visible, .beat-dot:focus-visible, summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.beat-readout { min-width: 0; }
+.beat-readout b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.beat-readout span { color: var(--muted); font-size: .78rem; }
+.speed { color: var(--muted); font-size: .8rem; }
+.speed select { margin-left: 4px; padding: 5px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+.timeline { display: grid; grid-template-columns: 8fr 5fr 4fr; gap: 6px; margin-bottom: 15px; }
+.timeline-group { min-width: 0; }
+.timeline-label { display: block; margin-bottom: 4px; color: var(--muted); font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.dots { display: flex; gap: 4px; }
+.beat-dot { height: 9px; flex: 1; min-width: 8px; padding: 0; border: 0; border-radius: 999px; background: #cbc5ba; cursor: pointer; }
+.beat-dot.past { background: color-mix(in srgb, var(--chapter) 45%, #cbc5ba); }
+.beat-dot.now { background: var(--chapter); box-shadow: 0 0 0 3px color-mix(in srgb, var(--chapter) 20%, transparent); }
+.timeline-group.state { --chapter: var(--bp); }
+.timeline-group.update { --chapter: var(--focus); }
+.timeline-group.native { --chapter: var(--grad); }
+.stage {
+  min-height: 700px; overflow: hidden; padding: clamp(16px, 2.6vw, 30px);
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+}
+.stage-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: start; }
+.chapter-badge { padding: 6px 10px; border-radius: 999px; color: white; background: var(--chapter-color, var(--bp)); font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.stage h2 { margin: 0; font: 700 clamp(1.55rem, 3.2vw, 2.55rem)/1.06 var(--serif); letter-spacing: -.02em; }
+.stage-intro { max-width: 88ch; margin: 9px 0 0; color: var(--muted); }
+.comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+.method {
+  position: relative; min-width: 0; padding: 16px; border: 1px solid var(--line); border-top: 5px solid var(--accent, var(--bp)); border-radius: 12px; background: #fff;
+}
+.method.full, .method.bp { --accent: var(--bp); --soft: var(--bp-soft); }
+.method.tied { --accent: var(--tie); --soft: var(--tie-soft); }
+.method.gradient, .method.scalar { --accent: var(--grad); --soft: var(--grad-soft); }
+.method h3 { margin: 0; color: var(--accent); font: 700 1.2rem/1.15 var(--serif); }
+.method .kind { display: block; margin-top: 3px; color: var(--muted); font: .78rem/1.35 var(--sans); }
+.method p { margin: 10px 0; }
+.formula { overflow-x: auto; margin: 11px 0; padding: 9px 11px; background: var(--soft); border-radius: 8px; font: 1rem/1.55 var(--serif); white-space: nowrap; }
+.graph { width: 100%; margin: 8px 0 10px; aspect-ratio: 720/190; }
+.graph text { fill: var(--ink); font: 12px var(--sans); font-variant-numeric: tabular-nums; }
+.graph .bit { fill: white; stroke: var(--accent); stroke-width: 2.4; }
+.graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.4; }
+.graph .base { stroke: #c8c2b7; stroke-width: 3; }
+.graph .q { stroke: var(--accent); stroke-width: 3; fill: none; marker-end: url(#arrow); }
+.graph .u { stroke: var(--focus); stroke-width: 2.5; fill: none; marker-end: url(#arrow2); }
+.graph .flow { stroke-dasharray: 8 8; animation: flow 1.05s linear infinite; }
+.graph .tag { fill: white; stroke: var(--line); }
+.graph .tag.hot { fill: var(--soft); stroke: var(--accent); stroke-width: 2; }
+.edge-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 9px; margin: 8px 0; }
+.edge-value { min-width: 0; display: flex; justify-content: space-between; gap: 8px; padding: 5px 7px; background: #f8f6f0; border: 1px solid var(--line); border-radius: 6px; font-variant-numeric: tabular-nums; }
+.edge-value.hot { background: var(--soft); border-color: var(--accent); }
+.edge-value code { overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.edge-value b { white-space: nowrap; }
+.decompose { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin: 13px 0; }
+.decompose .box { min-width: 0; padding: 9px; background: var(--soft); border: 1px solid var(--accent); border-radius: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+.decompose .op { color: var(--muted); font-weight: 800; }
+.discard { position: relative; margin-top: 12px; padding: 10px; border: 2px dashed var(--tie); border-radius: 9px; color: var(--tie); text-align: center; font-weight: 700; }
+.discard .fall { display: inline-block; animation: fall .9s ease-in both; }
+.decision { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 11px; }
+.word, .syn, .pill { padding: 5px 8px; border-radius: 7px; font-variant-numeric: tabular-nums; }
+.word, .syn { background: #f4f1ea; border: 1px solid var(--line); }
+.pill { color: white; background: var(--bad); font-size: .76rem; font-weight: 800; }
+.pill.ok { background: var(--ok); }
+.callout { margin-top: 16px; padding: 12px 14px; border-left: 5px solid var(--focus); background: #f2ebf8; border-radius: 8px; }
+.callout strong { color: var(--focus); }
+.control-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }
+.control-card { padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #faf8f3; }
+.control-card b { display: block; margin-bottom: 3px; }
+.control-card p { margin: 0; color: var(--muted); font-size: .83rem; }
+.grid4 { display: grid; grid-template-columns: 120px repeat(2, minmax(0, 1fr)); gap: 7px; align-items: stretch; margin-top: 15px; }
+.grid4 > div { padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: #faf8f3; }
+.grid4 .axis { display: grid; place-items: center; color: var(--muted); font-size: .78rem; font-weight: 800; text-align: center; }
+.grid4 .cell { background: white; }
+.grid4 .cell b { display: block; color: var(--accent, var(--ink)); margin-bottom: 5px; }
+.gradient-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.gradient-chip { padding: 6px 9px; border: 1px dashed var(--grad); border-radius: 999px; color: var(--grad); background: var(--grad-soft); font-family: var(--serif); animation: pulse 1.2s ease-in-out infinite alternate; }
+.temporary-note { color: var(--grad); font-size: .78rem; font-weight: 700; }
+.norms { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 11px; }
+.norms span { padding: 6px 9px; border-radius: 999px; background: #f2ebf8; color: var(--focus); font-size: .82rem; font-weight: 700; }
+.spark { width: 100%; height: 105px; margin-top: 8px; }
+.spark path { fill: none; stroke: var(--grad); stroke-width: 3; }
+.spark .axis { stroke: var(--line); stroke-width: 1; }
+.boundary { margin-top: 17px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 10px; background: #f9f6ef; }
+.boundary b { color: var(--bad); }
+.exact { margin-top: 15px; border: 1px solid var(--line); border-radius: 10px; background: #f8f6f0; }
+.exact summary { padding: 10px 12px; cursor: pointer; font-weight: 700; }
+.exact pre { max-height: 310px; overflow: auto; margin: 0; padding: 12px; border-top: 1px solid var(--line); font: 12px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; }
+.sources { margin-top: 14px; color: var(--muted); font-size: .76rem; }
+.sources code { overflow-wrap: anywhere; }
+.source-list { display: grid; gap: 4px; margin-top: 6px; }
+.source-list div { padding-left: 12px; text-indent: -12px; }
+.source-list div::before { content: "• "; color: var(--ok); }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@keyframes flow { to { stroke-dashoffset: -16; } }
+@keyframes fall { from { opacity: 1; transform: translateY(-12px); } to { opacity: .45; transform: translateY(7px); } }
+@keyframes pulse { from { opacity: .68; } to { opacity: 1; } }
+@media (max-width: 900px) {
+  .hero, .comparison { grid-template-columns: 1fr; }
+  .controls { grid-template-columns: 1fr; position: static; }
+  .control-strip { grid-template-columns: 1fr; }
+  .stage { min-height: 0; }
+}
+@media (max-width: 620px) {
+  .page { width: min(100% - 16px, 1260px); padding-top: 14px; }
+  .timeline { grid-template-columns: 1fr; }
+  .stage-head { grid-template-columns: 1fr; }
+  .grid4 { grid-template-columns: 84px 1fr; }
+  .grid4 .wide-head { display: none; }
+  .edge-list { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Research Question 1 · mechanism identification</p>
+      <h1>What first separates BP from projected gradient descent?</h1>
+      <p class="lead">The animation follows retained executable traces. It first changes only BP’s values on individual directed edges, then changes only the update operator in a controlled counterfactual, and finally places exact sum-product BP beside the native scalar <code>coral_exact_gradient</code> endpoint without equating their states or objectives.</p>
+    </div>
+    <aside class="question">
+      <strong>Question under test</strong>
+      <p>Which distinction, when removed and then restored in a controlled variant, changes the next internal state or hard-decision estimate?</p>
+    </aside>
+  </header>
+
+  <nav class="controls" aria-label="Animation controls">
+    <div class="controls-group">
+      <button class="control" id="restart" type="button">Restart</button>
+      <button class="control" id="back" type="button">Back</button>
+      <button class="control primary" id="play" type="button">Play</button>
+      <button class="control" id="next" type="button">Step</button>
+    </div>
+    <div class="beat-readout" aria-live="polite"><b id="beat-title"></b><span id="beat-count"></span></div>
+    <div class="controls-group">
+      <label class="speed">Speed <select id="speed"><option value="2600">0.75×</option><option value="1900" selected>1×</option><option value="1100">1.75×</option></select></label>
+      <button class="control" id="export" type="button">Export exact values</button>
+    </div>
+  </nav>
+
+  <div class="timeline" id="timeline" aria-label="Animation chapters"></div>
+  <section class="stage" id="stage" aria-live="polite"></section>
+
+  <details class="exact">
+    <summary>Exact full-precision values used in this beat</summary>
+    <pre id="exact-values"></pre>
+  </details>
+  <footer class="sources">
+    <b>Eligible retained sources.</b> The verifier checks every embedded value through its JSON pointer and checks each complete source-file SHA-256.
+    <div class="source-list" id="source-list"></div>
+    <p>Animation beats synchronize the explanation only. They are not units of arithmetic, runtime, memory, or computational complexity. Keyboard: Space plays or pauses; Left/Right steps; Home restarts.</p>
+  </footer>
+</main>
+
+<script id="rq1-evidence" type="application/json">
+{
+  "schema": "rq1-mechanism-animation/evidence-v1",
+  "sources": {
+    "state_tree": {"path":"experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__pulse.json","sha256":"42cebb0c83646419c483a0488c163c4b391cca45aa97888ae1095b04b4d7a0e0"},
+    "state_cycle": {"path":"experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/cyclic_four_bit__pulse.json","sha256":"058746a30972b08cc8e5c3f876c79ae5fed8a70fd39edc424f2b24fecb04b03c"},
+    "update_tree": {"path":"experiments/rq1_update_001/retained/anchor_v2/result.json","sha256":"81c0fb030b098dc837c42633219e9aa8320708362d31a215196f6bee5f225f9d"},
+    "update_cycle": {"path":"experiments/rq1_update_cycle_001/retained/confirmation_v1/result.json","sha256":"f2289464b242aecc8d272ff6d435b7fe023af88052d4f3ae9318ed162d4918a9"},
+    "endpoint": {"path":"experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json","sha256":"c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"}
+  },
+  "values": {
+    "tree_h":{"source":"state_tree","pointer":"/h","value":[[1,1,0],[0,1,1]]},
+    "tree_llr":{"source":"state_tree","pointer":"/channel_llr","value":[-2.1972245773362196,0.4054651081081644,0.6931471805599453]},
+    "tree_q_labels":{"source":"state_tree","pointer":"/q_edge_labels","value":["b0->c0","b1->c0","b1->c1","b2->c1"]},
+    "tree_u_labels":{"source":"state_tree","pointer":"/u_edge_labels","value":["c0->b0","c0->b1","c1->b1","c1->b2"]},
+    "tree_it1_u":{"source":"state_tree","pointer":"/branches/full/iterations/0/u_out","value":[0.4054651081081644,-2.1972245773362196,0.6931471805599453,0.4054651081081644]},
+    "tree_it1_hard":{"source":"state_tree","pointer":"/branches/full/iterations/0/hard_decision_estimate","value":[0,0,1]},
+    "tree_it1_syn":{"source":"state_tree","pointer":"/branches/full/iterations/0/syndrome","value":[0,1]},
+    "tree_it2_qstd":{"source":"state_tree","pointer":"/branches/full/iterations/1/q_standard","value":[-2.1972245773362196,1.0986122886681096,-1.7917594692280552,0.6931471805599453]},
+    "tree_it2_qbar":{"source":"state_tree","pointer":"/branches/full/iterations/1/qbar_by_bit","value":[-2.1972245773362196,-0.3465735902799728,0.6931471805599453]},
+    "tree_it2_delta":{"source":"state_tree","pointer":"/branches/full/iterations/1/delta_by_edge","value":[0.0,1.4451858789480823,-1.4451858789480823,0.0]},
+    "tree_full_q":{"source":"state_tree","pointer":"/branches/full/iterations/1/q_transmitted","value":[-2.1972245773362196,1.0986122886681096,-1.7917594692280552,0.6931471805599453]},
+    "tree_full_u":{"source":"state_tree","pointer":"/branches/full/iterations/1/u_out","value":[1.0986122886681096,-2.1972245773362196,0.6931471805599453,-1.7917594692280552]},
+    "tree_full_post":{"source":"state_tree","pointer":"/branches/full/iterations/1/a_posteriori_after","value":[-1.09861228866811,-1.0986122886681098,-1.09861228866811]},
+    "tree_full_hard":{"source":"state_tree","pointer":"/branches/full/iterations/1/hard_decision_estimate","value":[0,0,0]},
+    "tree_full_syn":{"source":"state_tree","pointer":"/branches/full/iterations/1/syndrome","value":[0,0]},
+    "tree_tied_q":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/q_transmitted","value":[-2.1972245773362196,-0.3465735902799728,-0.3465735902799728,0.6931471805599453]},
+    "tree_tied_u":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/u_out","value":[-0.3465735902799728,-2.1972245773362196,0.6931471805599453,-0.3465735902799728]},
+    "tree_tied_post":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/a_posteriori_after","value":[-2.5437981676161923,-1.0986122886681098,0.3465735902799725]},
+    "tree_tied_hard":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/hard_decision_estimate","value":[0,0,1]},
+    "tree_tied_syn":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/syndrome","value":[0,1]},
+    "tree_reconstruct_q":{"source":"state_tree","pointer":"/branches/qbar_delta_reconstruct/iterations/1/q_transmitted","value":[-2.1972245773362196,1.0986122886681096,-1.7917594692280552,0.6931471805599453]},
+    "tree_reconstruct_hard":{"source":"state_tree","pointer":"/branches/qbar_delta_reconstruct/iterations/1/hard_decision_estimate","value":[0,0,0]},
+    "tree_reconstruct_syn":{"source":"state_tree","pointer":"/branches/qbar_delta_reconstruct/iterations/1/syndrome","value":[0,0]},
+    "tree_tied_it3_hard":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/2/hard_decision_estimate","value":[0,0,0]},
+    "tree_tied_it3_syn":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/2/syndrome","value":[0,0]},
+    "tree_first_div":{"source":"state_tree","pointer":"/validation/first_divergence_from_full/qbar_collapse","value":{"candidate":-0.3465735902799728,"coordinate_kind":"variable_to_check_edge","coordinate_label":"b1->c0","index":1,"iteration":2,"reference":1.0986122886681096,"stage":"q_transmitted"}},
+    "tree_valid":{"source":"state_tree","pointer":"/validation/all_passed","value":true},
+    "cycle_llr":{"source":"state_cycle","pointer":"/channel_llr","value":[-2.1972245773362196,0.4054651081081644,0.6931471805599453,1.0986122886681098]},
+    "cycle_full_hard":{"source":"state_cycle","pointer":"/branches/full/iterations/1/hard_decision_estimate","value":[1,1,0,1]},
+    "cycle_full_syn":{"source":"state_cycle","pointer":"/branches/full/iterations/1/syndrome","value":[0,1,1,0]},
+    "cycle_tied_hard":{"source":"state_cycle","pointer":"/branches/qbar_collapse/iterations/1/hard_decision_estimate","value":[0,1,1,1]},
+    "cycle_tied_syn":{"source":"state_cycle","pointer":"/branches/qbar_collapse/iterations/1/syndrome","value":[1,0,0,1]},
+    "cycle_first_div":{"source":"state_cycle","pointer":"/validation/first_divergence_from_full/qbar_collapse","value":{"candidate":-1.4451858789480825,"coordinate_kind":"variable_to_check_edge","coordinate_label":"b0->c0","index":0,"iteration":2,"reference":-1.0986122886681098,"stage":"q_transmitted"}},
+    "cycle_valid":{"source":"state_cycle","pointer":"/validation/all_passed","value":true},
+    "update_alpha":{"source":"update_tree","pointer":"/scientific_result/alpha","value":0.3819660112501051},
+    "update_start":{"source":"update_tree","pointer":"/scientific_result/start_state","value":[0.4054651081081644,-2.1972245773362196,0.6931471805599453,0.4054651081081644]},
+    "update_full_direct_after":{"source":"update_tree","pointer":"/scientific_result/cells/full__direct/after_state","value":[1.0986122886681096,-2.1972245773362196,0.6931471805599453,-1.7917594692280552]},
+    "update_tied_direct_after":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__direct/after_state","value":[-0.3465735902799728,-2.1972245773362196,0.6931471805599453,-0.3465735902799728]},
+    "update_full_direct_dec":{"source":"update_tree","pointer":"/scientific_result/cells/full__direct/decision_after","value":{"a_posteriori_llrs":[-1.09861228866811,-1.0986122886681098,-1.09861228866811],"hard_decision_estimate":[0,0,0],"syndrome":[0,0],"valid_codeword":true}},
+    "update_tied_direct_dec":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__direct/decision_after","value":{"a_posteriori_llrs":[-2.5437981676161923,-1.0986122886681098,0.3465735902799725],"hard_decision_estimate":[0,0,1],"syndrome":[0,1],"valid_codeword":false}},
+    "update_full_residual":{"source":"update_tree","pointer":"/scientific_result/cells/full__true_residual_gradient/residual_before","value":[-0.6931471805599452,0.0,0.0,2.1972245773362196]},
+    "update_full_gradient":{"source":"update_tree","pointer":"/scientific_result/cells/full__true_residual_gradient/gradient_before","value":[-0.6931471805599452,-2.1972245773362196,0.6931471805599452,2.1972245773362196]},
+    "update_full_gradient_after":{"source":"update_tree","pointer":"/scientific_result/cells/full__true_residual_gradient/after_state","value":[0.670223771875903,-1.3579594697104058,0.42838851679220663,-0.43379999951764947]},
+    "update_full_gradient_dec":{"source":"update_tree","pointer":"/scientific_result/cells/full__true_residual_gradient/decision_after","value":{"a_posteriori_llrs":[-1.5270008054603166,-0.5241058448100349,0.2593471810422958],"hard_decision_estimate":[0,0,1],"syndrome":[0,1],"valid_codeword":false}},
+    "update_tied_residual":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__true_residual_gradient/residual_before","value":[0.7520386983881372,0.0,0.0,0.7520386983881372]},
+    "update_tied_gradient":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__true_residual_gradient/gradient_before","value":[0.7520386983881372,-0.7520386983881372,-0.7520386983881372,0.7520386983881372]},
+    "update_tied_gradient_after":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__true_residual_gradient/after_state","value":[0.11821188617912676,-1.909971355407182,0.980400402488983,0.11821188617912676]},
+    "update_tied_gradient_dec":{"source":"update_tree","pointer":"/scientific_result/cells/qbar_tied__true_residual_gradient/decision_after","value":{"a_posteriori_llrs":[-2.079012691157093,-0.5241058448100346,0.811359066739072],"hard_decision_estimate":[0,0,1],"syndrome":[0,1],"valid_codeword":false}},
+    "update_contrasts":{"source":"update_tree","pointer":"/scientific_result/factorial_contrasts","value":{"interaction_l2_norm":1.484908686870001,"interaction_vector":[0.8931739932513061,-0.5520118856967762,0.5520118856967764,-0.8931739932513063],"orientation":{"interaction":"(tied gradient - tied direct) - (full gradient - full direct)","state":"qbar_tied minus full, averaged over update operators","update":"true_residual_gradient minus direct, averaged over state maps"},"state_effect_l2_norm":1.465181905609834,"state_effect_vector":[-0.9985988823224292,-0.2760059428483881,0.2760059428483882,0.9985988823224292],"update_effect_l2_norm":1.071596172705627,"update_effect_vector":[0.018198479833446496,0.5632591647774257,0.011247279080649514,0.9113724730847527]}},
+    "update_valid":{"source":"update_tree","pointer":"/validation/all_passed","value":true},
+    "update_cycle_full_direct_dec":{"source":"update_cycle","pointer":"/scientific_result/cells/full__direct/decision_after","value":{"a_posteriori_llrs":[0.693147180559945,1.0986122886681096,-2.1972245773362196,0.40546510810816416],"hard_decision_estimate":[1,1,0,1],"syndrome":[0,1,1,0],"transmitted_word_recovery":null,"valid_codeword":false}},
+    "update_cycle_tied_direct_dec":{"source":"update_cycle","pointer":"/scientific_result/cells/qbar_tied__direct/decision_after","value":{"a_posteriori_llrs":[-2.19722457733622,0.40546510810816416,0.6931471805599451,1.0986122886681096],"hard_decision_estimate":[0,1,1,1],"syndrome":[1,0,0,1],"transmitted_word_recovery":null,"valid_codeword":false}},
+    "update_cycle_full_gradient_dec":{"source":"update_cycle","pointer":"/scientific_result/cells/full__true_residual_gradient/decision_after","value":{"a_posteriori_llrs":[-0.7381362968825433,0.3151592628157789,-0.05581208177348318,0.4787891158402471],"hard_decision_estimate":[0,1,0,1],"syndrome":[1,1,1,1],"transmitted_word_recovery":null,"valid_codeword":false}},
+    "update_cycle_tied_gradient_dec":{"source":"update_cycle","pointer":"/scientific_result/cells/qbar_tied__true_residual_gradient/decision_after","value":{"a_posteriori_llrs":[-1.8421600682760957,0.050400599048040506,1.0482116896200693,0.7435477796079859],"hard_decision_estimate":[0,1,1,1],"syndrome":[1,0,0,1],"transmitted_word_recovery":null,"valid_codeword":false}},
+    "update_cycle_contrasts":{"source":"update_cycle","pointer":"/scientific_result/factorial_contrasts","value":{"interaction_l2_norm":2.1595188093747844,"interaction_vector":[0.7607946613674368,1.0255533251351756,-0.3378176273006728,0.7662061440928798,-1.0255533251351756,-0.7607946613674369,0.337817627300673,-0.7662061440928796],"orientation":{"interaction":"(tied gradient - tied direct) - (full gradient - full direct)","state":"qbar_tied minus full, averaged over update operators","update":"true_residual_gradient minus direct, averaged over state maps"},"state_effect_l2_norm":2.130829937421622,"state_effect_vector":[-1.064788548264364,-0.9324092163804946,-0.5154824039303091,0.0365294817664672,0.9324092163804946,1.0647885482643638,0.5154824039303092,-0.03652948176646709],"update_effect_l2_norm":1.190807282140601,"update_effect_vector":[-0.20286507615365634,-0.3352444080375257,-0.008623440879725552,-0.5606353265765016,0.6903089170976497,0.5579295852137804,-0.3464410681803982,0.20557081751637785]}},
+    "update_cycle_valid":{"source":"update_cycle","pointer":"/validation/all_passed","value":true},
+    "endpoint_llr_bit1":{"source":"endpoint","pointer":"/channel_evidence/L_bit1_positive","value":[-2.1972245773362196,0.4054651081081644,0.6931471805599453]},
+    "endpoint_llr_bit0":{"source":"endpoint","pointer":"/channel_evidence/ell_bit0_positive","value":[2.1972245773362196,-0.4054651081081644,-0.6931471805599453]},
+    "endpoint_bp_iterations":{"source":"endpoint","pointer":"/bp_card/control/iterations","value":[{"hard_decision":[0,0,1],"iteration":1,"posterior_bit0":[1.7917594692280552,1.09861228866811,-1.0986122886681096],"posterior_bit1":[-1.7917594692280552,-1.09861228866811,1.0986122886681096],"q_bit0":[2.1972245773362196,-0.4054651081081644,-0.4054651081081644,-0.6931471805599453],"q_bit1":[-2.1972245773362196,0.4054651081081644,0.4054651081081644,0.6931471805599453],"syndrome":[0,1],"u_bit0":[-0.40546510810816433,2.1972245773362196,-0.6931471805599453,-0.40546510810816433],"u_bit1":[0.40546510810816433,-2.1972245773362196,0.6931471805599453,0.40546510810816433]},{"hard_decision":[0,0,0],"iteration":2,"posterior_bit0":[1.0986122886681102,1.09861228866811,1.09861228866811],"posterior_bit1":[-1.0986122886681102,-1.09861228866811,-1.09861228866811],"q_bit0":[2.1972245773362196,-1.0986122886681096,1.7917594692280552,-0.6931471805599453],"q_bit1":[-2.1972245773362196,1.0986122886681096,-1.7917594692280552,0.6931471805599453],"syndrome":[0,0],"u_bit0":[-1.0986122886681093,2.1972245773362196,-0.6931471805599453,1.7917594692280552],"u_bit1":[1.0986122886681093,-2.1972245773362196,0.6931471805599453,-1.7917594692280552]}]},
+    "endpoint_bp_native":{"source":"endpoint","pointer":"/bp_card/native","value":{"check_function":"JadeJcade.ReceiverCore._bp_check_sum_product!","entrypoint":"JadeJcade.ReceiverCore._bp_decode_sum_product","hard_decision":[0,0,0],"iterations":2,"lpost_metric_bit1":[-1.0986122886681102,-1.09861228866811,-1.0986122886681104],"syndrome_native":0,"syndrome_recomputed":[0,0],"terminal_q_bit0":[2.1972245773362196,-1.0986122886681096,1.7917594692280554,-0.6931471805599452],"terminal_r_bit0":[-1.0986122886681093,2.1972245773362196,-0.6931471805599453,1.7917594692280556],"valid":true}},
+    "endpoint_scalar_fingerprint":{"source":"endpoint","pointer":"/fingerprints/6/payload","value":{"binary_weight":0.2,"box_lower":-1.0,"box_upper":1.0,"channel_weight":1.0,"line_search":"native_strict_decrease","maximum_backtracks":16,"parity_kernel":"exact_product_residual","parity_weight":2.0,"preconditioner":"native_curvature_bound","projection":"componentwise_box","schedule":"frozen_synchronous_full_gradient","state_representation":"one_scalar_per_bit_bit0_positive","step_size":0.2,"termination_policy":"native_30_or_stall"}},
+    "endpoint_scalar_first":{"source":"endpoint","pointer":"/rung_results/6/result/trace/0","value":{"accepted":true,"accepted_step":0.2,"active_projection_coordinates":[],"backtrack_index":0,"direction":[0.0716093372621625,0.21991906265640354,-0.23754951678279934],"frozen_state_sha256":"9129e3edab45c5fa4c78408674dd5abd115aecfafea759affbf94dd5706ec6be","gradient":[-0.13367076288936997,-0.7037410005004913,0.4434257646612254],"loss_after":1.2036294788150355,"loss_before":1.2555753472472062,"projected_proposal":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317],"raw_proposal":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317],"update":1,"x_before":[0.8,-0.19999999999999998,-0.3333333333333333]}},
+    "endpoint_scalar_objectives":{"source":"endpoint","pointer":"/rung_results/6/result/objective_history","value":[1.2555753472472062,1.2036294788150355,1.1579455665626779,1.1161139481441387,1.0767259747583473,1.0390077879135162,1.002614238809708,0.9756456956150893,0.962629001635234,0.9535756285587296,0.9472442039807181,0.942733254884163,0.9393989438585952,0.9367859257654358,0.9345721016742146,0.9325262318420141,0.9304763549892858,0.9282866450883542,0.9258404628726988,0.923027691966634,0.9197348309574768,0.9158366592699009,0.9111885752487775,0.9056189197014451,0.8989207649701304,0.890842796904342,0.8810790836074925,0.8692577632622416,0.8549290670952626,0.8375537241028642,0.816493804335767]},
+    "endpoint_scalar_final":{"source":"endpoint","pointer":"/rung_results/6/result/x","value":[1.0,0.38313050423821593,-0.3139402606141775]},
+    "endpoint_scalar_accepted":{"source":"endpoint","pointer":"/rung_results/6/result/accepted_steps","value":30},
+    "endpoint_scalar_decoder_calls":{"source":"endpoint","pointer":"/native_endpoint_equivalence/current/decoder_calls","value":0},
+    "endpoint_scalar_pseudogradient_calls":{"source":"endpoint","pointer":"/native_endpoint_equivalence/current/pseudogradient_calls","value":0},
+    "endpoint_valid":{"source":"endpoint","pointer":"/validation_passed","value":true}
+  }
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+  const evidence = JSON.parse(document.getElementById("rq1-evidence").textContent);
+  const value = id => evidence.values[id].value;
+  const stage = document.getElementById("stage");
+  const exact = document.getElementById("exact-values");
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const chapterColors = { state: "var(--bp)", update: "var(--focus)", native: "var(--grad)" };
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+  }
+  function n(x, digits) {
+    if (typeof x !== "number") return esc(x);
+    const shown = plainN(x, digits);
+    return `<span title="${esc(String(x))}">${shown}</span>`;
+  }
+  function plainN(x, digits) {
+    if (typeof x !== "number") return String(x);
+    return Math.abs(x) < 0.0000005 ? "0" : x.toFixed(digits == null ? 3 : digits).replace(/\.?0+$/, "");
+  }
+  function vec(xs, digits) { return "[" + xs.map(x => n(x, digits)).join(", ") + "]"; }
+  function bits(xs) { return xs.join(""); }
+  function edgeList(labels, xs, hot) {
+    return `<div class="edge-list">${labels.map((lab, i) => `<div class="edge-value ${hot && hot.includes(i) ? "hot" : ""}"><code>${esc(lab.replace("->", "→"))}</code><b>${n(xs[i])}</b></div>`).join("")}</div>`;
+  }
+  function decision(d) {
+    const valid = d.valid_codeword != null ? d.valid_codeword : d.syndrome.every(x => x === 0);
+    return `<div class="decision"><span class="word">b̂ = ${bits(d.hard_decision_estimate || d.hard_decision)}</span><span class="syn">syndrome = ${bits(d.syndrome)}</span><span class="pill ${valid ? "ok" : ""}">${valid ? "valid codeword" : "check failure"}</span></div>`;
+  }
+  function decisionFrom(hard, syn) { return decision({hard_decision_estimate: hard, syndrome: syn}); }
+  function graph(q, u, accent, hot, showQ, showU) {
+    const labsQ = value("tree_q_labels"), labsU = value("tree_u_labels");
+    const positions = [145, 275, 425, 555];
+    return `<svg class="graph" viewBox="0 0 700 190" role="img" aria-label="Three-bit two-check Tanner graph with directed ${showQ ? "Q" : ""}${showQ && showU ? " and " : ""}${showU ? "U" : ""} values" style="--accent:${accent}">
+      <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="context-stroke"/></marker><marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="context-stroke"/></marker></defs>
+      <line class="base" x1="70" y1="98" x2="630" y2="98"/>
+      ${showQ ? `<path class="q flow" d="M92 70H197"/><path class="q flow" d="M328 70H223"/><path class="q flow" d="M372 70H477"/><path class="q flow" d="M608 70H503"/>` : ""}
+      ${showU ? `<path class="u flow" d="M197 128H92"/><path class="u flow" d="M223 128H328"/><path class="u flow" d="M477 128H372"/><path class="u flow" d="M503 128H608"/>` : ""}
+      <circle class="bit" cx="70" cy="98" r="22"/><rect class="check" x="197" y="78" width="40" height="40" rx="5"/><circle class="bit" cx="350" cy="98" r="22"/><rect class="check" x="477" y="78" width="40" height="40" rx="5"/><circle class="bit" cx="630" cy="98" r="22"/>
+      <text x="70" y="103" text-anchor="middle">b0</text><text x="217" y="103" text-anchor="middle">c0</text><text x="350" y="103" text-anchor="middle">b1</text><text x="497" y="103" text-anchor="middle">c1</text><text x="630" y="103" text-anchor="middle">b2</text>
+      ${showQ ? positions.map((x,i) => `<g><rect class="tag ${hot && hot.includes(i) ? "hot" : ""}" x="${x-38}" y="5" width="76" height="24" rx="5"/><text x="${x}" y="21" text-anchor="middle">Q ${plainN(q[i])}</text></g>`).join("") : ""}
+      ${showU ? positions.map((x,i) => `<g><rect class="tag" x="${x-38}" y="158" width="76" height="24" rx="5"/><text x="${x}" y="174" text-anchor="middle">U ${plainN(u[i])}</text></g>`).join("") : ""}
+      <text x="12" y="22">${showQ ? "Q: b→c" : ""}</text><text x="12" y="178">${showU ? "U: c→b" : ""}</text>
+    </svg>`;
+  }
+  function method(cls, title, kind, content) {
+    return `<section class="method ${cls}"><h3>${title}<span class="kind">${kind}</span></h3>${content}</section>`;
+  }
+  function header(chapter, title, intro) {
+    return `<div class="stage-head"><span class="chapter-badge">${chapter === "state" ? "1 · state isolation" : chapter === "update" ? "2 · update isolation" : "3 · native endpoints"}</span><div><h2>${title}</h2><p class="stage-intro">${intro}</p></div></div>`;
+  }
+  function norms(c) {
+    return `<div class="norms"><span>state effect ‖·‖₂ = ${n(c.state_effect_l2_norm)}</span><span>update effect ‖·‖₂ = ${n(c.update_effect_l2_norm)}</span><span>interaction ‖·‖₂ = ${n(c.interaction_l2_norm)}</span></div>`;
+  }
+  function gridCell(title, d) { return `<div class="cell"><b>${title}</b>${decision(d)}</div>`; }
+  function grid4(a,b,c,d) {
+    return `<div class="grid4"><div class="axis"></div><div class="axis wide-head">separate Q on each directed edge</div><div class="axis wide-head">q̄ tied across a bit’s edges</div><div class="axis">direct map</div>${gridCell("full × direct",a)}${gridCell("tied × direct",b)}<div class="axis">one ∇R step</div>${gridCell("full × gradient",c)}${gridCell("tied × gradient",d)}</div>`;
+  }
+  function sparkline(xs) {
+    const w=520,h=92,p=8,min=Math.min(...xs),max=Math.max(...xs),span=max-min || 1;
+    const pts=xs.map((x,i)=>`${p+i*(w-2*p)/(xs.length-1)},${p+(max-x)*(h-2*p)/span}`).join(" ");
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" role="img" aria-label="Objective decreases from ${xs[0]} to ${xs[xs.length-1]} across ${xs.length-1} accepted updates"><line class="axis" x1="${p}" y1="${h-p}" x2="${w-p}" y2="${h-p}"/><path d="M${pts.replaceAll(" ","L")}"/></svg>`;
+  }
+  function gradientChips() {
+    return `<div class="gradient-chips" aria-label="Temporary local partial derivatives"><span class="gradient-chip">∂J<sub>c0</sub>/∂x</span><span class="gradient-chip">∂J<sub>c1</sub>/∂x</span><span class="gradient-chip">∂J<sub>channel</sub>/∂x</span><span class="gradient-chip">∂J<sub>binary</sub>/∂x</span></div><div class="temporary-note">Temporary calculations: combined into the gradient of the objective function for this step, then not retained as variable-to-check or check-to-variable messages.</div>`;
+  }
+
+  const scenes = [
+    {chapter:"state", title:"Freeze the graph, channel LLRs, schedule, and check-node operation", used:["tree_h","tree_llr","tree_valid"], body(){
+      const L=value("tree_llr"), H=value("tree_h");
+      return header("state",this.title,"The three-bit cycle-free Tanner graph uses the bit-1-positive convention. The intervention will alter only what each check receives from bit b1 in message-passing iteration 2.")+
+      `<div class="comparison">${method("full","Full/direct BP","one Q value on each directed b→c edge; direct update",`${graph([0,0,0,0],[0,0,0,0],"var(--bp)",[],false,false)}<div class="formula">H = [${H[0].join(" ")}; ${H[1].join(" ")}] &nbsp; L = ${vec(L)}</div><p><b>State-harness indexing:</b> one combined variable-then-check map starts from stored check-to-variable <i>U</i>, recomputes variable-to-check <i>Q</i>, and ends at the new <i>U</i>. Thus <i>U</i> is the boundary state for this controlled map.</p>`)}`+
+      `${method("tied","q̄-tied/direct control","same check equation and schedule; edge distinction δ removed",`${graph([0,0,0,0],[0,0,0,0],"var(--tie)",[],false,false)}<div class="formula">Q<sub>i→a</sub> = q̄<sub>i</sub> + δ<sub>i→a</sub></div><p>The control computes the full <i>Q</i> vector, then gives every neighboring check the bit average q̄ instead of q̄ + δ. No objective or gradient is introduced here.</p>`)}</div><div class="boundary"><b>Evidence boundary:</b> this is a mechanism ablation on one registered update sequence, not an error-rate or complexity comparison.</div>`;
+    }},
+    {chapter:"state", title:"Both branches leave iteration 1 from the same stored U state", used:["tree_it1_u","tree_it1_hard","tree_it1_syn"], body(){
+      const U=value("tree_it1_u"), h=value("tree_it1_hard"), s=value("tree_it1_syn");
+      const inside=graph([0,0,0,0],U,"var(--bp)",[],false,true)+edgeList(value("tree_u_labels"),U,[])+decisionFrom(h,s);
+      return header("state",this.title,"The intervention is inactive in iteration 1. Because every initial U is zero, the deviations between a bit’s outgoing edges are zero and the saved fork state is identical.")+`<div class="comparison">${method("full","Full/direct BP","stored state after iteration 1",inside)}${method("tied","q̄-tied/direct control","identical saved fork state",inside)}</div><div class="callout"><strong>Causal fork:</strong> the branches start iteration 2 from the same four U values. Their first later difference can therefore be located exactly.</div>`;
+    }},
+    {chapter:"state", title:"Full BP forms two different outgoing Q values at b1", used:["tree_it2_qstd","tree_it2_qbar","tree_it2_delta"], body(){
+      const q=value("tree_it2_qstd"), qb=value("tree_it2_qbar"), d=value("tree_it2_delta");
+      const content=graph(q,value("tree_it1_u"),"var(--bp)",[1,2],true,false)+edgeList(value("tree_q_labels"),q,[1,2])+`<div class="formula">Q<sub>b1→c0</sub> = ${n(q[1])} &nbsp; and &nbsp; Q<sub>b1→c1</sub> = ${n(q[2])}</div>`;
+      return header("state",this.title,"Recipient exclusion makes the two b1 messages different: the message to c0 uses what arrived from c1, while the message to c1 uses what arrived from c0.")+`<div class="comparison">${method("full","Full/direct BP","standard variable-to-check messages",content)}${method("tied","Control before tying","the same standard Q is computed first",content)}</div><div class="decompose"><div class="box">q̄<sub>b1</sub> = ${n(qb[1])}</div><span class="op">+</span><div class="box">δ = [${n(d[1])}, ${n(d[2])}]</div></div>`;
+    }},
+    {chapter:"state", title:"The controlled deletion happens here—at Q transmitted to the checks", used:["tree_full_q","tree_tied_q","tree_first_div"], body(){
+      const qf=value("tree_full_q"), qt=value("tree_tied_q"), div=value("tree_first_div");
+      return header("state",this.title,`The first recorded divergence is ${esc(div.coordinate_label.replace("->","→"))} in iteration ${div.iteration}: full/direct sends ${n(div.reference)}, while the q̄-tied branch sends ${n(div.candidate)}.`)+`<div class="comparison">${method("full","Full/direct BP","transmit q̄ + δ to each recipient",graph(qf,value("tree_it1_u"),"var(--bp)",[1,2],true,false)+edgeList(value("tree_q_labels"),qf,[1,2])+`<div class="formula">Q<sub>b1→c0</sub> ≠ Q<sub>b1→c1</sub></div>`)}${method("tied","q̄-tied/direct control","transmit q̄ to both recipients",graph(qt,value("tree_it1_u"),"var(--tie)",[1,2],true,false)+edgeList(value("tree_q_labels"),qt,[1,2])+`<div class="discard"><span class="fall">δ<sub>b1→c0</sub>, δ<sub>b1→c1</sub></span><br>not delivered to the checks</div>`)}</div>`;
+    }},
+    {chapter:"state", title:"The same check-node operation now receives different Q inputs", used:["tree_full_q","tree_tied_q","tree_full_u","tree_tied_u"], body(){
+      const qf=value("tree_full_q"),qt=value("tree_tied_q"),uf=value("tree_full_u"),ut=value("tree_tied_u");
+      return header("state",this.title,"Both branches apply the same degree-two check equation. Only its input vector differs, so the next check-to-variable U vector differs.")+`<div class="comparison">${method("full","Full/direct BP","Q remains distinct by destination",graph(qf,uf,"var(--bp)",[0,3],true,true)+edgeList(value("tree_u_labels"),uf,[0,3]))}${method("tied","q̄-tied/direct control","averaged Q reaches the checks",graph(qt,ut,"var(--tie)",[0,3],true,true)+edgeList(value("tree_u_labels"),ut,[0,3]))}</div>`;
+    }},
+    {chapter:"state", title:"A one-beat state deletion changes the hard-decision snapshot", used:["tree_full_post","tree_full_hard","tree_full_syn","tree_tied_post","tree_tied_hard","tree_tied_syn"], body(){
+      const df={a_posteriori_llrs:value("tree_full_post"),hard_decision_estimate:value("tree_full_hard"),syndrome:value("tree_full_syn")};
+      const dt={a_posteriori_llrs:value("tree_tied_post"),hard_decision_estimate:value("tree_tied_hard"),syndrome:value("tree_tied_syn")};
+      return header("state",this.title,"At the registered iteration-2 snapshot, full/direct BP produces a valid codeword, while the q̄-tied/direct control does not. This result is limited to the declared decoding process.")+`<div class="comparison">${method("full","Full/direct BP","a posteriori LLR and hard decision",`<div class="formula">Λ = ${vec(df.a_posteriori_llrs)}</div>${decision(df)}`)}${method("tied","q̄-tied/direct control","a posteriori LLR and hard decision",`<div class="formula">Λ = ${vec(dt.a_posteriori_llrs)}</div>${decision(dt)}`)}</div><div class="callout"><strong>What this establishes:</strong> δ on the two outgoing b1 edges affects the next U values and the registered hard-decision estimate when the check equation and direct update are held fixed.</div>`;
+    }},
+    {chapter:"state", title:"Reconstruction, pulse recovery, and a cyclic graph bound the claim", used:["tree_reconstruct_q","tree_reconstruct_hard","tree_reconstruct_syn","tree_tied_it3_hard","tree_tied_it3_syn","cycle_llr","cycle_full_hard","cycle_full_syn","cycle_tied_hard","cycle_tied_syn","cycle_first_div","cycle_valid"], body(){
+      const cd=value("cycle_first_div");
+      return header("state",this.title,"Three controls prevent the state result from becoming a general performance claim.")+`<div class="control-strip"><div class="control-card"><b>Reconstruct q̄ + δ</b><p>Q = ${vec(value("tree_reconstruct_q"))}; ${decisionFrom(value("tree_reconstruct_hard"),value("tree_reconstruct_syn"))}</p></div><div class="control-card"><b>One-iteration pulse</b><p>The tied tree branch rejoins at iteration 3: ${decisionFrom(value("tree_tied_it3_hard"),value("tree_tied_it3_syn"))}</p></div><div class="control-card"><b>Four-bit cyclic confirmation</b><p>First divergence at ${esc(cd.coordinate_label.replace("->","→"))}: ${n(cd.reference)} versus ${n(cd.candidate)}.</p></div></div><div class="comparison">${method("full","Cyclic full/direct","iteration-2 snapshot",decisionFrom(value("cycle_full_hard"),value("cycle_full_syn")))}${method("tied","Cyclic q̄-tied/direct","iteration-2 snapshot",decisionFrom(value("cycle_tied_hard"),value("cycle_tied_syn")))}</div><div class="boundary"><b>Still untested:</b> whether this distinction explains a native BP-versus-projected-gradient-descent performance gap over locked noisy cases.</div>`;
+    }},
+    {chapter:"update", title:"Now hold the state map fixed and change only the update operator", used:["update_start","update_alpha","update_valid"], body(){
+      const m=value("update_start"), a=value("update_alpha");
+      return header("update",this.title,"A 2×2 controlled bench crosses separate versus q̄-tied edge values with a direct BP map versus one gradient step on R(m) = ½‖m − F(m)‖². The displayed formula differentiates every dependence of F on m.")+`<div class="formula">shared start m = ${vec(m)} &nbsp; · &nbsp; α = ${n(a,6)}</div><div class="comparison">${method("full","Direct map","m⁺ = F(m)",`<p>The operator writes the check-to-variable state returned by F in one update.</p><div class="formula">No gradient and no projection.</div>`)}${method("gradient","Gradient of R","m⁺ = m − α∇R(m)",`${gradientChips()}<div class="formula">∇R(m) = (I − J<sub>F</sub>)ᵀ[m − F(m)]</div>`)}</div><div class="boundary"><b>Scope boundary:</b> the gradient column is a controlled counterfactual on BP state. It is not the native projected gradient descent algorithm and is not a claim about that algorithm’s objective.</div>`;
+    }},
+    {chapter:"update", title:"Direct update: changing only the state map changes the one-step result", used:["update_full_direct_after","update_tied_direct_after","update_full_direct_dec","update_tied_direct_dec"], body(){
+      return header("update",this.title,"Both cells use m⁺ = F(m). Their only causal difference is whether the check map receives a separate Q value for each destination or q̄ tied across a bit’s outgoing edges.")+`<div class="comparison">${method("full","Separate Q × direct map","one direct update",`<div class="formula">m⁺ = ${vec(value("update_full_direct_after"))}</div>${decision(value("update_full_direct_dec"))}`)}${method("tied","q̄-tied Q × direct map","one direct update",`<div class="formula">m⁺ = ${vec(value("update_tied_direct_after"))}</div>${decision(value("update_tied_direct_dec"))}`)}</div>`;
+    }},
+    {chapter:"update", title:"Gradient update: residuals become temporary partial derivatives, then one step", used:["update_full_residual","update_full_gradient","update_full_gradient_after","update_full_gradient_dec","update_tied_residual","update_tied_gradient","update_tied_gradient_after","update_tied_gradient_dec","update_alpha"], body(){
+      const a=value("update_alpha");
+      return header("update",this.title,"The gradient is evaluated at the frozen start. Its coordinates are temporary calculations for this update; they are not variable-to-check or check-to-variable messages.")+`<div class="comparison">${method("gradient","Separate Q × gradient of R","all terms in ∇R use the full map",`${gradientChips()}<div class="formula">r = ${vec(value("update_full_residual"))}<br>∇R = ${vec(value("update_full_gradient"))}</div><div class="formula">m − ${n(a,6)}∇R = ${vec(value("update_full_gradient_after"))}</div>${decision(value("update_full_gradient_dec"))}`)}${method("gradient","q̄-tied Q × gradient of R","all terms in ∇R use the tied map",`${gradientChips()}<div class="formula">r = ${vec(value("update_tied_residual"))}<br>∇R = ${vec(value("update_tied_gradient"))}</div><div class="formula">m − ${n(a,6)}∇R = ${vec(value("update_tied_gradient_after"))}</div>${decision(value("update_tied_gradient_dec"))}`)}</div>`;
+    }},
+    {chapter:"update", title:"Edge values and update operator both change the next state—and interact", used:["update_full_direct_dec","update_tied_direct_dec","update_full_gradient_dec","update_tied_gradient_dec","update_contrasts"], body(){
+      const c=value("update_contrasts");
+      return header("update",this.title,"On the registered three-bit one-update bench, the state contrast, update contrast, and difference-in-differences vector are all nonzero.")+grid4(value("update_full_direct_dec"),value("update_tied_direct_dec"),value("update_full_gradient_dec"),value("update_tied_gradient_dec"))+norms(c)+`<div class="callout"><strong>Interpretation:</strong> “which variable-to-check values the checks receive” and “how the next state is computed” are not interchangeable explanations. They are separately detectable and non-additive in this one-update result.</div>`;
+    }},
+    {chapter:"update", title:"The nonzero state, update, and interaction contrasts repeat on a cycle", used:["update_cycle_full_direct_dec","update_cycle_tied_direct_dec","update_cycle_full_gradient_dec","update_cycle_tied_gradient_dec","update_cycle_contrasts","update_cycle_valid"], body(){
+      const c=value("update_cycle_contrasts");
+      return header("update",this.title,"The second graph is a four-bit cyclic structural confirmation. The transmitted word was not registered, so these hard-decision estimates and syndromes are internal-state diagnostics; they do not show whether an estimate equals the transmitted word.")+grid4(value("update_cycle_full_direct_dec"),value("update_cycle_tied_direct_dec"),value("update_cycle_full_gradient_dec"),value("update_cycle_tied_gradient_dec"))+norms(c)+`<div class="boundary"><b>Still not native projected gradient descent:</b> this chapter changes the update operator on the declared R(m) control objective and BP edge values.</div>`;
+    }},
+    {chapter:"native", title:"Only now place the native endpoints beside each other", used:["endpoint_llr_bit1","endpoint_llr_bit0","endpoint_scalar_fingerprint","endpoint_valid"], body(){
+      const fp=value("endpoint_scalar_fingerprint");
+      return header("native",this.title,"Both endpoint traces use the declared three-bit graph and numerically sign-related channel evidence. Their internal states, objectives, update schedules, and stopping budgets remain different.")+`<div class="comparison">${method("bp","Exact sum-product BP","native check-first schedule; Q and U/r on directed edges",`${graph([0,0,0,0],[0,0,0,0],"var(--bp)",[],false,false)}<div class="formula">L = ${vec(value("endpoint_llr_bit1"))}</div><p><b>Jade native indexing:</b> the <i>Q</i> array written by the preceding variable update is carried into the next check update. That check overwrites <i>U/r</i>; the variable update then consumes <i>U/r</i> and overwrites <i>Q</i>.</p><p>This placement of the iteration boundary differs from the controlled state harness above; in both views, the directed labels remain <i>Q</i>: bit→check and <i>U/r</i>: check→bit.</p>`)}${method("scalar","Native scalar coral_exact_gradient","bit-0-positive coordinate; one scalar per bit",`<div class="formula">ℓ = −L = ${vec(value("endpoint_llr_bit0"))}</div><p>Objective terms: channel weight ${n(fp.channel_weight)}, binary weight ${n(fp.binary_weight)}, parity weight ${n(fp.parity_weight)}. Schedule: ${esc(fp.schedule.replaceAll("_"," "))}.</p><p>Box projection [${n(fp.box_lower)}, ${n(fp.box_upper)}], ${esc(fp.line_search.replaceAll("_"," "))} line search, and ${esc(fp.termination_policy.replaceAll("_"," "))} stopping policy.</p>`)}</div><div class="boundary"><b>Not a one-factor comparison:</b> shared graph and channel evidence do not make the objectives, state variables, check actions, or work budgets equal.</div>`;
+    }},
+    {chapter:"native", title:"The native methods compute different objects on their first visible update", used:["endpoint_bp_iterations","endpoint_scalar_first"], body(){
+      const bp=value("endpoint_bp_iterations")[0], g=value("endpoint_scalar_first");
+      return header("native",this.title,"The synchronized beat aligns explanation time only. In the native check-first schedule, exact sum-product reads stored Q, writes U/r, and then uses U/r to write the next Q. The scalar method combines partial derivatives of its objective, projects, and retains the new scalar vector.")+`<div class="comparison">${method("bp","Exact sum-product BP","native check-first message-passing iteration 1",`${graph(bp.q_bit1,bp.u_bit1,"var(--bp)",[1,2],true,true)}${edgeList(value("tree_q_labels"),bp.q_bit1,[1,2])}${edgeList(value("tree_u_labels"),bp.u_bit1,[])}${decisionFrom(bp.hard_decision,bp.syndrome)}`)}${method("scalar","Native scalar coral_exact_gradient","accepted scalar update 1",`${gradientChips()}<div class="formula">x = ${vec(g.x_before)}<br>∇J = ${vec(g.gradient)}<br>project(x − step · direction) = ${vec(g.projected_proposal)}</div><p>Accepted step = ${n(g.accepted_step)}; J: ${n(g.loss_before,6)} → ${n(g.loss_after,6)}.</p>`)}</div>`;
+    }},
+    {chapter:"native", title:"Terminal snapshots are descriptive, not a causal verdict", used:["endpoint_bp_iterations","endpoint_bp_native","endpoint_scalar_objectives","endpoint_scalar_final","endpoint_scalar_accepted","endpoint_scalar_decoder_calls","endpoint_scalar_pseudogradient_calls"], body(){
+      const bp=value("endpoint_bp_iterations")[1], native=value("endpoint_bp_native"), hist=value("endpoint_scalar_objectives");
+      return header("native",this.title,"The endpoint card validates each native path, but it deliberately preserves their different budgets and termination rules.")+`<div class="comparison">${method("bp","Exact sum-product BP","after 2 native check-first message-passing iterations",`${graph(bp.q_bit1,bp.u_bit1,"var(--bp)",[1,2],true,true)}<div class="formula">a posteriori LLR = ${vec(bp.posterior_bit1)}</div>${decisionFrom(native.hard_decision,native.syndrome_recomputed)}<p>The terminal Q array is the value carried to a following check update; terminal U/r is the most recent check output consumed by the variable update.</p><p>Native entry point: <code>${esc(native.entrypoint)}</code></p>`)}${method("scalar","Native scalar coral_exact_gradient","after 30 accepted scalar updates",`${sparkline(hist)}<div class="formula">x = ${vec(value("endpoint_scalar_final"))}<br>J = ${n(hist[0],6)} → ${n(hist[hist.length-1],6)}</div><p>${value("endpoint_scalar_accepted")} accepted updates; ${value("endpoint_scalar_decoder_calls")} decoder calls; ${value("endpoint_scalar_pseudogradient_calls")} pseudogradient calls.</p>`)}</div><div class="boundary"><b>Do not infer the culprit here.</b> A terminal endpoint difference bundles values retained, objective, parity action, schedule, projection, line search, and work budget.</div>`;
+    }},
+    {chapter:"native", title:"What RQ1 has established—and what RQ2 must test", used:["tree_valid","cycle_valid","update_valid","update_cycle_valid","endpoint_valid"], body(){
+      return header("native",this.title,"The retained evidence narrows the mechanism without converting this RQ1 animation into a performance claim.")+`<div class="comparison">${method("full","Established in RQ1","controlled trace evidence",`<ul><li>Removing δ that distinguishes the two outgoing b→c edges changes the next BP state on the tree and cyclic graph.</li><li>Restoring q̄ + δ reconstructs the full/direct result.</li><li>Changing the update operator also changes the next state, and the state and update effects interact on both graphs.</li></ul>`)}${method("scalar","Not established by this animation","separate RQ2 evidence required",`<ul><li>Which mechanism explains a native BP-versus-projected-gradient-descent performance difference.</li><li>A general noisy-case recovery consequence beyond the registered samples.</li><li>Any equality of arithmetic, memory, runtime, or complexity.</li></ul>`)}</div><div class="callout"><strong>RQ2 status:</strong> a separate locked exact-SP anchor supplies descriptive recovery evidence on 24 AWGN frames. The first registered 200-frame held-out attempt was stopped during preflight before atomic output, so no held-out result exists; neither the anchor nor an incomplete attempt can establish the native BP-versus-projected-GD cause.</div>`;
+    }}
+  ];
+
+  const groups = [{chapter:"state",label:"Directed-edge values",from:0,to:6},{chapter:"update",label:"Controlled update operator",from:7,to:11},{chapter:"native",label:"Native endpoints",from:12,to:15}];
+  const timeline=document.getElementById("timeline"), dots=[];
+  groups.forEach(g=>{
+    const box=document.createElement("div"); box.className=`timeline-group ${g.chapter}`;
+    const label=document.createElement("span"); label.className="timeline-label"; label.textContent=g.label;
+    const row=document.createElement("div"); row.className="dots";
+    for(let i=g.from;i<=g.to;i++){
+      const b=document.createElement("button"); b.type="button"; b.className="beat-dot"; b.title=`Beat ${i+1}: ${scenes[i].title}`; b.setAttribute("aria-label",b.title); b.addEventListener("click",()=>go(i)); row.appendChild(b); dots[i]=b;
+    }
+    box.append(label,row); timeline.appendChild(box);
+  });
+  document.getElementById("source-list").innerHTML=Object.entries(evidence.sources).map(([id,s])=>`<div><code>${esc(id)}</code> — <code>${esc(s.path)}</code> — <code>${esc(s.sha256)}</code></div>`).join("");
+
+  let index=0, timer=0, playing=false;
+  function render(i, updateHash=true) {
+    index=Math.max(0,Math.min(scenes.length-1,i)); const scene=scenes[index];
+    stage.style.setProperty("--chapter-color",chapterColors[scene.chapter]);
+    stage.innerHTML=scene.body();
+    document.getElementById("beat-title").textContent=scene.title;
+    document.getElementById("beat-count").textContent=`Beat ${index+1} of ${scenes.length} · ${scene.chapter === "state" ? "state isolation" : scene.chapter === "update" ? "controlled update isolation" : "native endpoint boundary"}`;
+    dots.forEach((d,j)=>d.className="beat-dot"+(j<index?" past":j===index?" now":""));
+    document.getElementById("back").disabled=index===0;
+    document.getElementById("next").disabled=index===scenes.length-1;
+    const picked={}; scene.used.forEach(id=>picked[id]=evidence.values[id]); exact.textContent=JSON.stringify(picked,null,2);
+    if(updateHash && history.replaceState) history.replaceState(null,"",`#beat=${index+1}`);
+  }
+  function stop(){ if(timer) window.clearInterval(timer); timer=0; playing=false; document.getElementById("play").textContent="Play"; }
+  function play(){
+    if(playing){ stop(); return; }
+    if(index===scenes.length-1) render(0);
+    playing=true; document.getElementById("play").textContent="Pause";
+    const delay=Number(document.getElementById("speed").value);
+    timer=window.setInterval(()=>{ if(index>=scenes.length-1){stop();return;} render(index+1); }, reduceMotion ? Math.max(delay,2200) : delay);
+  }
+  function go(i){ stop(); render(i); }
+  document.getElementById("restart").addEventListener("click",()=>go(0));
+  document.getElementById("back").addEventListener("click",()=>go(index-1));
+  document.getElementById("next").addEventListener("click",()=>go(index+1));
+  document.getElementById("play").addEventListener("click",play);
+  document.getElementById("speed").addEventListener("change",()=>{ if(playing){stop();play();} });
+  document.getElementById("export").addEventListener("click",()=>{
+    const blob=new Blob([JSON.stringify(evidence,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="rq1_mechanism_animation_evidence.json"; a.click(); window.setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  });
+  document.addEventListener("keydown",e=>{
+    if(["INPUT","SELECT","TEXTAREA","BUTTON"].includes(e.target.tagName)) return;
+    if(e.key===" "){e.preventDefault();play();} else if(e.key==="ArrowRight"){e.preventDefault();go(index+1);} else if(e.key==="ArrowLeft"){e.preventDefault();go(index-1);} else if(e.key==="Home"){e.preventDefault();go(0);}
+  });
+  const hash=/^#beat=(\d+)$/.exec(location.hash); render(hash?Number(hash[1])-1:0,false);
+  document.documentElement.dataset.rq1Ready="true";
+  if(new URLSearchParams(location.search).has("smoke")){
+    try{
+      for(let i=0;i<scenes.length;i++){render(i,false); if(!stage.querySelector("h2")) throw new Error(`scene ${i} did not render`);}
+      render(0,false); document.documentElement.dataset.rq1Smoke="passed";
+    }catch(err){document.documentElement.dataset.rq1Smoke=`failed:${err.message}`;}
+  }
+  window.RQ1_MECHANISM_ANIMATION={evidence,scenes,set:go,state:()=>({index,playing})};
+})();
+</script>
+</body>
+</html>

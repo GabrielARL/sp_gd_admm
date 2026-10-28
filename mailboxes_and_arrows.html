@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mailboxes and Arrows</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap">
+<style>
+/* Layout: the shared Tanner graph and channel LLRs on top, one sticky clock, then BP and projected gradient descent side by side. Each column draws the chain with what that method holds on its edges and bits, a microscope on b2 underneath, and the equations of the current beat. */
+:root {
+  --bg: #f7f9fc;
+  --surface: #ffffff;
+  --ink: #111820;
+  --muted: #4f5e6e;
+  --line: #cbd6e2;
+  --edge: #93a7bb;
+  --soft: #edf3f8;
+  --bp: #164f86;
+  --gd: #087b83;
+  --bad: #c24c16;
+  --good: #197148;
+  --on-accent: #ffffff;
+  --serif: "Times New Roman", Times, Tinos, "Liberation Serif", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c131c; --surface: #121d29; --ink: #eef3f7; --muted: #a3b1bf;
+    --line: #2d4155; --edge: #58718a; --soft: #192b3d;
+    --bp: #8fc1ee; --gd: #72d0d1; --bad: #ff9a70; --good: #81d2a7;
+    --on-accent: #0c131c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c131c; --surface: #121d29; --ink: #eef3f7; --muted: #a3b1bf;
+  --line: #2d4155; --edge: #58718a; --soft: #192b3d;
+  --bp: #8fc1ee; --gd: #72d0d1; --bad: #ff9a70; --good: #81d2a7;
+  --on-accent: #0c131c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.45;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button { font-family: inherit; }
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px 30px;
+}
+.eyebrow { color: var(--muted); font-size: 14px; font-weight: 700; letter-spacing: .02em; }
+h1 { margin: 2px 0 6px; font-size: clamp(26px, 2.8vw, 36px); line-height: 1.1; text-wrap: balance; }
+.lead { max-width: 104ch; margin: 0; font-size: 16px; }
+.given { margin-top: 10px; padding: 8px 12px 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.given h2 { margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; }
+.fig { min-width: 0; overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; }
+.given .fig svg { min-width: 640px; max-width: 900px; margin: 0 auto; }
+.bar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-top: 10px;
+  padding-block: 9px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.btns { display: flex; gap: 6px; }
+.bar button {
+  border: 1px solid var(--bp);
+  border-radius: 5px;
+  padding: 5px 12px;
+  color: var(--ink);
+  background: var(--surface);
+  font-size: 16px;
+  cursor: pointer;
+}
+.bar button:hover { background: var(--soft); }
+.bar button:focus-visible, summary:focus-visible { outline: 3px solid var(--gd); outline-offset: 2px; }
+.bar button.primary { min-width: 5.2em; color: var(--on-accent); background: var(--bp); }
+.bar button:disabled { opacity: .45; cursor: default; }
+.beat-name { min-width: 14em; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.track { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px 12px; }
+.track-group { display: flex; flex-direction: column; gap: 2px; }
+.track-cells { display: flex; gap: 2px; }
+.track button.cell { width: 16px; height: 16px; padding: 0; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+.track button.cell.done { background: var(--soft); }
+.track button.cell.now { background: var(--bp); border-color: var(--bp); }
+.track-label { color: var(--muted); font-size: 12px; line-height: 1.1; }
+.speed { display: flex; align-items: center; gap: 4px; margin-left: auto; color: var(--muted); font-size: 14px; }
+.speed button { padding: 2px 8px; font-size: 14px; }
+.speed button[aria-pressed="true"] { background: var(--soft); font-weight: 700; }
+.cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+.col {
+  --acc: var(--bp);
+  --tint: color-mix(in srgb, var(--acc) 14%, var(--surface));
+  min-width: 0;
+  padding: 10px 12px 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--acc);
+  border-radius: 8px;
+}
+.col.gd { --acc: var(--gd); }
+.col h2 { margin: 0; color: var(--acc); font-size: 21px; line-height: 1.15; }
+.kind { display: block; margin-top: 2px; color: var(--muted); font-size: 14px; font-weight: 400; }
+.count { margin: 6px 0 2px; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.col .fig svg { min-width: 520px; }
+.step { margin: 6px 0 4px; font-size: 17px; font-weight: 700; }
+.math {
+  overflow-x: auto;
+  min-height: calc(4 * 1.55em + 12px);
+  padding: 6px 10px;
+  background: var(--soft);
+  border-radius: 5px;
+  font-size: 16px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+}
+.math .ln { white-space: nowrap; }
+.say { min-height: 5.8em; margin: 6px 0 0; font-size: 16px; }
+.col sub, .col sup, .atb2 sub, .atb2 sup, .setup sub, .setup sup, .lead sub, .foot sub, .scope sub, .scope sup, .legend sub { font-size: 72%; line-height: 0; }
+.atb2 { min-height: 2.9em; margin: 12px 0 0; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; font-size: 16px; }
+.atb2 b { margin-right: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 12px; font-size: 15px; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.legend svg { flex: none; display: block; }
+.sw-bp { fill: color-mix(in srgb, var(--bp) 14%, var(--surface)); stroke: var(--bp); stroke-width: 1.5; }
+.sw-gd { fill: var(--surface); stroke: var(--gd); stroke-width: 1.5; stroke-dasharray: 4 2.5; }
+.sw-src { fill: var(--surface); stroke: var(--ink); stroke-width: 3; }
+.sw-out { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; opacity: .35; }
+.sw-ok { fill: var(--good); }
+.sw-bad { fill: var(--bad); }
+.setup { margin-top: 14px; overflow-x: auto; }
+.setup table { width: 100%; min-width: 640px; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); font-size: 15px; }
+.setup caption { padding-bottom: 6px; color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
+.setup th, .setup td { padding: 6px 10px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+.setup thead th { border-top: none; background: var(--soft); }
+.setup tbody th { width: 15%; font-weight: 700; }
+.setup .bp { color: var(--bp); }
+.setup .gd { color: var(--gd); }
+.scope { max-width: 112ch; margin: 12px 0 0; font-size: 15px; }
+.foot { max-width: 112ch; margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+
+svg text { fill: var(--ink); font-family: var(--serif); font-variant-numeric: tabular-nums; }
+svg .edge { stroke: var(--edge); stroke-width: 2; }
+svg .edge.on { stroke: var(--acc); stroke-width: 4; }
+svg .bit { fill: var(--surface); stroke: var(--acc); stroke-width: 2; }
+svg .bit.on { fill: var(--tint); stroke-width: 3.5; }
+svg .chk { fill: var(--tint); stroke: var(--acc); stroke-width: 2; }
+svg .chk.on { stroke-width: 3.5; }
+svg .lab { font-size: 15px; font-weight: 700; }
+svg .marker { fill: none; stroke: var(--acc); stroke-width: 1.5; stroke-dasharray: 4 3; }
+svg .tag path { fill: var(--tint); stroke: var(--acc); stroke-width: 1.5; }
+svg .tag .nm { font-size: 11.5px; }
+svg .tag .v { font-size: 14px; font-weight: 700; }
+svg .tag .nm.big { font-size: 12.5px; }
+svg .tag .v.big { font-size: 16px; }
+svg .tag.empty .v { fill: var(--muted); font-weight: 400; }
+svg .tag.fresh path { fill: var(--acc); }
+svg .tag.fresh text { fill: var(--on-accent); }
+svg .tag.src path { stroke-width: 3.4; }
+svg .tag.out { opacity: .35; }
+svg .tag.tmp path { fill: var(--surface); stroke-dasharray: 5 3; }
+svg .tag.tmp text { fill: var(--acc); }
+svg .tag.tmp.fresh path { fill: var(--tint); }
+svg .tag.tmp.fresh text { fill: var(--acc); }
+svg .tok rect { fill: var(--acc); stroke: var(--acc); stroke-width: 1.5; }
+svg .tok text { fill: var(--on-accent); font-size: 13px; font-weight: 700; }
+svg .tok.tmp rect { fill: var(--surface); stroke-dasharray: 5 3; }
+svg .tok.tmp text { fill: var(--acc); }
+svg .row { font-size: 13px; }
+svg .row.state { font-size: 14px; font-weight: 700; }
+svg .chip rect { fill: var(--surface); stroke: var(--line); }
+svg .chip text { font-size: 13px; font-weight: 700; }
+svg .pill.ok rect { fill: var(--good); }
+svg .pill.bad rect { fill: var(--bad); }
+svg .pill text { fill: var(--on-accent); font-size: 11.5px; font-weight: 700; }
+svg .lens { fill: var(--surface); stroke: var(--acc); stroke-width: 1.5; }
+svg .lens-ring { fill: none; stroke: var(--tint); stroke-width: 8; }
+svg .lens-title { fill: var(--muted); font-size: 13px; }
+svg .note { fill: var(--acc); font-size: 12.5px; font-weight: 700; }
+svg .big { font-size: 15px; }
+svg .big.state { font-size: 16px; font-weight: 700; }
+svg .mini { fill: var(--surface); stroke: var(--acc); stroke-width: 1.5; }
+svg .half { stroke: var(--edge); stroke-width: 2; }
+svg .gbit { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6; }
+svg .gchk { fill: var(--soft); stroke: var(--ink); stroke-width: 1.6; }
+svg .gedge { stroke: var(--edge); stroke-width: 2; }
+svg .gring { fill: none; stroke: var(--ink); stroke-width: 1.4; stroke-dasharray: 4 3; }
+svg .gbr { fill: none; stroke: var(--ink); stroke-width: 1.4; }
+svg .small { font-size: 13px; }
+svg .val { font-size: 14px; font-weight: 700; }
+
+@media (max-width: 1060px) {
+  .cols { grid-template-columns: minmax(0, 1fr); }
+  .math, .say { min-height: 0; }
+  .speed { margin-left: 0; }
+}
+@media (max-width: 620px) {
+  .bar { gap: 8px 10px; }
+  .beat-name { order: 3; width: 100%; }
+  .track { order: 4; width: 100%; }
+  .fig.hint::after { content: "Scroll the drawing sideways"; display: block; color: var(--muted); font-size: 12px; text-align: right; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Three bits · two checks · a microscope on <i>b</i><sub>2</sub></div>
+    <h1>What BP and gradient descent keep, beat by beat</h1>
+    <p class="lead">Both columns run on the same Tanner graph and the same channel LLRs. Check A joins bits <i>b</i><sub>1</sub> and <i>b</i><sub>2</sub>, and check B joins <i>b</i><sub>2</sub> and <i>b</i><sub>3</sub>.
+      The channel gives <i>P</i>(<i>b<sub>i</sub></i> = 1 | <i>y<sub>i</sub></i>) = 0.1, 0.6 and 0.9, so the LLRs <i>L<sub>i</sub></i> = ln[<i>P</i>(<i>b<sub>i</sub></i> = 1 | <i>y<sub>i</sub></i>) / <i>P</i>(<i>b<sub>i</sub></i> = 0 | <i>y<sub>i</sub></i>)] are −2.197, +0.405 and +2.197.
+      In this page’s variable-then-check flooding schedule, the iteration boundary is placed after the check update: BP therefore retains the latest check-to-variable <i>U</i> messages at that boundary. It recomputes variable-to-check <i>Q</i> messages from those <i>U</i> values and the channel LLRs, then uses the current <i>Q</i> values in the check update. A check-first implementation can place its iteration boundary elsewhere and carry <i>Q</i> into the next check update. Gradient descent keeps one number per bit, and its partial-derivative arrows last only until the step.</p>
+  </header>
+
+  <section class="given" aria-labelledby="given-title">
+    <h2 id="given-title">Shared by both columns: the parity-check matrix <b>H</b> and the channel LLRs <b><i>L</i></b></h2>
+    <div class="fig hint"><svg id="given" viewBox="0 0 760 122" role="img" aria-label="Tanner graph b1, check A, b2, check B, b3, with the channel probabilities, the LLRs, and the parity-check matrix"></svg></div>
+  </section>
+
+  <nav class="bar" aria-label="Animation controls">
+    <div class="btns">
+      <button id="restart" type="button">Restart</button>
+      <button id="back" type="button">Back</button>
+      <button id="next" type="button" class="primary">Next</button>
+      <button id="play" type="button">Play</button>
+    </div>
+    <div class="beat-name" id="beat-name" aria-live="polite"></div>
+    <div class="track" id="track"></div>
+    <div class="speed" role="group" aria-label="Animation speed">
+      <span>Speed</span>
+      <button id="speed-05" type="button" data-speed="0.5" aria-pressed="false">0.5×</button>
+      <button id="speed-1" type="button" data-speed="1" aria-pressed="true">1×</button>
+      <button id="speed-2" type="button" data-speed="2" aria-pressed="false">2×</button>
+    </div>
+  </nav>
+
+  <div class="cols">
+    <section class="col bp" aria-labelledby="bp-title">
+      <h2 id="bp-title">Belief propagation (BP)<span class="kind">For this page’s boundary: current Q inputs for the check update; stored U state for the next iteration</span></h2>
+      <p class="count" id="bp-count"></p>
+      <div class="fig hint"><svg id="bp-svg" viewBox="0 0 600 442" role="img" aria-label="BP on the three-bit chain, with a microscope on bit b2"></svg></div>
+      <div aria-live="polite">
+        <p class="step" id="bp-step"></p>
+        <div class="math" id="bp-math"></div>
+        <p class="say" id="bp-say"></p>
+      </div>
+    </section>
+    <section class="col gd" aria-labelledby="gd-title">
+      <h2 id="gd-title">Projected gradient descent (GD)<span class="kind">One relaxed bit variable per bit; partial-derivative arrows that last one step</span></h2>
+      <p class="count" id="gd-count"></p>
+      <div class="fig hint"><svg id="gd-svg" viewBox="0 0 600 442" role="img" aria-label="Projected gradient descent on the three-bit chain, with a microscope on bit b2"></svg></div>
+      <div aria-live="polite">
+        <p class="step" id="gd-step"></p>
+        <div class="math" id="gd-math"></div>
+        <p class="say" id="gd-say"></p>
+      </div>
+    </section>
+  </div>
+
+  <p class="atb2" id="atb2" aria-live="polite"></p>
+
+  <div class="legend" aria-label="Legend">
+    <span><svg width="46" height="22" viewBox="0 0 46 22" aria-hidden="true"><path class="sw-bp" d="M2,2H36L44,11L36,20H2Z"/></svg>For this variable-then-check boundary: Q is used by the current check update; U is retained for the next iteration</span>
+    <span><svg width="46" height="22" viewBox="0 0 46 22" aria-hidden="true"><path class="sw-gd" d="M2,2H36L44,11L36,20H2Z"/></svg>GD reading or partial-derivative arrow, discarded at the step</span>
+    <span><svg width="46" height="22" viewBox="0 0 46 22" aria-hidden="true"><path class="sw-src" d="M3,3H36L43,11L36,19H3Z"/></svg>value used in this beat</span>
+    <span><svg width="46" height="22" viewBox="0 0 46 22" aria-hidden="true"><path class="sw-out" d="M2,2H36L44,11L36,20H2Z"/></svg>value left out of this beat’s message, because the recipient sent it</span>
+    <span><svg width="58" height="20" viewBox="0 0 58 20" aria-hidden="true"><rect class="sw-ok" x="1" y="2" width="26" height="16" rx="8"/><rect class="sw-bad" x="31" y="2" width="26" height="16" rx="8"/></svg>check passes or fails for the hard-decision estimate</span>
+  </div>
+
+  <div class="setup">
+    <table>
+      <caption>How each method is set up on this graph</caption>
+      <thead>
+        <tr><th scope="col"></th><th scope="col" class="bp">BP (sum-product)</th><th scope="col" class="gd">Projected gradient descent</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Channel evidence</th><td><b><i>L</i></b> enters every variable-to-check message</td><td>enters only the start, <b><i>x</i></b><sup>(0)</sup> = tanh(<b><i>L</i></b>/2); <i>J</i><sub>p</sub> has no channel term</td></tr>
+        <tr><th scope="row">Kept between iterations</th><td>four check-to-variable messages <i>U</i>; the four <i>Q</i> values are recomputed from stored <i>U</i> and <b><i>L</i></b></td><td>three relaxed bit variables <i>x<sub>i</sub></i> ∈ [−1, 1]</td></tr>
+        <tr><th scope="row">Check action</th><td>a two-bit check returns the other bit’s message: <i>U</i><sub>A→1</sub> = <i>Q</i><sub>2→A</sub></td><td><i>r</i><sub>A</sub> = 1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub>, and <i>g</i><sub>A,1</sub> = ∂(<i>r</i><sub>A</sub><sup>2</sup>)/∂<i>x</i><sub>1</sub> = −2<i>r</i><sub>A</sub><i>x</i><sub>2</sub></td></tr>
+        <tr><th scope="row">Bit action</th><td><i>Q</i><sub>2→A</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>B→2</sub> leaves out the recipient; Λ<sub>2</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>A→2</sub> + <i>U</i><sub>B→2</sub></td><td>∂<i>J</i><sub>p</sub>/∂<i>x</i><sub>2</sub> = <i>g</i><sub>A,2</sub> + <i>g</i><sub>B,2</sub>, then <i>x</i><sub>2</sub> ← clip(<i>x</i><sub>2</sub> − <i>η</i> ∂<i>J</i><sub>p</sub>/∂<i>x</i><sub>2</sub>, −1, 1)</td></tr>
+        <tr><th scope="row">Schedule</th><td>flooding: all four <i>Q</i> from the stored <i>U</i>, then all four <i>U</i></td><td>every term at the same <b><i>x</i></b>, then every bit steps</td></tr>
+        <tr><th scope="row">Recomputed or replaced</th><td>the previous <i>Q</i> vector is recomputed at the next variable update; the previous <i>U</i> vector is replaced at the next check update</td><td>the readings, <i>r</i><sub>A</sub>, <i>r</i><sub>B</sub>, the four arrows and their sums, after every step</td></tr>
+        <tr><th scope="row">Hard decision</th><td><i>b̂<sub>i</sub></i> = 1 if Λ<sub><i>i</i></sub> ≥ 0</td><td><i>b̂<sub>i</sub></i> = 1 if <i>x<sub>i</sub></i> ≥ 0</td></tr>
+        <tr><th scope="row">Shown</th><td>two message-passing iterations</td><td>two gradient iterations, <i>η</i> = 0.25</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="scope">The two columns share <b>H</b> and <b><i>L</i></b>, not an objective. BP computes posterior LLRs, and gradient descent lowers <i>J</i><sub>p</sub>(<b><i>x</i></b>) = (1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub>)<sup>2</sup> + (1 − <i>x</i><sub>2</sub><i>x</i><sub>3</sub>)<sup>2</sup>.
+    Within an iteration the edges are shown one after another, but BP forms all four variable-to-check messages from the stored check-to-variable messages before any check replies, and every gradient term uses the same <b><i>x</i></b>.
+    A beat is a step of the animation, not a unit of work; equal beats do not mean equal arithmetic, stored state or complexity. This is one example on one cycle-free graph, and it does not measure decoding performance.
+    Each letter belongs to one method: <i>Q</i>, <i>U</i> and Λ are BP’s; <i>x</i>, <i>r</i>, <i>g</i>, <i>J</i><sub>p</sub> and <i>η</i> are gradient descent’s. Both read <b><i>L</i></b>, and both report a hard-decision estimate <b><i>b̂</i></b>.</p>
+  <p class="foot">Space plays or pauses, the arrow keys step and Home restarts. Every number is computed in this page from <i>P</i>(<i>b<sub>i</sub></i> = 1 | <i>y<sub>i</sub></i>) = (0.1, 0.6, 0.9) and <i>η</i> = 0.25, and is rounded to three decimals for display; sums use the unrounded values. A link can open at a beat, for example #beat12.</p>
+</main>
+
+<script id="model">
+window.MAILBOX_MODEL = (function () {
+  "use strict";
+  var P1 = [0.1, 0.6, 0.9];            // P(b_i = 1 | y_i)
+  var CHECKS = [[0, 1], [1, 2]];       // A = {b1, b2}, B = {b2, b3}
+  var CNAME = ["A", "B"];
+  var EDGES = [{ i: 0, a: 0 }, { i: 1, a: 0 }, { i: 1, a: 1 }, { i: 2, a: 1 }];
+  var ETA = 0.25, ITERS = 2;
+
+  function prod(v) { return v.reduce(function (p, x) { return p * x; }, 1); }
+  function syn(w) { return CHECKS.map(function (c) { return c.reduce(function (s, j) { return s ^ w[j]; }, 0); }); }
+  function atBit(i) { return [0, 1, 2, 3].filter(function (k) { return EDGES[k].i === i; }); }
+  function atCheck(a) { return [0, 1, 2, 3].filter(function (k) { return EDGES[k].a === a; }); }
+  var L = P1.map(function (p) { return Math.log(p / (1 - p)); });
+
+  // Sum-product, flooding schedule, U^(0) = 0, L = ln P(1)/P(0).
+  var bp = [], U = EDGES.map(function () { return 0; });
+  for (var t = 1; t <= ITERS; t++) {
+    var Uin = U;
+    var Q = EDGES.map(function (e, k) {
+      return L[e.i] + atBit(e.i).filter(function (f) { return f !== k; })
+        .reduce(function (s, f) { return s + Uin[f]; }, 0);
+    });
+    var Un = EDGES.map(function (e, k) {
+      var others = atCheck(e.a).filter(function (f) { return f !== k; });
+      var d = CHECKS[e.a].length;
+      var pt = prod(others.map(function (f) { return Math.tanh(Q[f] / 2); }));
+      return -2 * Math.atanh(Math.pow(-1, d - 1) * pt);
+    });
+    var Lam = L.map(function (l, i) { return l + atBit(i).reduce(function (s, f) { return s + Un[f]; }, 0); });
+    var hard = Lam.map(function (v) { return v >= 0 ? 1 : 0; });
+    bp.push({ Uin: Uin, Q: Q, U: Un, Lam: Lam, hard: hard, syn: syn(hard) });
+    U = Un;
+  }
+
+  // Projected gradient on J_p(x) = sum_a (1 - s_a prod_{j in a} x_j)^2, s_a = (-1)^{d_a}.
+  function sgn(a) { return Math.pow(-1, CHECKS[a].length); }
+  function J(x) {
+    return CHECKS.reduce(function (s, c, a) {
+      var r = 1 - sgn(a) * prod(c.map(function (j) { return x[j]; }));
+      return s + r * r;
+    }, 0);
+  }
+  var gd = [], x = L.map(function (l) { return Math.tanh(l / 2); });
+  for (t = 1; t <= ITERS; t++) {
+    var xc = x;
+    var r = CHECKS.map(function (c, a) { return 1 - sgn(a) * prod(c.map(function (j) { return xc[j]; })); });
+    var g = EDGES.map(function (e) {
+      var others = CHECKS[e.a].filter(function (j) { return j !== e.i; });
+      return -2 * sgn(e.a) * r[e.a] * prod(others.map(function (j) { return xc[j]; }));
+    });
+    var dJ = xc.map(function (_, i) { return atBit(i).reduce(function (s, f) { return s + g[f]; }, 0); });
+    var xt = xc.map(function (v, i) { return v - ETA * dJ[i]; });
+    var xn = xt.map(function (v) { return Math.max(-1, Math.min(1, v)); });
+    var hg = xn.map(function (v) { return v >= 0 ? 1 : 0; });
+    gd.push({ x: xc, r: r, g: g, dJ: dJ, xt: xt, xn: xn,
+              clipped: xt.map(function (v, i) { return v !== xn[i]; }),
+              J0: J(xc), J1: J(xn), hard: hg, syn: syn(hg) });
+    x = xn;
+  }
+
+  // Exact posterior LLRs by listing the codewords.
+  var words = [];
+  for (var w = 0; w < 8; w++) {
+    var bits = [(w >> 2) & 1, (w >> 1) & 1, w & 1];
+    if (syn(bits).every(function (s) { return s === 0; })) words.push(bits);
+  }
+  function pw(b) { return prod(b.map(function (v, j) { return v ? P1[j] : 1 - P1[j]; })); }
+  var exact = P1.map(function (_, i) {
+    var n1 = 0, n0 = 0;
+    words.forEach(function (b) { if (b[i]) n1 += pw(b); else n0 += pw(b); });
+    return Math.log(n1 / n0);
+  });
+
+  return { P1: P1, CHECKS: CHECKS, CNAME: CNAME, EDGES: EDGES, ETA: ETA, ITERS: ITERS,
+           L: L, bp: bp, gd: gd, words: words, exact: exact, J: J, syn: syn };
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var M = window.MAILBOX_MODEL;
+  var NS = "http://www.w3.org/2000/svg";
+  var reduced = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  // ---------- beats ----------
+  var BEATS = [{ type: "start", t: 0 }];
+  for (var t = 1; t <= M.ITERS; t++) {
+    for (var e = 0; e < 4; e++) BEATS.push({ type: "v2c", t: t, e: e });
+    for (e = 0; e < 4; e++) BEATS.push({ type: "c2v", t: t, e: e });
+    BEATS.push({ type: "combine", t: t }, { type: "update", t: t });
+  }
+  var LAST = BEATS.length - 1;
+  function idx(type, t, e) {
+    var base = 1 + (t - 1) * 10;
+    if (type === "v2c") return base + e;
+    if (type === "c2v") return base + 4 + e;
+    if (type === "combine") return base + 8;
+    return base + 9;
+  }
+  var DUR = { start: 2.0, v2c: 3.0, c2v: 3.0, combine: 3.4, update: 4.4 };
+  // fractions of a beat
+  var T0 = 0.05, ARR = 0.45, MORPH0 = 0.06, MORPH1 = 0.36, HARD = 0.40, NOTE = 0.45, FADE0 = 0.52, FADE1 = 0.78;
+
+  // ---------- formatting ----------
+  function sf(v) { if (v === 0) return "0"; return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(3); }
+  function uf(v) { return (v < 0 ? "−" : "") + Math.abs(v).toFixed(3); }
+  function plus(v) { if (v === 0) return " + 0"; return (v < 0 ? " − " : " + ") + Math.abs(v).toFixed(3); }
+  function vec(v) { return "(" + v.map(sf).join(", ") + ")"; }
+  function word(v) { return "(" + v.join(", ") + ")"; }
+  function ease(s) { s = Math.max(0, Math.min(1, s)); return s < 0.5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2; }
+  var CN = M.CNAME;
+  function Qm(i, a) { return "*Q*_{" + i + "→" + a + "}"; }
+  function Um(a, i) { return "*U*_{" + a + "→" + i + "}"; }
+  function Lm(i) { return "*L*_{" + i + "}"; }
+  function Xm(i) { return "*x*_{" + i + "}"; }
+  function Gm(a, i) { return "*g*_{" + a + "," + i + "}"; }
+  function Rm(a) { return "*r*_{" + a + "}"; }
+  function DJm(i) { return "∂*J*_{p}/∂*x*_{" + i + "}"; }
+  function Bm(i) { return "*b*_{" + i + "}"; }
+  function Lam(i) { return "Λ_{" + i + "}"; }
+  var VL = "<b><i>L</i></b>", VB = "<b><i>b̂</i></b>", VH = "<b>H</b>";
+  function VX(t) { return "<b><i>x</i></b><sup>(" + t + ")</sup>"; }
+
+  // markup: *italic*, _{sub}, ^{sup}; raw HTML passes through
+  function hm(s) {
+    var out = "", it = false, lv = 0;
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (c === "*") { out += it ? "</i>" : "<i>"; it = !it; continue; }
+      if ((c === "_" || c === "^") && s.charAt(i + 1) === "{") { out += c === "_" ? "<sub>" : "<sup>"; lv = c === "_" ? -1 : 1; i++; continue; }
+      if (c === "}" && lv !== 0) { out += lv < 0 ? "</sub>" : "</sup>"; lv = 0; continue; }
+      out += c;
+    }
+    return out;
+  }
+  function runs(s) {
+    var out = [], it = false, lv = 0, buf = "";
+    function push() { if (buf) { out.push({ t: buf, it: it, lv: lv }); buf = ""; } }
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (c === "*") { push(); it = !it; continue; }
+      if ((c === "_" || c === "^") && s.charAt(i + 1) === "{") { push(); lv = c === "_" ? -1 : 1; i++; continue; }
+      if (c === "}" && lv !== 0) { push(); lv = 0; continue; }
+      buf += c;
+    }
+    push();
+    return out;
+  }
+  // SVG rich text: fs is the element's font size in px
+  function rt(node, s, fs) {
+    if (node._s === s) return;
+    node._s = s;
+    while (node.firstChild) node.removeChild(node.firstChild);
+    var prev = 0;
+    runs(s).forEach(function (r) {
+      var off = r.lv < 0 ? 0.28 * fs : r.lv > 0 ? -0.42 * fs : 0;
+      var sp = document.createElementNS(NS, "tspan");
+      if (off !== prev) sp.setAttribute("dy", (off - prev).toFixed(2));
+      if (r.lv !== 0) sp.setAttribute("font-size", (0.72 * fs).toFixed(1));
+      if (r.it) sp.setAttribute("font-style", "italic");
+      sp.textContent = r.t;
+      node.appendChild(sp);
+      prev = off;
+    });
+  }
+
+  // ---------- SVG helpers ----------
+  function el(tag, attrs, parent) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function show(n, on) { n.setAttribute("display", on ? "inline" : "none"); }
+  function text(parent, x, y, s, cls, fs, anchor) {
+    var n = el("text", { x: x, y: y, "text-anchor": anchor || "middle" }, parent);
+    if (cls) n.setAttribute("class", cls);
+    rt(n, s, fs);
+    return n;
+  }
+  function tagPath(cx, cy, w, h, dir) {
+    var pd = 8, x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2;
+    if (dir > 0) return "M" + x0 + "," + y0 + "H" + (x1 - pd) + "L" + x1 + "," + cy + "L" + (x1 - pd) + "," + y1 + "H" + x0 + "Z";
+    return "M" + x1 + "," + y0 + "H" + (x0 + pd) + "L" + x0 + "," + cy + "L" + (x0 + pd) + "," + y1 + "H" + x1 + "Z";
+  }
+  function makeTag(parent, cx, cy, w, h, dir, big) {
+    var g = el("g", { "class": "tag" }, parent);
+    el("path", { d: tagPath(cx, cy, w, h, dir) }, g);
+    var tx = cx - dir * 4;
+    var nm = el("text", { x: tx, y: cy - (big ? 7 : 5), "text-anchor": "middle", "class": big ? "nm big" : "nm" }, g);
+    var v = el("text", { x: tx, y: cy + (big ? 14.5 : 12.5), "text-anchor": "middle", "class": big ? "v big" : "v" }, g);
+    return { g: g, nm: nm, v: v, big: !!big, cls: "" };
+  }
+  function setTag(T, st) {
+    show(T.g, st.show);
+    if (!st.show) return;
+    rt(T.nm, st.name, T.big ? 12.5 : 11.5);
+    rt(T.v, st.val, T.big ? 16 : 14);
+    var cls = "tag" + (st.tmp ? " tmp" : "") + (st.fresh ? " fresh" : "") + (st.src ? " src" : "") +
+              (st.out ? " out" : "") + (st.empty ? " empty" : "");
+    if (T.cls !== cls) { T.g.setAttribute("class", cls); T.cls = cls; }
+    T.g.setAttribute("opacity", st.op == null ? 1 : st.op.toFixed(3));
+  }
+  function makeTok(parent, tmp) {
+    var g = el("g", { "class": tmp ? "tok tmp" : "tok", display: "none" }, parent);
+    el("rect", { x: -33, y: -11, width: 66, height: 22, rx: 11 }, g);
+    var tx = el("text", { x: 0, y: 5, "text-anchor": "middle" }, g);
+    return { g: g, tx: tx };
+  }
+  function along(path, s) {
+    var seg = [], tot = 0, j;
+    for (j = 1; j < path.length; j++) {
+      var d = Math.hypot(path[j][0] - path[j - 1][0], path[j][1] - path[j - 1][1]);
+      seg.push(d); tot += d;
+    }
+    var want = s * tot;
+    for (j = 1; j < path.length; j++) {
+      if (want <= seg[j - 1] || j === path.length - 1) {
+        var u = seg[j - 1] ? Math.min(1, want / seg[j - 1]) : 1;
+        return [path[j - 1][0] + (path[j][0] - path[j - 1][0]) * u, path[j - 1][1] + (path[j][1] - path[j - 1][1]) * u];
+      }
+      want -= seg[j - 1];
+    }
+    return path[path.length - 1];
+  }
+  function setTok(T, path, label, f, t0, t1) {
+    if (!path || reduced || f < t0 || f >= t1) { show(T.g, false); return; }
+    var p = along(path, ease((f - t0) / (t1 - t0)));
+    show(T.g, true);
+    T.g.setAttribute("transform", "translate(" + p[0].toFixed(1) + "," + p[1].toFixed(1) + ")");
+    rt(T.tx, label, 13);
+  }
+
+  // ---------- geometry ----------
+  var NY = 92, BX = [70, 300, 530], CX = [185, 415];
+  var MID = M.EDGES.map(function (E) { return (BX[E.i] + CX[E.a]) / 2; });
+  var DIR = M.EDGES.map(function (E) { return CX[E.a] > BX[E.i] ? 1 : -1; });   // bit -> check
+  var TOPY = 53, BOTY = 131, TW = 78, TH = 36;
+  var ROW1 = 172, ROW2 = 194, ROW3 = 216;
+  var LCX = 300, LCY = 335, LRX = 290, LRY = 100;
+  var LSLOT = { tl: [166, 289], tr: [434, 289], bl: [166, 381], br: [434, 381] };
+  var LW = 112, LH = 40, AICON = [42, LCY], BICON = [558, LCY], CTR = [LCX, LCY];
+
+  // ---------- one column ----------
+  function buildCol(svg, kind) {
+    var C = { kind: kind };
+    var gE = el("g", {}, svg), gT = el("g", {}, svg), gN = el("g", {}, svg), gR = el("g", {}, svg),
+        gL = el("g", {}, svg), gK = el("g", {}, svg);
+    C.edge = M.EDGES.map(function (E) { return el("line", { x1: BX[E.i], y1: NY, x2: CX[E.a], y2: NY, "class": "edge" }, gE); });
+    C.top = M.EDGES.map(function (E, e) { return makeTag(gT, MID[e], TOPY, TW, TH, DIR[e], false); });
+    C.bot = M.EDGES.map(function (E, e) { return makeTag(gT, MID[e], BOTY, TW, TH, -DIR[e], false); });
+    C.chk = CX.map(function (x, a) {
+      var n = el("rect", { x: x - 18, y: NY - 14, width: 36, height: 28, rx: 3, "class": "chk" }, gN);
+      text(gN, x, NY + 5, CN[a], "lab", 15);
+      return n;
+    });
+    C.bit = BX.map(function (x, i) {
+      var n = el("circle", { cx: x, cy: NY, r: 19, "class": "bit" }, gN);
+      text(gN, x, NY + 5, Bm(i + 1), "lab", 15);
+      return n;
+    });
+    el("circle", { cx: BX[1], cy: NY, r: 24, "class": "marker" }, gN);
+    C.pill = CX.map(function (x) {
+      var g = el("g", { "class": "pill", display: "none" }, gN);
+      el("rect", { x: x - 36, y: 11, width: 72, height: 18, rx: 9 }, g);
+      var tx = el("text", { x: x, y: 24, "text-anchor": "middle" }, g);
+      return { g: g, tx: tx };
+    });
+    C.row1 = BX.map(function (x) { return text(gR, x, ROW1, "", kind === "gd" ? "row state" : "row", kind === "gd" ? 14 : 13); });
+    C.row2 = BX.map(function (x) { return text(gR, x, ROW2, "", "row", 13); });
+    C.chip = BX.map(function (x) {
+      var g = el("g", { "class": "chip", display: "none" }, gR);
+      el("rect", { x: x - 27, y: ROW3 - 13, width: 54, height: 18, rx: 3 }, g);
+      var tx = el("text", { x: x, y: ROW3, "text-anchor": "middle" }, g);
+      return { g: g, tx: tx };
+    });
+    C.res = CX.map(function (x) { return text(gR, x, ROW1, "", "row", 13); });
+
+    // microscope on b2
+    el("ellipse", { cx: LCX, cy: LCY, rx: LRX, ry: LRY, "class": "lens" }, gL);
+    el("ellipse", { cx: LCX, cy: LCY, rx: LRX - 6, ry: LRY - 6, "class": "lens-ring" }, gL);
+    text(gL, LCX, LCY - 77, "microscope on " + Bm(2), "lens-title", 13);
+    el("line", { x1: AICON[0] + 15, y1: LCY, x2: LCX - 30, y2: LCY, "class": "half" }, gL);
+    el("line", { x1: LCX + 30, y1: LCY, x2: BICON[0] - 15, y2: LCY, "class": "half" }, gL);
+    el("rect", { x: AICON[0] - 15, y: LCY - 12, width: 30, height: 24, rx: 3, "class": "mini" }, gL);
+    text(gL, AICON[0], LCY + 5, "A", "lab", 14);
+    el("rect", { x: BICON[0] - 15, y: LCY - 12, width: 30, height: 24, rx: 3, "class": "mini" }, gL);
+    text(gL, BICON[0], LCY + 5, "B", "lab", 14);
+    C.L = {
+      tl: makeTag(gL, LSLOT.tl[0], LSLOT.tl[1], LW, LH, -1, true),
+      tr: makeTag(gL, LSLOT.tr[0], LSLOT.tr[1], LW, LH, 1, true),
+      bl: makeTag(gL, LSLOT.bl[0], LSLOT.bl[1], LW, LH, 1, true),
+      br: makeTag(gL, LSLOT.br[0], LSLOT.br[1], LW, LH, -1, true)
+    };
+    C.L.node = el("circle", { cx: LCX, cy: LCY, r: 30, "class": "bit" }, gL);
+    text(gL, LCX, LCY + 6, Bm(2), "lab", 17);
+    C.L.c1 = text(gL, LCX, LCY + 48, "", kind === "gd" ? "big state" : "big", kind === "gd" ? 16 : 15);
+    C.L.c2 = text(gL, LCX, LCY + 71, "", "big", 15);
+    C.L.outL = text(gL, LSLOT.bl[0], LSLOT.bl[1] + 33, "left out", "note", 12.5);
+    C.L.outR = text(gL, LSLOT.br[0], LSLOT.br[1] + 33, "left out", "note", 12.5);
+    C.L.note = text(gL, LCX, LCY + 93, "", "note", 12.5);
+    C.tok = makeTok(gK, kind === "gd");
+    C.ltok = [makeTok(gK, kind === "gd"), makeTok(gK, kind === "gd")];
+    return C;
+  }
+
+  // ---------- state at (beat k, fraction f) ----------
+  function reached(S, j, at) { return S.k > j || (S.k === j && S.f >= at); }
+  function lastT(S, type, e, at) {
+    for (var t = M.ITERS; t >= 1; t--) if (reached(S, idx(type, t, e), at)) return t;
+    return 0;
+  }
+  function gone(S, t) { return reached(S, idx("update", t), FADE1); }
+  function fadeOp(S, t) {
+    var j = idx("update", t);
+    if (S.k !== j || S.f <= FADE0) return 1;
+    return Math.max(0, 1 - (S.f - FADE0) / (FADE1 - FADE0));
+  }
+  function otherAtBit(e) { for (var f = 0; f < 4; f++) if (f !== e && M.EDGES[f].i === M.EDGES[e].i) return f; return -1; }
+  function otherAtCheck(e) { for (var f = 0; f < 4; f++) if (f !== e && M.EDGES[f].a === M.EDGES[e].a) return f; return -1; }
+
+  function bpTop(S, e) {
+    var B = BEATS[S.k], E = M.EDGES[e], tw = lastT(S, "v2c", e, ARR);
+    return {
+      show: true, iter: tw, empty: !tw,
+      name: Qm(E.i + 1, CN[E.a]),
+      val: tw ? sf(M.bp[tw - 1].Q[e]) : "—",
+      fresh: B.type === "v2c" && B.e === e && B.t === tw,
+      src: B.type === "c2v" && otherAtCheck(B.e) === e,
+      out: B.type === "c2v" && B.e === e
+    };
+  }
+  function bpBot(S, e) {
+    var B = BEATS[S.k], E = M.EDGES[e], tw = lastT(S, "c2v", e, ARR);
+    return {
+      show: true, iter: tw,
+      name: Um(CN[E.a], E.i + 1),
+      val: tw ? sf(M.bp[tw - 1].U[e]) : "0",
+      fresh: B.type === "c2v" && B.e === e && B.t === tw,
+      src: (B.type === "v2c" && otherAtBit(B.e) === e) || B.type === "combine",
+      out: B.type === "v2c" && B.e === e
+    };
+  }
+  function gdTop(S, e) {
+    var B = BEATS[S.k], E = M.EDGES[e], t = B.t;
+    if (!t || !reached(S, idx("v2c", t, e), ARR) || gone(S, t)) return { show: false };
+    return {
+      show: true, tmp: true,
+      name: Xm(E.i + 1),
+      val: sf(M.gd[t - 1].x[E.i]),
+      fresh: B.type === "v2c" && B.e === e,
+      src: B.type === "c2v" && M.EDGES[B.e].a === E.a,
+      op: fadeOp(S, t)
+    };
+  }
+  function gdBot(S, e) {
+    var B = BEATS[S.k], E = M.EDGES[e], t = B.t;
+    if (!t || !reached(S, idx("c2v", t, e), ARR) || gone(S, t)) return { show: false };
+    return {
+      show: true, tmp: true,
+      name: Gm(CN[E.a], E.i + 1),
+      val: sf(M.gd[t - 1].g[e]),
+      fresh: B.type === "c2v" && B.e === e,
+      src: B.type === "combine",
+      op: fadeOp(S, t)
+    };
+  }
+  function lensName(kind, pos, e, st) {
+    var an = CN[M.EDGES[e].a];
+    if (kind === "bp") {
+      var base = pos === "top" ? Qm(2, an) : Um(an, 2);
+      return st.empty ? base : base + "^{(" + st.iter + ")}";
+    }
+    return pos === "top" ? Xm(2) + " read by " + an : Gm(an, 2);
+  }
+  function gdX(S, i) {
+    var B = BEATS[S.k];
+    if (B.type === "update" && S.f < MORPH1) {
+      var G = M.gd[B.t - 1];
+      if (S.f <= MORPH0) return G.x[i];
+      return G.x[i] + (G.xn[i] - G.x[i]) * ease((S.f - MORPH0) / (MORPH1 - MORPH0));
+    }
+    var done = 0;
+    for (var t = 1; t <= M.ITERS; t++) if (reached(S, idx("update", t), MORPH1)) done = t;
+    return done ? M.gd[done - 1].xn[i] : M.gd[0].x[i];
+  }
+  function hardT(S) {
+    var th = 0;
+    for (var t = 1; t <= M.ITERS; t++) if (reached(S, idx("update", t), HARD)) th = t;
+    return th;
+  }
+  function lamT(S) {
+    var tl = 0;
+    for (var t = 1; t <= M.ITERS; t++) if (reached(S, idx("combine", t), ARR)) tl = t;
+    return tl;
+  }
+
+  function drawCol(C, S) {
+    var B = BEATS[S.k], bp = C.kind === "bp", f = S.f, t = B.t;
+    var moving = B.type === "v2c" || B.type === "c2v";
+    var E = moving ? M.EDGES[B.e] : null;
+    C.edge.forEach(function (ln, e) { ln.setAttribute("class", moving && B.e === e ? "edge on" : "edge"); });
+
+    for (var e = 0; e < 4; e++) {
+      var top = bp ? bpTop(S, e) : gdTop(S, e), bot = bp ? bpBot(S, e) : gdBot(S, e);
+      setTag(C.top[e], top);
+      setTag(C.bot[e], bot);
+      if (e === 1 || e === 2) {
+        var lt = Object.assign({}, top), lb = Object.assign({}, bot);
+        if (lt.show) lt.name = lensName(C.kind, "top", e, top);
+        if (lb.show) lb.name = lensName(C.kind, "bot", e, bot);
+        setTag(e === 1 ? C.L.tl : C.L.tr, lt);
+        setTag(e === 1 ? C.L.bl : C.L.br, lb);
+      }
+    }
+
+    C.bit.forEach(function (n, i) {
+      var on = (moving && E.i === i && (B.type === "v2c" || f >= ARR)) || B.type === "combine" || B.type === "update";
+      n.setAttribute("class", on ? "bit on" : "bit");
+    });
+    C.chk.forEach(function (n, a) {
+      var on = moving && E.a === a && (B.type === "c2v" || f >= ARR);
+      n.setAttribute("class", on ? "chk on" : "chk");
+    });
+    C.L.node.setAttribute("class", (moving && E.i === 1) || B.type === "combine" || B.type === "update" ? "bit on" : "bit");
+
+    // rows under the bits
+    var tl = lamT(S), th = hardT(S);
+    for (var i = 0; i < 3; i++) {
+      if (bp) {
+        rt(C.row1[i], Lm(i + 1) + " = " + sf(M.L[i]), 13);
+        rt(C.row2[i], tl ? Lam(i + 1) + " = " + sf(M.bp[tl - 1].Lam[i]) : "", 13);
+        C.row2[i].setAttribute("opacity", 1);
+      } else {
+        rt(C.row1[i], Xm(i + 1) + " = " + sf(gdX(S, i)), 14);
+        var dj = t && reached(S, idx("combine", t), ARR) && !gone(S, t);
+        rt(C.row2[i], dj ? DJm(i + 1) + " = " + sf(M.gd[t - 1].dJ[i]) : "", 13);
+        C.row2[i].setAttribute("opacity", dj ? fadeOp(S, t).toFixed(3) : 1);
+      }
+      show(C.chip[i].g, th > 0);
+      C.chip[i].g.setAttribute("opacity", th && th < t ? 0.45 : 1);
+      if (th) rt(C.chip[i].tx, "*b̂*_{" + (i + 1) + "} = " + (bp ? M.bp : M.gd)[th - 1].hard[i], 13);
+    }
+    for (var a = 0; a < 2; a++) {
+      show(C.pill[a].g, th > 0);
+      C.pill[a].g.setAttribute("opacity", th && th < t ? 0.45 : 1);
+      if (th) {
+        var bad = (bp ? M.bp : M.gd)[th - 1].syn[a] === 1;
+        C.pill[a].g.setAttribute("class", bad ? "pill bad" : "pill ok");
+        rt(C.pill[a].tx, CN[a] + (bad ? " fails" : " passes"), 11.5);
+      }
+      var shownRes = !bp && t && reached(S, idx("c2v", t, a === 0 ? 0 : 2), T0) && !gone(S, t);
+      rt(C.res[a], shownRes ? Rm(CN[a]) + " = " + uf(M.gd[t - 1].r[a]) : "", 13);
+      C.res[a].setAttribute("opacity", shownRes ? fadeOp(S, t).toFixed(3) : 1);
+    }
+
+    // microscope centre and notes
+    if (bp) {
+      rt(C.L.c1, Lm(2) + " = " + sf(M.L[1]), 15);
+      rt(C.L.c2, tl ? Lam(2) + " = " + sf(M.bp[tl - 1].Lam[1]) : "", 15);
+      C.L.c2.setAttribute("opacity", 1);
+      show(C.L.outL, B.type === "v2c" && B.e === 1);
+      show(C.L.outR, B.type === "v2c" && B.e === 2);
+      rt(C.L.note, B.type === "update" && f >= NOTE ? "four U messages retained" : "", 12.5);
+      C.L.note.setAttribute("opacity", 1);
+    } else {
+      rt(C.L.c1, Xm(2) + " = " + sf(gdX(S, 1)), 16);
+      var djl = t && reached(S, idx("combine", t), ARR) && !gone(S, t);
+      rt(C.L.c2, djl ? DJm(2) + " = " + sf(M.gd[t - 1].dJ[1]) : "", 15);
+      C.L.c2.setAttribute("opacity", djl ? fadeOp(S, t).toFixed(3) : 1);
+      show(C.L.outL, false);
+      show(C.L.outR, false);
+      var nt = B.type === "update" && f >= FADE0;
+      rt(C.L.note, nt ? "readings and arrows discarded" : "", 12.5);
+      C.L.note.setAttribute("opacity", nt ? Math.min(1, (f - FADE0) / 0.08).toFixed(3) : 1);
+    }
+
+    // moving values
+    var cpath = null, clab = "", lp = null, llab = "", lp2 = null, llab2 = "";
+    if (B.type === "v2c") {
+      cpath = [[BX[E.i], NY], [MID[B.e], TOPY]];
+      clab = bp ? sf(M.bp[t - 1].Q[B.e]) : sf(M.gd[t - 1].x[E.i]);
+      if (B.e === 1 || B.e === 2) {
+        var dst = B.e === 1 ? LSLOT.tl : LSLOT.tr, srcS = B.e === 1 ? LSLOT.br : LSLOT.bl;
+        lp = bp ? [srcS, CTR, dst] : [CTR, dst];
+        llab = clab;
+      }
+    } else if (B.type === "c2v") {
+      cpath = [[CX[E.a], NY], [MID[B.e], BOTY]];
+      clab = bp ? sf(M.bp[t - 1].U[B.e]) : sf(M.gd[t - 1].g[B.e]);
+      if (B.e === 1) { lp = [AICON, LSLOT.bl]; llab = clab; }
+      if (B.e === 2) { lp = [BICON, LSLOT.br]; llab = clab; }
+    } else if (B.type === "combine") {
+      lp = [LSLOT.bl, CTR]; lp2 = [LSLOT.br, CTR];
+      llab = bp ? sf(M.bp[t - 1].U[1]) : sf(M.gd[t - 1].g[1]);
+      llab2 = bp ? sf(M.bp[t - 1].U[2]) : sf(M.gd[t - 1].g[2]);
+    }
+    setTok(C.tok, cpath, clab, f, T0, ARR);
+    setTok(C.ltok[0], lp, llab, f, T0, ARR);
+    setTok(C.ltok[1], lp2, llab2, f, T0, ARR);
+  }
+
+  // ---------- captions ----------
+  function caption(k) {
+    var B = BEATS[k], t = B.t, R = t ? M.bp[t - 1] : null, G = t ? M.gd[t - 1] : null;
+    var bp = {}, gd = {}, at = "";
+    if (B.type === "start") {
+      bp.count = "Before message-passing iteration 1";
+      bp.step = "Channel LLRs at the bits, Q and U slots on the edges";
+      bp.math = [VL + " = " + vec(M.L), "*U*_{*a*→*i*}^{(0)} = 0 on all four check-to-variable edges"];
+      bp.say = "Each bit starts with its channel LLR. The drawing gives every directed value an edge slot: the four current-iteration variable-to-check Q slots are still empty, and the four stored check-to-variable U values start at 0.";
+      gd.count = "Before gradient iteration 1";
+      gd.step = "One relaxed value per bit, nothing on the edges";
+      gd.math = [VX(0) + " = tanh(" + VL + "/2) = " + vec(M.gd[0].x)];
+      gd.say = "Each bit starts with one number, *x*_{*i*} = tanh(*L*_{*i*}/2) = 2*P*(*b*_{*i*} = 1 | *y*_{*i*}) − 1. These three numbers are all that gradient descent carries from one iteration to the next.";
+      at = "Under the microscope, BP’s " + Bm(2) + " has " + Lm(2) + " = " + sf(M.L[1]) + ", two stored U values holding 0, and two Q slots that will be recomputed. Gradient descent’s " + Bm(2) + " has the single number " + Xm(2) + " = " + sf(M.gd[0].x[1]) + ".";
+    } else if (B.type === "v2c") {
+      var E = M.EDGES[B.e], i = E.i + 1, an = CN[E.a];
+      bp.count = "Message-passing iteration " + t + " · variable-to-check message " + (B.e + 1) + " of 4";
+      gd.count = "Gradient iteration " + t + " · value read " + (B.e + 1) + " of 4";
+      bp.step = Bm(i) + " sends " + Qm(i, an) + " to check " + an;
+      gd.step = "Check " + an + " reads " + Xm(i);
+      gd.math = [Xm(i) + " = " + sf(G.x[E.i])];
+      if (E.i === 1) {
+        var fo = otherAtBit(B.e), on = CN[M.EDGES[fo].a], uin = R.Uin[fo];
+        bp.math = [Qm(2, an) + " = " + Lm(2) + " + " + Um(on, 2), "= " + sf(M.L[1]) + plus(uin) + " = " + sf(R.Q[B.e])];
+        if (t === 1 && B.e === 1) bp.say = "The message to A adds only what " + Bm(2) + " heard from B; what A sent is left out. In iteration 1 the mailbox from B still holds 0.";
+        if (t === 1 && B.e === 2) bp.say = "The message to B leaves out what came from B. Both incoming mailboxes still hold 0, so " + Bm(2) + " sends " + sf(R.Q[2]) + " to both checks.";
+        if (t === 2 && B.e === 1) bp.say = Um("B", 2) + " = " + sf(uin) + " has waited in its mailbox since iteration 1. " + Um("A", 2) + " is left out because A is the recipient.";
+        if (t === 2 && B.e === 2) bp.say = "This message uses " + Um("A", 2) + " = " + sf(uin) + " and leaves out " + Um("B", 2) + ". " + Bm(2) + " now sends " + sf(R.Q[1]) + " to A and " + sf(R.Q[2]) + " to B.";
+        gd.say = B.e === 1
+          ? "Check A now has both of its values, " + Xm(1) + " and " + Xm(2) + "."
+          : "Check B reads " + Xm(2) + " as it is: the same number that A read. A bit has one value, whichever check reads it.";
+        if (B.e === 1) at = "At " + Bm(2) + ": BP sends " + sf(R.Q[1]) + " to A" + (t === 2 ? ", built from the message B left in its mailbox" : "") + ". In gradient descent, A reads " + Xm(2) + " = " + sf(G.x[1]) + ".";
+        else at = t === 1
+          ? "At " + Bm(2) + ": BP’s two outgoing messages are equal in iteration 1, because both incoming mailboxes still hold 0. Gradient descent has one " + Xm(2) + " for both checks."
+          : "At " + Bm(2) + ": BP now sends different numbers to its two checks, " + sf(R.Q[1]) + " to A and " + sf(R.Q[2]) + " to B. In gradient descent both checks read the same " + Xm(2) + " = " + sf(G.x[1]) + ".";
+      } else {
+        bp.math = [Qm(i, an) + " = " + Lm(i) + " = " + sf(R.Q[B.e])];
+        bp.say = Bm(i) + " has no other check, so its message to " + an + " is its channel LLR" +
+          (t === 2 ? ". BP recomputes this Q value for iteration 2; its value happens to be unchanged." : ". The current-iteration Q slot on this edge is now full.");
+        gd.say = B.e === 0
+          ? "Check A reads " + Bm(1) + "’s current value directly. The reading lasts until the end of this iteration." + (t === 2 ? " The readings from iteration 1 are gone." : "")
+          : "Check B reads " + Xm(3) + ". Both checks now have what they need.";
+        at = "Away from the microscope: " + Bm(i) + " and check " + an + ".";
+      }
+    } else if (B.type === "c2v") {
+      var E2 = M.EDGES[B.e], i2 = E2.i + 1, a2 = CN[E2.a], fo2 = otherAtCheck(B.e), j2 = M.EDGES[fo2].i + 1;
+      bp.count = "Message-passing iteration " + t + " · check-to-variable message " + (B.e + 1) + " of 4";
+      gd.count = "Gradient iteration " + t + " · partial-derivative contribution " + (B.e + 1) + " of 4";
+      bp.step = "Check " + a2 + " sends " + Um(a2, i2) + " to " + Bm(i2);
+      gd.step = "Check " + a2 + " returns " + Gm(a2, i2) + " to " + Bm(i2);
+      bp.math = [Um(a2, i2) + " = 2 atanh(tanh(" + Qm(j2, a2) + "/2))", "= " + Qm(j2, a2) + " = " + sf(R.U[B.e])];
+      var xj = G.x[M.EDGES[fo2].i], ra = G.r[E2.a];
+      var gl1 = Gm(a2, i2) + " = ∂(" + Rm(a2) + "^{2})/∂" + Xm(i2) + " = −2" + Rm(a2) + Xm(j2);
+      var gl2 = "= −2(" + uf(ra) + ")(" + sf(xj) + ") = " + sf(G.g[B.e]);
+      if (B.e === 0 || B.e === 2) {
+        var p1 = M.CHECKS[E2.a];
+        gd.math = [Rm(a2) + " = 1 − " + Xm(p1[0] + 1) + Xm(p1[1] + 1) + " = 1 − (" + sf(G.x[p1[0]]) + ")(" + sf(G.x[p1[1]]) + ") = " + uf(ra), gl1, gl2];
+      } else {
+        gd.math = [gl1, gl2];
+      }
+      var says = {
+        0: t === 1
+          ? "Parity says " + Bm(1) + " and " + Bm(2) + " must agree. A check with only two bits hands each bit the message it received from the other bit, unchanged, and leaves out the bit’s own message."
+          : Um("A", 1) + " = " + sf(R.U[0]) + " now carries " + Bm(3) + "’s evidence to " + Bm(1) + ", by way of " + Bm(2) + ".",
+        1: "Check A hands " + Bm(2) + " the message from " + Bm(1) + "." + (t === 2 ? " The value is the same as in iteration 1, written again." : " It waits in " + Bm(2) + "’s mailbox on this edge."),
+        2: "Check B hands " + Bm(2) + " the message from " + Bm(3) + "." + (t === 2 ? " The value is the same as in iteration 1, written again." : ""),
+        3: t === 1
+          ? "Check B hands " + Bm(3) + " the message from " + Bm(2) + "."
+          : Um("B", 3) + " = " + sf(R.U[3]) + " carries " + Bm(1) + "’s evidence to " + Bm(3) + ", by way of " + Bm(2) + "."
+      };
+      bp.say = says[B.e];
+      var gsays = {
+        0: Rm("A") + " measures how far " + Xm(1) + Xm(2) + " is from +1, the product of an even pair. Check A turns it into one term of the gradient for each of its two bits. The arrow lasts only until the step.",
+        1: "A’s term for " + Bm(2) + " uses the same " + Rm("A") + ". A positive term pushes " + Xm(2) + " down at the step.",
+        2: Rm("B") + " uses the same " + Xm(2) + " that A used. B’s term for " + Bm(2) + " is negative, so it pushes " + Xm(2) + " up.",
+        3: "Every term in this iteration is evaluated at the same " + VX(t - 1) + "."
+      };
+      gd.say = gsays[B.e];
+      if (B.e === 1) at = "At " + Bm(2) + ": BP puts " + Um("A", 2) + " = " + sf(R.U[1]) + " in " + Bm(2) + "’s mailbox. Gradient descent’s " + Bm(2) + " receives the arrow " + Gm("A", 2) + " = " + sf(G.g[1]) + ".";
+      else if (B.e === 2) at = "At " + Bm(2) + ": BP now holds " + sf(R.U[1]) + " from A and " + sf(R.U[2]) + " from B. Gradient descent holds two arrows, " + sf(G.g[1]) + " and " + sf(G.g[2]) + ", until it adds them.";
+      else at = "Check " + a2 + " uses what it has from " + Bm(2) + ": BP’s mailbox " + Qm(2, a2) + ", and gradient descent’s reading of " + Xm(2) + ".";
+    } else if (B.type === "combine") {
+      bp.count = "Message-passing iteration " + t + " · posterior LLRs";
+      gd.count = "Gradient iteration " + t + " · gradient";
+      bp.step = "Each bit adds its incoming messages";
+      gd.step = "Each bit adds its arrows";
+      bp.math = [
+        Lam("*i*") + " = " + Lm("*i*") + " + Σ_{*a*} " + Um("*a*", "*i*"),
+        Lam(1) + " = " + sf(M.L[0]) + plus(R.U[0]) + " = " + sf(R.Lam[0]),
+        Lam(2) + " = " + sf(M.L[1]) + plus(R.U[1]) + plus(R.U[2]) + " = " + sf(R.Lam[1]),
+        Lam(3) + " = " + sf(M.L[2]) + plus(R.U[3]) + " = " + sf(R.Lam[2])
+      ];
+      bp.say = t === 1
+        ? "These are the posterior LLRs. The four U values remain stored for the next variable update."
+        : "Every bit now has Λ = " + sf(R.Lam[0]) + ", the sum of all three channel LLRs. The four U values remain stored.";
+      gd.math = [
+        DJm("*i*") + " = Σ_{*a*} " + Gm("*a*", "*i*"),
+        DJm(1) + " = " + Gm("A", 1) + " = " + sf(G.dJ[0]),
+        DJm(2) + " = " + Gm("A", 2) + " + " + Gm("B", 2) + " = " + sf(G.g[1]) + plus(G.g[2]) + " = " + sf(G.dJ[1]),
+        DJm(3) + " = " + Gm("B", 3) + " = " + sf(G.dJ[2])
+      ];
+      gd.say = t === 1
+        ? "The two terms at " + Bm(2) + " have opposite signs, and the step uses only their sum, " + sf(G.dJ[1]) + "."
+        : "At " + Bm(2) + " the sum is " + sf(G.dJ[1]) + " this time: B’s term is now the larger one.";
+      at = "At " + Bm(2) + ": BP adds both messages to " + Lm(2) + " and keeps them. Gradient descent adds both arrows into " + DJm(2) + " = " + sf(G.dJ[1]) + ".";
+    } else {
+      bp.count = "Message-passing iteration " + t + " · hard-decision estimate";
+      gd.count = "Gradient iteration " + t + " · step and projection";
+      bp.step = "Hard-decision estimate; U remains stored for the next iteration";
+      gd.step = "Gradient step and projection; the arrows disappear";
+      bp.math = ["*b̂*_{*i*} = 1 if " + Lam("*i*") + " ≥ 0, else 0", VB + " = " + word(R.hard) + ",  (" + VH + " " + VB + ") mod 2 = " + word(R.syn)];
+      bp.say = t === 1
+        ? "Check A fails. The four U messages remain stored; iteration 2 recomputes Q from the channel LLRs and those U values."
+        : "Both checks pass, so " + VB + " = (1, 1, 1) is a codeword. On this cycle-free graph Λ = " + sf(R.Lam[0]) + " is also the exact posterior LLR of every bit: the only codewords are 000 and 111, and ln[(0.1·0.6·0.9)/(0.9·0.4·0.1)] = ln 1.5 = " + sf(M.exact[0]) + ".";
+      var clip = G.clipped.some(function (c) { return c; });
+      gd.math = [
+        Xm("*i*") + " ← clip(" + Xm("*i*") + " − *η* " + DJm("*i*") + ", −1, 1),  *η* = " + M.ETA,
+        Xm(2) + " = " + sf(G.x[1]) + " − " + M.ETA + "(" + sf(G.dJ[1]) + ") = " + sf(G.xn[1]),
+        VX(t) + " = " + vec(G.xn) + ",  *J*_{p}: " + uf(G.J0) + " → " + uf(G.J1),
+        VB + " = " + word(G.hard) + ",  (" + VH + " " + VB + ") mod 2 = " + word(G.syn)
+      ];
+      gd.say = t === 1
+        ? (clip ? "" : "No value needs clipping. ") + "The readings, " + Rm("A") + ", " + Rm("B") + ", the four arrows and their sums are discarded; the three numbers " + Xm("*i*") + " are all that iteration 2 receives."
+        : (clip ? "" : "No value needs clipping, and check A still fails. ") + "Gradient descent keeps " + vec(G.xn) + " and nothing else.";
+      at = t === 1
+        ? "At " + Bm(2) + ": BP retains " + Um("A", 2) + " and " + Um("B", 2) + " for the next iteration; its displayed Q values were the current check inputs. Gradient descent keeps one number, " + Xm(2) + " = " + sf(G.xn[1]) + "."
+        : "At " + Bm(2) + ": BP’s posterior is " + sf(R.Lam[1]) + " and gradient descent’s " + Xm(2) + " is " + sf(G.xn[1]) + "; both give *b̂*_{2} = 1. BP retains its two incoming U messages, and gradient descent retains " + Xm(2) + ".";
+    }
+    return { bp: bp, gd: gd, at: at };
+  }
+
+  function writeCaptions(k) {
+    var c = caption(k);
+    ["bp", "gd"].forEach(function (m) {
+      document.getElementById(m + "-count").innerHTML = hm(c[m].count);
+      document.getElementById(m + "-step").innerHTML = hm(c[m].step);
+      document.getElementById(m + "-math").innerHTML = c[m].math.map(function (l) { return '<div class="ln">' + hm(l) + "</div>"; }).join("");
+      document.getElementById(m + "-say").innerHTML = hm(c[m].say);
+    });
+    document.getElementById("atb2").innerHTML = hm(c.at);
+  }
+
+  // ---------- shared graph ----------
+  function buildGiven(svg) {
+    var gx = [280, 460, 640], cx = [370, 550], y = 78;
+    el("line", { x1: gx[0], y1: y, x2: gx[2], y2: y, "class": "gedge" }, svg);
+    cx.forEach(function (x, a) {
+      el("rect", { x: x - 15, y: y - 12, width: 30, height: 24, rx: 3, "class": "gchk" }, svg);
+      text(svg, x, y + 5, CN[a], "lab", 14);
+    });
+    gx.forEach(function (x, i) {
+      el("circle", { cx: x, cy: y, r: 17, "class": "gbit" }, svg);
+      text(svg, x, y + 5, Bm(i + 1), "lab", 14);
+      text(svg, x, 24, "*P*(*b*_{" + (i + 1) + "} = 1 | *y*_{" + (i + 1) + "}) = " + M.P1[i], "small", 13);
+      text(svg, x, 44, Lm(i + 1) + " = " + sf(M.L[i]), "val", 14);
+    });
+    el("circle", { cx: gx[1], cy: y, r: 24, "class": "gring" }, svg);
+    text(svg, gx[1], 118, "▲ microscope on " + Bm(2), "small", 13);
+    // H with rows A, B and columns b1..b3
+    text(svg, 30, 82, "*H* =", "val", 15, "start");
+    var hx = [100, 130, 160];
+    hx.forEach(function (x, j) { text(svg, x, 40, Bm(j + 1), "small", 13); });
+    text(svg, 70, 70, "A", "small", 13);
+    text(svg, 70, 96, "B", "small", 13);
+    M.CHECKS.forEach(function (c, a) {
+      hx.forEach(function (x, j) { text(svg, x, a === 0 ? 70 : 96, c.indexOf(j) >= 0 ? "1" : "0", "val", 14); });
+    });
+    el("path", { d: "M90,52H84V104H90", "class": "gbr" }, svg);
+    el("path", { d: "M170,52H176V104H170", "class": "gbr" }, svg);
+  }
+
+  // ---------- engine ----------
+  var cols = {
+    bp: buildCol(document.getElementById("bp-svg"), "bp"),
+    gd: buildCol(document.getElementById("gd-svg"), "gd")
+  };
+  buildGiven(document.getElementById("given"));
+
+  var S = { k: 0, tb: DUR.start, f: 1, running: false, playing: false, speed: 1, last: 0, raf: 0, capK: -1 };
+  function dur(k) { return DUR[BEATS[k].type]; }
+  var nameOf = function (k) {
+    var B = BEATS[k];
+    if (B.type === "start") return "start";
+    var E = B.e != null ? M.EDGES[B.e] : null;
+    if (B.type === "v2c") return "iteration " + B.t + ", bit " + (E.i + 1) + " to check " + CN[E.a];
+    if (B.type === "c2v") return "iteration " + B.t + ", check " + CN[E.a] + " to bit " + (E.i + 1);
+    if (B.type === "combine") return "iteration " + B.t + ", bits add";
+    return "iteration " + B.t + ", update";
+  };
+
+  var track = document.getElementById("track"), cells = [];
+  [{ label: "start", from: 0, to: 0 }, { label: "iteration 1", from: 1, to: 10 }, { label: "iteration 2", from: 11, to: 20 }].forEach(function (G) {
+    var grp = document.createElement("div"); grp.className = "track-group";
+    var row = document.createElement("div"); row.className = "track-cells";
+    for (var j = G.from; j <= G.to; j++) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "cell"; b.id = "cell-" + j;
+      b.setAttribute("aria-label", "Beat " + j + ": " + nameOf(j));
+      b.title = "Beat " + j + ": " + nameOf(j);
+      (function (jj) { b.addEventListener("click", function () { jump(jj, 1); }); })(j);
+      row.appendChild(b); cells[j] = b;
+    }
+    var lab = document.createElement("span"); lab.className = "track-label"; lab.textContent = G.label;
+    grp.appendChild(row); grp.appendChild(lab); track.appendChild(grp);
+  });
+
+  var btnPlay = document.getElementById("play"), btnNext = document.getElementById("next"), btnBack = document.getElementById("back");
+  function updateBar() {
+    var B = BEATS[S.k];
+    document.getElementById("beat-name").textContent = "Beat " + S.k + " of " + LAST + " · " + nameOf(S.k);
+    cells.forEach(function (c, j) { c.className = "cell" + (j === S.k ? " now" : j < S.k ? " done" : ""); });
+    btnPlay.textContent = S.playing ? "Pause" : "Play";
+    btnBack.disabled = S.k === 0;
+    btnNext.disabled = S.k === LAST && S.tb >= dur(S.k);
+    return B;
+  }
+  function render() {
+    S.f = reduced ? 1 : Math.min(1, S.tb / dur(S.k));
+    drawCol(cols.bp, S);
+    drawCol(cols.gd, S);
+    if (S.capK !== S.k) { writeCaptions(S.k); S.capK = S.k; }
+    updateBar();
+  }
+  function frame(now) {
+    if (!S.running) return;
+    var dt = Math.min(0.1, Math.max(0, (now - S.last) / 1000)) * S.speed;
+    S.last = now;
+    S.tb += dt;
+    if (S.tb >= dur(S.k)) {
+      if (S.playing && S.k < LAST) { S.tb -= dur(S.k); S.k += 1; }
+      else { S.tb = dur(S.k); S.running = false; S.playing = false; }
+    }
+    render();
+    if (S.running) S.raf = requestAnimationFrame(frame);
+  }
+  function start() {
+    if (S.running) return;
+    S.running = true;
+    S.last = performance.now();
+    S.raf = requestAnimationFrame(frame);
+  }
+  function halt() { S.running = false; cancelAnimationFrame(S.raf); }
+  function next() {
+    S.playing = false;
+    if (!reduced && S.tb < dur(S.k)) { halt(); S.tb = dur(S.k); render(); return; }
+    if (S.k >= LAST) { render(); return; }
+    halt();
+    S.k += 1;
+    S.tb = reduced ? dur(S.k) : 0;
+    render();
+    if (!reduced) start();
+  }
+  function back() { halt(); S.playing = false; S.k = Math.max(0, S.k - 1); S.tb = dur(S.k); render(); }
+  function play() {
+    if (S.playing) { S.playing = false; halt(); render(); return; }
+    if (S.k >= LAST && S.tb >= dur(S.k)) { S.k = 0; S.tb = dur(0); }
+    S.playing = true;
+    if (S.tb >= dur(S.k)) { S.k += 1; S.tb = 0; }
+    render();
+    start();
+  }
+  function restart() { halt(); S.playing = false; S.k = 0; S.tb = dur(0); render(); }
+  function jump(j, frac) {
+    halt(); S.playing = false;
+    S.k = Math.max(0, Math.min(LAST, j));
+    S.tb = dur(S.k) * (frac == null ? 1 : Math.max(0, Math.min(1, frac)));
+    render();
+  }
+
+  document.getElementById("restart").addEventListener("click", restart);
+  btnBack.addEventListener("click", back);
+  btnNext.addEventListener("click", next);
+  btnPlay.addEventListener("click", play);
+  Array.prototype.forEach.call(document.querySelectorAll(".speed button"), function (b) {
+    b.addEventListener("click", function () {
+      S.speed = parseFloat(b.getAttribute("data-speed"));
+      Array.prototype.forEach.call(document.querySelectorAll(".speed button"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+    });
+  });
+  document.addEventListener("keydown", function (ev) {
+    var tag = ev.target && ev.target.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+    if (ev.key === " " && tag !== "BUTTON" && tag !== "SUMMARY") { ev.preventDefault(); play(); }
+    else if (ev.key === "ArrowRight") { ev.preventDefault(); next(); }
+    else if (ev.key === "ArrowLeft") { ev.preventDefault(); back(); }
+    else if (ev.key === "Home") { ev.preventDefault(); restart(); }
+  });
+  function fromHash() {
+    var m = /^#beat(\d+)(?:\.(\d+))?$/.exec(window.location.hash || "");
+    if (!m) return false;
+    jump(parseInt(m[1], 10), m[2] != null ? parseFloat("0." + m[2]) : 1);
+    return true;
+  }
+  window.addEventListener("hashchange", fromHash);
+  window.MAILBOXES_AND_ARROWS = {
+    model: M, beats: BEATS, caption: caption, set: jump,
+    state: function () { return { k: S.k, f: S.f, playing: S.playing }; }
+  };
+  if (!fromHash()) render();
+})();
+</script>
+</body>
+</html>

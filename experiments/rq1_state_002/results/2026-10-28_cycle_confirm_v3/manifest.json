@@ -1,0 +1,55 @@
+{
+  "all_trace_validations_passed": true,
+  "configuration_source_validation": {
+    "effective_fields_match": true,
+    "file": "cyclic_confirmation_config.json",
+    "hash_matches": true,
+    "observed_sha256": "4410c9522ba503801b9d211c6e089805abab64a6536531e31d1694680a20c213",
+    "passed": true,
+    "recorded_sha256": "4410c9522ba503801b9d211c6e089805abab64a6536531e31d1694680a20c213",
+    "required": true
+  },
+  "created_utc": "2026-10-28T04:55:47.457764+00:00",
+  "exact_command": "python3 rq1_state_002.py run --output results/2026-10-28_cycle_confirm_v3 --config cyclic_confirmation_config.json",
+  "exact_command_argv": [
+    "python3",
+    "rq1_state_002.py",
+    "run",
+    "--output",
+    "results/2026-10-28_cycle_confirm_v3",
+    "--config",
+    "cyclic_confirmation_config.json"
+  ],
+  "experiment_id": "RQ1-STATE-002-CYCLE-CONFIRM",
+  "git_head": "a8a8fdd4a48c9d7b21fdd443f23ef9c3e5791828",
+  "git_status_command": "git status --porcelain=v1 --untracked-files=all",
+  "git_status_porcelain_v1": "?? .agents/skills/sp-gd-admm-mechanism-study/SKILL.md\n?? .agents/skills/sp-gd-admm-terminology/SKILL.md\n?? .agents/skills/sp-gd-admm-writing/SKILL.md\n?? AGENTS.md\n?? experiments/rq1_state_002/__pycache__/rq1_state_002.cpython-310.pyc\n?? experiments/rq1_state_002/__pycache__/test_rq1_state_002.cpython-310.pyc\n?? experiments/rq1_state_002/cyclic_confirmation_config.json\n?? experiments/rq1_state_002/experiment_card.md\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/cyclic_four_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/cyclic_four_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v2/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/cyclic_four_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/degree_one_six_bit__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/degree_one_six_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/symmetric_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v3/symmetric_tree__pulse.json\n?? experiments/rq1_state_002/rq1_state_002.py\n?? experiments/rq1_state_002/test_rq1_state_002.py\n?? experiments/rq1_update_001/__pycache__/rq1_update_001.cpython-310.pyc\n?? experiments/rq1_update_001/config.json\n?? experiments/rq1_update_001/experiment_card.md\n?? experiments/rq1_update_001/retained/anchor_v1/INVALIDATED.md\n?? experiments/rq1_update_001/retained/anchor_v1/manifest.json\n?? experiments/rq1_update_001/retained/anchor_v1/result.json\n?? experiments/rq1_update_001/retained/anchor_v1/validation.json\n?? experiments/rq1_update_001/retained/anchor_v2/manifest.json\n?? experiments/rq1_update_001/retained/anchor_v2/result.json\n?? experiments/rq1_update_001/retained/anchor_v2/validation.json\n?? experiments/rq1_update_001/rq1_update_001.py\n?? experiments/rq1_update_001/test_rq1_update_001.py\n?? mailboxes_and_arrows.html\n?? routemap.md\n?? six_bits_round_robin.html\n?? twelve_bits_round_robin.html\n",
+  "git_status_porcelain_v1_sha256": "06e61c17ceb91cb3e30ae006853f00c63c206e7be3b2cc84353aa2d1bdbbba8b",
+  "output_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3",
+  "overwrite_policy": "result directory must not exist",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "retained_scientific_and_config_file_sha256": {
+    "result/cyclic_four_bit__pulse.json": "058746a30972b08cc8e5c3f876c79ae5fed8a70fd39edc424f2b24fecb04b03c",
+    "result/run_config.json": "331292e2a057b19ec9deb23884a488f0f966d3b239ff2467405634e965519a2e",
+    "source/cyclic_confirmation_config.json": "4410c9522ba503801b9d211c6e089805abab64a6536531e31d1694680a20c213",
+    "source/experiment_card.md": "94517aeb6284ca14c946611ad153ab08050fef8509a872344eb8dc77b607916c",
+    "source/rq1_state_002.py": "c556369eb06d5e6197ab272eb816d44181d32890bba808467deaab7905418586",
+    "source/test_rq1_state_002.py": "7f234f27ee3a91b00f0cb33a31e06c812da3f76262f0aeabe567b1c260075138"
+  },
+  "run_config_sha256": "331292e2a057b19ec9deb23884a488f0f966d3b239ff2467405634e965519a2e",
+  "schema_version": "rq1-state-002/v2",
+  "scientific_trace_hash_scope": "canonical trace JSON only; runtime timestamp and manifest metadata excluded",
+  "source_hashes": {
+    "cyclic_confirmation_config.json": "4410c9522ba503801b9d211c6e089805abab64a6536531e31d1694680a20c213",
+    "experiment_card.md": "94517aeb6284ca14c946611ad153ab08050fef8509a872344eb8dc77b607916c",
+    "rq1_state_002.py": "c556369eb06d5e6197ab272eb816d44181d32890bba808467deaab7905418586",
+    "test_rq1_state_002.py": "7f234f27ee3a91b00f0cb33a31e06c812da3f76262f0aeabe567b1c260075138"
+  },
+  "trace_sha256": {
+    "cyclic_four_bit__pulse.json": "058746a30972b08cc8e5c3f876c79ae5fed8a70fd39edc424f2b24fecb04b03c"
+  },
+  "trace_validation_passed": {
+    "cyclic_four_bit__pulse.json": true
+  }
+}

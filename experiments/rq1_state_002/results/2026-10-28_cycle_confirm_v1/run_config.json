@@ -1,0 +1,20 @@
+{
+  "absolute_validation_tolerance": 1e-12,
+  "case_ids": [
+    "cyclic_four_bit"
+  ],
+  "experiment_id": "RQ1-STATE-002",
+  "intervention_iteration": 2,
+  "iterations": 2,
+  "schema_version": "rq1-state-002/v1",
+  "treatments": [
+    "pulse"
+  ],
+  "variants": [
+    "full",
+    "qbar_collapse",
+    "delta_shadow_ignored",
+    "qbar_delta_reconstruct",
+    "posterior_copy_diagnostic"
+  ]
+}

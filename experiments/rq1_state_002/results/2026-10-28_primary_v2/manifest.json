@@ -1,0 +1,70 @@
+{
+  "all_trace_validations_passed": true,
+  "created_utc": "2026-10-28T04:49:56.073272+00:00",
+  "exact_command": "python3 rq1_state_002.py run --output results/2026-10-28_primary_v2 --cases symmetric_tree nonzero_sum_tree degree_one_six_bit --treatments pulse persistent --iterations 3 --intervention-iteration 2",
+  "exact_command_argv": [
+    "python3",
+    "rq1_state_002.py",
+    "run",
+    "--output",
+    "results/2026-10-28_primary_v2",
+    "--cases",
+    "symmetric_tree",
+    "nonzero_sum_tree",
+    "degree_one_six_bit",
+    "--treatments",
+    "pulse",
+    "persistent",
+    "--iterations",
+    "3",
+    "--intervention-iteration",
+    "2"
+  ],
+  "experiment_id": "RQ1-STATE-002",
+  "git_head": "a8a8fdd4a48c9d7b21fdd443f23ef9c3e5791828",
+  "git_status_command": "git status --porcelain=v1 --untracked-files=all",
+  "git_status_porcelain_v1": "?? .agents/skills/sp-gd-admm-mechanism-study/SKILL.md\n?? .agents/skills/sp-gd-admm-terminology/SKILL.md\n?? .agents/skills/sp-gd-admm-writing/SKILL.md\n?? AGENTS.md\n?? experiments/rq1_state_002/cyclic_confirmation_config.json\n?? experiments/rq1_state_002/experiment_card.md\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/cyclic_four_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/degree_one_six_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/nonzero_sum_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v1/symmetric_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/MANIFEST.sha256\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/degree_one_six_bit__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/manifest.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/nonzero_sum_tree__pulse.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/run_config.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__persistent.json\n?? experiments/rq1_state_002/results/2026-10-28_primary_v2/symmetric_tree__pulse.json\n?? experiments/rq1_state_002/rq1_state_002.py\n?? experiments/rq1_state_002/test_rq1_state_002.py\n?? mailboxes_and_arrows.html\n?? routemap.md\n?? six_bits_round_robin.html\n?? twelve_bits_round_robin.html\n",
+  "git_status_porcelain_v1_sha256": "fd394a12067198498b470866a66a19059e2df77d2387cc2dd1c26c5e62ce6263",
+  "output_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_state_002/results/2026-10-28_primary_v2",
+  "overwrite_policy": "result directory must not exist",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "retained_scientific_and_config_file_sha256": {
+    "result/degree_one_six_bit__persistent.json": "7be9e97fc28c7d5a8d8ba594a0eca936895fd21d6bf9a217de2e581c465c0f3d",
+    "result/degree_one_six_bit__pulse.json": "6b4f3fa6da505c85fc04837cbd27aac629df8baba25c2f042c4200a07230fdd0",
+    "result/nonzero_sum_tree__persistent.json": "87a961d34cd1e532af6cd6cb51cbab6c68d79acfb7f61294b52bf0eb490f9f53",
+    "result/nonzero_sum_tree__pulse.json": "cfdb59ef18b0bf344c5823d51a0f540e3adc433d478060fffed8696d320fe1b7",
+    "result/run_config.json": "3068d8435978aef8ddae9c5945551e16d9c365966eab0d1157fe1ef80e379c3a",
+    "result/symmetric_tree__persistent.json": "6c2dddd9d7ff87615d964c50078eca0337f4bf7405f271c266eaac8bbd90468b",
+    "result/symmetric_tree__pulse.json": "8c6e31123930b23413afbdd24b703f55574ad278859debfde29243d96ac007a2",
+    "source/cyclic_confirmation_config.json": "30c322da5a9f0b6bfd236f97d05308eb5869bbe3c5e8a166d82e00b9c4ca2ef2",
+    "source/experiment_card.md": "d92d4561d35b61e59c892b6f9920e1d2d373e9bef07f0a0d4342b0abe474e780",
+    "source/rq1_state_002.py": "76ba6f1a626655484e78971b101e2af4ace55ae8368431ae1cd36c44fe1125dc",
+    "source/test_rq1_state_002.py": "b18f5675281c2355a33d66dc77a51b0a9e7651d82ccee209e9dcfe708b1402bf"
+  },
+  "run_config_sha256": "3068d8435978aef8ddae9c5945551e16d9c365966eab0d1157fe1ef80e379c3a",
+  "schema_version": "rq1-state-002/v1",
+  "scientific_trace_hash_scope": "canonical trace JSON only; runtime timestamp and manifest metadata excluded",
+  "source_hashes": {
+    "cyclic_confirmation_config.json": "30c322da5a9f0b6bfd236f97d05308eb5869bbe3c5e8a166d82e00b9c4ca2ef2",
+    "experiment_card.md": "d92d4561d35b61e59c892b6f9920e1d2d373e9bef07f0a0d4342b0abe474e780",
+    "rq1_state_002.py": "76ba6f1a626655484e78971b101e2af4ace55ae8368431ae1cd36c44fe1125dc",
+    "test_rq1_state_002.py": "b18f5675281c2355a33d66dc77a51b0a9e7651d82ccee209e9dcfe708b1402bf"
+  },
+  "trace_sha256": {
+    "degree_one_six_bit__persistent.json": "7be9e97fc28c7d5a8d8ba594a0eca936895fd21d6bf9a217de2e581c465c0f3d",
+    "degree_one_six_bit__pulse.json": "6b4f3fa6da505c85fc04837cbd27aac629df8baba25c2f042c4200a07230fdd0",
+    "nonzero_sum_tree__persistent.json": "87a961d34cd1e532af6cd6cb51cbab6c68d79acfb7f61294b52bf0eb490f9f53",
+    "nonzero_sum_tree__pulse.json": "cfdb59ef18b0bf344c5823d51a0f540e3adc433d478060fffed8696d320fe1b7",
+    "symmetric_tree__persistent.json": "6c2dddd9d7ff87615d964c50078eca0337f4bf7405f271c266eaac8bbd90468b",
+    "symmetric_tree__pulse.json": "8c6e31123930b23413afbdd24b703f55574ad278859debfde29243d96ac007a2"
+  },
+  "trace_validation_passed": {
+    "degree_one_six_bit__persistent.json": true,
+    "degree_one_six_bit__pulse.json": true,
+    "nonzero_sum_tree__persistent.json": true,
+    "nonzero_sum_tree__pulse.json": true,
+    "symmetric_tree__persistent.json": true,
+    "symmetric_tree__pulse.json": true
+  }
+}

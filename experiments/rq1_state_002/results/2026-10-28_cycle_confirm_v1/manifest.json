@@ -1,0 +1,23 @@
+{
+  "all_trace_validations_passed": true,
+  "created_utc": "2026-10-28T04:48:11.523835+00:00",
+  "experiment_id": "RQ1-STATE-002",
+  "output_directory": "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v1",
+  "overwrite_policy": "result directory must not exist",
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "python": "3.10.12 (main, Aug 31 2026, 10:18:17) [GCC 11.4.0]",
+  "run_config_sha256": "0b229a543168902bb87d7829315daa63dae82751a2a5ccd47648262b2127f443",
+  "schema_version": "rq1-state-002/v1",
+  "source_hashes": {
+    "cyclic_confirmation_config.json": "30c322da5a9f0b6bfd236f97d05308eb5869bbe3c5e8a166d82e00b9c4ca2ef2",
+    "experiment_card.md": "63616fc014c2b406435b14b24fd3c8c9c7e722fc224ea9cd56abc94eb6ef28b3",
+    "rq1_state_002.py": "14cda5c9672b1416e2c8de13a2af5c07abb0815a2a46e4d31c17d31f074e41e3",
+    "test_rq1_state_002.py": "10c804e668976dcfb9a09c1b5ba98715b8c4457a5eb4193c7653ccf1c761e37d"
+  },
+  "trace_sha256": {
+    "cyclic_four_bit__pulse.json": "3815a5effff93872c3dbd2e43a2663fb8dc05ab22a3fb09ef0087cd3d230189a"
+  },
+  "trace_validation_passed": {
+    "cyclic_four_bit__pulse.json": true
+  }
+}

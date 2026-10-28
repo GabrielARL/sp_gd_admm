@@ -1,0 +1,11 @@
+anchor_expansion_passed = false
+base_scientific_sha256 = "3bfdc0cddcf050ae75d4c5a97b1fcb0ea7436cdb88c11c3fe2bd6bb0df15fb73"
+experiment_id = "BPGD-RQ2-QBAR-AWGN-001"
+freeze_manifest_sha256 = "38bd88cbfece7fab67999f108fb117f04ad48508292407c215afbaf99b86e77c"
+input_freeze_sha256 = "01a712d7c61498148aea92f54ea521101d8535b0ef56d095774b2d95bf6e8cb3"
+manifest_sha256 = "f3cd2f932bb757d19bbb57698109cd67a4e5c921f042c5c2621391d00eb183ad"
+phase = "anchor"
+schema_version = "bpgd-rq2-qbar-awgn-001/completion-v1"
+science_file_sha256 = "944b1768cf44119d71a4040517469e4178a6e399e1b9346a589051d8f9d221f1"
+status = "invalid"
+validation_passed = false

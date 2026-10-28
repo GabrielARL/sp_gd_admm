@@ -1,0 +1,13 @@
+{
+  "configuration_sha256": "63c6482f2f5fbeee3a271df73d18b03a42c8b1b98a8fefd55801c46873662f64",
+  "evidence_eligible": true,
+  "experiment_id": "RQ1-UPDATE-CYCLE-001",
+  "files": {
+    "result.json": "f2289464b242aecc8d272ff6d435b7fe023af88052d4f3ae9318ed162d4918a9",
+    "validation.json": "253d3d85e6cb9362ec6be5f413a2ded72bda2a04f6980ad74da30e6a86785998"
+  },
+  "run_status": "valid",
+  "scientific_payload_sha256": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2",
+  "source_bundle_sha256": "4a2ca263b4d0e7b90fe0a39264801cbfc7e82eee162d4c6c3d54f32a06b4e33e",
+  "write_policy": "new directory only; existing paths are never overwritten"
+}

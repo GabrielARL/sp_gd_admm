@@ -1,0 +1,191 @@
+{
+  "all_passed": true,
+  "checks": [
+    {
+      "check_id": "VAL-001",
+      "description": "frozen matrix, edges, LLRs, convention, alpha, budget, and no hard prediction",
+      "observed": {
+        "alpha_abs": 0.0,
+        "budget": {
+          "early_stopping": false,
+          "updates": 1
+        },
+        "edge_order_equal": true,
+        "hard_prediction": null,
+        "llr_max_abs": 0.0,
+        "matrix_equal": true,
+        "positive_llr_bit": 1
+      },
+      "passed": true,
+      "threshold_or_expected": "exact protocol identity; numeric errors <= 1e-12"
+    },
+    {
+      "check_id": "VAL-002",
+      "description": "u1 equals F_full(0)",
+      "observed": 0.0,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-003",
+      "description": "full executable map agrees with J*u+c",
+      "observed": 0.0,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-004",
+      "description": "full analytic Jacobian agrees with central finite differences",
+      "observed": 1.397779669787269e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-005",
+      "description": "full analytic gradient agrees with central finite differences",
+      "observed": 8.018119501684851e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-006",
+      "description": "full fixed-point system rank, consistency, solution, and nullspace validate",
+      "observed": {
+        "consistent": true,
+        "nullity": 2,
+        "nullspace_max_abs_error": 0.0,
+        "particular_solution_max_abs_error": 4.440892098500626e-16,
+        "rank_augmented": 6,
+        "rank_matrix": 6,
+        "spectral_rank": 6
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "basis_count_equals_nullity": true,
+        "consistent": true,
+        "numeric_max_abs": 1e-11,
+        "spectral_rank_equals_rref_rank": true
+      }
+    },
+    {
+      "check_id": "VAL-007",
+      "description": "qbar_tied executable map agrees with J*u+c",
+      "observed": 1.1102230246251565e-16,
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-008",
+      "description": "qbar_tied analytic Jacobian agrees with central finite differences",
+      "observed": 1.5215562143566785e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-009",
+      "description": "qbar_tied analytic gradient agrees with central finite differences",
+      "observed": 2.9798075118492307e-10,
+      "passed": true,
+      "threshold_or_expected": 1e-08
+    },
+    {
+      "check_id": "VAL-010",
+      "description": "qbar_tied fixed-point system rank, consistency, solution, and nullspace validate",
+      "observed": {
+        "consistent": true,
+        "nullity": 1,
+        "nullspace_max_abs_error": 1.1102230246251565e-16,
+        "particular_solution_max_abs_error": 4.440892098500626e-16,
+        "rank_augmented": 7,
+        "rank_matrix": 7,
+        "spectral_rank": 7
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "basis_count_equals_nullity": true,
+        "consistent": true,
+        "numeric_max_abs": 1e-11,
+        "spectral_rank_equals_rref_rank": true
+      }
+    },
+    {
+      "check_id": "VAL-011",
+      "description": "transferred alpha is retained and its cycle-specific stability interval is recorded",
+      "observed": {
+        "full": {
+          "alpha": 0.3819660112501051,
+          "inside": true,
+          "lambda_max": 3.9999999999999982,
+          "upper_bound": 0.5000000000000002
+        },
+        "qbar_tied": {
+          "alpha": 0.3819660112501051,
+          "inside": true,
+          "lambda_max": 3.999999999999997,
+          "upper_bound": 0.5000000000000004
+        }
+      },
+      "passed": true,
+      "threshold_or_expected": "alpha=(3-sqrt(5))/2 and 0<alpha<2/lambda_max for both maps"
+    },
+    {
+      "check_id": "VAL-012",
+      "description": "complete LLR-convention sign transform preserves all cells",
+      "observed": {
+        "all_cells_passed": true,
+        "maximum_numeric_error": 0.0
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "all_cells_passed": true,
+        "maximum_numeric_error": 1e-12
+      }
+    },
+    {
+      "check_id": "VAL-013",
+      "description": "degree-two check outputs agree with local valid-assignment enumeration",
+      "observed": {
+        "full__direct": 0.0,
+        "full__true_residual_gradient": 0.0,
+        "qbar_tied__direct": 0.0,
+        "qbar_tied__true_residual_gradient": 0.0
+      },
+      "passed": true,
+      "threshold_or_expected": 1e-12
+    },
+    {
+      "check_id": "VAL-014",
+      "description": "hard-decision estimates and syndromes independently recompute",
+      "observed": true,
+      "passed": true,
+      "threshold_or_expected": true
+    },
+    {
+      "check_id": "VAL-015",
+      "description": "three preregistered vector predictions pass without a hard-decision prediction",
+      "observed": {
+        "hard_decision_was_preregistered": false,
+        "interaction_norm": 2.1595188093747844,
+        "state_norm": 2.130829937421622,
+        "update_norm": 1.190807282140601
+      },
+      "passed": true,
+      "threshold_or_expected": {
+        "each_norm_greater_than": 1e-12,
+        "hard_decision_was_preregistered": false
+      }
+    },
+    {
+      "check_id": "VAL-016",
+      "description": "pure scientific calculation replays deterministically",
+      "observed": {
+        "first": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2",
+        "second": "9c2c97b8994014bdccf3c1d259a76a43cb63293ca1964d468bfce51aed7f94c2"
+      },
+      "passed": true,
+      "threshold_or_expected": "exact digest equality"
+    }
+  ],
+  "number_passed": 16,
+  "number_total": 16
+}
