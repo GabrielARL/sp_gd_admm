@@ -21,6 +21,14 @@ ROOT = Path(__file__).resolve().parent
 HTML_PATH = ROOT / "bp_gd_state_boundary_animation.html"
 SOURCE_REL = Path("experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json")
 SOURCE_SHA256 = "c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"
+KATEX_JS = (
+    'src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" '
+    'integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"'
+)
+KATEX_CSS = (
+    'href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" '
+    'integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"'
+)
 
 
 class AnimationDataParser(HTMLParser):
@@ -267,7 +275,7 @@ def check_wording_and_structure(html: str) -> None:
         "All GD terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential GD update.",
         "dashed cards are temporary calculations, not messages",
         "this page places the iteration boundary after the check calculation",
-        "Only x⁽¹⁾ is independent state needed by the next GD calculation",
+        r"Only $\mathbf{x}^{(1)}$ is independent state needed by the next GD calculation",
         "The key visual at bit 2",
         "What differs is the state represented, indexed, retained, and supplied to the next calculation.",
         "It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble.",
@@ -280,8 +288,10 @@ def check_wording_and_structure(html: str) -> None:
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
     assert '"beat_count": 10' in html
-    assert "Q<sub>2→A</sub><sup>(2)</sup>" in html
-    assert "Q<sub>2→B</sub><sup>(2)</sup>" in html
+    assert r"Q^{(2)}_{2\to A}" in html
+    assert r"Q^{(2)}_{2\to B}" in html
+    for asset in (KATEX_JS, KATEX_CSS):
+        assert asset in html, f"pinned KaTeX asset with integrity hash is missing: {asset[:60]}..."
     assert 'class="neq">≠' in html
     assert 'class="equal">=' in html
 
@@ -320,6 +330,8 @@ def browser_smoke(data: dict[str, Any]) -> str:
         return "skipped (no Chrome/Chromium executable)"
     base_url = HTML_PATH.resolve().as_uri()
     smoke_dom = dump_dom(browser, base_url + "?smoke=1", 2500)
+    assert 'data-math="katex"' in smoke_dom, "KaTeX did not load; equations fell back to TeX source"
+    assert 'class="katex-error"' not in smoke_dom, "KaTeX reported a TeX error"
     assert 'data-animation-smoke="passed"' in smoke_dom, "browser smoke did not pass"
     assert 'data-animation-smoke-beats="10"' in smoke_dom, "not every beat rendered"
     assert "Beat 1 of 10" in smoke_dom, "smoke cycle did not reset to beat 1"
@@ -360,6 +372,15 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "rendered iteration-2 contrast",
     )
     assert "The key visual at bit 2" in beat9, "iteration-2 contrast heading is missing"
+
+    # Seek into beat 3: at 1250 ms the value of L_1 is flying into Q_{1->A};
+    # at 2150 ms the Q_{1->A} label is travelling along its edge.
+    substitution_dom = dump_dom(browser, base_url + "?at=1250#beat=3", 2500)
+    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 1250 ms"
+    travel_dom = dump_dom(browser, base_url + "?at=2150#beat=3", 2500)
+    assert 'class="chip bp hot travelling' in travel_dom, (
+        "no BP message label is travelling along its edge at beat 3, 2150 ms"
+    )
     return f"passed ({Path(browser).name})"
 
 

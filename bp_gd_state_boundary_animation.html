@@ -1,9 +1,11 @@
 <!doctype html>
-<html lang="en" data-animation-ready="false" data-animation-smoke="not-run" data-animation-smoke-beats="0">
+<html lang="en" data-animation-ready="false" data-animation-smoke="not-run" data-animation-smoke-beats="0" data-math="pending">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BP versus projected GD: what crosses the iteration boundary?</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
 <style>
 :root {
   --paper: #f3f0e8;
@@ -20,6 +22,9 @@
   --gold: #b67913;
   --good: #24704a;
   --bad: #a64040;
+  --flash: #ffe3a1;
+  --flash-ring: rgb(232 160 32 / 42%);
+  --flash-ink: #b35a00;
   --shadow: 0 12px 34px rgb(40 47 49 / 9%);
   --serif: Georgia, "Times New Roman", serif;
   --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -37,6 +42,8 @@ body {
   font: 16px/1.48 var(--sans);
 }
 button, select { font: inherit; }
+.katex { font-size: 1.08em; }
+.tex-fallback { font: .88em ui-monospace, SFMono-Regular, Consolas, monospace; }
 .page { width: min(1320px, calc(100% - 28px)); margin: 0 auto; padding: 25px 0 42px; }
 .hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(290px, .55fr); gap: 18px; align-items: end; }
 .eyebrow { margin: 0 0 5px; color: var(--focus); font-size: .76rem; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
@@ -58,7 +65,7 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
   background: rgb(255 253 248 / 72%); border: 1px solid var(--line); border-radius: 10px;
 }
 .basis b { color: var(--muted); font-size: .73rem; letter-spacing: .07em; text-transform: uppercase; }
-.basis code { padding: 3px 7px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.basis .pill { padding: 2px 8px; background: #fff; border: 1px solid var(--line); border-radius: 6px; }
 .controls {
   position: sticky; top: 0; z-index: 30;
   display: grid; grid-template-columns: auto minmax(240px, 1fr) auto; gap: 12px; align-items: center;
@@ -111,14 +118,19 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
   display: inline-flex; align-items: center; min-height: 28px; padding: 4px 8px; border-radius: 6px;
   font: 700 .78rem/1.2 var(--serif); font-variant-numeric: tabular-nums;
 }
+.state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.14em; }
 .state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
 .lane.bp .state-card { padding-right: 14px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
 .lane.bp .state-card.updated-card { background: var(--bp-soft); }
 .lane.bp .state-card.q-card { background: var(--bp-soft); border-style: dashed; }
 .lane.bp .state-card.fixed-card { padding-right: 8px; clip-path: none; border-style: double; }
-.scratch-card { color: var(--gd); background: var(--gd-soft); border: 2px dashed var(--gd); animation: appear .45s ease both; }
-.faded-card { color: #8c8780; background: #f0ede7; border: 1px dashed #aaa39a; opacity: .58; text-decoration: line-through; }
-.graph { display: block; width: 100%; height: auto; margin: 5px auto 0; }
+.scratch-card { color: var(--gd); background: var(--gd-soft); border: 2px dashed var(--gd); }
+.faded-card {
+  color: #8c8780; border: 1px dashed #aaa39a; opacity: .58; text-decoration: line-through;
+  background: linear-gradient(transparent calc(50% - 1px), #aaa39a calc(50% - 1px), #aaa39a calc(50% + 1px), transparent calc(50% + 1px)), #f0ede7;
+}
+.graph-wrap { position: relative; margin: 5px auto 0; container-type: inline-size; }
+.graph { display: block; width: 100%; height: auto; }
 .graph text { fill: var(--ink); font-family: var(--sans); font-size: 12px; font-variant-numeric: tabular-nums; }
 .graph .base { stroke: #c5beb2; stroke-width: 3; }
 .graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
@@ -128,20 +140,29 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
 .graph .bit.hot, .graph .check.hot { stroke-width: 5; }
 .graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
 .graph .node-label { font-weight: 850; }
-.graph .node-value { font-family: var(--serif); font-size: 13px; font-weight: 750; }
 .graph .small { fill: var(--muted); font-size: 10.5px; }
-.graph .tag rect { fill: #fff; stroke: var(--accent); stroke-width: 1.6; }
-.graph .tag.bp rect { stroke-width: 2.2; }
-.graph .tag.gd rect { fill: var(--gd-soft); stroke-dasharray: 5 4; }
-.graph .tag text { font-size: 10.5px; font-weight: 750; }
-.graph .big-sign { fill: var(--focus); font: 850 28px var(--serif); }
 .graph .tick circle { fill: var(--good); }
 .graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
-.math {
-  min-height: 94px; margin-top: 3px; padding: 9px 11px; overflow-x: auto;
-  background: var(--soft); border-radius: 8px; font: 1rem/1.58 var(--serif);
+.chips { position: absolute; inset: 0; pointer-events: none; font-size: 1.95cqw; }
+.chip {
+  position: absolute; z-index: 1; transform: translate(-50%, -50%);
+  padding: .18em .5em; color: var(--ink); white-space: nowrap; line-height: 1.15;
+  background: #fff; border: .14em solid var(--accent); border-radius: .5em;
 }
-.math .line { display: block; white-space: nowrap; }
+.chip .katex { font-size: 1.14em; }
+.chip.gd { background: var(--gd-soft); border-style: dashed; }
+.chip.value { background: transparent; border-color: transparent; }
+.chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
+.chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
+.math {
+  position: relative; min-height: 128px; margin-top: 3px; padding: 9px 11px; overflow-x: auto; overflow-y: hidden;
+  background: var(--soft); border-radius: 8px; font: 1rem/1.7 var(--serif);
+}
+.math .line { display: block; white-space: nowrap; padding: 1px 0; }
+.math .line.block { padding: 4px 0; }
+.math .katex { font-size: 1.12em; }
+.math .outcome { color: var(--accent); }
+.flying { position: absolute; z-index: 3; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
 .explain { min-height: 4.7em; margin: 8px 0 0; }
 .focus-panel { position: relative; min-height: 116px; margin-top: 14px; padding: 14px; overflow: hidden; background: #faf7f1; border: 1px solid var(--line); border-radius: 12px; }
 .focus-title { margin: 0 0 8px; color: var(--focus); font-size: .72rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
@@ -169,6 +190,7 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
 .equation-card.gd { --accent: var(--gd); }
 .equation-card b { display: block; color: var(--accent); }
 .equation-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-top: 7px; font: 750 clamp(.91rem, 1.65vw, 1.14rem)/1.35 var(--serif); font-variant-numeric: tabular-nums; }
+.neq, .equal { font-family: KaTeX_Main, "Times New Roman", serif; }
 .neq { color: var(--bad); font-size: 2rem; }
 .equal { color: var(--good); font-size: 2rem; }
 .conclusion { margin-top: 10px; padding: 10px 12px; color: #fff; background: var(--focus); border-radius: 9px; text-align: center; font: 750 1.1rem/1.4 var(--serif); }
@@ -179,6 +201,7 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
 .sample.arrow.q { background: var(--bp-soft); border-style: dashed; }
 .sample.temp { border-color: var(--gd); border-style: dashed; }
 .sample.scalar { border-color: var(--gd); }
+.sample.flash { background: var(--flash); border-color: var(--gold); }
 .scope, .derivation { margin-top: 13px; padding: 10px 12px; background: rgb(255 253 248 / 78%); border: 1px solid var(--line); border-radius: 10px; }
 .scope b { color: var(--bad); }
 .scope p { margin: 0; }
@@ -186,11 +209,17 @@ h1 { max-width: 22ch; margin: 0; font: 750 clamp(2rem, 4.6vw, 4.1rem)/.98 var(--
 .formula-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 10px; }
 .formula-grid section { min-width: 0; padding: 11px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .formula-grid h3 { margin: 0 0 7px; font: 750 1.08rem var(--serif); }
-.formula-grid p { margin: 6px 0; overflow-x: auto; font: .96rem/1.55 var(--serif); white-space: nowrap; }
+.formula-grid p { margin: 6px 0; font: .96rem/1.55 var(--serif); }
+.formula-grid .eq { margin: 2px 0; overflow-x: auto; overflow-y: hidden; }
+.formula-grid .katex-display { margin: .45em 0; }
 .source-note { margin: 12px 0 0; color: var(--muted); font-size: .77rem; }
 code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .88em; }
+.chip.blink, .state-card.blink, .scratch-card.blink { animation: flash .95s ease-in-out; }
+.chip.travelling { animation: flash .5s ease-in-out infinite; }
+.chip.sign.blink, .math .blink, .focus-panel .blink { animation: ink .95s ease-in-out; }
+@keyframes flash { 15%, 55% { background-color: var(--flash); box-shadow: 0 0 0 .3em var(--flash-ring); } 35%, 75% { box-shadow: none; } }
+@keyframes ink { 15%, 55% { color: var(--flash-ink); text-shadow: 0 0 .45em var(--flash-ring); } 35%, 75% { text-shadow: none; } }
 @keyframes dash { to { stroke-dashoffset: -32; } }
-@keyframes appear { from { opacity: 0; transform: translateY(-7px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes cross { from { transform: translateX(-13px); opacity: .65; } to { transform: translateX(14px); opacity: 1; } }
 @keyframes disappear { 0% { opacity: .75; } 70%, 100% { opacity: .14; filter: blur(1px); } }
 @keyframes scan { 0% { left: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 4px); opacity: 0; } }
@@ -214,7 +243,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   .versus { text-align: center; }
   .equation-row { grid-template-columns: 1fr; }
   .neq, .equal { line-height: .8; }
-  .math .line { margin-bottom: .18rem; white-space: normal; overflow-wrap: anywhere; }
+  .math .line.prose { white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
@@ -238,9 +267,9 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 
   <div class="basis" aria-label="Fixed comparison basis">
     <b>Fixed comparison basis</b>
-    <code>H = [[1,1,0],[0,1,1]]</code>
-    <code>L = (−ln 9, ln(3/2), ln 2)</code>
-    <span>For BP, positive <i>L</i> favours bit 1; for GD, <i>ℓ</i>=−<i>L</i> and <i>x</i>=+1 favours bit 0.</span>
+    <span class="pill tex">\mathbf{H} = \left[\begin{smallmatrix}1&amp;1&amp;0\\0&amp;1&amp;1\end{smallmatrix}\right]</span>
+    <span class="pill tex">\mathbf{L} = \left(-\ln 9,\ \ln\tfrac{3}{2},\ \ln 2\right)</span>
+    <span>For BP, positive <span class="tex">L_i</span> favours bit 1; for GD, <span class="tex">\boldsymbol{\ell} = -\mathbf{L}</span> and <span class="tex">x_i = +1</span> favours bit 0.</span>
   </div>
 
   <nav class="controls" aria-label="Animation controls">
@@ -283,15 +312,21 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       <article class="lane bp" aria-labelledby="bp-heading">
         <h3 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h3>
         <div class="state-tray" id="bp-state"></div>
-        <svg class="graph" id="bp-graph" viewBox="0 0 620 330" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+        <div class="graph-wrap">
+          <svg class="graph" id="bp-graph" viewBox="0 0 620 350" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+          <div class="chips" id="bp-chips" aria-hidden="true"></div>
+        </div>
         <div class="math" id="bp-math"></div>
         <p class="explain" id="bp-explain"></p>
       </article>
 
       <article class="lane gd" aria-labelledby="gd-heading">
-        <h3 id="gd-heading">Projected gradient descent (GD)<span class="kind">one scalar per bit, with <i>x</i>=+1 favouring bit 0 · dashed cards are temporary calculations, not messages</span></h3>
+        <h3 id="gd-heading">Projected gradient descent (GD)<span class="kind">one scalar per bit, with <span class="tex">x_i = +1</span> favouring bit 0 · dashed cards are temporary calculations, not messages</span></h3>
         <div class="state-tray" id="gd-state"></div>
-        <svg class="graph" id="gd-graph" viewBox="0 0 620 330" role="img" aria-label="Tanner graph showing projected gradient descent dependencies"></svg>
+        <div class="graph-wrap">
+          <svg class="graph" id="gd-graph" viewBox="0 0 620 350" role="img" aria-label="Tanner graph showing projected gradient descent dependencies"></svg>
+          <div class="chips" id="gd-chips" aria-hidden="true"></div>
+        </div>
         <div class="math" id="gd-math"></div>
         <p class="explain" id="gd-explain"></p>
       </article>
@@ -301,10 +336,11 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   </section>
 
   <div class="legend" aria-label="Visual legend">
-    <span><i class="sample arrow" aria-hidden="true"></i> retained BP <i>U</i> at this boundary</span>
-    <span><i class="sample arrow q" aria-hidden="true"></i> newly calculated BP <i>Q</i></span>
+    <span><i class="sample arrow" aria-hidden="true"></i> retained BP <span class="tex">U</span> at this boundary</span>
+    <span><i class="sample arrow q" aria-hidden="true"></i> newly calculated BP <span class="tex">Q</span></span>
     <span><i class="sample scalar" aria-hidden="true"></i> retained GD bit state</span>
     <span><i class="sample temp" aria-hidden="true"></i> temporary GD calculation</span>
+    <span><i class="sample flash" aria-hidden="true"></i> value just substituted or calculated</span>
   </div>
 
   <aside class="scope">
@@ -316,22 +352,23 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     <div class="formula-grid">
       <section>
         <h3>Belief propagation using the sum-product algorithm</h3>
-        <p><i>Q</i><sub>i→a</sub><sup>(t)</sup> = <i>L</i><sub>i</sub> + Σ<sub>b∈N(i)\a</sub><i>U</i><sub>b→i</sub><sup>(t−1)</sup></p>
-        <p>Each check here joins two bits and requires them to agree; therefore <i>U</i><sub>a→i</sub> is the other incoming <i>Q</i>.</p>
-        <p>Λ<sub>i</sub><sup>(t)</sup> = <i>L</i><sub>i</sub> + Σ<sub>a∈N(i)</sub><i>U</i><sub>a→i</sub><sup>(t)</sup></p>
-        <p>This page places the iteration boundary after the check calculation, so the four <i>U</i> values feed the next variable calculation.</p>
+        <div class="eq tex display">Q_{i\to a}^{(t)} = L_i + \sum_{b\in N(i)\setminus a} U_{b\to i}^{(t-1)}</div>
+        <p>Each check here joins two bits and requires them to agree; therefore <span class="tex">U_{a\to i}</span> is the other incoming <span class="tex">Q</span>.</p>
+        <div class="eq tex display">\Lambda_i^{(t)} = L_i + \sum_{a\in N(i)} U_{a\to i}^{(t)}</div>
+        <p>This page places the iteration boundary after the check calculation, so the four <span class="tex">U</span> values feed the next variable calculation.</p>
       </section>
       <section>
         <h3>Native projected gradient descent</h3>
-        <p><i>J</i>(<b>x</b>) = −(<i>w</i><sub>ch</sub>/(2<i>n</i>))Σ<sub>i</sub>ℓ<sub>i</sub><i>x</i><sub>i</sub> + (<i>w</i><sub>par</sub>/<i>n</i>)Σ<sub>a</sub>(1−∏<sub>j∈a</sub><i>x</i><sub>j</sub>)² + (<i>w</i><sub>bin</sub>/<i>n</i>)Σ<sub>i</sub>(1−<i>x</i><sub>i</sub>²)²</p>
-        <p><i>g</i><sub>a,i</sub> = −(2<i>w</i><sub>par</sub>/<i>n</i>)<i>r</i><sub>a</sub>∏<sub>j∈a,j≠i</sub><i>x</i><sub>j</sub>, &nbsp; <i>r</i><sub>a</sub> = 1−∏<sub>j∈a</sub><i>x</i><sub>j</sub></p>
-        <p><i>D</i><sub>i</sub> = (2<i>w</i><sub>par</sub> deg(<i>i</i>)+8<i>w</i><sub>bin</sub>)/<i>n</i>, giving <b>D</b> = (1.866667, 3.2, 1.866667).</p>
-        <p><b>x</b><sup>+</sup> = clip(<b>x</b> − η<b>D</b><sup>−1</sup>∇<i>J</i>, −1, 1), with <i>w</i><sub>ch</sub>=1, <i>w</i><sub>par</sub>=2, <i>w</i><sub>bin</sub>=0.2 and accepted η=0.2.</p>
-        <p>The displayed check terms in each partial derivative of the objective function are recomputed from the frozen <b>x</b> and combined by coordinate.</p>
+        <div class="eq tex display">J(\mathbf{x}) = -\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i + \frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2 + \frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2</div>
+        <div class="eq tex display">g_{a,i} = -\frac{2w_{\mathrm{par}}}{n}\,r_a\prod_{j\in a,\,j\neq i}x_j, \qquad r_a = 1-\prod_{j\in a}x_j</div>
+        <div class="eq tex display">D_i = \frac{2w_{\mathrm{par}}\deg(i)+8w_{\mathrm{bin}}}{n}, \qquad \mathbf{D} = (1.866667,\ 3.2,\ 1.866667)</div>
+        <div class="eq tex display">\mathbf{x}^{+} = \operatorname{clip}\bigl(\mathbf{x}-\eta\,\mathbf{D}^{-1}\nabla J,\ -1,\ 1\bigr)</div>
+        <p>with <span class="tex">w_{\mathrm{ch}}=1</span>, <span class="tex">w_{\mathrm{par}}=2</span>, <span class="tex">w_{\mathrm{bin}}=0.2</span> and accepted <span class="tex">\eta=0.2</span>.</p>
+        <p>The displayed check terms in each partial derivative of the objective function are recomputed from the frozen <span class="tex">\mathbf{x}</span> and combined by coordinate.</p>
       </section>
     </div>
   </details>
-  <p class="source-note">Values are tied to <code>experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The topology matches <code>three_symbols_two_checks.html</code>; this focused page uses the channel evidence and objective function from the retained projected gradient descent trace rather than that page’s parity-only teaching step.</p>
+  <p class="source-note">Values are tied to <code>experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The topology matches <code>three_symbols_two_checks.html</code>; this focused page uses the channel evidence and objective function from the retained projected gradient descent trace rather than that page’s parity-only teaching step. Equations are typeset with KaTeX 0.16.11.</p>
 </main>
 
 <script id="animation-data" type="application/json">
@@ -376,10 +413,13 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   "use strict";
   const DATA = JSON.parse(document.getElementById("animation-data").textContent);
   const BP = DATA.bp, GD = DATA.gd;
+  const R = String.raw;
   const EDGES = [
     { i: 0, a: 0, label: "1→A" }, { i: 1, a: 0, label: "2→A" },
     { i: 1, a: 1, label: "2→B" }, { i: 2, a: 1, label: "3→B" }
   ];
+  const USLOT = [R`A\to 1`, R`A\to 2`, R`B\to 2`, R`B\to 3`];
+  const QSLOT = [R`1\to A`, R`2\to A`, R`2\to B`, R`3\to B`];
   const BEATS = [
     { badge: "Set the basis", title: "Fix what both methods are allowed to see", subtitle: "Fixed graph and channel evidence",
       intro: "The parity-check matrix and the three channel LLRs are fixed. BP and GD express that evidence in different coordinates before either algorithm updates." },
@@ -396,32 +436,276 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     { badge: "Calculate next state", title: "Now watch how each method combines information", subtitle: "BP recurrence versus one projected gradient descent step",
       intro: "BP keeps the check-to-variable values separately indexed. GD sums all terms for each coordinate, scales the gradient, and updates one scalar per bit." },
     { badge: "Boundary scanner", title: "Ask what is needed after iteration 1", subtitle: "Retained state crosses; temporary calculations fade",
-      intro: "For this displayed BP schedule, four addressed U values feed the next variable calculation. For GD, the updated x is the independent state needed to continue; derivative terms are recomputable from x." },
-    { badge: "Iteration 2", title: "The shared bit makes the distinction visible", subtitle: "BP supplies two different Q values; both GD checks read one x₂",
-      intro: "Iteration 1 hid BP’s recipient indexing because all incoming U values began at zero. Iteration 2 exposes it with opposite signs at bit 2." },
+      intro: R`For this displayed BP schedule, four addressed $U$ values feed the next variable calculation. For GD, the updated $\mathbf{x}$ is the independent state needed to continue; derivative terms are recomputable from $\mathbf{x}$.` },
+    { badge: "Iteration 2", title: "The shared bit makes the distinction visible", subtitle: R`BP supplies two different $Q$ values; both GD checks read one $x_2$`,
+      intro: R`Iteration 1 hid BP’s recipient indexing because all incoming $U$ values began at zero. Iteration 2 exposes it with opposite signs at bit 2.` },
     { badge: "Mechanism", title: "The shared graph is not the whole mechanism", subtitle: "Representation, addressing, retention, and next-state use",
       intro: "The graph determines which quantities interact. The algorithms still differ in the state they carry and in the operation that turns current information into the next state." }
   ];
+  const BP_EXPLAIN = [
+    "The fixed LLR vector is expressed with positive values favouring bit 1.",
+    "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
+    "A receives two $Q$ messages. In iteration 1, the value from bit 2 equals $L_2$ because the other incoming $U$ is still zero.",
+    "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
+    "B receives the frozen variable-to-check values for bits 2 and 3.",
+    R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
+    "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
+    R`The solid $U$ cards cross the scanner. $Q$ and the a-posteriori LLR can be recalculated from the fixed $\mathbf{L}$ and retained $U$ values.`,
+    "Bit 2 now supplies a positive $Q$ to A and a negative $Q$ to B because each calculation excludes the message from its recipient check.",
+    "BP preserves which check supplied the preceding information and uses that address when calculating the next $Q$."
+  ];
+  const GD_EXPLAIN = [
+    "The sign-related coordinate uses $x_i=+1$ to favour bit 0. This is the native scalar convention, not BP’s message representation.",
+    "The independent state has three coordinates. The checks do not own separate copies of $x_2$ in this method.",
+    "A evaluates $r_A=1-x_1x_2$ from the frozen scalar vector. The dashed guide means mathematical dependence, not a traveling message.",
+    "The $g$ terms are contributions to two coordinates of the gradient. They are temporary calculations for this update.",
+    "B reads the same $x_2$ value that A read because there is one retained scalar for bit 2.",
+    "B’s terms are also temporary. They will be combined with A’s terms and the channel and binary terms by coordinate.",
+    R`At bit 2, four contributions become one gradient coordinate. The update is $\mathbf{x}\leftarrow\operatorname{clip}(\mathbf{x}-\eta\mathbf{D}^{-1}\nabla J)$; equivalently $\mathbf{x}\leftarrow\operatorname{clip}(\mathbf{x}+\eta\mathbf{d})$ for $\mathbf{d}=-\mathbf{D}^{-1}\nabla J$.`,
+    R`Only $\mathbf{x}^{(1)}$ is independent state needed by the next GD calculation. An implementation may cache diagnostics, but they are deterministic functions of $\mathbf{x}$.`,
+    null,
+    "Projected GD combines the terms entering each partial derivative of the objective function into one coordinate update. It does not preserve those terms as independently addressed BP messages."
+  ];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
-  const PX = [105, 310, 515], PY = 250, CX = [205, 415], CY = 57;
-  let current = 0, playing = false, timer = null, speed = 1;
+  const VW = 620, VH = 350;
+  const PX = [105, 310, 515], PY = 228, CX = [205, 415], CY = 52, BIT_R = 27;
+  const SLOT_T = [0.42, 0.58, 0.58, 0.42];
+  const TIME = { sub: 650, fly: 600, stagger: 170, res: 250, gap: 500, travel: 1100, hold: 2600 };
+  let current = 0, playing = false, frozen = false, speed = 1;
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const smoke = location.search.includes("smoke=1");
+  const KATEX = typeof window.katex === "object" && typeof window.katex.renderToString === "function";
+  document.documentElement.dataset.math = KATEX ? "katex" : "fallback";
+  GD_EXPLAIN[8] = R`Both checks read $x_2^{(1)}=${tn(GD.x1[1])}$. Their subsequent derivative terms may differ, but the retained bit state is not indexed by recipient check.`;
 
-  function sf(value, digits = 6, sign = true) {
+  // ---------- numbers and typesetting ----------
+  function tn(value, digits = 6, sign = true) {
+    if (value === 0) return "0";
     const v = Math.abs(value) < 0.5 * Math.pow(10, -digits) ? 0 : value;
-    const prefix = sign && v >= 0 ? "+" : "";
-    return (prefix + v.toFixed(digits)).replace(/-/g, "−");
+    return (sign && v >= 0 ? "+" : "") + v.toFixed(digits);
   }
-  function vec(values, digits = 6) { return "(" + values.map(v => sf(v, digits)).join(", ") + ")"; }
-  function line(text) { return `<span class="line">${text}</span>`; }
-  function stateCard(label, extra = "") { return `<span class="state-card${extra ? " " + extra : ""}">${label}</span>`; }
-  function qCard(label) { return stateCard(label, "q-card"); }
-  function fixedCard(label) { return stateCard(label, "fixed-card"); }
-  function scratch(label) { return `<span class="scratch-card">${label}</span>`; }
-  function faded(label) { return `<span class="faded-card">${label}</span>`; }
+  function tp(value, digits = 6) { const s = tn(value, digits, false); return s.startsWith("-") ? `(${s})` : s; }
+  function vecT(values, digits = 6) { return R`\left(` + values.map(v => tn(v, digits)).join(R`,\ `) + R`\right)`; }
+  const M = m => ({ m });
+  function vecParts(items) {
+    const out = [R`\left(`];
+    items.forEach((item, j) => { if (j) out.push(R`,\ `); out.push(M(item)); });
+    out.push(R`\right)`);
+    return out;
+  }
+  function sumParts(values, digits = 6) {
+    const out = [];
+    values.forEach((v, j) => {
+      if (j === 0) out.push(M(tn(v, digits, false)));
+      else out.push(v < 0 ? " - " : " + ", M(tn(Math.abs(v), digits, false)));
+    });
+    return out;
+  }
+  function esc(text) { return String(text).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+  function tex(src, display = false) {
+    if (!KATEX) return `<code class="tex-fallback">${esc(src.replace(/\\htmlClass\{[^}]*\}/g, ""))}</code>`;
+    return window.katex.renderToString(src, {
+      displayMode: display, throwOnError: false, strict: "ignore", output: "htmlAndMathml",
+      trust: context => context.command === "\\htmlClass"
+    });
+  }
+  function mixed(text) {
+    return String(text).split(/(\$[^$]+\$)/).map(part => (/^\$[^$]+\$$/.test(part) ? tex(part.slice(1, -1)) : esc(part))).join("");
+  }
+  function plain(text) { return String(text).replace(/\$([^$]*)\$/g, "$1").replace(/[\\{}]/g, ""); }
+  function visibleText(node) {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll(".katex-mathml").forEach(n => n.remove());
+    return copy.textContent.replace(/​/g, "").replace(/\s+/g, " ").trim();
+  }
 
-  function el(parent, name, attrs = {}, text = null) {
+  // ---------- beat clock ----------
+  // Every visual cue in a beat is an event on one clock: it starts at `at` ms and
+  // runs for `dur` ms. Without motion, each event jumps straight to its end state.
+  const clock = { t: 0, last: 0, length: 0, events: [], raf: 0 };
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const ease = p => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+  const nodeOf = target => (typeof target === "function" ? target() : target);
+
+  function startTimeline(events, length) {
+    events.sort((a, b) => a.at - b.at);
+    clock.events = events; clock.t = 0; clock.length = length;
+    events.forEach(e => { e.state = 0; if (e.init) e.init(); });
+    if (reduced || smoke) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
+    wake();
+  }
+  function wake() {
+    if (clock.raf) return;
+    clock.last = performance.now();
+    clock.raf = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    clock.raf = 0;
+    const dt = Math.min(80, Math.max(0, now - clock.last));
+    clock.last = now;
+    if (!frozen) clock.t += dt * speed;
+    const pending = runEvents();
+    if (playing && !frozen && clock.t >= clock.length) { advance(); return; }
+    if (pending || playing) clock.raf = requestAnimationFrame(tick);
+  }
+  function runEvents() {
+    let pending = false;
+    for (const e of clock.events) {
+      if (e.state === 2) continue;
+      if (clock.t < e.at) { pending = true; continue; }
+      if (e.state === 0) { e.state = 1; if (e.start) e.start(); }
+      const p = e.dur > 0 ? Math.min(1, (clock.t - e.at) / e.dur) : 1;
+      if (e.apply) e.apply(p);
+      if (p >= 1) { e.state = 2; if (e.end) e.end(); } else pending = true;
+    }
+    return pending;
+  }
+  function seek(ms) {
+    playing = false; frozen = true;
+    clock.t = Math.max(clock.t, Number(ms));
+    runEvents();
+    updatePlay();
+  }
+  function show(target, at, dur = 380) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); if (node) node.style.opacity = "0"; },
+      apply(p) { if (node) node.style.opacity = String(p); },
+      end() { if (node) node.style.opacity = ""; } };
+  }
+  function hide(target, at, dur = 450) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); },
+      apply(p) { if (node) node.style.opacity = String(1 - p); },
+      end() { if (node) node.style.opacity = "0"; } };
+  }
+  function blink(target, at) {
+    let node = null;
+    return { at, dur: 950,
+      init() { node = nodeOf(target); },
+      start() { if (!node) return; node.classList.remove("blink"); void node.offsetWidth; node.classList.add("blink"); },
+      end() { if (node) node.classList.remove("blink"); } };
+  }
+  function swap(target, at, html, cls) {
+    return { at, dur: 0, end() { const node = nodeOf(target); if (!node) return; node.innerHTML = html; if (cls) node.classList.add(cls); } };
+  }
+  function morph(target, at, dur, render) {
+    let node = null, last = "";
+    const set = p => { const html = render(p); if (node && html !== last) { node.innerHTML = html; last = html; } };
+    return { at, dur, init() { node = nodeOf(target); set(0); }, apply(p) { set(ease(p)); }, end() { set(1); } };
+  }
+  // A substituted value lifts off its symbol and lands in its slot further along the equation.
+  function flight(root, symSel, valSel, at) {
+    let sym = null, val = null, clone = null, from = null, to = null;
+    return { at, dur: TIME.fly,
+      init() { sym = root.querySelector(symSel); val = root.querySelector(valSel); if (val) val.style.opacity = "0"; },
+      start() {
+        if (!sym || !val) return;
+        const box = root.getBoundingClientRect();
+        const centre = rect => [rect.left - box.left + root.scrollLeft + rect.width / 2, rect.top - box.top + root.scrollTop + rect.height / 2];
+        from = centre(sym.getBoundingClientRect());
+        to = centre(val.getBoundingClientRect());
+        clone = document.createElement("span");
+        clone.className = "katex flying";
+        clone.style.fontSize = getComputedStyle(val).fontSize;
+        clone.innerHTML = val.innerHTML;
+        root.appendChild(clone);
+      },
+      apply(p) {
+        if (!clone) return;
+        const e = ease(p);
+        clone.style.left = `${lerp(from[0], to[0], e)}px`;
+        clone.style.top = `${lerp(from[1], to[1], e) - 16 * Math.sin(Math.PI * p)}px`;
+      },
+      end() { if (clone) clone.remove(); clone = null; if (val) val.style.opacity = ""; } };
+  }
+
+  // ---------- equation lines ----------
+  function mathLane(method) { return { method, n: 0, lines: [], ev: [], outcomes: [], root: $(`${method}-math`) }; }
+  function marked(list, tag) {
+    let count = 0;
+    const names = [];
+    const src = list.map(item => {
+      if (typeof item === "string") return item;
+      const name = `${tag}${++count}`;
+      names.push(name);
+      return R`\htmlClass{${name}}{${item.m}}`;
+    }).join("");
+    return { src, names };
+  }
+  // lhs = symbolic form, then = substituted values (each flies from its symbol), then = outcome (blinks).
+  function chain(L, t, lhs, sym, val, res, opts = {}) {
+    const id = `${L.method}${++L.n}`;
+    const find = sel => () => L.root.querySelector(sel);
+    const s = sym ? marked(sym, `${id}y`) : null;
+    const v = val ? marked(val, `${id}v`) : null;
+    const r = Array.isArray(res) ? marked(res, `${id}r`) : null;
+    const resSrc = r ? r.src : res;
+    const subSrc = v ? R`\htmlClass{${id}b}{{}={}{${v.src}}}` : "";
+    const outSrc = resSrc != null ? R`\htmlClass{${id}c}{{}={}{${resSrc}}}` : "";
+    const src = opts.aligned
+      ? R`\begin{aligned}\htmlClass{${id}l}{${lhs}} &\htmlClass{${id}a}{{}={}{${s.src}}} \\ &${subSrc}${outSrc}\end{aligned}`
+      : R`\htmlClass{${id}a}{${lhs}${s ? " = " + s.src : ""}}${subSrc}${outSrc}`;
+    L.lines.push(`<span class="line${opts.aligned ? " block" : ""}">${tex(src)}</span>`);
+    L.ev.push(show(find(`.${id}l`), t), show(find(`.${id}a`), t));
+    const out = { t, subs: [], lands: [], comps: [], done: t + 400 };
+    let cursor = t + 400;
+    if (v) {
+      const t0 = t + TIME.sub;
+      L.ev.push(show(find(`.${id}b`), t0, 300));
+      v.names.forEach((name, j) => {
+        const at = t0 + j * TIME.stagger;
+        const symName = s && s.names[j];
+        if (symName) L.ev.push(blink(find(`.${symName}`), at), flight(L.root, `.${symName}`, `.${name}`, at));
+        else L.ev.push(show(find(`.${name}`), at, TIME.fly));
+        L.ev.push(blink(find(`.${name}`), at + TIME.fly));
+        out.subs.push(at);
+        out.lands.push(at + TIME.fly);
+      });
+      cursor = out.lands[out.lands.length - 1];
+      out.done = cursor;
+    }
+    if (resSrc != null) {
+      const t1 = v ? cursor + TIME.res : t + TIME.sub;
+      L.ev.push(show(find(`.${id}c`), t1, 300));
+      if (r) {
+        r.names.forEach((name, j) => {
+          const at = t1 + 120 + j * 340;
+          L.ev.push(show(find(`.${name}`), at, 260), blink(find(`.${name}`), at));
+          out.comps.push(at);
+        });
+        out.done = out.comps[out.comps.length - 1];
+      } else {
+        L.ev.push(blink(find(`.${id}c`), t1));
+        out.done = t1;
+      }
+      L.outcomes.push(`.${id}c`);
+    } else if (v) L.outcomes.push(`.${id}b`);
+    out.next = out.done + TIME.gap;
+    return out;
+  }
+  function formula(L, t, src) {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line">${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`.${id}a`), t));
+    return { done: t + 400, next: t + 400 + TIME.gap };
+  }
+  function prose(L, t, text) {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line prose" data-line="${id}">${mixed(text)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
+    return { done: t + 400, next: t + 400 + TIME.gap };
+  }
+  function commit(L) {
+    L.root.innerHTML = L.lines.join("");
+    L.outcomes.forEach(sel => { const node = L.root.querySelector(sel); if (node) node.classList.add("outcome"); });
+    return L.ev;
+  }
+
+  // ---------- Tanner graph ----------
+  function svgEl(parent, name, attrs = {}, text = null) {
     const node = document.createElementNS(NS, name);
     Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
     if (text !== null) node.textContent = text;
@@ -429,235 +713,366 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     return node;
   }
   function addMarker(svg, color, id) {
-    const defs = el(svg, "defs");
-    const marker = el(defs, "marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
-    el(marker, "path", { d: "M 0 0 L 10 5 L 0 10 z", fill: color });
+    const defs = svgEl(svg, "defs");
+    const marker = svgEl(defs, "marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    svgEl(marker, "path", { d: "M 0 0 L 10 5 L 0 10 z", fill: color });
   }
-  function edgePoints(edge) { return { bit: [PX[edge.i], PY], check: [CX[edge.a], CY] }; }
-  function tag(svg, x, y, text, method, hot = false) {
-    const width = Math.max(82, Math.min(150, 17 + text.length * 5.7));
-    const group = el(svg, "g", { class: `tag ${method}` + (hot ? " hot" : "") });
-    el(group, "rect", { x: x - width / 2, y: y - 13, width, height: 26, rx: 6 });
-    el(group, "text", { x, y: y + 4, "text-anchor": "middle" }, text);
-  }
-  function tick(svg, x, y) {
-    const group = el(svg, "g", { class: "tick" });
-    el(group, "circle", { cx: x, cy: y, r: 10 });
-    el(group, "path", { d: `M ${x - 5} ${y} l 4 4 l 7 -8` });
-  }
+  function edgePoint(e, t) { const { i, a } = EDGES[e]; return [lerp(PX[i], CX[a], t), lerp(PY, CY, t)]; }
+  const atBit = e => (BIT_R + 3) / Math.hypot(CX[EDGES[e].a] - PX[EDGES[e].i], PY - CY);
+  const AT_CHECK = (PY - (CY + 22)) / (PY - CY);
+  const below = (i, row = 0) => [PX[i], PY + 51 + row * 32];
   function activeEdges(k) {
     if (k === 2 || k === 3) return [0, 1];
     if (k === 4 || k === 5) return [2, 3];
     if (k === 8) return [1, 2];
     return k === 0 ? [0, 1, 2, 3] : [];
   }
-  function drawBase(svg, method, k) {
+  function graph(method, k) {
+    const svg = $(`${method}-graph`), layer = $(`${method}-chips`);
     svg.replaceChildren();
+    layer.replaceChildren();
     addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
     const active = activeEdges(k);
     EDGES.forEach((edge, index) => {
-      const p = edgePoints(edge);
-      el(svg, "line", { x1: p.bit[0], y1: p.bit[1], x2: p.check[0], y2: p.check[1], class: "base" + (active.includes(index) ? " active" : "") });
+      svgEl(svg, "line", { x1: PX[edge.i], y1: PY, x2: CX[edge.a], y2: CY, class: "base" + (active.includes(index) ? " active" : "") });
     });
-    el(svg, "g", { class: "flow-layer" });
-    const nodes = el(svg, "g", { class: "node-layer" });
+    const flows = svgEl(svg, "g", { class: "flow-layer" });
+    const nodes = svgEl(svg, "g", { class: "node-layer" });
     [0, 1].forEach(a => {
       const hot = (a === 0 && (k === 2 || k === 3)) || (a === 1 && (k === 4 || k === 5)) || k === 8;
-      el(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
-      el(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
+      svgEl(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
+      svgEl(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
     });
-    const values = method === "bp" ? BP.L : (k >= 6 ? GD.x1 : GD.x0);
-    values.forEach((value, i) => {
-      const hot = k === 8 && i === 1;
-      el(nodes, "circle", { cx: PX[i], cy: PY, r: 29, class: "bit" + (hot ? " hot" : "") });
-      el(nodes, "text", { x: PX[i], y: PY - 3, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
-      el(nodes, "text", { x: PX[i], y: PY + 15, "text-anchor": "middle", class: "node-value" }, method === "bp" ? `L ${sf(value, 3)}` : `x ${sf(value, 3)}`);
+    [0, 1, 2].forEach(i => {
+      svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
+      svgEl(nodes, "text", { x: PX[i], y: PY + 4, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
     });
-    el(nodes, "text", { x: 15, y: 315, class: "small" }, method === "bp" ? "arrowheads identify BP message direction; dashes animate motion" : "dashed guides = factor dependence, not message motion");
+    svgEl(nodes, "text", { x: 15, y: 342, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
+    return { method, svg, layer, flows, nodes };
   }
-  function drawFlow(svg, edgeIndex, direction, label, method, hot = false) {
-    const p = edgePoints(EDGES[edgeIndex]);
-    const from = direction === "up" ? p.bit : p.check;
-    const to = direction === "up" ? p.check : p.bit;
-    const flowLayer = svg.querySelector(".flow-layer") || svg;
-    el(flowLayer, "line", {
-      x1: from[0], y1: from[1], x2: to[0], y2: to[1],
-      class: method === "bp" ? "message" : "dependency",
-      "marker-end": method === "bp" ? `url(#${method}-arrow)` : ""
-    });
-    const mx = (p.bit[0] + p.check[0]) / 2;
-    const my = (p.bit[1] + p.check[1]) / 2 + (edgeIndex % 2 === 0 ? -4 : 5);
-    tag(svg, mx, my, label, method, hot);
+  function place(node, xy) { node.style.left = `${(xy[0] / VW) * 100}%`; node.style.top = `${(xy[1] / VH) * 100}%`; }
+  function chip(G, xy, src, cls = "") {
+    const node = document.createElement("span");
+    node.className = `chip ${G.method}${cls ? " " + cls : ""}`;
+    node.innerHTML = tex(src);
+    place(node, xy);
+    G.layer.appendChild(node);
+    return node;
   }
-  function drawBP(k) {
-    const svg = $("bp-graph");
-    drawBase(svg, "bp", k);
-    if (k === 1) BP.u0.forEach((v, e) => tag(svg, (PX[EDGES[e].i] + CX[EDGES[e].a]) / 2, 160, `U ${sf(v, 1)}`, "bp"));
-    if (k === 2) [0, 1].forEach(e => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(BP.q1[e], 3)}`, "bp", true));
-    if (k === 3) [0, 1].forEach(e => drawFlow(svg, e, "down", `U A→${EDGES[e].i + 1} ${sf(BP.u1[e], 3)}`, "bp", true));
-    if (k === 4) [2, 3].forEach(e => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(BP.q1[e], 3)}`, "bp", true));
-    if (k === 5) [2, 3].forEach(e => drawFlow(svg, e, "down", `U B→${EDGES[e].i + 1} ${sf(BP.u1[e], 3)}`, "bp", true));
-    if (k === 6 || k === 7) {
-      BP.u1.forEach((v, e) => {
-        const p = edgePoints(EDGES[e]);
-        tag(svg, (p.bit[0] + p.check[0]) / 2, (p.bit[1] + p.check[1]) / 2, `U ${sf(v, 3)}`, "bp");
-        if (k === 7) tick(svg, (p.bit[0] + p.check[0]) / 2 + 44, (p.bit[1] + p.check[1]) / 2 - 12);
-      });
-      if (k === 6) BP.posterior1.forEach((v, i) => el(svg, "text", { x: PX[i], y: 294, "text-anchor": "middle", class: "node-value" }, `Λ¹ ${sf(v, 3)}`));
-    }
-    if (k >= 8) {
-      BP.q2.forEach((v, e) => drawFlow(svg, e, "up", `Q${EDGES[e].label} ${sf(v, 3)}`, "bp", e === 1 || e === 2));
-      el(svg, "text", { x: 310, y: 122, "text-anchor": "middle", class: "big-sign" }, "≠");
-    }
+  function guide(G, e) {
+    const a = edgePoint(e, atBit(e)), b = edgePoint(e, AT_CHECK);
+    return svgEl(G.flows, "line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: "dependency" });
   }
-  function gdRead(svg, edgeIndices, checkName, residual, k) {
-    edgeIndices.forEach(e => drawFlow(svg, e, "up", `reads x${EDGES[e].i + 1} ${sf(k >= 8 ? GD.x1[EDGES[e].i] : GD.x0[EDGES[e].i], 3)}`, "gd", true));
-    const a = checkName === "A" ? 0 : 1;
-    tag(svg, CX[a], 105, `r${checkName} = ${residual.toFixed(6)}`, "gd", true);
+  function tickMark(G, x, y) {
+    const group = svgEl(G.nodes, "g", { class: "tick" });
+    svgEl(group, "circle", { cx: x, cy: y, r: 9 });
+    svgEl(group, "path", { d: `M ${x - 4.5} ${y} l 3.5 3.5 l 6 -7` });
+    return group;
   }
-  function drawGD(k) {
-    const svg = $("gd-graph");
-    drawBase(svg, "gd", k);
-    if (k === 2) gdRead(svg, [0, 1], "A", GD.residual.A, k);
-    if (k === 3) {
-      tag(svg, 176, 130, `gA,1 ${sf(GD.g.A[0], 3)}`, "gd", true);
-      tag(svg, 270, 168, `gA,2 ${sf(GD.g.A[1], 3)}`, "gd", true);
-    }
-    if (k === 4) gdRead(svg, [2, 3], "B", GD.residual.B, k);
-    if (k === 5) {
-      tag(svg, 350, 168, `gB,2 ${sf(GD.g.B[0], 3)}`, "gd", true);
-      tag(svg, 448, 130, `gB,3 ${sf(GD.g.B[1], 3)}`, "gd", true);
-    }
-    if (k === 6) {
-      tag(svg, 310, 165, `∂J/∂x2 ${sf(GD.gradient[1], 6)}`, "gd", true);
-      el(svg, "text", { x: 310, y: 205, "text-anchor": "middle", class: "node-value" }, `x₂: ${sf(GD.x0[1], 3)} → ${sf(GD.x1[1], 6)}`);
-    }
-    if (k === 7) GD.x1.forEach((v, i) => tick(svg, PX[i] + 27, PY - 24));
-    if (k >= 8) {
-      drawFlow(svg, 1, "up", `x₂ ${sf(GD.x1[1], 3)}`, "gd", true);
-      drawFlow(svg, 2, "up", `x₂ ${sf(GD.x1[1], 3)}`, "gd", true);
-      el(svg, "text", { x: 310, y: 122, "text-anchor": "middle", class: "big-sign" }, "=");
-    }
+  // A BP message is drawn from sender to recipient; its label rides the arrow tip
+  // until it reaches its edge slot, blinking while it moves.
+  function message(G, e, dir, src, at, ev, cls = "hot", rest = SLOT_T[e]) {
+    const t0 = dir === "up" ? atBit(e) : AT_CHECK, t1 = dir === "up" ? AT_CHECK : atBit(e);
+    const start = edgePoint(e, t0), stop = edgePoint(e, t1);
+    const line = svgEl(G.flows, "line", { x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message", "marker-end": `url(#${G.method}-arrow)` });
+    const label = chip(G, edgePoint(e, rest), src, cls);
+    if (ev === null) return { label, land: 0 };
+    const hold = t => (t1 > t0 ? Math.min(rest, t) : Math.max(rest, t));
+    ev.push({ at, dur: TIME.travel,
+      init() { line.style.opacity = "0"; label.style.opacity = "0"; },
+      start() { line.style.opacity = ""; label.style.opacity = ""; label.classList.add("travelling"); },
+      apply(p) {
+        const t = lerp(t0, t1, ease(p)), tip = edgePoint(e, t);
+        line.setAttribute("x2", tip[0]); line.setAttribute("y2", tip[1]);
+        place(label, edgePoint(e, hold(t)));
+      },
+      end() {
+        line.style.opacity = ""; label.style.opacity = ""; label.classList.remove("travelling");
+        line.setAttribute("x2", stop[0]); line.setAttribute("y2", stop[1]);
+        place(label, edgePoint(e, rest));
+      } });
+    ev.push(blink(label, at + TIME.travel));
+    return { label, land: at + TIME.travel };
   }
 
-  function renderState(k) {
-    let bp = "", gd = "";
+  // ---------- beat scripts ----------
+  function script(k) {
+    const B = mathLane("bp"), G = mathLane("gd");
+    const bg = graph("bp", k), gg = graph("gd", k);
+    const ev = [];
+    const card = (src, cls, key) => `<span class="${cls}" data-card="${key}">${tex(src)}</span>`;
+    const bpCard = key => () => $("bp-state").querySelector(`[data-card="${key}"]`);
+    const gdCard = key => () => $("gd-state").querySelector(`[data-card="${key}"]`);
+    const uLabel = (e, value) => R`U_{${USLOT[e]}} = ${tn(value, 3)}`;
+    const trayU = upTo => BP.u0.map((initial, e) => {
+      const updated = (e < 2 && upTo >= 3) || (e >= 2 && upTo >= 5);
+      return card(uLabel(e, updated ? BP.u1[e] : initial), updated ? "state-card updated-card" : "state-card", `u${e}`);
+    }).join("");
+    const xLabel = (i, value, iter, digits = 3) => R`x^{(${iter})}_${i + 1} = ${tn(value, digits)}`;
+    const trayX0 = () => GD.x0.map((v, i) => card(xLabel(i, v, 0), "state-card", `x${i}`)).join("");
+    const trayX1 = () => GD.x1.map((v, i) => card(xLabel(i, v, 1, 6), "state-card", `x${i}`)).join("");
+    const gCard = (a, j) => {
+      const name = a === 0 ? "A" : "B", bit = (a === 0 ? [1, 2] : [2, 3])[j];
+      return card(R`g_{${name},${bit}} = ${tn(GD.g[name][j], 3)}`, "scratch-card", `g${name}${j}`);
+    };
+    const trayG = upTo => (upTo >= 3 ? gCard(0, 0) + gCard(0, 1) : "") + (upTo >= 5 ? gCard(1, 0) + gCard(1, 1) : "");
+    const lChips = () => BP.L.map((v, i) => chip(bg, below(i), R`L_${i + 1} = ${tn(v, 3)}`, "value"));
+    const xChips = values => values.map((v, i) => chip(gg, below(i), R`x_${i + 1} = ${tn(v, 3)}`, "value"));
+    const uChips = values => values.map((v, e) => chip(bg, edgePoint(e, SLOT_T[e]), uLabel(e, v)));
+    const qLabel = (e, iter) => R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}} = ${tn((iter === 2 ? BP.q2 : BP.q1)[e], 3)}`;
+    // Q_{i→a} = L_i + U_{b→i} from the bit's other check (edges 1 and 2 share bit 2).
+    const qChain = (t, e, iter) => {
+      const { i } = EDGES[e];
+      const other = e === 1 ? 2 : e === 2 ? 1 : null;
+      const u = iter === 2 ? BP.u1 : BP.u0, q = iter === 2 ? BP.q2 : BP.q1;
+      const lhs = R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}}`;
+      if (other === null) return chain(B, t, lhs, [M(`L_${i + 1}`)], [M(tn(BP.L[i]))], null);
+      return chain(B, t, lhs, [M(`L_${i + 1}`), " + ", M(R`U^{(${iter - 1})}_{${USLOT[other]}}`)],
+        [M(tp(BP.L[i])), " + ", M(tp(u[other]))], tn(q[e]));
+    };
+    // U_{a→i} = Q_{j→a}: each two-bit check returns the other incoming message.
+    const uChain = (t, e) => {
+      const from = [1, 0, 3, 2][e];
+      return chain(B, t, R`U^{(1)}_{${USLOT[e]}}`, [M(R`Q^{(1)}_{${QSLOT[from]}}`)], [M(tn(BP.q1[from]))], null);
+    };
+    const rChain = (t, a) => {
+      const name = a === 0 ? "A" : "B", [i, j] = a === 0 ? [0, 1] : [1, 2];
+      return chain(G, t, `r_${name}`, ["1 - ", M(`x_${i + 1}`), M(`x_${j + 1}`)],
+        ["1 - (", M(tn(GD.x0[i], 6, false)), ")(", M(tn(GD.x0[j], 6, false)), ")"], tn(GD.residual[name], 6, false));
+    };
+    const gChain = (t, a, j) => {
+      const name = a === 0 ? "A" : "B", bits = a === 0 ? [0, 1] : [1, 2], self = bits[j], other = bits[1 - j];
+      return chain(G, t, R`g_{${name},${self + 1}}`,
+        ["-", M(R`\tfrac{2w_{\mathrm{par}}}{n}`), R`\,`, M(`r_${name}`), R`\,`, M(`x_${other + 1}`)],
+        ["-", M(R`\tfrac{4}{3}`), "(", M(tn(GD.residual[name], 6, false)), ")(", M(tn(GD.x0[other], 6, false)), ")"],
+        tn(GD.g[name][j]));
+    };
+    const rChip = a => chip(gg, [CX[a], CY + 40], R`r_${a === 0 ? "A" : "B"} = ${tn(GD.residual[a === 0 ? "A" : "B"], 3, false)}`);
+    let bpTray = "", gdTray = "";
+
     if (k === 0) {
-      bp = BP.L.map((v, i) => fixedCard(`L${i + 1} ${sf(v, 3)}`)).join("");
-      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
-    } else if (k === 1) {
-      bp = BP.u0.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 1)}`)).join("");
-      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
-    } else if (k <= 5) {
-      bp = BP.u0.map((initial, e) => {
-        const updated = (e < 2 && k >= 3) || (e >= 2 && k >= 5);
-        const value = updated ? BP.u1[e] : initial;
-        return stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(value, updated ? 3 : 1)}`, updated ? "updated-card" : "");
-      }).join("");
-      gd = GD.x0.map((v, i) => stateCard(`x${i + 1}⁽⁰⁾ ${sf(v, 3)}`)).join("");
-      if (k >= 3) gd += scratch(`gA,1 ${sf(GD.g.A[0], 3)}`) + scratch(`gA,2 ${sf(GD.g.A[1], 3)}`);
-      if (k >= 5) gd += scratch(`gB,2 ${sf(GD.g.B[0], 3)}`) + scratch(`gB,3 ${sf(GD.g.B[1], 3)}`);
-    } else if (k === 6) {
-      bp = BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("");
-      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("") + scratch(`∇J ${vec(GD.gradient, 3)}`);
-    } else if (k === 7) {
-      bp = BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("") + faded("Q and Λ are recomputed");
-      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("") + faded("r, g, ∇J, D, and d are recomputed");
-    } else {
-      bp = BP.q2.map((v, e) => qCard(`Q${EDGES[e].label} ${sf(v, 3)}`)).join("");
-      gd = GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 6)}`)).join("");
-    }
-    $("bp-state").innerHTML = bp;
-    $("gd-state").innerHTML = gd;
-  }
+      const lc = lChips();
+      bpTray = BP.L.map((v, i) => card(R`L_${i + 1} = ${tn(v, 3)}`, "state-card fixed-card", `L${i}`)).join("");
+      const c = chain(B, 300, R`\mathbf{L}`, vecParts(["L_1", "L_2", "L_3"]), vecParts(BP.L.map(v => tn(v))), null);
+      lc.forEach((node, i) => ev.push(show(node, c.lands[i], 250), blink(node, c.lands[i]),
+        show(bpCard(`L${i}`), c.lands[i], 250), blink(bpCard(`L${i}`), c.lands[i])));
+      formula(B, c.next, R`Q_{i\to a} = L_i + \sum_{b\in N(i)\setminus a} U_{b\to i}`);
 
-  function renderText(k) {
-    const bpMath = [
-      [line(`<i>L</i> = ${vec(BP.L)}`), line(`<i>Q</i><sub>i→a</sub> = <i>L</i><sub>i</sub> + Σ<sub>b∈N(i)\\a</sub><i>U</i><sub>b→i</sub>`) ],
-      [line(`<i>U</i><sup>(0)</sup> = ${vec(BP.u0, 1)}`), line(`four slots are indexed by check and bit`) ],
-      [line(`<i>Q</i><sub>1→A</sub> = ${sf(BP.q1[0])}`), line(`<i>Q</i><sub>2→A</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>B→2</sub><sup>(0)</sup> = ${sf(BP.q1[1])}`) ],
-      [line(`<i>U</i><sub>A→1</sub><sup>(1)</sup> = <i>Q</i><sub>2→A</sub><sup>(1)</sup> = ${sf(BP.u1[0])}`), line(`<i>U</i><sub>A→2</sub><sup>(1)</sup> = <i>Q</i><sub>1→A</sub><sup>(1)</sup> = ${sf(BP.u1[1])}`) ],
-      [line(`<i>Q</i><sub>2→B</sub> = <i>L</i><sub>2</sub> + <i>U</i><sub>A→2</sub><sup>(0)</sup> = ${sf(BP.q1[2])}`), line(`<i>Q</i><sub>3→B</sub> = ${sf(BP.q1[3])}`) ],
-      [line(`<i>U</i><sub>B→2</sub><sup>(1)</sup> = ${sf(BP.u1[2])}`), line(`<i>U</i><sub>B→3</sub><sup>(1)</sup> = ${sf(BP.u1[3])}`) ],
-      [line(`Λ<sup>(1)</sup> = <i>L</i> + Σ<i>U</i><sup>(1)</sup> = ${vec(BP.posterior1)}`), line(`the four <i>U</i><sup>(1)</sup> values remain separately indexed`) ],
-      [line(`next variable phase reads <i>L</i> and <i>U</i><sup>(1)</sup>`), line(`<i>Q</i><sup>(2)</sup> is then recomputed for each recipient check`) ],
-      [line(`<i>Q</i><sub>2→A</sub><sup>(2)</sup> = ${sf(BP.L[1])} + ${sf(BP.u1[2])} = ${sf(BP.q2[1])}`), line(`<i>Q</i><sub>2→B</sub><sup>(2)</sup> = ${sf(BP.L[1])} + (${sf(BP.u1[1])}) = ${sf(BP.q2[2])}`) ],
-      [line(`<i>Q</i><sub>i→a</sub> excludes the preceding <i>U</i> from recipient <i>a</i>`), line(`one bit can therefore supply different values to neighboring checks`) ]
-    ];
-    const gdMath = [
-      [line(`ℓ = −<i>L</i> = ${vec(GD.ell)}`), line(`<b>x</b><sup>(0)</sup> = tanh(ℓ/2) = ${vec(GD.x0)}`) ],
-      [line(`retained state: <b>x</b><sup>(0)</sup> = ${vec(GD.x0)}`), line(`one independently updated scalar per bit`) ],
-      [line(`<i>r</i><sub>A</sub> = 1 − <i>x</i><sub>1</sub><i>x</i><sub>2</sub> = ${GD.residual.A.toFixed(6)}`), line(`A reads the frozen <i>x</i><sub>1</sub> and <i>x</i><sub>2</sub>`) ],
-      [line(`<i>g</i><sub>A,1</sub> = ${sf(GD.g.A[0])}`), line(`<i>g</i><sub>A,2</sub> = ${sf(GD.g.A[1])}`) ],
-      [line(`<i>r</i><sub>B</sub> = 1 − <i>x</i><sub>2</sub><i>x</i><sub>3</sub> = ${GD.residual.B.toFixed(6)}`), line(`B reads the same frozen <i>x</i><sub>2</sub> and <i>x</i><sub>3</sub>`) ],
-      [line(`<i>g</i><sub>B,2</sub> = ${sf(GD.g.B[0])}`), line(`<i>g</i><sub>B,3</sub> = ${sf(GD.g.B[1])}`) ],
-      [line(`∂<i>J</i>/∂<i>x</i><sub>2</sub> = ${sf(GD.g.A[1])} + ${sf(GD.g.B[0])} + ${sf(GD.channel_partial[1])} + ${sf(GD.binary_partial[1])} = ${sf(GD.gradient[1])}`), line(`<i>x</i><sub>2</sub><sup>(1)</sup> = clip(${sf(GD.x0[1])} − 0.2(${sf(GD.gradient[1])})/3.2) = ${sf(GD.x1[1])}`) ],
-      [line(`state needed to continue: <b>x</b><sup>(1)</sup> = ${vec(GD.x1)}`), line(`check terms are recalculated from the next frozen <b>x</b>`) ],
-      [line(`A reads <i>x</i><sub>2</sub><sup>(1)</sup> = ${sf(GD.x1[1])}`), line(`B reads <i>x</i><sub>2</sub><sup>(1)</sup> = ${sf(GD.x1[1])}`) ],
-      [line(`∂<i>J</i>/∂<i>x</i><sub>i</sub> = Σ<sub>a∈N(i)</sub><i>g</i><sub>a,i</sub> + channel term + binary term`), line(`one combined coordinate update produces one new <i>x</i><sub>i</sub>`) ]
-    ];
-    const bpExplain = [
-      "The fixed LLR vector is expressed with positive values favouring bit 1.",
-      "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
-      "A receives two Q messages. In iteration 1, the value from bit 2 equals L₂ because the other incoming U is still zero.",
-      "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
-      "B receives the frozen variable-to-check values for bits 2 and 3.",
-      "B writes its two check-to-variable messages into the B→2 and B→3 slots.",
-      "The a-posteriori LLR is useful for a decision, but the separately addressed U values feed the next variable calculation in this displayed schedule.",
-      "The solid U cards cross the scanner. Q and the a-posteriori LLR can be recalculated from the fixed L and retained U values.",
-      "Bit 2 now supplies a positive Q to A and a negative Q to B because each calculation excludes the message from its recipient check.",
-      "BP preserves which check supplied the preceding information and uses that address when calculating the next Q."
-    ];
-    const gdExplain = [
-      "The sign-related coordinate uses xᵢ=+1 to favour bit 0. This is the native scalar convention, not BP’s message representation.",
-      "The independent state has three coordinates. The checks do not own separate copies of x₂ in this method.",
-      "A evaluates r_A=1−x₁x₂ from the frozen scalar vector. The dashed guide means mathematical dependence, not a traveling message.",
-      "The g terms are contributions to two coordinates of the gradient. They are temporary calculations for this update.",
-      "B reads the same x₂ value that A read because there is one retained scalar for bit 2.",
-      "B’s terms are also temporary. They will be combined with A’s terms and the channel and binary terms by coordinate.",
-      "At bit 2, four contributions become one gradient coordinate. The update is x←clip(x−ηD⁻¹∇J); equivalently x←clip(x+ηd) for d=−D⁻¹∇J.",
-      "Only x⁽¹⁾ is independent state needed by the next GD calculation. An implementation may cache diagnostics, but they are deterministic functions of x.",
-      "Both checks read x₂⁽¹⁾=−0.156016. Their subsequent derivative terms may differ, but the retained bit state is not indexed by recipient check.",
-      "Projected GD combines the terms entering each partial derivative of the objective function into one coordinate update. It does not preserve those terms as independently addressed BP messages."
-    ];
-    $("bp-math").innerHTML = bpMath[k].join("");
-    $("gd-math").innerHTML = gdMath[k].join("");
-    $("bp-explain").textContent = bpExplain[k];
-    $("gd-explain").textContent = gdExplain[k];
+      const xc = xChips(GD.x0);
+      gdTray = trayX0();
+      const g1 = chain(G, 300, R`\boldsymbol{\ell}`, [R`-\mathbf{L}`], null, vecT(GD.ell));
+      const g2 = chain(G, g1.next, R`\mathbf{x}^{(0)}`, [R`\tanh\left(\boldsymbol{\ell}/2\right)`], null, vecParts(GD.x0.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(node, g2.comps[i], 250), blink(node, g2.comps[i]),
+        show(gdCard(`x${i}`), g2.comps[i], 250), blink(gdCard(`x${i}`), g2.comps[i])));
+    } else if (k === 1) {
+      lChips();
+      bpTray = trayU(1);
+      const uc = uChips(BP.u0);
+      const c = chain(B, 300, R`\mathbf{U}^{(0)}`, vecParts(USLOT.map(s => R`U_{${s}}`)), vecParts(BP.u0.map(v => tn(v))), null);
+      uc.forEach((node, e) => ev.push(show(node, c.lands[e], 250), blink(node, c.lands[e]), blink(bpCard(`u${e}`), c.lands[e])));
+      prose(B, c.next, "four slots are indexed by check and bit");
+
+      const xc = xChips(GD.x0);
+      gdTray = trayX0();
+      const g = chain(G, 300, R`\mathbf{x}^{(0)}`, vecParts(["x_1", "x_2", "x_3"]), vecParts(GD.x0.map(v => tn(v))), null);
+      xc.forEach((node, i) => ev.push(blink(node, g.lands[i]), blink(gdCard(`x${i}`), g.lands[i])));
+      prose(G, g.next, "retained state: one independently updated scalar per bit");
+    } else if (k === 2 || k === 4) {
+      const a = k === 2 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
+      const lc = lChips();
+      bpTray = trayU(k);
+      let t = 300;
+      edges.forEach(e => {
+        const c = qChain(t, e, 1);
+        ev.push(blink(lc[EDGES[e].i], c.subs[0]));
+        message(bg, e, "up", qLabel(e, 1), c.done, ev);
+        t = c.next;
+      });
+
+      const xc = xChips(GD.x0);
+      gdTray = trayX0() + trayG(k);
+      const r = rChain(300, a);
+      edges.forEach((e, j) => {
+        ev.push(show(guide(gg, e), 300));
+        const bit = EDGES[e].i;
+        const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_${bit + 1} = ${tn(GD.x0[bit], 3)}`);
+        ev.push(show(read, r.subs[j], 250), blink(read, r.subs[j]), blink(xc[bit], r.subs[j]));
+      });
+      const rc = rChip(a);
+      ev.push(show(rc, r.done, 250), blink(rc, r.done));
+      prose(G, r.next, a === 0 ? "A reads the frozen $x_1$ and $x_2$" : "B reads the same frozen $x_2$ and $x_3$");
+    } else if (k === 3 || k === 5) {
+      const a = k === 3 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
+      lChips();
+      bpTray = trayU(k - 1);
+      let t = 300;
+      edges.forEach(e => {
+        const c = uChain(t, e);
+        const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
+        ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
+        t = c.next;
+      });
+
+      const xc = xChips(GD.x0);
+      gdTray = trayX0() + trayG(k);
+      const rc = rChip(a);
+      t = 300;
+      [0, 1].forEach(j => {
+        const g = gChain(t, a, j);
+        const bits = a === 0 ? [0, 1] : [1, 2];
+        ev.push(blink(rc, g.subs[1]), blink(xc[bits[1 - j]], g.subs[2]));
+        const name = a === 0 ? "A" : "B";
+        const term = chip(gg, edgePoint(edges[j], SLOT_T[edges[j]]), R`g_{${name},${bits[j] + 1}} = ${tn(GD.g[name][j], 3)}`);
+        ev.push(show(term, g.done, 250), blink(term, g.done), show(gdCard(`g${name}${j}`), g.done, 250), blink(gdCard(`g${name}${j}`), g.done));
+        t = g.next;
+      });
+    } else if (k === 6) {
+      const lc = lChips();
+      bpTray = trayU(5);
+      const uc = uChips(BP.u1);
+      const f = formula(B, 300, R`\Lambda^{(1)}_i = L_i + \sum_{a\in N(i)} U^{(1)}_{a\to i}`);
+      const c = chain(B, f.next, R`\Lambda^{(1)}_2`,
+        [M("L_2"), " + ", M(R`U^{(1)}_{A\to 2}`), " + ", M(R`U^{(1)}_{B\to 2}`)],
+        [M(tp(BP.L[1])), " + ", M(tp(BP.u1[1])), " + ", M(tp(BP.u1[2]))], tn(BP.posterior1[1]), { aligned: true });
+      ev.push(blink(lc[1], c.subs[0]), blink(uc[1], c.subs[1]), blink(uc[2], c.subs[2]));
+      const lam = BP.posterior1.map((v, i) => chip(bg, below(i, 1), R`\Lambda^{(1)}_${i + 1} = ${tn(v, 3)}`, "value"));
+      ev.push(show(lam[1], c.done, 250), blink(lam[1], c.done));
+      const vec = chain(B, c.next, R`\boldsymbol{\Lambda}^{(1)}`, null, null, vecParts(BP.posterior1.map(v => tn(v))));
+      [0, 2].forEach(i => ev.push(show(lam[i], vec.comps[i], 250), blink(lam[i], vec.comps[i])));
+      ev.push(blink(lam[1], vec.comps[1]));
+
+      const xc = xChips(GD.x0);
+      gdTray = trayX0() + card(R`\nabla J = ${vecT(GD.gradient, 3)}`, "scratch-card", "grad");
+      const terms = [
+        chip(gg, edgePoint(1, SLOT_T[1]), R`g_{A,2} = ${tn(GD.g.A[1], 3)}`),
+        chip(gg, edgePoint(2, SLOT_T[2]), R`g_{B,2} = ${tn(GD.g.B[0], 3)}`),
+        chip(gg, [208, PY], R`\text{channel } ${tn(GD.channel_partial[1], 3)}`),
+        chip(gg, [412, PY], R`\text{binary } ${tn(GD.binary_partial[1], 3)}`)
+      ];
+      const grad = chain(G, 300, R`\frac{\partial J}{\partial x_2}`,
+        [M(R`g_{A,2}`), " + ", M(R`g_{B,2}`), R` + \underbrace{`, M(R`-\tfrac{w_{\mathrm{ch}}}{2n}\ell_2`),
+          R`}_{\text{channel}} + \underbrace{`, M(R`\tfrac{4w_{\mathrm{bin}}}{n}x_2\left(x_2^2-1\right)`), R`}_{\text{binary}}`],
+        sumParts([GD.g.A[1], GD.g.B[0], GD.channel_partial[1], GD.binary_partial[1]]),
+        tn(GD.gradient[1]), { aligned: true });
+      terms.forEach((node, j) => ev.push(show(node, 300), blink(node, grad.subs[j]), hide(node, grad.done + 450)));
+      const sum = chip(gg, below(1, 1), R`\partial J/\partial x_2 = ${tn(GD.gradient[1], 3)}`);
+      ev.push(show(sum, grad.done, 250), blink(sum, grad.done), show(gdCard("grad"), grad.done, 250), blink(gdCard("grad"), grad.done));
+      const upd = chain(G, grad.next, R`x^{(1)}_2`,
+        [R`\operatorname{clip}_{[-1,1]}\Bigl(`, M(R`x^{(0)}_2`), " - ", M(R`\eta`), R`\,\frac{`, M(R`\partial J/\partial x_2`), "}{", M("D_2"), R`}\Bigr)`],
+        [R`\operatorname{clip}_{[-1,1]}\Bigl(`, M(tn(GD.x0[1], 6, false)), " - ", M(String(GD.accepted_step)), R`\cdot\frac{`,
+          M(tn(GD.gradient[1], 6, false)), "}{", M(tn(GD.curvature[1], 1, false)), R`}\Bigr)`],
+        tn(GD.x1[1]), { aligned: true });
+      ev.push(blink(xc[1], upd.subs[0]), blink(sum, upd.subs[2]));
+      xc.forEach((node, i) => {
+        ev.push(morph(node, upd.done, 800, p => tex(R`x_${i + 1} = ${tn(lerp(GD.x0[i], GD.x1[i], p), 3)}`)), blink(node, upd.done + 800));
+        ev.push(morph(gdCard(`x${i}`), upd.done, 800, p => tex(p === 0 ? xLabel(i, GD.x0[i], 0) : xLabel(i, lerp(GD.x0[i], GD.x1[i], p), 1, p < 1 ? 3 : 6))),
+          blink(gdCard(`x${i}`), upd.done + 800));
+      });
+    } else if (k === 7) {
+      lChips();
+      bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
+      const uc = uChips(BP.u1);
+      const c = chain(B, 300, R`\mathbf{U}^{(1)}`, null, null, vecParts(BP.u1.map(v => tn(v))));
+      uc.forEach((node, e) => {
+        const p = edgePoint(e, SLOT_T[e]);
+        ev.push(show(tickMark(bg, p[0], p[1] - 26), c.comps[e], 250), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
+      });
+      const p1 = prose(B, c.next, R`next variable phase reads $\mathbf{L}$ and $\mathbf{U}^{(1)}$`);
+      const p2 = prose(B, p1.next, R`$Q^{(2)}$ is then recomputed for each recipient check`);
+      ev.push(show(bpCard("faded"), p2.done, 400));
+
+      const xc = xChips(GD.x1);
+      gdTray = trayX1() + `<span class="faded-card" data-card="faded"><span>${mixed(R`$r$, $g$, $\nabla J$, $\mathbf{D}$, and $\mathbf{d}$ are recomputed`)}</span></span>`;
+      const g = chain(G, 300, R`\text{state needed to continue: }\mathbf{x}^{(1)}`, null, null, vecParts(GD.x1.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(tickMark(gg, PX[i] + 24, PY - 26), g.comps[i], 250), blink(node, g.comps[i]), blink(gdCard(`x${i}`), g.comps[i])));
+      const p3 = prose(G, g.next, R`check terms are recalculated from the next frozen $\mathbf{x}$`);
+      ev.push(show(gdCard("faded"), Math.max(p2.done, p3.done), 400));
+    } else {
+      const animate = k === 8;
+      const lc = lChips();
+      bpTray = BP.q2.map((v, e) => card(qLabel(e, 2), "state-card q-card", `q${e}`)).join("");
+      const xc = xChips(GD.x1);
+      gdTray = trayX1();
+      [1, 2].forEach(e => { const line = guide(gg, e); if (animate) ev.push(show(line, 300)); });
+      if (animate) {
+        [0, 3].forEach(e => {
+          const m = message(bg, e, "up", qLabel(e, 2), 300, ev, "", SLOT_T[e]);
+          ev.push(show(bpCard(`q${e}`), m.land, 250), blink(bpCard(`q${e}`), m.land));
+        });
+        let t = 900, last = 0;
+        [1, 2].forEach((e, j) => {
+          const c = qChain(t, e, 2);
+          ev.push(blink(lc[1], c.subs[0]));
+          const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
+          ev.push(show(bpCard(`q${e}`), m.land, 250), blink(bpCard(`q${e}`), m.land));
+          const r = chain(G, c.done - TIME.sub, R`\text{${j === 0 ? "A" : "B"} reads } x^{(1)}_2`, null, null, tn(GD.x1[1]));
+          const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(GD.x1[1], 3)}`);
+          ev.push(show(read, r.done, 250), blink(read, r.done), blink(xc[1], r.done));
+          t = c.next; last = m.land;
+        });
+        const ne = chip(bg, [310, 94], R`\neq`, "sign"), eq = chip(gg, [310, 94], "=", "sign");
+        ev.push(show(ne, last + 200, 300), blink(ne, last + 200), show(eq, last + 200, 300), blink(eq, last + 200));
+      } else {
+        [0, 1, 2, 3].forEach(e => message(bg, e, "up", qLabel(e, 2), 0, null, e === 1 || e === 2 ? "hot" : "", SLOT_T[e]));
+        [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(GD.x1[1], 3)}`));
+        chip(bg, [310, 94], R`\neq`, "sign");
+        chip(gg, [310, 94], "=", "sign");
+        const p1 = prose(B, 300, R`$Q_{i\to a}$ excludes the preceding $U$ from recipient $a$`);
+        prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
+        const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{a\in N(i)} g_{a,i} + \text{channel term} + \text{binary term}`);
+        prose(G, f.next, "one combined coordinate update produces one new $x_i$");
+      }
+    }
+
+    $("bp-state").innerHTML = bpTray;
+    $("gd-state").innerHTML = gdTray;
+    const events = commit(B).concat(commit(G), ev);
+    const end = events.reduce((m, e) => Math.max(m, e.at + e.dur), 0);
+    return { events, end };
   }
 
   function focusHTML(k) {
-    if (k === 0) return `<p class="focus-title">The controlled visual question</p><div class="basis-grid"><div><b>Graph</b><span>Checks A={1,2}, B={2,3}</span></div><div><b>Channel evidence</b><span>L is fixed exactly</span></div><div><b>BP coordinate</b><span>positive L favours bit 1</span></div><div><b>GD coordinate</b><span>x=+1 favours bit 0</span></div></div>`;
-    if (k === 1) return `<p class="focus-title">See the state before seeing the arithmetic</p><div class="action-contrast"><div class="action-box bp"><b>BP: four addressed slots</b>U<sub>A→1</sub>, U<sub>A→2</sub>, U<sub>B→2</sub>, U<sub>B→3</sub></div><span class="versus">versus</span><div class="action-box gd"><b>GD: three shared bit coordinates</b>x<sub>1</sub>, x<sub>2</sub>, x<sub>3</sub></div></div>`;
-    if (k === 2 || k === 4) return `<p class="focus-title">The same incidences participate; representation does not match</p><div class="action-contrast"><div class="action-box bp"><b>BP</b>directed Q messages are calculated for one recipient check</div><span class="versus">same highlighted incidences</span><div class="action-box gd"><b>GD</b>dashed dependence guides show which frozen x coordinates enter a check term</div></div>`;
-    if (k === 3 || k === 5) return `<p class="focus-title">Do not give the two outputs the same visual grammar</p><div class="action-contrast"><div class="action-box bp"><b>BP output</b>an addressed U message is written into an edge slot</div><span class="versus">not the same object</span><div class="action-box gd"><b>GD calculation</b>a dashed g card appears locally and will be combined by coordinate</div></div>`;
-    if (k === 6) return `<p class="focus-title">Two next-state operators</p><div class="action-contrast"><div class="action-box bp"><b>BP recurrence</b>retain separately indexed U; use exclusion when forming the next Q</div><span class="versus">versus</span><div class="action-box gd"><b>Projected gradient descent step</b>sum derivative terms; apply D<sup>−1</sup>, step size, and box projection to one x</div></div>`;
-    if (k === 7) return `<p class="focus-title">Iteration-boundary scanner</p><div class="boundary-demo"><div class="cross-lane" style="--accent:var(--bp)"><b>BP: these addressed values feed the next variable calculation</b><div class="crossing">${BP.u1.map((v, e) => stateCard(`U${["A→1", "A→2", "B→2", "B→3"][e]} ${sf(v, 3)}`)).join("")}</div><div class="temporary">Q and Λ are recalculated when needed.</div></div><div class="cross-lane" style="--accent:var(--gd)"><b>GD: this scalar vector is sufficient to continue</b><div class="crossing">${GD.x1.map((v, i) => stateCard(`x${i + 1}⁽¹⁾ ${sf(v, 3)}`)).join("")}</div><div class="temporary">r, g, ∇J, D and d fade; each can be recomputed from x and fixed parameters.</div></div><div class="scanner" aria-hidden="true"></div></div>`;
-    if (k === 8) return `<p class="focus-title">The key visual at bit 2</p><div class="equation-contrast"><div class="equation-card bp"><b>BP: value indexed by recipient check</b><div class="equation-row"><span>Q<sub>2→A</sub><sup>(2)</sup><br>${sf(BP.q2[1])}</span><span class="neq">≠</span><span>Q<sub>2→B</sub><sup>(2)</sup><br>${sf(BP.q2[2])}</span></div></div><div class="equation-card gd"><b>GD: one retained bit state</b><div class="equation-row"><span>A reads x<sub>2</sub><sup>(1)</sup><br>${sf(GD.x1[1])}</span><span class="equal">=</span><span>B reads x<sub>2</sub><sup>(1)</sup><br>${sf(GD.x1[1])}</span></div></div></div>`;
-    return `<p class="focus-title">What the viewer should now be able to say</p><div class="mechanism-grid"><div><b>Representation</b><span>BP uses directed edge messages; GD uses bit scalars.</span></div><div><b>Addressing</b><span>BP’s Q is indexed by recipient check; GD’s x is indexed by bit.</span></div><div><b>Retention</b><span>Addressed BP state and GD x survive; GD’s displayed check terms are recomputable.</span></div><div><b>Next-state calculation</b><span>BP applies a message recurrence; GD combines derivatives and projects a coordinate step.</span></div></div><div class="conclusion">The Tanner incidences are revisited. What differs is the state represented, indexed, retained, and supplied to the next calculation.</div>`;
+    const m = mixed;
+    if (k === 0) return `<p class="focus-title">The controlled visual question</p><div class="basis-grid"><div><b>Graph</b><span>${m(R`Checks $A=\{1,2\}$, $B=\{2,3\}$`)}</span></div><div><b>Channel evidence</b><span>${m(R`$\mathbf{L}$ is fixed exactly`)}</span></div><div><b>BP coordinate</b><span>${m("positive $L_i$ favours bit 1")}</span></div><div><b>GD coordinate</b><span>${m("$x_i=+1$ favours bit 0")}</span></div></div>`;
+    if (k === 1) return `<p class="focus-title">See the state before seeing the arithmetic</p><div class="action-contrast"><div class="action-box bp"><b>BP: four addressed slots</b>${tex(R`U_{A\to 1},\ U_{A\to 2},\ U_{B\to 2},\ U_{B\to 3}`)}</div><span class="versus">versus</span><div class="action-box gd"><b>GD: three shared bit coordinates</b>${tex(R`x_1,\ x_2,\ x_3`)}</div></div>`;
+    if (k === 2 || k === 4) return `<p class="focus-title">The same incidences participate; representation does not match</p><div class="action-contrast"><div class="action-box bp"><b>BP</b>${m("directed $Q$ messages are calculated for one recipient check")}</div><span class="versus">same highlighted incidences</span><div class="action-box gd"><b>GD</b>${m(R`dashed dependence guides show which frozen $\mathbf{x}$ coordinates enter a check term`)}</div></div>`;
+    if (k === 3 || k === 5) return `<p class="focus-title">Do not give the two outputs the same visual grammar</p><div class="action-contrast"><div class="action-box bp"><b>BP output</b>${m("an addressed $U$ message is written into an edge slot")}</div><span class="versus">not the same object</span><div class="action-box gd"><b>GD calculation</b>${m("a dashed $g$ card appears locally and will be combined by coordinate")}</div></div>`;
+    if (k === 6) return `<p class="focus-title">Two next-state operators</p><div class="action-contrast"><div class="action-box bp"><b>BP recurrence</b>${m("retain separately indexed $U$; use exclusion when forming the next $Q$")}</div><span class="versus">versus</span><div class="action-box gd"><b>Projected gradient descent step</b>${m(R`sum derivative terms; apply $\mathbf{D}^{-1}$, step size, and box projection to one $\mathbf{x}$`)}</div></div>`;
+    if (k === 7) return `<p class="focus-title">Iteration-boundary scanner</p><div class="boundary-demo"><div class="cross-lane" style="--accent:var(--bp)"><b>BP: these addressed values feed the next variable calculation</b><div class="crossing">${BP.u1.map((v, e) => `<span class="state-card">${tex(R`U_{${USLOT[e]}} = ${tn(v, 3)}`)}</span>`).join("")}</div><div class="temporary">${m(R`$Q$ and $\Lambda$ are recalculated when needed.`)}</div></div><div class="cross-lane" style="--accent:var(--gd)"><b>GD: this scalar vector is sufficient to continue</b><div class="crossing">${GD.x1.map((v, i) => `<span class="state-card">${tex(R`x^{(1)}_${i + 1} = ${tn(v, 3)}`)}</span>`).join("")}</div><div class="temporary">${m(R`$r$, $g$, $\nabla J$, $\mathbf{D}$ and $\mathbf{d}$ fade; each can be recomputed from $\mathbf{x}$ and fixed parameters.`)}</div></div><div class="scanner" aria-hidden="true"></div></div>`;
+    if (k === 8) return `<p class="focus-title">The key visual at bit 2</p><div class="equation-contrast"><div class="equation-card bp"><b>BP: value indexed by recipient check</b><div class="equation-row"><span>${tex(R`Q^{(2)}_{2\to A}`)}<br>${tex(tn(BP.q2[1]))}</span><span class="neq">≠</span><span>${tex(R`Q^{(2)}_{2\to B}`)}<br>${tex(tn(BP.q2[2]))}</span></div></div><div class="equation-card gd"><b>GD: one retained bit state</b><div class="equation-row"><span>A reads ${tex(R`x^{(1)}_2`)}<br>${tex(tn(GD.x1[1]))}</span><span class="equal">=</span><span>B reads ${tex(R`x^{(1)}_2`)}<br>${tex(tn(GD.x1[1]))}</span></div></div></div>`;
+    return `<p class="focus-title">What the viewer should now be able to say</p><div class="mechanism-grid"><div><b>Representation</b><span>BP uses directed edge messages; GD uses bit scalars.</span></div><div><b>Addressing</b><span>${m(R`BP’s $Q$ is indexed by recipient check; GD’s $\mathbf{x}$ is indexed by bit.`)}</span></div><div><b>Retention</b><span>${m(R`Addressed BP state and GD $\mathbf{x}$ survive; GD’s displayed check terms are recomputable.`)}</span></div><div><b>Next-state calculation</b><span>BP applies a message recurrence; GD combines derivatives and projects a coordinate step.</span></div></div><div class="conclusion">The Tanner incidences are revisited. What differs is the state represented, indexed, retained, and supplied to the next calculation.</div>`;
   }
 
   function render() {
     const beat = BEATS[current];
     $("beat-badge").textContent = beat.badge;
     $("stage-title").textContent = beat.title;
-    $("stage-intro").textContent = beat.intro;
+    $("stage-intro").innerHTML = mixed(beat.intro);
     $("beat-readout").textContent = `Beat ${current + 1} of ${BEATS.length}`;
-    $("beat-subtitle").textContent = beat.subtitle;
-    renderState(current);
-    drawBP(current);
-    drawGD(current);
-    renderText(current);
-    $("focus-panel").innerHTML = focusHTML(current);
+    $("beat-subtitle").innerHTML = mixed(beat.subtitle);
+    $("bp-explain").innerHTML = mixed(BP_EXPLAIN[current]);
+    $("gd-explain").innerHTML = mixed(GD_EXPLAIN[current]);
+    const focus = $("focus-panel");
+    focus.innerHTML = focusHTML(current);
     placeFocus();
+    const { events, end } = script(current);
+    const focusAt = current <= 1 || current === 9 ? 600 : Math.max(600, end - 600);
+    events.push({ at: focusAt, dur: 450,
+      init() { focus.style.opacity = "0"; },
+      start() { try { focus.getAnimations({ subtree: true }).forEach(a => { a.cancel(); a.play(); }); } catch (_) { /* older browsers keep the CSS timing */ } },
+      apply(p) { focus.style.opacity = String(p); },
+      end() { focus.style.opacity = ""; } });
+    if (current === 8) events.push(blink(() => focus.querySelector(".neq"), focusAt + 300), blink(() => focus.querySelector(".equal"), focusAt + 300));
+    startTimeline(events, Math.max(current >= 6 ? 7200 : 4800, Math.max(end, focusAt + 450) + TIME.hold));
     document.querySelectorAll(".dot").forEach((dot, index) => {
       dot.classList.toggle("past", index < current);
       dot.classList.toggle("now", index === current);
       dot.setAttribute("aria-current", index === current ? "step" : "false");
     });
-    $("play").textContent = playing ? "Pause" : (current === BEATS.length - 1 ? "Replay" : "Play");
-    if (!location.search.includes("smoke=1")) history.replaceState(null, "", `#beat=${current + 1}`);
+    updatePlay();
+    if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
   }
+  function updatePlay() { $("play").textContent = playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
   function placeFocus() {
     const lanes = $("lanes"), focus = $("focus-panel");
     if (window.matchMedia("(max-width:590px)").matches && current >= 7) {
@@ -666,42 +1081,49 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       lanes.parentNode.insertBefore(focus, lanes.nextSibling);
     }
   }
-  function stop() { playing = false; if (timer !== null) clearTimeout(timer); timer = null; render(); }
-  function schedule() {
-    if (!playing) return;
-    const delay = current >= 6 ? 7200 : 4800;
-    timer = setTimeout(() => {
-      if (current >= BEATS.length - 1) { stop(); return; }
-      current += 1; render(); schedule();
-    }, delay / speed);
+  function advance() {
+    if (current >= BEATS.length - 1) { playing = false; updatePlay(); return; }
+    current += 1;
+    render();
   }
   function play() {
-    if (playing) { stop(); return; }
-    if (current >= BEATS.length - 1) current = 0;
-    playing = true; render(); schedule();
+    if (playing) { playing = false; frozen = true; updatePlay(); return; }
+    playing = true;
+    if (frozen) { frozen = false; updatePlay(); wake(); return; }
+    if (clock.t >= clock.length) {
+      if (current >= BEATS.length - 1) current = 0; else current += 1;
+      render();
+    }
+    updatePlay();
+    wake();
   }
-  function move(delta) { stop(); current = Math.max(0, Math.min(BEATS.length - 1, current + delta)); render(); }
+  function goTo(index) {
+    playing = false; frozen = false;
+    current = Math.max(0, Math.min(BEATS.length - 1, Number(index)));
+    render();
+  }
 
+  document.querySelectorAll(".tex").forEach(node => { node.innerHTML = tex(node.textContent.trim(), node.classList.contains("display")); });
   const timeline = $("timeline");
   BEATS.forEach((beat, index) => {
     const dot = document.createElement("button");
-    dot.type = "button"; dot.className = "dot"; dot.title = `Beat ${index + 1}: ${beat.subtitle}`;
+    dot.type = "button"; dot.className = "dot"; dot.title = `Beat ${index + 1}: ${plain(beat.subtitle)}`;
     dot.setAttribute("aria-label", dot.title);
-    dot.addEventListener("click", () => { stop(); current = index; render(); });
+    dot.addEventListener("click", () => goTo(index));
     timeline.appendChild(dot);
   });
   $("play").addEventListener("click", play);
-  $("back").addEventListener("click", () => move(-1));
-  $("next").addEventListener("click", () => move(1));
-  $("restart").addEventListener("click", () => { stop(); current = 0; render(); });
-  $("speed").addEventListener("change", event => { speed = Number(event.target.value); if (playing) { clearTimeout(timer); schedule(); } });
+  $("back").addEventListener("click", () => goTo(current - 1));
+  $("next").addEventListener("click", () => goTo(current + 1));
+  $("restart").addEventListener("click", () => goTo(0));
+  $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
   window.addEventListener("resize", placeFocus);
   document.addEventListener("keydown", event => {
     if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
     if (event.key === " ") { event.preventDefault(); play(); }
-    if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
-    if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
-    if (event.key === "Home") { event.preventDefault(); stop(); current = 0; render(); }
+    if (event.key === "ArrowRight") { event.preventDefault(); goTo(current + 1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); goTo(current - 1); }
+    if (event.key === "Home") { event.preventDefault(); goTo(0); }
   });
   const match = /^#beat=(\d+)$/.exec(location.hash);
   if (match) current = Math.max(0, Math.min(BEATS.length - 1, Number(match[1]) - 1));
@@ -709,11 +1131,14 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   window.BP_GD_STATE_ANIMATION = {
     data: DATA, beats: BEATS.slice(),
     getBeat: () => current,
-    setBeat: index => { stop(); current = Math.max(0, Math.min(BEATS.length - 1, Number(index))); render(); }
+    setBeat: index => goTo(index),
+    seek
   };
   render();
+  const seekTo = /[?&]at=(\d+)/.exec(location.search);
+  if (seekTo && !smoke) seek(seekTo[1]);
   document.documentElement.dataset.animationReady = "true";
-  if (location.search.includes("smoke=1")) {
+  if (smoke) {
     try {
       const snapshots = document.createElement("section");
       snapshots.id = "animation-smoke-snapshots";
@@ -721,12 +1146,13 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       const saveSnapshot = (id, sourceId) => {
         const snapshot = document.createElement("p");
         snapshot.id = id;
-        snapshot.textContent = $(sourceId).textContent;
+        snapshot.textContent = visibleText($(sourceId));
         snapshots.appendChild(snapshot);
       };
       for (let k = 0; k < BEATS.length; k += 1) {
         current = k; render();
         if (!$("stage-title").textContent || !$("bp-math").textContent || !$("gd-math").textContent || !$("focus-panel").textContent) throw new Error(`empty beat ${k + 1}`);
+        if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
         if (k === 6) {
           saveSnapshot("smoke-beat7-bp-math", "bp-math");
           saveSnapshot("smoke-beat7-gd-math", "gd-math");
@@ -745,8 +1171,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     } catch (error) {
       document.documentElement.dataset.animationSmoke = `failed: ${error.message}`;
     }
-  } else if (!reduced && !match && window.innerWidth > 930) {
-    setTimeout(() => { if (!playing && current === 0) play(); }, 900);
+  } else if (!reduced && !match && !seekTo && window.innerWidth > 930) {
+    setTimeout(() => { if (!playing && !frozen && current === 0) play(); }, 900);
   }
 })();
 </script>
