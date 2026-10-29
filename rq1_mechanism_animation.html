@@ -151,6 +151,125 @@ h1 { max-width: 21ch; margin: 0; font: 700 clamp(2rem, 5vw, 4.2rem)/.98 var(--se
 .source-list div::before { content: "• "; color: var(--ok); }
 code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+/* Mode switch and Core story */
+:root { --glow: #d39a19; }
+[hidden] { display: none !important; }
+.modes { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 22px 0 0; }
+.mode-tab { min-height: 38px; padding: 7px 15px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); font-weight: 700; cursor: pointer; }
+.mode-tab[aria-selected="true"] { color: #fff; background: var(--ink); border-color: var(--ink); }
+.mode-tab:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.mode-note { margin-left: 4px; color: var(--muted); font-size: .84rem; }
+.controls { margin-top: 10px; }
+.core-tools { grid-column: 1 / -1; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--line); }
+.control.toggle[aria-pressed="true"] { background: var(--bp-soft); border-color: var(--bp); font-weight: 700; }
+.control.toggle[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.control.accent { color: var(--focus); border-color: var(--focus); font-weight: 700; }
+.core-tools .tool-note { color: var(--muted); font-size: .8rem; }
+.timeline.core-line { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr) minmax(5.6rem, 1.3fr); }
+.timeline-group.pair { --chapter: var(--focus); }
+.timeline-group.ablation { --chapter: var(--tie); }
+.timeline-group.finish { --chapter: var(--ok); }
+.given { margin-top: 14px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: #faf8f3; font: 1rem/1.5 var(--serif); }
+.given b { margin-right: 6px; color: var(--muted); font: 800 .72rem/1 var(--sans); letter-spacing: .07em; text-transform: uppercase; }
+.clock { display: flex; flex-wrap: wrap; gap: 3px 12px; align-items: baseline; margin-top: 10px; padding: 7px 12px; border-radius: 9px; background: #f2ebf8; color: var(--focus); }
+.clock b { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+.clock span { color: var(--ink); font-size: .9rem; }
+.native-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+.core-count { min-height: 2.6em; margin: 6px 0 0; color: var(--muted); font-size: .82rem; }
+.core-fig { margin-top: 6px; overflow-x: auto; }
+.core-fig svg { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto; }
+.core-step { margin: 8px 0 0; font-weight: 700; }
+.core-math { min-height: calc(2 * 1.6em + 14px); margin: 7px 0; padding: 7px 10px; overflow-x: auto; background: var(--soft); border-radius: 8px; font: 1rem/1.6 var(--serif); }
+.core-math .ln { display: block; white-space: nowrap; }
+.core-say { min-height: 4.6em; margin: 6px 0 0; }
+.boundary-strip { margin-top: 14px; padding: 11px 14px; border: 2px dashed var(--focus); border-radius: 12px; background: #fbf8fd; }
+.boundary-strip > b { display: block; color: var(--focus); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+.cross-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }
+.cross-row p { min-height: 3em; margin: 0; }
+.cross-row .who { display: block; font-size: .76rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.cross-row .who.bp { color: var(--bp); }
+.cross-row .who.gd { color: var(--grad); }
+.notice { min-height: 1.5em; margin: 8px 0 0; color: var(--focus); font-weight: 700; }
+.legend-core { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: .84rem; }
+.legend-core span { display: inline-flex; gap: 6px; align-items: center; }
+.legend-core svg { flex: none; }
+.core-svg text { fill: var(--ink); font: 13px var(--sans); font-variant-numeric: tabular-nums; }
+.core-svg .ss { font-size: 80%; }
+.core-svg .nodel { font-size: 14px; font-weight: 800; }
+.core-svg .val { font-weight: 800; }
+.core-svg .small { font-size: 11.5px; }
+.core-svg .edge { stroke: #8e877b; stroke-width: 3; }
+.core-svg .glow { stroke: var(--glow); stroke-width: 17; stroke-linecap: round; }
+.core-svg .bitn { fill: #fff; stroke: var(--accent); stroke-width: 2.4; }
+.core-svg .bitn.on { stroke-width: 5; }
+.core-svg .checkn { fill: var(--soft); stroke: var(--accent); stroke-width: 2.4; }
+.core-svg .checkn.on { stroke-width: 5; }
+.core-svg .ring { fill: none; stroke: var(--focus); stroke-width: 1.7; stroke-dasharray: 4 4; }
+.core-svg .tray { fill: #faf8f3; stroke: var(--line); stroke-width: 1.4; }
+.core-svg .trayl { font-size: 10.5px; font-weight: 800; letter-spacing: .06em; }
+.core-svg .keep { fill: #fff; stroke: var(--accent); stroke-width: 2.4; }
+.core-svg .temp { fill: #fff; stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 5 4; }
+.core-svg .fresh { fill: var(--soft); stroke-width: 3.6; }
+.core-svg .used { fill: var(--soft); stroke-width: 4.2; }
+.core-svg .left { fill: #fff; stroke: var(--bad); stroke-width: 3.2; }
+.core-svg .badge { fill: var(--bad); font-size: 10.5px; font-weight: 800; }
+.core-svg .tick circle { fill: var(--ok); }
+.core-svg .tick path { fill: none; stroke: #fff; stroke-width: 2.2; }
+.core-svg .tok { fill: var(--accent); }
+.core-svg .lead { stroke: var(--accent); stroke-width: 1.2; stroke-dasharray: 2 3; }
+.core-svg .scan { stroke: var(--focus); stroke-width: 3; }
+.core-svg .scanband { fill: var(--focus); opacity: .1; }
+.core-svg .scanl { fill: var(--focus); font-size: 10.5px; font-weight: 800; letter-spacing: .05em; }
+.core-svg .divl { fill: var(--bad); font-size: 11px; font-weight: 800; }
+.inset { margin-top: 14px; padding: 16px; border: 2px solid var(--tie); border-radius: 14px; background: #fffaf5; }
+.inset-ribbon { display: inline-block; padding: 5px 12px; border-radius: 999px; color: #fff; background: var(--tie); font-size: .82rem; font-weight: 800; letter-spacing: .03em; }
+.inset .formula { display: inline-block; margin: 0 0 0 10px; vertical-align: middle; }
+.locks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+.lock { display: inline-flex; gap: 5px; align-items: center; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: .82rem; }
+.lock svg { flex: none; }
+.arms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+.arm-out { min-height: 2.6em; margin-top: 6px; }
+.arm-flag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; color: #fff; background: var(--ok); font: 800 .72rem/1.4 var(--sans); vertical-align: middle; }
+.inset-note { min-height: 3em; margin: 12px 0 0; }
+.inset-note.restore { min-height: 1.5em; margin-top: 10px; font-weight: 700; }
+.awgn { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px; }
+.awgn h4 { margin: 0; font: 700 1.05rem/1.25 var(--serif); }
+.awgn .tagline { margin: 3px 0 8px; color: var(--muted); font-size: .84rem; }
+.frame-row { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr) 4.6rem; gap: 8px; align-items: center; margin: 6px 0; font-size: .86rem; }
+.frames { display: grid; gap: 2px; }
+.frames.f24 { grid-template-columns: repeat(24, minmax(0, 1fr)); }
+.frames.f200 { grid-template-columns: repeat(40, minmax(0, 1fr)); }
+.frames i { display: block; aspect-ratio: 1; border: 1.4px solid var(--tie); border-radius: 2px; background: #fff; }
+.frames.full i { border-color: var(--bp); }
+.frames i.on { background: var(--ok); border-color: var(--ok); }
+.frame-row b { text-align: right; font-variant-numeric: tabular-nums; }
+.cards4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.card4 { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.card4 h4 { margin: 0 0 8px; font: 700 1.06rem/1.2 var(--serif); }
+.card4 p { margin: 5px 0 0; font-size: .9rem; }
+.card4 .who { display: block; font-size: .72rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.card4 .who.bp { color: var(--bp); }
+.card4 .who.gd { color: var(--grad); }
+.final-claim { margin: 14px 0 0; padding: 12px 14px; border-left: 5px solid var(--ok); border-radius: 8px; background: #eef6f0; font: 1.04rem/1.55 var(--serif); }
+.fingerprint { width: 100%; margin-top: 14px; border-collapse: collapse; font-size: .86rem; }
+.fingerprint caption { margin-bottom: 6px; text-align: left; font-weight: 800; }
+.fingerprint th, .fingerprint td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.fingerprint thead th { color: var(--muted); font-size: .8rem; }
+.scroll-hint { display: none; margin: 4px 0 0; color: var(--muted); font-size: .8rem; }
+@media (max-width: 980px) {
+  .native-pair, .arms, .awgn, .cross-row { grid-template-columns: 1fr; }
+  .cards4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 620px) {
+  .timeline.core-line { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .core-fig svg { min-width: 460px; }
+  .scroll-hint { display: block; }
+  .cards4 { grid-template-columns: 1fr; }
+  .frame-row { grid-template-columns: 5.6rem minmax(0, 1fr) 3.8rem; }
+  .frames.f200 { grid-template-columns: repeat(20, minmax(0, 1fr)); }
+}
 @keyframes flow { to { stroke-dashoffset: -16; } }
 @keyframes fall { from { opacity: 1; transform: translateY(-12px); } to { opacity: .45; transform: translateY(7px); } }
 @keyframes pulse { from { opacity: .68; } to { opacity: 1; } }
@@ -180,13 +299,19 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     <div>
       <p class="eyebrow">Research Question 1 · mechanism identification</p>
       <h1>What first separates BP from projected gradient descent?</h1>
-      <p class="lead">The animation follows retained executable traces. It first changes only BP’s values on individual directed edges, then changes only the update operator in a controlled counterfactual, and finally places exact sum-product BP beside the native scalar <code>coral_exact_gradient</code> endpoint without equating their states or objectives.</p>
+      <p class="lead">Both modes follow retained executable traces. The <b>Core story</b> walks one three-bit, two-check example through BP and native projected gradient descent, asks what crosses the iteration boundary, and then opens the controlled BP ablation that tests it. <b>Full evidence</b> first changes only BP’s values on individual directed edges, then changes only the update operator in a controlled counterfactual, and finally places exact sum-product BP beside the native scalar <code>coral_exact_gradient</code> endpoint without equating their states or objectives.</p>
     </div>
     <aside class="question">
       <strong>Question under test</strong>
       <p>Which distinction, when removed and then restored in a controlled variant, changes the next internal state or hard-decision estimate?</p>
     </aside>
   </header>
+
+  <div class="modes" role="tablist" aria-label="Animation mode">
+    <button class="mode-tab" role="tab" id="tab-core" type="button" aria-selected="true" aria-controls="core-view">Core story</button>
+    <button class="mode-tab" role="tab" id="tab-full" type="button" aria-selected="false" aria-controls="stage">Full evidence</button>
+    <span class="mode-note" id="mode-note">Core story: 13 beats on one example. Full evidence: the 16-beat state, update and native-endpoint sequence.</span>
+  </div>
 
   <nav class="controls" aria-label="Animation controls">
     <div class="controls-group">
@@ -200,10 +325,69 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
       <label class="speed">Speed <select id="speed"><option value="2600">0.75×</option><option value="1900" selected>1×</option><option value="1100">1.75×</option></select></label>
       <button class="control" id="export" type="button">Export exact values</button>
     </div>
+    <div class="core-tools" id="core-tools">
+      <button class="control toggle" id="t-traversal" type="button" aria-pressed="false">Traversal only</button>
+      <button class="control toggle" id="t-values" type="button" aria-pressed="false">Show values</button>
+      <button class="control accent" id="t-survives" type="button">What survives?</button>
+      <span class="tool-note" id="tool-note">Traversal only hides every value and shows which incidences are in use. Show values adds the retained numbers.</span>
+    </div>
   </nav>
 
-  <div class="timeline" id="timeline" aria-label="Animation chapters"></div>
-  <section class="stage" id="stage" aria-live="polite"></section>
+  <div class="timeline core-line" id="core-timeline" aria-label="Core story chapters"></div>
+  <section class="stage core-view" id="core-view" aria-labelledby="core-title">
+    <div class="stage-head">
+      <span class="chapter-badge" id="core-badge">Core story</span>
+      <div><h2 id="core-title"></h2><p class="stage-intro" id="core-intro"></p></div>
+    </div>
+    <div class="given" id="core-given"></div>
+    <div class="clock" id="core-clock"><b>Same explanation clock</b><span id="core-clock-text"></span><span>Synchronized beats align the explanation, not their arithmetic.</span></div>
+    <div class="native-pair" id="core-native">
+      <section class="method bp" aria-labelledby="core-bp-h">
+        <h3 id="core-bp-h">Belief propagation (BP)<span class="kind">directed edge mailboxes · solid = retained</span></h3>
+        <p class="core-count" id="core-bp-count"></p>
+        <div class="core-fig"><svg class="core-svg" id="core-bp-svg" viewBox="0 0 460 360" role="img" aria-labelledby="core-bp-desc" style="--accent:var(--bp);--soft:var(--bp-soft)"></svg></div>
+        <p class="scroll-hint">Scroll sideways to see the whole graph.</p>
+        <p class="core-step" id="core-bp-step"></p><div class="core-math" id="core-bp-math"></div><p class="core-say" id="core-bp-say"></p>
+      </section>
+      <section class="method scalar" aria-labelledby="core-gd-h">
+        <h3 id="core-gd-h">Projected gradient descent (GD)<span class="kind">one scalar per bit · dashed = temporary</span></h3>
+        <p class="core-count" id="core-gd-count"></p>
+        <div class="core-fig"><svg class="core-svg" id="core-gd-svg" viewBox="0 0 460 360" role="img" aria-labelledby="core-gd-desc" style="--accent:var(--grad);--soft:var(--grad-soft)"></svg></div>
+        <p class="scroll-hint">Scroll sideways to see the whole graph.</p>
+        <p class="core-step" id="core-gd-step"></p><div class="core-math" id="core-gd-math"></div><p class="core-say" id="core-gd-say"></p>
+      </section>
+    </div>
+    <div class="boundary-strip" id="core-boundary">
+      <b>What crosses the iteration boundary?</b>
+      <div class="cross-row"><p id="core-cross-bp"></p><p id="core-cross-gd"></p></div>
+    </div>
+    <div class="inset" id="core-inset" hidden>
+      <span class="inset-ribbon">Controlled BP ablation — not GD</span>
+      <span class="formula" id="core-inset-formula"></span>
+      <div class="locks" id="core-locks"></div>
+      <div class="arms" id="core-arms">
+        <section class="method full" aria-labelledby="core-arm-full-h">
+          <h3 id="core-arm-full-h">Full exact BP<span class="kind">Q = q̄ + δ: each check receives its own value</span></h3>
+          <div class="core-fig"><svg class="core-svg" id="core-arm-full" viewBox="0 0 460 310" role="img" aria-labelledby="core-arm-full-desc" style="--accent:var(--bp);--soft:var(--bp-soft)"></svg></div>
+          <div class="arm-out" id="core-out-full"></div>
+        </section>
+        <section class="method tied" aria-labelledby="core-arm-tied-h">
+          <h3 id="core-arm-tied-h">q̄-tied BP<span class="kind">Q = q̄: both checks receive the bit average</span></h3>
+          <div class="core-fig"><svg class="core-svg" id="core-arm-tied" viewBox="0 0 460 310" role="img" aria-labelledby="core-arm-tied-desc" style="--accent:var(--tie);--soft:var(--tie-soft)"></svg></div>
+          <div class="arm-out" id="core-out-tied"></div>
+        </section>
+      </div>
+      <div class="awgn" id="core-awgn" hidden></div>
+      <p class="inset-note restore" id="core-restore"></p>
+      <p class="inset-note" id="core-inset-note"></p>
+    </div>
+    <div id="core-end" hidden></div>
+    <p class="notice" id="core-notice" role="status"></p>
+    <div class="legend-core" id="core-legend" aria-label="Visual grammar"></div>
+  </section>
+
+  <div class="timeline" id="timeline" aria-label="Animation chapters" hidden></div>
+  <section class="stage" id="stage" aria-live="polite" hidden></section>
 
   <details class="exact">
     <summary>Exact full-precision values used in this beat</summary>
@@ -212,19 +396,22 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   <footer class="sources">
     <b>Eligible retained sources.</b> The verifier checks every embedded value through its JSON pointer and checks each complete source-file SHA-256.
     <div class="source-list" id="source-list"></div>
-    <p>Animation beats synchronize the explanation only. They are not units of arithmetic, runtime, memory, or computational complexity. Keyboard: Space plays or pauses; Left/Right steps; Home restarts.</p>
+    <p>Animation beats synchronize the explanation only. They are not units of arithmetic, runtime, memory, or computational complexity. Keyboard: Space plays or pauses; Left/Right steps; Home restarts. Links: <code>#core=7</code> opens Core story beat 7 and <code>#beat=3</code> opens Full evidence beat 3. Displayed values are rounded; every calculation uses the full-precision values, and a displayed sum carries enough decimals for its terms to add up.</p>
   </footer>
 </main>
 
 <script id="rq1-evidence" type="application/json">
 {
-  "schema": "rq1-mechanism-animation/evidence-v1",
+  "schema": "rq1-mechanism-animation/evidence-v2",
   "sources": {
     "state_tree": {"path":"experiments/rq1_state_002/results/2026-10-28_primary_v3/nonzero_sum_tree__pulse.json","sha256":"42cebb0c83646419c483a0488c163c4b391cca45aa97888ae1095b04b4d7a0e0"},
     "state_cycle": {"path":"experiments/rq1_state_002/results/2026-10-28_cycle_confirm_v3/cyclic_four_bit__pulse.json","sha256":"058746a30972b08cc8e5c3f876c79ae5fed8a70fd39edc424f2b24fecb04b03c"},
     "update_tree": {"path":"experiments/rq1_update_001/retained/anchor_v2/result.json","sha256":"81c0fb030b098dc837c42633219e9aa8320708362d31a215196f6bee5f225f9d"},
     "update_cycle": {"path":"experiments/rq1_update_cycle_001/retained/confirmation_v1/result.json","sha256":"f2289464b242aecc8d272ff6d435b7fe023af88052d4f3ae9318ed162d4918a9"},
-    "endpoint": {"path":"experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json","sha256":"c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"}
+    "endpoint": {"path":"experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json","sha256":"c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"},
+    "core_gd": {"path":"experiments/comm_core_story_001/results/2026-10-28_core_story_v1/core_story_trace.json","sha256":"6541b1dc3bc4ca801799afe656691a62d6b92c1e408a7ad751a1cddfb0602e61"},
+    "rq2_anchor": {"path":"experiments/rq2_qbar_awgn_001/results/2026-10-28_anchor_v2/science.json","sha256":"4bae20789e7ae5a67944e9109997a4390348c50c575e38736a1ec56e9fe79cc4"},
+    "rq2_transfer": {"path":"experiments/rq2_qbar_awgn_001/results/2026-10-28_heldout_parallel_windows_v1/science.json","sha256":"4536c5cdd20505fad290e58c7e1b7bcfbec729f1486cc3b5881903be98464137"}
   },
   "values": {
     "tree_h":{"source":"state_tree","pointer":"/h","value":[[1,1,0],[0,1,1]]},
@@ -294,7 +481,40 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     "endpoint_scalar_accepted":{"source":"endpoint","pointer":"/rung_results/6/result/accepted_steps","value":30},
     "endpoint_scalar_decoder_calls":{"source":"endpoint","pointer":"/native_endpoint_equivalence/current/decoder_calls","value":0},
     "endpoint_scalar_pseudogradient_calls":{"source":"endpoint","pointer":"/native_endpoint_equivalence/current/pseudogradient_calls","value":0},
-    "endpoint_valid":{"source":"endpoint","pointer":"/validation_passed","value":true}
+    "endpoint_valid":{"source":"endpoint","pointer":"/validation_passed","value":true},
+    "core_tree_u0":{"source":"state_tree","pointer":"/branches/full/iterations/0/u_in","value":[0.0,0.0,0.0,0.0]},
+    "core_tree_it1_q":{"source":"state_tree","pointer":"/branches/full/iterations/0/q_transmitted","value":[-2.1972245773362196,0.4054651081081644,0.4054651081081644,0.6931471805599453]},
+    "core_tree_it1_post":{"source":"state_tree","pointer":"/branches/full/iterations/0/a_posteriori_after","value":[-1.7917594692280552,-1.0986122886681098,1.0986122886681096]},
+    "core_tree_it1_tied_q":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/0/q_transmitted","value":[-2.1972245773362196,0.4054651081081644,0.4054651081081644,0.6931471805599453]},
+    "core_tree_it1_tied_u":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/0/u_out","value":[0.4054651081081644,-2.1972245773362196,0.6931471805599453,0.4054651081081644]},
+    "core_tree_it2_tied_qstd":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/q_standard","value":[-2.1972245773362196,1.0986122886681096,-1.7917594692280552,0.6931471805599453]},
+    "core_tree_it2_tied_qbar":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/qbar_by_bit","value":[-2.1972245773362196,-0.3465735902799728,0.6931471805599453]},
+    "core_tree_it2_tied_delta":{"source":"state_tree","pointer":"/branches/qbar_collapse/iterations/1/delta_by_edge","value":[0.0,1.4451858789480823,-1.4451858789480823,0.0]},
+    "core_tree_schedule":{"source":"state_tree","pointer":"/schedule","value":"flooding"},
+    "core_tree_iterations":{"source":"state_tree","pointer":"/iterations","value":3},
+    "core_tree_treatment":{"source":"state_tree","pointer":"/treatment","value":"pulse"},
+    "core_tree_intervention":{"source":"state_tree","pointer":"/intervention_iteration","value":2},
+    "core_endpoint_second":{"source":"endpoint","pointer":"/rung_results/6/result/trace/1","value":{"accepted":true,"accepted_step":0.2,"active_projection_coordinates":[],"backtrack_index":0,"direction":[0.10977226287734845,0.19934919903941045,-0.2132217768271878],"frozen_state_sha256":"5a63a06d11bbfcd0e4a33d6baba2dea6c813df8d4b1bca49fc59b833d001f486","gradient":[-0.20490822403771708,-0.6379174369261134,0.3980139834107505],"loss_after":1.1579455665626779,"loss_before":1.2036294788150355,"projected_proposal":[0.8362763200279022,-0.11614634766083717,-0.4234875920553307],"raw_proposal":[0.8362763200279022,-0.11614634766083717,-0.4234875920553307],"update":2,"x_before":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317]}},
+    "core_gd_objective":{"source":"core_gd","pointer":"/objective","value":{"binary_term":"(4 w_bin/n) x_i (x_i^2 - 1)","channel_evidence":"ell = -L, with L_i = ln(P(b_i=1|y_i)/P(b_i=0|y_i))","channel_term":"-(w_ch/(2n)) ell_i","check_term":"g_{c,i} = -(2 w_par/n) r_c prod_{j in c, j != i} x_j, with r_c = 1 - prod_{j in c} x_j","coordinates":"one scalar per bit; x_i = +1 favours bit 0 (bit-0-positive)","degrees":[1,2,1],"formula":"J(x) = -(w_ch/(2n)) sum_i ell_i x_i + (w_par/n) sum_c (1 - prod_{j in c} x_j)^2 + (w_bin/n) sum_i (1 - x_i^2)^2","hard_decision_rule":"b_hat_i = 1 if x_i < 0 else 0","n":3,"preconditioner":"D_i = (2 w_par deg_i + 8 w_bin)/n","step_size":0.2,"update":"x <- clip(x - eta grad J / D, -1, 1), eta = step_size * 0.5^backtrack, accepted at the first strict decrease of J","weights":{"binary":0.2,"channel":1.0,"parity":2.0}}},
+    "core_gd_ell":{"source":"core_gd","pointer":"/ell","value":[2.1972245773362196,-0.4054651081081644,-0.6931471805599453]},
+    "core_gd_u1":{"source":"core_gd","pointer":"/updates/0","value":{"accepted_step":0.2,"active_projection_coordinates":[],"backtrack_index":0,"binary_partial":[-0.0768,0.051199999999999996,0.07901234567901234],"channel_partial":[-0.3662040962227033,0.0675775180180274,0.11552453009332421],"curvature":[1.8666666666666665,3.1999999999999997,1.8666666666666665],"direction":[0.0716093372621625,0.21991906265640354,-0.23754951678279934],"g":{"A":{"b1":0.3093333333333333,"b2":-1.2373333333333334},"B":{"b2":0.4148148148148148,"b3":0.24888888888888888}},"gradient":[-0.13367076288936997,-0.7037410005004913,0.4434257646612254],"hard_decision_after":[0,1,1],"hard_decision_before":[0,1,1],"loss_after":1.2036294788150355,"loss_before":1.2555753472472062,"parity_partial":[0.3093333333333333,-0.8225185185185186,0.24888888888888888],"product":{"A":-0.16,"B":0.06666666666666665},"projected_proposal":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317],"raw_proposal":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317],"readings":{"A":{"b1":0.8,"b2":-0.19999999999999998},"B":{"b2":-0.19999999999999998,"b3":-0.3333333333333333}},"residual":{"A":1.16,"B":0.9333333333333333},"syndrome_after":[1,0],"syndrome_before":[1,0],"trace_pointer":"/rung_results/6/result/trace/0","update":1,"x_before":[0.8,-0.19999999999999998,-0.3333333333333333]}},
+    "core_gd_u2":{"source":"core_gd","pointer":"/updates/1","value":{"accepted_step":0.2,"active_projection_coordinates":[],"backtrack_index":0,"binary_partial":[-0.07315431097910167,0.040591623875031145,0.0868280360963729],"channel_partial":[-0.3662040962227033,0.0675775180180274,0.11552453009332421],"curvature":[1.8666666666666665,3.1999999999999997,1.8666666666666665],"direction":[0.10977226287734845,0.19934919903941045,-0.2132217768271878],"g":{"A":{"b1":0.23445018316408786,"b2":-1.2237057838438932},"B":{"b2":0.4776192050247213,"b3":0.1956614172210534}},"gradient":[-0.20490822403771708,-0.6379174369261134,0.3980139834107505],"hard_decision_after":[0,1,1],"hard_decision_before":[0,1,1],"loss_after":1.1579455665626779,"loss_before":1.2036294788150355,"parity_partial":[0.23445018316408786,-0.7460865788191718,0.1956614172210534],"product":{"A":-0.12704739313233626,"B":0.05941770981160419},"projected_proposal":[0.8362763200279022,-0.11614634766083717,-0.4234875920553307],"raw_proposal":[0.8362763200279022,-0.11614634766083717,-0.4234875920553307],"readings":{"A":{"b1":0.8143218674524325,"b2":-0.15601618746871926},"B":{"b2":-0.15601618746871926,"b3":-0.38084323668989317}},"residual":{"A":1.1270473931323362,"B":0.9405822901883958},"syndrome_after":[1,0],"syndrome_before":[1,0],"trace_pointer":"/rung_results/6/result/trace/1","update":2,"x_before":[0.8143218674524325,-0.15601618746871926,-0.38084323668989317]}},
+    "core_gd_valid":{"source":"core_gd","pointer":"/validation/all_passed","value":true},
+    "rq2_anchor_status":{"source":"rq2_anchor","pointer":"/status","value":"valid"},
+    "rq2_anchor_valid":{"source":"rq2_anchor","pointer":"/validation_passed","value":true},
+    "rq2_anchor_replay":{"source":"rq2_anchor","pointer":"/deterministic_replay/passed","value":true},
+    "rq2_anchor_frames":{"source":"rq2_anchor","pointer":"/frame_count","value":24},
+    "rq2_anchor_parity":{"source":"rq2_anchor","pointer":"/endpoints/parity_valid/counts","value":{"full_successes":24,"n00_both_failure":0,"n01_tied_only_success":0,"n10_full_only_success":24,"n11_both_success":0,"pairs":24,"risk_difference_full_minus_tied":1.0,"tied_successes":0}},
+    "rq2_anchor_word":{"source":"rq2_anchor","pointer":"/endpoints/transmitted_equal/counts","value":{"full_successes":24,"n00_both_failure":0,"n01_tied_only_success":0,"n10_full_only_success":24,"n11_both_success":0,"pairs":24,"risk_difference_full_minus_tied":1.0,"tied_successes":0}},
+    "rq2_anchor_boundary":{"source":"rq2_anchor","pointer":"/claim_boundary","value":"This exact-sum-product state ablation does not by itself attribute the native BP-versus-projected-GD performance difference."},
+    "rq2_transfer_status":{"source":"rq2_transfer","pointer":"/status","value":"valid_parallel_transfer"},
+    "rq2_transfer_valid":{"source":"rq2_transfer","pointer":"/validation_passed","value":true},
+    "rq2_transfer_replay":{"source":"rq2_transfer","pointer":"/deterministic_replay/passed","value":true},
+    "rq2_transfer_frames":{"source":"rq2_transfer","pointer":"/frame_count","value":200},
+    "rq2_transfer_parity":{"source":"rq2_transfer","pointer":"/endpoints/parity_valid/counts","value":{"full_successes":200,"n00_both_failure":0,"n01_tied_only_success":0,"n10_full_only_success":200,"n11_both_success":0,"pairs":200,"risk_difference_full_minus_tied":1.0,"tied_successes":0}},
+    "rq2_transfer_word":{"source":"rq2_transfer","pointer":"/endpoints/transmitted_equal/counts","value":{"full_successes":200,"n00_both_failure":0,"n01_tied_only_success":0,"n10_full_only_success":200,"n11_both_success":0,"pairs":200,"risk_difference_full_minus_tied":1.0,"tied_successes":0}},
+    "rq2_transfer_boundary":{"source":"rq2_transfer","pointer":"/claim_boundary","value":"Parallel Windows transfer of the locked exact-SP state ablation; not the original preregistered single-thread execution record."},
+    "rq2_transfer_threads":{"source":"rq2_transfer","pointer":"/execution_schedule/frame_parallelism","value":4}
   }
 }
 </script>
@@ -427,14 +647,17 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     }},
     {chapter:"native", title:"The native methods compute different objects on their first visible update", used:["endpoint_bp_iterations","endpoint_scalar_first"], body(){
       const bp=value("endpoint_bp_iterations")[0], g=value("endpoint_scalar_first");
-      return header("native",this.title,"The synchronized beat aligns explanation time only. In the native check-first schedule, exact sum-product reads stored Q, writes U/r, and then uses U/r to write the next Q. The scalar method combines partial derivatives of its objective, projects, and retains the new scalar vector.")+`<div class="comparison">${method("bp","Exact sum-product BP","native check-first message-passing iteration 1",`${graph(bp.q_bit1,bp.u_bit1,"var(--bp)",[1,2],true,true)}${edgeList(value("tree_q_labels"),bp.q_bit1,[1,2])}${edgeList(value("tree_u_labels"),bp.u_bit1,[])}${decisionFrom(bp.hard_decision,bp.syndrome)}`)}${method("scalar","Native scalar coral_exact_gradient","accepted scalar update 1",`${gradientChips()}<div class="formula">x = ${vec(g.x_before)}<br>∇J = ${vec(g.gradient)}<br>project(x − step · direction) = ${vec(g.projected_proposal)}</div><p>Accepted step = ${n(g.accepted_step)}; J: ${n(g.loss_before,6)} → ${n(g.loss_after,6)}.</p>`)}</div>`;
+      return header("native",this.title,"The synchronized beat aligns explanation time only. In the native check-first schedule, exact sum-product reads stored Q, writes U/r, and then uses U/r to write the next Q. The scalar method combines partial derivatives of its objective, projects, and retains the new scalar vector.")+`<div class="comparison">${method("bp","Exact sum-product BP","native check-first message-passing iteration 1",`${graph(bp.q_bit1,bp.u_bit1,"var(--bp)",[1,2],true,true)}${edgeList(value("tree_q_labels"),bp.q_bit1,[1,2])}${edgeList(value("tree_u_labels"),bp.u_bit1,[])}${decisionFrom(bp.hard_decision,bp.syndrome)}`)}${method("scalar","Native scalar coral_exact_gradient","accepted scalar update 1",`${gradientChips()}<div class="formula">x = ${vec(g.x_before)}<br>∇J = ${vec(g.gradient)}<br>direction = −D⁻¹∇J = ${vec(g.direction)}<br>project(x + step · direction) = ${vec(g.projected_proposal)}</div><p>Accepted step = ${n(g.accepted_step)}; J: ${n(g.loss_before,6)} → ${n(g.loss_after,6)}.</p>`)}</div>`;
     }},
     {chapter:"native", title:"Terminal snapshots are descriptive, not a causal verdict", used:["endpoint_bp_iterations","endpoint_bp_native","endpoint_scalar_objectives","endpoint_scalar_final","endpoint_scalar_accepted","endpoint_scalar_decoder_calls","endpoint_scalar_pseudogradient_calls"], body(){
       const bp=value("endpoint_bp_iterations")[1], native=value("endpoint_bp_native"), hist=value("endpoint_scalar_objectives");
       return header("native",this.title,"The endpoint card validates each native path, but it deliberately preserves their different budgets and termination rules.")+`<div class="comparison">${method("bp","Exact sum-product BP","after 2 native check-first message-passing iterations",`${graph(bp.q_bit1,bp.u_bit1,"var(--bp)",[1,2],true,true)}<div class="formula">a posteriori LLR = ${vec(bp.posterior_bit1)}</div>${decisionFrom(native.hard_decision,native.syndrome_recomputed)}<p>The terminal Q array is the value carried to a following check update; terminal U/r is the most recent check output consumed by the variable update.</p><p>Native entry point: <code>${esc(native.entrypoint)}</code></p>`)}${method("scalar","Native scalar coral_exact_gradient","after 30 accepted scalar updates",`${sparkline(hist)}<div class="formula">x = ${vec(value("endpoint_scalar_final"))}<br>J = ${n(hist[0],6)} → ${n(hist[hist.length-1],6)}</div><p>${value("endpoint_scalar_accepted")} accepted updates; ${value("endpoint_scalar_decoder_calls")} decoder calls; ${value("endpoint_scalar_pseudogradient_calls")} pseudogradient calls.</p>`)}</div><div class="boundary"><b>Do not infer the culprit here.</b> A terminal endpoint difference bundles values retained, objective, parity action, schedule, projection, line search, and work budget.</div>`;
     }},
-    {chapter:"native", title:"What RQ1 has established—and what RQ2 must test", used:["tree_valid","cycle_valid","update_valid","update_cycle_valid","endpoint_valid"], body(){
-      return header("native",this.title,"The retained evidence narrows the mechanism without converting this RQ1 animation into a performance claim.")+`<div class="comparison">${method("full","Established in RQ1","controlled trace evidence",`<ul><li>Removing δ that distinguishes the two outgoing b→c edges changes the next BP state on the tree and cyclic graph.</li><li>Restoring q̄ + δ reconstructs the full/direct result.</li><li>Changing the update operator also changes the next state, and the state and update effects interact on both graphs.</li></ul>`)}${method("scalar","Not established by this animation","separate RQ2 evidence required",`<ul><li>Which mechanism explains a native BP-versus-projected-gradient-descent performance difference.</li><li>A general noisy-case recovery consequence beyond the registered samples.</li><li>Any equality of arithmetic, memory, runtime, or complexity.</li></ul>`)}</div><div class="callout"><strong>RQ2 status:</strong> a separate locked exact-SP anchor supplies descriptive recovery evidence on 24 AWGN frames. The first registered 200-frame held-out attempt was stopped during preflight before atomic output, so no held-out result exists; neither the anchor nor an incomplete attempt can establish the native BP-versus-projected-GD cause.</div>`;
+    {chapter:"native", title:"What RQ1 has established—and what RQ2 must test", used:["tree_valid","cycle_valid","update_valid","update_cycle_valid","endpoint_valid","rq2_anchor_status","rq2_anchor_parity","rq2_anchor_word","rq2_transfer_status","rq2_transfer_parity","rq2_transfer_word","rq2_transfer_threads"], body(){
+      const ap=value("rq2_anchor_parity"), aw=value("rq2_anchor_word"), tp=value("rq2_transfer_parity"), tw=value("rq2_transfer_word");
+      const same=(p,w)=>p.full_successes===w.full_successes&&p.tied_successes===w.tied_successes&&p.pairs===w.pairs;
+      if(!same(ap,aw)||!same(tp,tw)) throw new Error("RQ2 endpoint counts differ; the status sentence must be rewritten");
+      return header("native",this.title,"The retained evidence narrows the mechanism without converting this RQ1 animation into a performance claim.")+`<div class="comparison">${method("full","Established in RQ1","controlled trace evidence",`<ul><li>Removing δ that distinguishes the two outgoing b→c edges changes the next BP state on the tree and cyclic graph.</li><li>Restoring q̄ + δ reconstructs the full/direct result.</li><li>Changing the update operator also changes the next state, and the state and update effects interact on both graphs.</li></ul>`)}${method("scalar","Not established by this animation","separate RQ2 evidence required",`<ul><li>Which mechanism explains a native BP-versus-projected-gradient-descent performance difference.</li><li>A general noisy-case recovery consequence beyond the registered samples.</li><li>Any equality of arithmetic, memory, runtime, or complexity.</li></ul>`)}</div><div class="callout"><strong>RQ2 status:</strong> the sealed descriptive anchor (record status <code>${esc(value("rq2_anchor_status"))}</code>) gives full exact SP ${ap.full_successes}/${ap.pairs} and persistent q̄ tying ${ap.tied_successes}/${ap.pairs} on frames transmitted through an AWGN channel, for both parity validity and equality with the transmitted word. A ${value("rq2_transfer_threads")}-thread parallel transfer on the ${tp.pairs} frozen held-out frames (status <code>${esc(value("rq2_transfer_status"))}</code>) gives ${tp.full_successes}/${tp.pairs} versus ${tp.tied_successes}/${tp.pairs} for both endpoints; it is supporting evidence awaiting canonical one-thread confirmation. Neither result identifies the native BP-versus-projected-GD cause.</div>`;
     }}
   ];
 
@@ -451,20 +674,20 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   });
   document.getElementById("source-list").innerHTML=Object.entries(evidence.sources).map(([id,s])=>`<div><code>${esc(id)}</code> — <code>${esc(s.path)}</code> — <code>${esc(s.sha256)}</code></div>`).join("");
 
-  let index=0, timer=0, playing=false;
+  let index=0, timer=0, playing=false, active=false;
   function render(i, updateHash=true) {
     index=Math.max(0,Math.min(scenes.length-1,i)); const scene=scenes[index];
     stage.style.setProperty("--chapter-color",chapterColors[scene.chapter]);
     stage.innerHTML=scene.body();
+    dots.forEach((d,j)=>{ d.className="beat-dot"+(j<index?" past":j===index?" now":""); if(j===index) d.setAttribute("aria-current","step"); else d.removeAttribute("aria-current"); });
+    if(!active) return;
     document.getElementById("beat-title").textContent=scene.title;
     document.getElementById("beat-count").textContent=`Beat ${index+1} of ${scenes.length} · ${scene.chapter === "state" ? "state isolation" : scene.chapter === "update" ? "controlled update isolation" : "native endpoint boundary"}`;
-    dots.forEach((d,j)=>d.className="beat-dot"+(j<index?" past":j===index?" now":""));
-    document.getElementById("back").disabled=index===0;
-    document.getElementById("next").disabled=index===scenes.length-1;
+    window.RQ1_MODES.setButtons(index===0, index===scenes.length-1);
     const picked={}; scene.used.forEach(id=>picked[id]=evidence.values[id]); exact.textContent=JSON.stringify(picked,null,2);
     if(updateHash && history.replaceState) history.replaceState(null,"",`#beat=${index+1}`);
   }
-  function stop(){ if(timer) window.clearInterval(timer); timer=0; playing=false; document.getElementById("play").textContent="Play"; }
+  function stop(){ if(timer) window.clearInterval(timer); timer=0; playing=false; if(active) document.getElementById("play").textContent="Play"; }
   function play(){
     if(playing){ stop(); return; }
     if(index===scenes.length-1) render(0);
@@ -473,27 +696,731 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
     timer=window.setInterval(()=>{ if(index>=scenes.length-1){stop();return;} render(index+1); }, reduceMotion ? Math.max(delay,2200) : delay);
   }
   function go(i){ stop(); render(i); }
-  document.getElementById("restart").addEventListener("click",()=>go(0));
-  document.getElementById("back").addEventListener("click",()=>go(index-1));
-  document.getElementById("next").addEventListener("click",()=>go(index+1));
-  document.getElementById("play").addEventListener("click",play);
-  document.getElementById("speed").addEventListener("change",()=>{ if(playing){stop();play();} });
-  document.getElementById("export").addEventListener("click",()=>{
-    const blob=new Blob([JSON.stringify(evidence,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="rq1_mechanism_animation_evidence.json"; a.click(); window.setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  });
-  document.addEventListener("keydown",e=>{
-    if(["INPUT","SELECT","TEXTAREA","BUTTON"].includes(e.target.tagName)) return;
-    if(e.key===" "){e.preventDefault();play();} else if(e.key==="ArrowRight"){e.preventDefault();go(index+1);} else if(e.key==="ArrowLeft"){e.preventDefault();go(index-1);} else if(e.key==="Home"){e.preventDefault();go(0);}
-  });
-  const hash=/^#beat=(\d+)$/.exec(location.hash); render(hash?Number(hash[1])-1:0,false);
-  document.documentElement.dataset.rq1Ready="true";
-  if(new URLSearchParams(location.search).has("smoke")){
-    try{
-      for(let i=0;i<scenes.length;i++){render(i,false); if(!stage.querySelector("h2")) throw new Error(`scene ${i} did not render`);}
-      render(0,false); document.documentElement.dataset.rq1Smoke="passed";
-    }catch(err){document.documentElement.dataset.rq1Smoke=`failed:${err.message}`;}
-  }
+  window.RQ1_FULL={
+    count: scenes.length,
+    activate(i, updateHash){ active=true; render(i==null?index:i, updateHash!==false); document.getElementById("play").textContent=playing?"Pause":"Play"; },
+    deactivate(){ stop(); active=false; },
+    play, stop, go,
+    next(){ go(index+1); }, back(){ go(index-1); }, restart(){ go(0); },
+    onSpeed(){ if(playing){ stop(); play(); } },
+    smoke(){
+      const was=active; active=false;
+      for(let i=0;i<scenes.length;i++){ render(i,false); if(!stage.querySelector("h2")) throw new Error(`scene ${i} did not render`); }
+      render(0,false); active=was; return scenes.length;
+    }
+  };
   window.RQ1_MECHANISM_ANIMATION={evidence,scenes,set:go,state:()=>({index,playing})};
+})();
+</script>
+
+<script>
+/* Core story: the three-bit, two-check example, BP beside native projected GD,
+   then the controlled q̄-tied BP ablation. Every number comes from the evidence block. */
+(function () {
+  "use strict";
+  const evidence = JSON.parse(document.getElementById("rq1-evidence").textContent);
+  const value = id => { const d = evidence.values[id]; if (!d) throw new Error("missing evidence value " + id); return d.value; };
+  const NS = "http://www.w3.org/2000/svg";
+  const $ = id => document.getElementById(id);
+  const motion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  let reduced = !!(motion && motion.matches);
+
+  const L = value("tree_llr");
+  const U0 = value("core_tree_u0"), Q1 = value("core_tree_it1_q"), U1 = value("tree_it1_u");
+  const LAM1 = value("core_tree_it1_post"), Q2 = value("tree_full_q");
+  const QSTD = value("tree_it2_qstd"), QSTDT = value("core_tree_it2_tied_qstd");
+  const QBAR = value("tree_it2_qbar"), QBART = value("core_tree_it2_tied_qbar");
+  const DEL = value("tree_it2_delta"), DELT = value("core_tree_it2_tied_delta");
+  const QT = value("tree_tied_q"), Q1T = value("core_tree_it1_tied_q"), U1T = value("core_tree_it1_tied_u");
+  const UF = value("tree_full_u"), UT = value("tree_tied_u"), DIV = value("tree_first_div");
+  const ITER = value("core_tree_iterations"), INTV = value("core_tree_intervention"), TREAT = value("core_tree_treatment");
+  const G1 = value("core_gd_u1"), G2 = value("core_gd_u2");
+  const STEP1 = value("endpoint_scalar_first"), STEP2 = value("core_endpoint_second");
+  const FP = value("endpoint_scalar_fingerprint");
+  const AP = value("rq2_anchor_parity"), AW = value("rq2_anchor_word"), TP = value("rq2_transfer_parity"), TW = value("rq2_transfer_word");
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  [[G1.x_before, STEP1.x_before, "update-1 state"], [G1.gradient, STEP1.gradient, "update-1 gradient"],
+   [G1.direction, STEP1.direction, "update-1 direction"], [G1.projected_proposal, STEP1.projected_proposal, "update-1 proposal"],
+   [G2.x_before, STEP2.x_before, "update-2 state"], [G2.gradient, STEP2.gradient, "update-2 gradient"],
+   [G1.projected_proposal, G2.x_before, "chained scalar state"], [value("core_gd_ell"), value("endpoint_llr_bit0"), "ℓ = −L"],
+   [Q1, Q1T, "iteration-1 Q in both runs"], [U1, U1T, "iteration-1 U in both runs"], [QSTD, QSTDT, "Q* in both runs"],
+   [QBAR, QBART, "q̄ in both runs"], [DEL, DELT, "δ in both runs"],
+   [[AP.full_successes, AP.tied_successes, AP.pairs], [AW.full_successes, AW.tied_successes, AW.pairs], "anchor endpoints"],
+   [[TP.full_successes, TP.tied_successes, TP.pairs], [TW.full_successes, TW.tied_successes, TW.pairs], "transfer endpoints"]]
+    .forEach(([a, b, what]) => { if (!same(a, b)) throw new Error("Core story evidence mismatch: " + what); });
+  const NSTEPS = Number((/native_(\d+)_or_stall/.exec(FP.termination_policy) || [])[1]);
+  if (!(NSTEPS > 0)) throw new Error("unexpected scalar termination policy");
+
+  /* ---------- formatting ---------- */
+  const MINUS = "−";
+  function fx(x, d) { const p = Math.pow(10, d), r = Math.round(Math.abs(x) * p) / p; return (x < 0 && r !== 0 ? MINUS : "") + r.toFixed(d); }
+  const uf = (x, d) => fx(x, d == null ? 3 : d);
+  const sf = (x, d) => { const s = uf(x, d); return s[0] === MINUS || Number(s) === 0 ? s : "+" + s; };
+  const zf = u => (u === 0 ? "0" : sf(u));
+  function sumExpr(terms, total) {
+    for (let d = 3; d <= 6; d++) {
+      const p = Math.pow(10, d), q = t => Math.sign(t) * Math.round(Math.abs(t) * p);
+      if (terms.reduce((s, t) => s + q(t), 0) === q(total) || d === 6)
+        return terms.map((t, i) => (i === 0 ? fx(t, d) : (t < 0 ? " " + MINUS + " " : " + ") + fx(Math.abs(t), d))).join("") + " = " + fx(total, d);
+    }
+  }
+  function hm(s) {
+    return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]))
+      .replace(/_\{([^}]*)\}/g, "<sub>$1</sub>").replace(/\^\{([^}]*)\}/g, "<sup>$1</sup>");
+  }
+  const plain = s => String(s).replace(/_\{([^}]*)\}/g, "$1").replace(/\^\{([^}]*)\}/g, "$1");
+  const bits = xs => xs.join("");
+
+  /* ---------- SVG helpers ---------- */
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); if (attrs) for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function setA(e, k, v) { v = String(v); if (e.getAttribute(k) !== v) e.setAttribute(k, v); }
+  const clamp = v => Math.max(0, Math.min(1, v));
+  function op(e, o) { const v = o <= 0.002 ? 0 : o >= 0.998 ? 1 : Math.round(o * 1000) / 1000; setA(e, "opacity", v); setA(e, "visibility", v === 0 ? "hidden" : "visible"); }
+  function rt(t, s) {
+    while (t.firstChild) t.removeChild(t.firstChild);
+    const re = /_\{([^}]*)\}|\^\{([^}]*)\}/g; let last = 0, cur = 0, m;
+    const add = (txt, tgt, small) => { const sp = document.createElementNS(NS, "tspan"); if (small) sp.setAttribute("class", "ss"); if (tgt !== cur) sp.setAttribute("dy", String(tgt - cur)); cur = tgt; sp.textContent = txt; t.appendChild(sp); };
+    while ((m = re.exec(s))) { if (m.index > last) add(s.slice(last, m.index), 0, false); if (m[1] !== undefined) add(m[1], 3.5, true); else add(m[2], -5, true); last = re.lastIndex; }
+    if (last < s.length) add(s.slice(last), 0, false);
+  }
+  function boxPath(cx, cy, w, h, shape) {
+    const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2, t = 9, r = 5;
+    if (shape === "right") return `M${x0},${y0}H${x1 - t}L${x1},${cy}L${x1 - t},${y1}H${x0}Z`;
+    if (shape === "left") return `M${x1},${y0}H${x0 + t}L${x0},${cy}L${x0 + t},${y1}H${x1}Z`;
+    return `M${x0 + r},${y0}H${x1 - r}Q${x1},${y0} ${x1},${y0 + r}V${y1 - r}Q${x1},${y1} ${x1 - r},${y1}H${x0 + r}Q${x0},${y1} ${x0},${y1 - r}V${y0 + r}Q${x0},${y0} ${x0 + r},${y0}Z`;
+  }
+  function card(parent, cx, cy, w, h, shape, base) {
+    const g = el("g", { opacity: 0, visibility: "hidden" }, parent);
+    const box = el("path", { d: boxPath(cx, cy, w, h, shape), class: base }, g);
+    const nm = el("text", { x: cx, y: cy + 4.5, "text-anchor": "middle" }, g);
+    const val = el("text", { x: cx, y: cy + h / 2 - 6.5, "text-anchor": "middle", class: "val" }, g);
+    return { g, box, nm, val, cx, cy, h, base, key: null };
+  }
+  function setCard(c, s) {
+    op(c.g, s.o);
+    if (s.o <= 0.002) return;
+    const v = s.val == null ? "" : s.val, key = s.name + "|" + v + "|" + (s.state || "");
+    if (c.key === key) return;
+    c.key = key;
+    rt(c.nm, s.name);
+    if (v === "") { rt(c.val, ""); setA(c.nm, "y", c.cy + 4.5); } else { rt(c.val, v); setA(c.nm, "y", c.cy - c.h / 2 + 15.5); setA(c.val, "y", c.cy + c.h / 2 - 6.5); }
+    setA(c.box, "class", c.base + (s.state ? " " + s.state : ""));
+  }
+  function token(parent, dir) { const g = el("g", { opacity: 0, visibility: "hidden" }, parent); el("path", { d: boxPath(0, 0, 24, 13, dir), class: "tok" }, g); return g; }
+  function tick(parent, x, y) {
+    const g = el("g", { class: "tick", opacity: 0, visibility: "hidden" }, parent);
+    el("circle", { cx: x, cy: y, r: 7.5 }, g); el("path", { d: `M${x - 3.6},${y + 0.2}L${x - 0.9},${y + 3}L${x + 3.8},${y - 2.8}` }, g);
+    return g;
+  }
+  const ease = u => (u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);
+
+  /* ---------- geometry and names (bits b1..b3 = trace b0..b2; checks A, B = trace c0, c1) ---------- */
+  const BX = [44, 230, 416], CX = [137, 323], NY = 118, EB = [0, 1, 1, 2], EC = [0, 0, 1, 1];
+  const EMX = [90.5, 183.5, 276.5, 369.5], QY = 48, LY = 200, GY = 174, SY = 218, STY = 254, TY = 322, CH = 42;
+  const QN = ["Q_{1→A}", "Q_{2→A}", "Q_{2→B}", "Q_{3→B}"], QSN = ["Q*_{1→A}", "Q*_{2→A}", "Q*_{2→B}", "Q*_{3→B}"];
+  const UN = ["U_{A→1}", "U_{A→2}", "U_{B→2}", "U_{B→3}"], GN = ["g_{A,1}", "g_{A,2}", "g_{B,2}", "g_{B,3}"];
+  const gv = (G, e) => [G.g.A.b1, G.g.A.b2, G.g.B.b2, G.g.B.b3][e];
+
+  function graphBase(svg) {
+    const P = { svg, glow: [], bit: [], chk: [] };
+    P.desc = el("desc", { id: svg.id + "-desc" }, svg);
+    const g0 = el("g", {}, svg);
+    for (let e = 0; e < 4; e++) P.glow.push(el("line", { x1: BX[EB[e]], y1: NY, x2: CX[EC[e]], y2: NY, class: "glow", opacity: 0, visibility: "hidden" }, g0));
+    for (let e = 0; e < 4; e++) el("line", { x1: BX[EB[e]], y1: NY, x2: CX[EC[e]], y2: NY, class: "edge" }, g0);
+    el("circle", { cx: BX[1], cy: NY, r: 31, class: "ring" }, g0);
+    BX.forEach((x, i) => { P.bit.push(el("circle", { cx: x, cy: NY, r: 19, class: "bitn" }, g0)); rt(el("text", { x, y: NY + 5, "text-anchor": "middle", class: "nodel" }, g0), `b_{${i + 1}}`); });
+    CX.forEach((x, a) => { P.chk.push(el("rect", { x: x - 17, y: NY - 17, width: 34, height: 34, rx: 4, class: "checkn" }, g0)); el("text", { x, y: NY + 5, "text-anchor": "middle", class: "nodel" }, g0).textContent = "AB"[a]; });
+    return P;
+  }
+  function buildNative(svg, kind) {
+    const P = graphBase(svg); P.kind = kind;
+    P.tray = el("g", { opacity: 0, visibility: "hidden" }, svg);
+    el("rect", { x: 4, y: 270, width: 452, height: 88, rx: 9, class: "tray" }, P.tray);
+    el("text", { x: 12, y: 284, class: "trayl" }, P.tray).textContent = kind === "bp" ? "PERSISTENT STATE · ONE U PER CHECK→BIT EDGE" : "PERSISTENT STATE · ONE x PER BIT";
+    const gT = el("g", {}, svg), gK = el("g", {}, svg);
+    if (kind === "bp") {
+      P.U = EMX.map((x, e) => card(P.tray, x, TY, 82, CH, e % 2 === 0 ? "left" : "right", "keep"));
+      P.badge = EMX.map(x => { const t = el("text", { x, y: 354, "text-anchor": "middle", class: "badge", opacity: 0, visibility: "hidden" }, P.tray); t.textContent = "left out"; return t; });
+      P.tick = EMX.map(x => tick(P.tray, x + 36, TY - CH / 2));
+      P.Q = EMX.map((x, e) => card(gT, x, QY, 82, CH, e % 2 === 0 ? "right" : "left", "temp"));
+      P.LAM = BX.map((x, i) => card(gT, x, LY, i === 1 ? 100 : 74, CH, "rect", "temp"));
+      P.tq = EMX.map((x, e) => token(gK, e % 2 === 0 ? "right" : "left"));
+      P.tu = EMX.map((x, e) => token(gK, e % 2 === 0 ? "left" : "right"));
+    } else {
+      P.X = BX.map(x => card(P.tray, x, TY, 86, CH, "rect", "keep"));
+      P.tick = BX.map(x => tick(P.tray, x + 38, TY - CH / 2));
+      P.R = CX.map(x => {
+        const g = el("g", { opacity: 0, visibility: "hidden" }, gT);
+        el("path", { d: boxPath(x, 48, 156, 64, "rect"), class: "temp" }, g);
+        return { g, l1: el("text", { x, y: 33, "text-anchor": "middle", class: "small" }, g), l2: el("text", { x, y: 52, "text-anchor": "middle" }, g), l3: el("text", { x, y: 72, "text-anchor": "middle" }, g), key: null };
+      });
+      P.lead = EMX.map(x => el("line", { x1: x, y1: NY + 3, x2: x, y2: GY - CH / 2, class: "lead", opacity: 0, visibility: "hidden" }, gT));
+      P.G = EMX.map(x => card(gT, x, GY, 76, CH, "rect", "temp"));
+      const sg = el("g", { opacity: 0, visibility: "hidden" }, gT);
+      el("path", { d: boxPath(BX[1], SY, 214, 40, "rect"), class: "temp" }, sg);
+      P.SUM = { g: sg, l1: el("text", { x: BX[1], y: SY - 5, "text-anchor": "middle" }, sg), l2: el("text", { x: BX[1], y: SY + 14, "text-anchor": "middle", class: "small" }, sg), key: null };
+      P.MS = [card(gT, 58, STY, 108, 26, "rect", "temp"), null, card(gT, 402, STY, 108, 26, "rect", "temp")];
+      P.STEP = card(gT, BX[1], STY, 222, 26, "rect", "temp");
+    }
+    P.scan = el("g", { opacity: 0, visibility: "hidden" }, svg);
+    P.band = el("rect", { x: -12, y: 0, width: 24, height: 360, class: "scanband" }, P.scan);
+    P.line = el("line", { x1: 0, y1: 0, x2: 0, y2: 360, class: "scan" }, P.scan);
+    P.lab = el("text", { x: 6, y: 11, class: "scanl" }, P.scan); P.lab.textContent = "ITERATION BOUNDARY";
+    return P;
+  }
+  function buildArm(svg, kind) {
+    const A = graphBase(svg); A.kind = kind;
+    const gT = el("g", {}, svg);
+    A.Q = EMX.map((x, e) => card(gT, x, QY, 86, CH, e % 2 === 0 ? "right" : "left", "temp"));
+    A.QB = card(gT, BX[1], 174, 150, CH, "rect", "temp");
+    A.D = [null, card(gT, 176, 220, 96, CH, "rect", "temp"), card(gT, 284, 220, 96, CH, "rect", "temp"), null];
+    A.nd = [null, 176, 284, null].map(x => { if (x == null) return null; const t = el("text", { x, y: 254, "text-anchor": "middle", class: "badge", opacity: 0, visibility: "hidden" }, gT); t.textContent = "not delivered"; return t; });
+    A.U = EMX.map((x, e) => card(gT, x, 284, 82, CH, e % 2 === 0 ? "left" : "right", "keep"));
+    A.div = el("text", { x: EMX[1], y: 21, "text-anchor": "middle", class: "divl", opacity: 0, visibility: "hidden" }, gT); A.div.textContent = "first divergence";
+    return A;
+  }
+
+  /* ---------- beats ---------- */
+  const K = { same: 0, state: 1, visA: 2, visB: 3, ret: 4, comb: 5, scan: 6, it2: 7, lock: 8, div: 9, rest: 10, awgn: 11, end: 12 };
+  const GRP = ["Native pair", "Controlled BP ablation", "Conclusion"];
+  const S = { k: 0, f: 0, running: false, playing: false, t0: 0, raf: 0, dwell: 0, values: false, traversal: false, active: false, notice: "", capKey: "", hashK: -1 };
+  const at = (k0, f0) => S.k > k0 || (S.k === k0 && S.f >= f0);
+  const ramp = (k0, f0, f1) => (S.k < k0 ? 0 : S.k > k0 ? 1 : clamp((S.f - f0) / (f1 - f0)));
+  function trap(a, b) { if (S.f <= a || S.f >= b) return 0; const w = (b - a) * 0.2; return Math.min(1, (S.f - a) / w, (b - S.f) / w); }
+  const SC0 = 0.08, SC1 = 0.84, passF = x => SC0 + (x + 10) / 480 * (SC1 - SC0);
+  function life(appear, x) { if (S.k < K.scan) return appear; if (S.k > K.scan) return 0; return appear * (1 - clamp((S.f - passF(x)) / 0.07)); }
+  const tickO = x => (S.k === K.scan ? clamp((S.f - passF(x)) / 0.05) : 0);
+  const IT2W = [[0.04, 0.22], [0.24, 0.48], [0.52, 0.76], [0.78, 0.96]];
+  function it2Window() { if (S.k !== K.it2) return -1; for (let j = 0; j < 4; j++) if (S.f >= IT2W[j][0] && S.f < IT2W[j][1]) return j; return -1; }
+
+  const BEATS = [
+    { grp: 0, dur: 4.6, title: "Both methods work on the same Tanner graph",
+      intro: "Check A joins bits b_{1} and b_{2}; check B joins b_{2} and b_{3}. The microscope stays on b_{2}, the only bit with two checks.",
+      trav: "all four incidences, b_{1}–A, b_{2}–A, b_{2}–B and b_{3}–B", used: ["tree_h", "tree_llr", "endpoint_llr_bit0"],
+      bp: () => ({ count: "Tanner graph · four bit–check incidences", step: "BP will place directed values on these incidences", math: [],
+        say: "Belief propagation passes messages along each incidence in both directions: from a bit to a check, then from the check back to the bit." }),
+      gd: () => ({ count: "Tanner graph · four bit–check incidences", step: "Projected GD evaluates its parity terms on the same incidences", math: [],
+        say: "Native projected gradient descent keeps one number per bit and uses each incidence to compute one temporary partial-derivative term per update." }) },
+    { grp: 0, dur: 4.6, title: "Each method keeps a different persistent state",
+      intro: "The tray under each graph holds what one iteration hands to the next. Solid boxes are retained; dashed cards are temporary.",
+      trav: "none yet", used: ["core_tree_u0", "core_gd_u1", "endpoint_llr_bit0", "endpoint_scalar_fingerprint"],
+      bp: () => ({ count: "Before message-passing iteration 1", step: "Four check-to-variable mailboxes U, one per directed check→bit edge",
+        math: [S.values ? "U_{A→1} = U_{A→2} = U_{B→2} = U_{B→3} = " + zf(U0[0]) : "U_{c→i}^{(0)} = 0 on every check→bit edge"],
+        say: "In this variable-then-check flooding schedule, the U values are what BP carries from one iteration to the next. All four start at 0." }),
+      gd: () => ({ count: "Before gradient update 1", step: "Three relaxed bit values x, one per bit, each in [−1, 1]",
+        math: ["x_{i}^{(0)} = tanh(ℓ_{i}/2) with ℓ = −L" + (S.values ? ":  x^{(0)} = (" + G1.x_before.map(v => uf(v)).join(", ") + ")" : "")],
+        say: "In the native coordinates x_{i} = +1 favours bit 0, so projected GD reads the channel LLRs with the opposite sign, ℓ = −L." }) },
+    { grp: 0, dur: 5.4, title: "Visit check A: same graph location, different object and meaning",
+      intro: "Both panels light the incidences b_{1}–A and b_{2}–A at the same moment.",
+      trav: "b_{1}–A and b_{2}–A", used: ["core_tree_it1_q", "core_tree_u0", "tree_llr", "core_gd_u1"],
+      bp: () => ({ count: "Message-passing iteration 1 · variable-to-check messages to check A", step: "b_{1} and b_{2} form messages addressed to check A",
+        math: S.values ? ["Q_{1→A} = L_{1} = " + sf(Q1[0]), "Q_{2→A} = L_{2} + U_{B→2} = " + sumExpr([L[1], U0[2]], Q1[1])]
+          : ["Q_{1→A} = L_{1}", "Q_{2→A} = L_{2} + U_{B→2}, and U_{B→2} still holds 0"],
+        say: "A message to check A leaves out the mailbox holding check A’s own earlier message to that bit; in iteration 1 every mailbox still holds 0. Each Q is written for one check." }),
+      gd: () => ({ count: "Gradient update 1 · check A reads the current x", step: "Check A reads x_{1} and x_{2}",
+        math: [S.values ? "check A reads x_{1} = " + uf(G1.readings.A.b1) + " and x_{2} = " + uf(G1.readings.A.b2) : "check A reads x_{1} and x_{2}"],
+        say: "A reading is neither addressed nor a message: check A uses the current values of its two bits, and any other check that reads x_{2} sees the same number." }) },
+    { grp: 0, dur: 5.4, title: "Visit check B: it reads the same x₂ that check A read",
+      intro: "Both panels light the incidences b_{2}–B and b_{3}–B.",
+      trav: "b_{2}–B and b_{3}–B", used: ["core_tree_it1_q", "core_tree_u0", "tree_llr", "core_gd_u1"],
+      bp: () => ({ count: "Message-passing iteration 1 · variable-to-check messages to check B", step: "b_{2} and b_{3} form messages addressed to check B",
+        math: S.values ? ["Q_{2→B} = L_{2} + U_{A→2} = " + sumExpr([L[1], U0[1]], Q1[2]), "Q_{3→B} = L_{3} = " + sf(Q1[3])]
+          : ["Q_{2→B} = L_{2} + U_{A→2}, and U_{A→2} still holds 0", "Q_{3→B} = L_{3}"],
+        say: "Because every U still holds 0, Q_{2→A} and Q_{2→B} are equal in iteration 1. They come apart in iteration 2." }),
+      gd: () => ({ count: "Gradient update 1 · check B reads the current x", step: "Check B reads x_{2} and x_{3}",
+        math: [S.values ? "check B reads x_{2} = " + uf(G1.readings.B.b2) + " and x_{3} = " + uf(G1.readings.B.b3) : "check B reads x_{2} and x_{3}"],
+        say: "There is one x_{2}, so check B reads exactly the number check A read." }) },
+    { grp: 0, dur: 6.2, title: "Back to the shared bit: addressed mailboxes versus temporary terms",
+      intro: "Each check answers its two bits. BP writes messages into mailboxes; projected GD forms partial-derivative terms where they are computed.",
+      trav: "all four incidences again, check A first and then check B", used: ["core_tree_it1_q", "tree_it1_u", "core_gd_u1", "core_gd_objective"],
+      bp: () => ({ count: "Message-passing iteration 1 · check-to-variable messages", step: "Checks A and B write U into four separate mailboxes",
+        math: S.values ? ["U_{A→2} = Q_{1→A} = " + sf(U1[1]), "U_{B→2} = Q_{3→B} = " + sf(U1[2])]
+          : ["U_{A→2} = 2 artanh(tanh(Q_{1→A}/2)) = Q_{1→A}", "U_{B→2} = Q_{3→B}: a degree-two check passes its other input through"],
+        say: "U_{A→2} and U_{B→2} are both addressed to b_{2}, and each stays in its own mailbox." }),
+      gd: () => ({ count: "Gradient update 1 · parity partial-derivative terms", step: "Each check forms its residual and one term for each of its bits",
+        math: S.values ? ["r_{A} = 1 − x_{1}x_{2} = " + uf(G1.residual.A) + ",   g_{A,2} = " + sf(G1.g.A.b2), "r_{B} = 1 − x_{2}x_{3} = " + uf(G1.residual.B) + ",   g_{B,2} = " + sf(G1.g.B.b2)]
+          : ["g_{A,2} = −(2w_{par}/n) r_{A} x_{1}, with r_{A} = 1 − x_{1}x_{2}", "g_{B,2} = −(2w_{par}/n) r_{B} x_{3}, with r_{B} = 1 − x_{2}x_{3}"],
+        say: "g_{A,2} and g_{B,2} are terms of ∂J/∂x_{2} at the current x. They are computed in place and not sent; the step adds them and then discards them." }) },
+    { grp: 0, dur: 6.6, title: "Combine at b₂ and calculate the next state",
+      intro: "BP forms a temporary a-posteriori LLR. Projected GD adds four terms, applies x_i ← x_i − η(∂J/∂x_i)/D_i, and projects onto the box.",
+      trav: "none: each method combines at b_{2}", used: ["core_tree_it1_post", "tree_it1_u", "tree_llr", "core_gd_u1", "core_gd_objective", "endpoint_scalar_first"],
+      bp: () => ({ count: "Message-passing iteration 1 · a-posteriori LLR", step: "Λ_{2} adds both incoming messages; the two mailboxes stay separate",
+        math: [S.values ? "Λ_{2} = L_{2} + U_{A→2} + U_{B→2} = " + sumExpr([L[1], U1[1], U1[2]], LAM1[1]) : "Λ_{2} = L_{2} + U_{A→2} + U_{B→2}"],
+        say: "Λ_{2} feeds the hard-decision estimate and is recomputed in the next iteration. U_{A→2} and U_{B→2} remain in their own mailboxes." }),
+      gd: () => ({ count: "Gradient update 1 · gradient, step and projection", step: "Add the four terms, apply x_i ← x_i − η(∂J/∂x_i)/D_i, then project onto [−1, 1]",
+        math: S.values ? ["∂J/∂x_{2} = " + sumExpr([G1.g.A.b2, G1.g.B.b2, G1.channel_partial[1], G1.binary_partial[1]], G1.gradient[1]),
+          "x_{2}: " + uf(G1.x_before[1]) + " → " + uf(G1.projected_proposal[1]) + "   (η = " + uf(G1.accepted_step, 1) + ", D_{2} = " + uf(G1.curvature[1], 1) + "; " + (G1.active_projection_coordinates.length ? "clipped" : "not clipped") + ")"]
+          : ["∂J/∂x_{2} = g_{A,2} + g_{B,2} + channel term + binary term", "x_{2} ← clip(x_{2} − η ∂J/∂x_{2} / D_{2}, −1, 1)"],
+        say: "The channel term re-reads ℓ_{2} at every update and the binary term pulls x_{2} toward ±1. All three bits step together; the line search keeps the first trial because J decreases" + (S.values ? ", from " + uf(G1.loss_before) + " to " + uf(G1.loss_after) + "." : ".") }) },
+    { grp: 0, dur: 6.6, title: "What crosses the iteration boundary?",
+      intro: "The scanner marks the end of iteration 1. Dashed objects fade; solid objects cross.",
+      trav: "none: the scanner passes over the graph", used: ["tree_it1_u", "core_gd_u1"],
+      bp: () => ({ count: "Iteration boundary · after message-passing iteration 1", step: "Four addressed U values cross",
+        math: [S.values ? "U = (" + U1.map(v => sf(v)).join(", ") + ")" : "U_{A→1}, U_{A→2}, U_{B→2}, U_{B→3}"],
+        say: "Q and Λ are rebuilt from U and L in iteration 2, so they are not carried. Jade’s native check-first loop places the boundary after the variable update and carries the four Q values instead; either way, one value per directed edge crosses." }),
+      gd: () => ({ count: "Boundary · after gradient update 1", step: "Only the three updated x values cross",
+        math: [S.values ? "x^{(1)} = (" + G1.projected_proposal.map(v => uf(v)).join(", ") + ")" : "x_{1}, x_{2}, x_{3}"],
+        say: "The readings, residuals, four parity terms, channel and binary terms and the step are all discarded. Gradient update 2 starts from three numbers." }) },
+    { grp: 0, dur: 7.6, title: "The same Tanner-graph incidences are revisited, but different information is supplied to them",
+      intro: "Iteration 2 lights b_{2}–A and then b_{2}–B, exactly as iteration 1 did.",
+      trav: "b_{1}–A and b_{2}–A, then b_{2}–B and b_{3}–B", used: ["tree_full_q", "tree_it1_u", "tree_llr", "core_gd_u2", "core_endpoint_second"],
+      bp: () => ({ count: "Message-passing iteration 2 · variable-to-check messages", step: "b_{2} now sends a different value to each check",
+        math: S.values ? ["Q_{2→A} = L_{2} + U_{B→2} = " + sumExpr([L[1], U1[2]], Q2[1]), "Q_{2→B} = L_{2} + U_{A→2} = " + sumExpr([L[1], U1[1]], Q2[2])]
+          : ["Q_{2→A} = L_{2} + U_{B→2}", "Q_{2→B} = L_{2} + U_{A→2}"],
+        say: "Each recipient’s own earlier message is left out, so check A hears check B’s message through b_{2}, and check B hears check A’s." }),
+      gd: () => ({ count: "Gradient update 2 · check readings", step: "Checks A and B read the same updated x_{2}",
+        math: [S.values ? "checks A and B both read x_{2}^{(1)} = " + uf(G2.readings.A.b2) : "checks A and B both read x_{2}^{(1)}"],
+        say: "The updated x_{2} is a single number. It keeps no separate record of what check A and check B contributed to the step." }) },
+    { grp: 1, dur: 5.8, title: "Test it inside BP: lock everything and tie the recipient-specific part",
+      intro: "Two exact sum-product runs share every locked input. At the variable-node update of iteration " + INTV + ", the tied run gives each check the bit’s average outgoing value q̄ instead of q̄ + δ.",
+      used: ["core_tree_it1_q", "core_tree_it1_tied_q", "tree_it1_u", "core_tree_it1_tied_u", "core_tree_iterations", "core_tree_intervention", "core_tree_treatment", "core_tree_schedule"] },
+    { grp: 1, dur: 6.6, title: "Iteration 2: the first divergence is the value supplied to the checks",
+      intro: "Both runs compute the same standard messages Q*, the same bit average q̄_{2} and the same deviations δ. Only what is delivered to the checks differs.",
+      used: ["tree_it2_qstd", "core_tree_it2_tied_qstd", "tree_it2_qbar", "core_tree_it2_tied_qbar", "tree_it2_delta", "core_tree_it2_tied_delta", "tree_full_q", "tree_tied_q", "tree_first_div"] },
+    { grp: 1, dur: 5.8, title: "The checks answer differently, and restoring δ rebuilds full BP",
+      intro: "The same check calculation receives different inputs, so the next U values differ. Putting δ back reproduces the full run exactly.",
+      used: ["tree_full_u", "tree_tied_u", "tree_full_hard", "tree_full_syn", "tree_tied_hard", "tree_tied_syn", "tree_reconstruct_q", "tree_reconstruct_hard", "tree_reconstruct_syn", "tree_tied_it3_hard", "tree_tied_it3_syn"] },
+    { grp: 1, dur: 6.6, title: "On locked frames transmitted through an AWGN channel, persistent tying removes recovery",
+      intro: "The RQ2 test ties δ at every message-passing iteration of exact sum-product while every other choice stays locked.",
+      used: ["rq2_anchor_status", "rq2_anchor_valid", "rq2_anchor_replay", "rq2_anchor_frames", "rq2_anchor_parity", "rq2_anchor_word", "rq2_anchor_boundary", "rq2_transfer_status", "rq2_transfer_valid", "rq2_transfer_replay", "rq2_transfer_frames", "rq2_transfer_parity", "rq2_transfer_word", "rq2_transfer_boundary", "rq2_transfer_threads"] },
+    { grp: 2, dur: 4.0, title: "What the story establishes",
+      intro: "Same traversal, different information kept and supplied. The controlled ablation shows that this difference matters inside BP; it does not by itself explain the native BP–GD gap.",
+      used: ["tree_valid", "core_gd_valid", "core_gd_objective", "rq2_anchor_word", "rq2_transfer_word", "rq2_transfer_status", "endpoint_scalar_fingerprint"] }
+  ];
+  const LAST = BEATS.length - 1;
+
+  /* ---------- static blocks ---------- */
+  const LOCK_SVG = '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="5.5" width="8" height="6" rx="1.2" fill="currentColor"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
+  const locks = list => list.map(t => `<span class="lock">${LOCK_SVG}${hm(t)}</span>`).join("");
+  const LOCK_TOY = locks(["Tanner graph H", "channel LLRs L", "exact sum-product check calculation", "U^{(0)} = 0",
+    value("core_tree_schedule") + " schedule, variable then check", ITER + " message-passing iterations", TREAT === "pulse" ? "tie once, at iteration " + INTV : "tie at every iteration"]);
+  const LOCK_AWGN = locks(["parity-check matrix and graph", "transmitted word", "received samples and channel LLRs", "exact sum-product check calculation",
+    "initialization", "schedule", "stop at zero syndrome or 80 message-passing iterations"]);
+  function frames(n, cls) { let s = ""; for (let i = 0; i < n; i++) s += "<i></i>"; return `<div class="frames ${cls}" aria-hidden="true">${s}</div>`; }
+  $("core-awgn").innerHTML =
+    `<section class="method full"><h4>Sealed descriptive anchor</h4><p class="tagline">${AP.pairs} locked frames · AWGN channel · record status <code>${hm(value("rq2_anchor_status"))}</code> · deterministic replay ${value("rq2_anchor_replay") ? "passed" : "failed"}</p>` +
+    `<div class="frame-row"><span>Full exact SP</span>${frames(AP.pairs, "f24 full a-full")}<b data-c="a-full">${AP.full_successes}/${AP.pairs}</b></div>` +
+    `<div class="frame-row"><span>Persistent q̄ tying</span>${frames(AP.pairs, "f24 a-tied")}<b data-c="a-tied">${AP.tied_successes}/${AP.pairs}</b></div>` +
+    `<p>The counts are the same for parity validity and for equality with the transmitted word.</p></section>` +
+    `<section class="method tied"><h4>Supporting held-out transfer</h4><p class="tagline">${TP.pairs} frozen held-out frames · ${value("rq2_transfer_threads")} parallel threads · awaiting canonical one-thread confirmation</p>` +
+    `<div class="frame-row"><span>Full exact SP</span>${frames(TP.pairs, "f200 full t-full")}<b data-c="t-full">${TP.full_successes}/${TP.pairs}</b></div>` +
+    `<div class="frame-row"><span>Persistent q̄ tying</span>${frames(TP.pairs, "f200 t-tied")}<b data-c="t-tied">${TP.tied_successes}/${TP.pairs}</b></div>` +
+    `<p>Record status <code>${hm(value("rq2_transfer_status"))}</code>; validation ${value("rq2_transfer_valid") ? "passed" : "failed"}; deterministic replay ${value("rq2_transfer_replay") ? "passed" : "failed"}.</p></section>`;
+  const FRAME_ROWS = ["a-full", "a-tied", "t-full", "t-tied"].map(c => ({ c, cells: Array.from(document.querySelectorAll(`#core-awgn .${c} i`)), count: document.querySelector(`#core-awgn b[data-c="${c}"]`) }));
+  const noneOr = n => (n === 0 ? "none" : String(n));
+  $("core-end").innerHTML =
+    `<div class="cards4">` +
+    `<article class="card4"><h4>Representation</h4><p><span class="who bp">BP</span>Directed edge state: one value per edge and direction</p><p><span class="who gd">Projected GD</span>One scalar per bit</p></article>` +
+    `<article class="card4"><h4>Addressing</h4><p><span class="who bp">BP</span>Recipient-specific: Q<sub>2→A</sub> and Q<sub>2→B</sub> differ</p><p><span class="who gd">Projected GD</span>Shared bit value: checks A and B read the same x<sub>2</sub></p></article>` +
+    `<article class="card4"><h4>Retention</h4><p><span class="who bp">BP</span>Separate edge history: four U values cross the boundary in this schedule</p><p><span class="who gd">Projected GD</span>Updated scalar only: three x values cross</p></article>` +
+    `<article class="card4"><h4>Next-state calculation</h4><p><span class="who bp">BP</span>BP recurrence: exact sum-product, each value replaced</p><p><span class="who gd">Projected GD</span>Gradient step x<sub>i</sub> ← x<sub>i</sub> − η(∂J/∂x<sub>i</sub>)/D<sub>i</sub>, followed by box projection</p></article></div>` +
+    `<p class="final-claim">Holding traversal fixed while replacing each bit’s variable-to-check messages by their average changes the decoding result. Within exact sum-product, full BP recovered the transmitted word on ${AW.full_successes} of ${AW.pairs} locked frames transmitted through an AWGN channel and persistent q̄ tying on ${noneOr(AW.tied_successes)}; a supporting parallel transfer gave ${TW.full_successes} of ${TW.pairs} against ${TW.tied_successes} of ${TW.pairs}, and its canonical one-thread confirmation is still pending. Traversal alone is therefore insufficient: retaining a separate variable-to-check message for each neighboring check matters causally within exact sum-product on these frames. Representation, parity calculation, objective, channel-evidence use, projection and the update operator remain separate candidates for the native BP–GD performance difference.</p>` +
+    `<table class="fingerprint"><caption>Both methods at the same level of description</caption><thead><tr><th scope="col">Aspect</th><th scope="col">BP (exact sum-product)</th><th scope="col">Native projected GD (coral_exact_gradient)</th></tr></thead><tbody>` +
+    `<tr><th scope="row">Channel evidence</th><td>L<sub>i</sub> is added in every variable-node calculation</td><td>ℓ = −L enters J through the channel term at every update</td></tr>` +
+    `<tr><th scope="row">Parity action</th><td>exact sum-product check calculation on the incoming Q</td><td>residual r<sub>c</sub> = 1 − Π x<sub>j</sub> and its partial derivatives, parity weight ${uf(FP.parity_weight, 1)}</td></tr>` +
+    `<tr><th scope="row">Kept between iterations</th><td>four U values at this variable-then-check boundary; Jade’s check-first loop carries four Q instead</td><td>three values x</td></tr>` +
+    `<tr><th scope="row">Schedule</th><td>flooding: every variable-to-check message, then every check-to-variable message</td><td>frozen synchronous full gradient: every term at the same x, then every bit steps</td></tr>` +
+    `<tr><th scope="row">Stopping</th><td>toy harness: ${ITER} message-passing iterations; runs through the AWGN channel: zero syndrome or 80 message-passing iterations</td><td>${NSTEPS} accepted updates or a stalled line search</td></tr>` +
+    `<tr><th scope="row">Hard decision</th><td>bit i is decided 1 when Λ<sub>i</sub> ≥ 0</td><td>bit i is decided 1 when x<sub>i</sub> &lt; 0</td></tr></tbody></table>` +
+    `<div class="boundary"><b>Boundary:</b> This toy animation does not establish error rate, convergence, complexity, or performance across a code ensemble. The counts from frames transmitted through an AWGN channel come from separate retained RQ2 records for one long code with an 80-iteration budget.</div>`;
+  $("core-legend").innerHTML = [
+    ['<line x1="3" y1="11" x2="41" y2="11" stroke="#d39a19" stroke-width="12" stroke-linecap="round" opacity=".5"/><line x1="3" y1="11" x2="41" y2="11" stroke="#8e877b" stroke-width="3"/>', "glow: this incidence is in use now"],
+    ['<path d="M3,3H33L41,11L33,19H3Z" fill="#fff" stroke="#155b8a" stroke-width="2.4"/>', "solid arrow box: addressed and retained (BP’s U)"],
+    ['<path d="M3,3H33L41,11L33,19H3Z" fill="#fff" stroke="#155b8a" stroke-width="1.8" stroke-dasharray="5 4"/>', "dashed arrow box: addressed and temporary (BP’s Q)"],
+    ['<rect x="3" y="3" width="38" height="16" rx="4" fill="#fff" stroke="#087d77" stroke-width="2.4"/>', "solid box: retained value (GD’s x)"],
+    ['<rect x="3" y="3" width="38" height="16" rx="4" fill="#fff" stroke="#087d77" stroke-width="1.8" stroke-dasharray="5 4"/>', "dashed box: temporary calculation, faded at the boundary"],
+    ['<path d="M3,3H33L41,11L33,19H3Z" fill="#fff" stroke="#a64040" stroke-width="3.2"/>', "red outline, ‘left out’: the recipient’s own earlier message"],
+    ['<circle cx="22" cy="11" r="7.5" fill="#24704a"/><path d="M18.4,11.2L21.1,14L25.8,8.2" fill="none" stroke="#fff" stroke-width="2.2"/>', "tick: crosses the iteration boundary"]
+  ].map(([s, t]) => `<span><svg width="44" height="22" viewBox="0 0 44 22" aria-hidden="true">${s}</svg>${t}</span>`).join("");
+  $("core-inset-formula").innerHTML = hm("Q_{i→c} = q̄_{i} + δ_{i→c}   ⟶   Q_{i→c} = q̄_{i}");
+
+  const BP = buildNative($("core-bp-svg"), "bp"), GD = buildNative($("core-gd-svg"), "gd");
+  const ARM = { full: buildArm($("core-arm-full"), "full"), tied: buildArm($("core-arm-tied"), "tied") };
+
+  /* ---------- per-frame drawing ---------- */
+  function glowNative(e) {
+    switch (S.k) {
+      case K.same: return Math.max(trap(0.04 + 0.15 * e, 0.38 + 0.15 * e), ramp(K.same, 0.78, 0.88));
+      case K.visA: return e < 2 ? ramp(K.visA, 0.03, 0.10) : 0;
+      case K.visB: return e >= 2 ? ramp(K.visB, 0.03, 0.10) : 0;
+      case K.ret: return e < 2 ? trap(0.03, 0.50) : trap(0.45, 0.92);
+      case K.it2: return e === 1 || e === 2 ? clamp((S.f - IT2W[e][0]) / 0.05) : trap(IT2W[e][0] - 0.01, IT2W[e][1] + 0.01);
+      default: return 0;
+    }
+  }
+  function checkOn(a) {
+    if (S.k === K.visA) return a === 0;
+    if (S.k === K.visB) return a === 1;
+    if (S.k === K.ret) return a === 0 ? S.f < 0.5 : S.f >= 0.45 && S.f < 0.95;
+    if (S.k === K.it2) return a === 0 ? S.f < 0.5 || S.f >= 0.97 : S.f >= 0.5;
+    return false;
+  }
+  function moveTok(t, w, x0, y0, x1, y1) {
+    if (!w || S.traversal || S.f < w[0] || S.f > w[1]) { op(t, 0); return; }
+    const u = (S.f - w[0]) / (w[1] - w[0]), e = ease(u);
+    op(t, Math.min(1, u * 6, (1 - u) * 6));
+    setA(t, "transform", `translate(${(x0 + (x1 - x0) * e).toFixed(1)},${(y0 + (y1 - y0) * e).toFixed(1)})`);
+  }
+  function drawScan(P) {
+    if (S.k !== K.scan) { op(P.scan, 0); return; }
+    const x = -10 + 480 * clamp((S.f - SC0) / (SC1 - SC0));
+    op(P.scan, Math.min(clamp((S.f - 0.02) / 0.05), 1 - clamp((S.f - 0.88) / 0.07)));
+    setA(P.band, "x", (x - 12).toFixed(1)); setA(P.line, "x1", x.toFixed(1)); setA(P.line, "x2", x.toFixed(1));
+    if (!P.labW) P.labW = P.lab.getComputedTextLength ? P.lab.getComputedTextLength() || 130 : 130;
+    const right = x + 6 + P.labW <= 456; setA(P.lab, "x", (right ? Math.max(4, x + 6) : Math.min(456, x - 6)).toFixed(1)); setA(P.lab, "text-anchor", right ? "start" : "end");
+  }
+  function drawBP(P) {
+    const T = S.traversal, V = S.values, j = it2Window();
+    for (let e = 0; e < 4; e++) {
+      const wt = e < 2 ? 0.42 : 0.84, u = at(K.ret, wt) ? U1[e] : U0[e];
+      let state = "";
+      if (S.k === K.ret && S.f >= wt && S.f < wt + 0.14) state = "fresh";
+      else if (S.k === K.comb && (e === 1 || e === 2) && S.f >= 0.06 && S.f < 0.34) state = "used";
+      else if (j >= 0) state = j === e ? "left" : (j === 1 && e === 2) || (j === 2 && e === 1) ? "used" : "";
+      setCard(P.U[e], { o: 1, name: UN[e], val: V ? zf(u) : null, state });
+      op(P.badge[e], state === "left" ? 1 : 0);
+      op(P.tick[e], tickO(EMX[e]));
+      let qo = 0, qv = Q1[e];
+      if (S.k < K.it2) qo = life(e < 2 ? ramp(K.visA, 0.40, 0.50) : ramp(K.visB, 0.40, 0.50), EMX[e]);
+      else if (S.k === K.it2) { qo = ramp(K.it2, IT2W[e][1] - 0.04, IT2W[e][1] + 0.01); qv = Q2[e]; }
+      setCard(P.Q[e], { o: T ? 0 : qo, name: QN[e], val: V ? sf(qv) : null });
+      const wq = S.k === K.visA && e < 2 ? [0.12, 0.42] : S.k === K.visB && e >= 2 ? [0.12, 0.42] : S.k === K.it2 ? [IT2W[e][0] + 0.02, IT2W[e][1] - 0.03] : null;
+      moveTok(P.tq[e], wq, BX[EB[e]], NY - 22, EMX[e], QY + 2);
+      moveTok(P.tu[e], S.k === K.ret ? (e < 2 ? [0.12, 0.42] : [0.54, 0.84]) : null, CX[EC[e]], NY + 20, EMX[e], 262);
+    }
+    for (let i = 0; i < 3; i++) setCard(P.LAM[i], { o: T ? 0 : life(i === 1 ? ramp(K.comb, 0.14, 0.28) : ramp(K.comb, 0.34, 0.46), BX[i]), name: `Λ_{${i + 1}}`, val: V ? sf(LAM1[i]) : null });
+  }
+  function readOn(i) {
+    if (S.k === K.visA) return i < 2 && S.f >= 0.10 && S.f < 0.46;
+    if (S.k === K.visB) return i > 0 && S.f >= 0.10 && S.f < 0.46;
+    if (S.k === K.it2) return (i < 2 && S.f >= 0.04 && S.f < 0.30) || (i > 0 && S.f >= 0.52 && S.f < 0.78);
+    return false;
+  }
+  function drawGD(P) {
+    const T = S.traversal, V = S.values;
+    const xs = S.k >= K.it2 ? G2.x_before : at(K.comb, 0.78) ? G1.projected_proposal : G1.x_before;
+    for (let i = 0; i < 3; i++) {
+      const state = S.k === K.comb && S.f >= 0.78 && S.f < 0.94 ? "fresh" : readOn(i) ? "used" : "";
+      setCard(P.X[i], { o: 1, name: `x_{${i + 1}}`, val: V ? uf(xs[i]) : null, state });
+      op(P.tick[i], tickO(BX[i]));
+    }
+    for (let a = 0; a < 2; a++) {
+      let o = 0, G = G1, res = 0;
+      if (S.k < K.it2) { o = life(a === 0 ? ramp(K.visA, 0.28, 0.40) : ramp(K.visB, 0.28, 0.40), CX[a]); res = a === 0 ? ramp(K.ret, 0.08, 0.18) : ramp(K.ret, 0.50, 0.60); }
+      else if (S.k === K.it2) { o = a === 0 ? ramp(K.it2, 0.16, 0.26) : ramp(K.it2, 0.62, 0.72); G = G2; }
+      const R = P.R[a];
+      op(R.g, T ? 0 : o);
+      if (!T && o > 0.002) {
+        const nm = "AB"[a], b = a === 0 ? ["b1", "b2"] : ["b2", "b3"], ix = a === 0 ? [1, 2] : [2, 3], key = [a, G.update, V].join("|");
+        if (R.key !== key) {
+          R.key = key; R.l1.textContent = `check ${nm} reads`;
+          rt(R.l2, V ? `x_{${ix[0]}} ${uf(G.readings[nm][b[0]])} · x_{${ix[1]}} ${uf(G.readings[nm][b[1]])}` : `x_{${ix[0]}} and x_{${ix[1]}}`);
+          rt(R.l3, V ? `r_{${nm}} = ${uf(G.residual[nm])}` : `r_{${nm}} = 1 − x_{${ix[0]}}x_{${ix[1]}}`);
+        }
+        op(R.l3, res);
+      }
+    }
+    for (let e = 0; e < 4; e++) {
+      const o = S.k < K.it2 ? life(e < 2 ? ramp(K.ret, 0.20, 0.32) : ramp(K.ret, 0.62, 0.74), EMX[e]) : 0;
+      setCard(P.G[e], { o: T ? 0 : o, name: GN[e], val: V ? sf(gv(G1, e)) : null });
+      op(P.lead[e], T ? 0 : o);
+    }
+    const so = T || S.k >= K.it2 ? 0 : life(ramp(K.comb, 0.12, 0.26), BX[1]);
+    op(P.SUM.g, so);
+    if (so > 0.002 && P.SUM.key !== V) { P.SUM.key = V; rt(P.SUM.l1, V ? `∂J/∂x_{2} = ${sf(G1.gradient[1])}` : "∂J/∂x_{2}"); rt(P.SUM.l2, "= g_{A,2} + g_{B,2} + channel + binary"); }
+    [0, 2].forEach(i => setCard(P.MS[i], { o: T || S.k >= K.it2 ? 0 : life(ramp(K.comb, 0.30, 0.40), BX[i]), name: `∂J/∂x_{${i + 1}}` + (V ? " = " + sf(G1.gradient[i]) : ""), val: null }));
+    setCard(P.STEP, { o: T || S.k >= K.it2 ? 0 : life(ramp(K.comb, 0.44, 0.58), BX[1]),
+      name: V ? `x_{2}: ${uf(G1.x_before[1])} → ${uf(G1.projected_proposal[1])}` : "÷ D_{2}, × η, clip to [−1, 1]", val: null });
+  }
+  function drawNative(P) {
+    for (let e = 0; e < 4; e++) op(P.glow[e], 0.5 * glowNative(e));
+    P.chk.forEach((r, a) => setA(r, "class", "checkn" + (checkOn(a) ? " on" : "")));
+    P.bit.forEach((c, i) => setA(c, "class", "bitn" + (S.k === K.comb && i === 1 && S.f < 0.95 ? " on" : "")));
+    drawScan(P);
+    op(P.tray, S.traversal ? 0 : ramp(K.state, 0.10, 0.35));
+    if (P.kind === "bp") drawBP(P); else drawGD(P);
+  }
+  function armGlow(e) {
+    if (S.k === K.lock) return Math.max(trap(0.05 + 0.08 * e, 0.29 + 0.08 * e), trap(0.50 + 0.08 * e, 0.74 + 0.08 * e));
+    if (S.k === K.div) return e === 1 || e === 2 ? ramp(K.div, 0.02, 0.08) : 0;
+    if (S.k === K.rest) return trap(0.04, 0.40);
+    return 0;
+  }
+  function drawArm(A) {
+    const T = S.traversal, V = S.values, tied = A.kind === "tied", delivered = at(K.div, 0.56);
+    for (let e = 0; e < 4; e++) op(A.glow[e], 0.5 * armGlow(e));
+    A.chk.forEach((r, a) => setA(r, "class", "checkn" + (S.k === K.lock && ((a === 0 && S.f < 0.5) || (a === 1 && S.f >= 0.5)) ? " on" : "")));
+    for (let e = 0; e < 4; e++) {
+      const shared = e === 1 || e === 2;
+      let o = 1, name = QN[e], val, state = "";
+      if (S.k === K.lock) { o = ramp(K.lock, 0.14 + 0.08 * e, 0.22 + 0.08 * e); val = V ? sf((tied ? Q1T : Q1)[e]) : `L_{${EB[e] + 1}}`; }
+      else if (!delivered) { name = QSN[e]; val = V ? sf((tied ? QSTDT : QSTD)[e]) : shared ? "q̄_{2} + δ" : `L_{${EB[e] + 1}}`; }
+      else { val = V ? sf((tied ? QT : Q2)[e]) : shared ? (tied ? "q̄_{2}" : "q̄_{2} + δ") : `L_{${EB[e] + 1}}`; if (e === 1 && at(K.div, 0.78)) state = "used"; }
+      setCard(A.Q[e], { o: T ? 0 : o, name, val, state });
+    }
+    const dec = S.k === K.div || S.k === K.rest;
+    setCard(A.QB, { o: T || !dec ? 0 : ramp(K.div, 0.24, 0.34), name: "q̄_{2}", val: V ? sf((tied ? QBART : QBAR)[1]) : "½(Q*_{2→A} + Q*_{2→B})" });
+    [1, 2].forEach(e => {
+      const addr = QN[e].slice(3, -1), lost = tied && delivered;
+      setCard(A.D[e], { o: T || !dec ? 0 : ramp(K.div, 0.34, 0.44), name: `δ_{${addr}}`, val: V ? sf((tied ? DELT : DEL)[e]) : `Q*_{${addr}} − q̄_{2}`, state: lost ? "left" : "" });
+      op(A.nd[e], T || !dec || !lost ? 0 : 1);
+    });
+    for (let e = 0; e < 4; e++) {
+      let v = U0[e], state = "";
+      if (S.k === K.lock) v = at(K.lock, 0.56 + 0.07 * e) ? (tied ? U1T : U1)[e] : U0[e];
+      else if (S.k === K.div) v = (tied ? U1T : U1)[e];
+      else { const w = 0.10 + 0.05 * e; v = at(K.rest, w) ? (tied ? UT : UF)[e] : (tied ? U1T : U1)[e]; if ((e === 0 || e === 3) && S.k === K.rest && S.f >= w && S.f < 0.5) state = "fresh"; }
+      setCard(A.U[e], { o: T ? 0 : 1, name: UN[e], val: V ? zf(v) : null, state });
+    }
+    op(A.div, T || !at(K.div, 0.78) ? 0 : 1);
+  }
+  function drawAwgn() {
+    FRAME_ROWS.forEach((row, r) => {
+      const n = row.cells.length, base = r < 2 ? 0.08 : 0.46, span = r < 2 ? 0.30 : 0.34;
+      const successes = [AP.full_successes, AP.tied_successes, TP.full_successes, TP.tied_successes][r];
+      row.cells.forEach((c, i) => { const on = !S.traversal && i < successes && at(K.awgn, base + span * (i + 1) / n); if (c.classList.contains("on") !== on) c.classList.toggle("on", on); });
+      row.count.style.visibility = S.traversal || !at(K.awgn, base + span) ? "hidden" : "visible";
+    });
+  }
+
+  /* ---------- captions ---------- */
+  function panel(pre, c, b) {
+    const T = S.traversal;
+    $(pre + "-count").textContent = c.count;
+    $(pre + "-step").innerHTML = hm(T ? "Incidences in use: " + b.trav : c.step);
+    const math = T ? [] : c.math;
+    $(pre + "-math").innerHTML = math.map(l => `<span class="ln">${hm(l)}</span>`).join("");
+    $(pre + "-math").style.visibility = math.length ? "visible" : "hidden";
+    $(pre + "-say").innerHTML = hm(T ? "Traversal only: values and objects are hidden; the lit incidences are the same in both panels." : c.say);
+  }
+  function decision(hard, syn) {
+    const ok = syn.every(v => v === 0);
+    return `b̂ = ${bits(hard)} · syndrome ${bits(syn)} <span class="pill ${ok ? "ok" : ""}">${ok ? "codeword" : "check failure"}</span>`;
+  }
+  function captions(phase) {
+    const b = BEATS[S.k], T = S.traversal, V = S.values, g = b.grp;
+    $("core-title").textContent = b.title;
+    $("core-intro").innerHTML = hm(b.intro);
+    $("core-badge").textContent = g === 0 ? "Core story · native pair" : g === 1 ? "Core story · controlled ablation" : "Core story · conclusion";
+    $("core-given").innerHTML = T ? "<b>Given to both methods</b>H and the channel LLRs L (numbers hidden in the traversal-only view)"
+      : "<b>Given to both methods</b>H = [1 1 0; 0 1 1] · channel LLRs L = (−ln 9, ln 3/2, ln 2) ≈ (" + L.map(v => sf(v)).join(", ") + "), with L<sub>i</sub> = ln P(b<sub>i</sub> = 1 | y<sub>i</sub>) / P(b<sub>i</sub> = 0 | y<sub>i</sub>). Projected GD reads ℓ = −L.";
+    $("core-clock-text").textContent = `Beat ${S.k + 1} of ${BEATS.length} · ` + (S.k <= K.state ? "set-up" : S.k <= K.scan ? "iteration 1 for both methods" : "iteration 2 for both methods");
+    [["core-native", g === 0], ["core-boundary", g === 0], ["core-clock", g === 0], ["core-given", S.k <= K.rest], ["core-inset", g === 1],
+     ["core-arms", g === 1 && S.k !== K.awgn], ["core-awgn", S.k === K.awgn], ["core-end", g === 2], ["core-legend", g === 0]]
+      .forEach(([id, on]) => { $(id).hidden = !on; });
+    if (g === 0) {
+      const cb = b.bp(), cg = b.gd();
+      panel("core-bp", cb, b); panel("core-gd", cg, b);
+      BP.desc.textContent = plain(T ? "Incidences in use: " + b.trav : cb.step); GD.desc.textContent = plain(T ? "Incidences in use: " + b.trav : cg.step);
+      const done = S.k > K.scan || (S.k === K.scan && phase > 0);
+      $("core-cross-bp").innerHTML = T ? "Traversal alone cannot answer this: both panels light the same incidences." : done
+        ? `<span class="who bp">BP</span>${hm("Four addressed values U_{A→1}, U_{A→2}, U_{B→2}, U_{B→3}, one per directed check→bit edge. Q and Λ are rebuilt.")}`
+        : `<span class="who bp">BP</span>${S.k === K.scan ? "The scanner is sweeping: solid objects stay, dashed ones fade." : "Beat 7 answers this with a scanner."}`;
+      $("core-cross-gd").innerHTML = T ? "" : done
+        ? `<span class="who gd">Projected GD</span>${hm("Three values x_{1}, x_{2}, x_{3}, one per bit. Readings, residuals and partial-derivative terms are rebuilt.")}`
+        : `<span class="who gd">Projected GD</span>${S.k === K.scan ? "The scanner is sweeping: solid objects stay, dashed ones fade." : "Beat 7 answers this with a scanner."}`;
+    }
+    if (g === 1) {
+      $("core-locks").innerHTML = S.k === K.awgn ? LOCK_AWGN : LOCK_TOY;
+      ARM.full.desc.textContent = "Full exact BP: " + plain(b.title); ARM.tied.desc.textContent = "q̄-tied BP: " + plain(b.title);
+      let full = "", tied = "", restore = "", note = "";
+      if (T) note = "Traversal only: both runs light the same incidences in the same order. The values hidden here are where the runs differ.";
+      else if (S.k === K.lock) {
+        if (phase > 0) { full = tied = '<span class="arm-flag">iteration 1: identical</span>'; note = "Iteration 1 is identical in both runs: every U starts at 0, so every δ is 0 and tying changes nothing."; }
+      } else if (S.k === K.div) {
+        note = phase === 0 ? hm("Both runs compute Q*_{2→A} and Q*_{2→B}, their average q̄_{2} and the deviations δ_{2→A} = −δ_{2→B}.")
+          : hm("Full BP delivers q̄_{2} + δ to each check; the tied run delivers q̄_{2} to both, so δ is not delivered.") +
+            (phase > 1 ? " " + hm("First recorded divergence: Q_{2→A} at message-passing iteration " + DIV.iteration + " (trace label " + DIV.coordinate_label.replace("->", "→") + ")" + (V ? ": " + sf(DIV.reference) + " in full BP and " + sf(DIV.candidate) + " in the tied run." : ".")) : "");
+      } else if (S.k === K.rest) {
+        if (phase > 0) { full = decision(value("tree_full_hard"), value("tree_full_syn")); tied = decision(value("tree_tied_hard"), value("tree_tied_syn")); }
+        if (phase > 1) restore = hm("Restoring δ: Q = q̄ + δ" + (V ? " = (" + value("tree_reconstruct_q").map(v => sf(v)).join(", ") + ")" : "") + " gives ") + decision(value("tree_reconstruct_hard"), value("tree_reconstruct_syn")) + ", the same as full BP.";
+        if (phase > 2) note = "This toy test ties δ for one update only. The tied run rejoins full BP at iteration 3 (" + decision(value("tree_tied_it3_hard"), value("tree_tied_it3_syn")) + "), so the snapshot is a trajectory result, not a convergence or error-rate result.";
+      } else if (S.k === K.awgn) note = "These counts come from retained RQ2 records for a long code, not from the toy. The anchor is descriptive and is never pooled with the held-out set. The transfer record states its own boundary: “" + hm(value("rq2_transfer_boundary")) + "”";
+      $("core-out-full").innerHTML = full; $("core-out-tied").innerHTML = tied;
+      $("core-restore").innerHTML = restore; $("core-inset-note").innerHTML = note;
+    }
+    const picked = {}; b.used.forEach(id => { picked[id] = evidence.values[id]; });
+    if (S.active) document.getElementById("exact-values").textContent = JSON.stringify(picked, null, 2);
+  }
+  function phaseOf() {
+    if (S.k === K.scan) return S.f >= 0.9 ? 1 : 0;
+    if (S.k === K.lock) return S.f >= 0.84 ? 1 : 0;
+    if (S.k === K.div) return S.f >= 0.78 ? 2 : S.f >= 0.56 ? 1 : 0;
+    if (S.k === K.rest) return S.f >= 0.76 ? 3 : S.f >= 0.58 ? 2 : S.f >= 0.40 ? 1 : 0;
+    return 0;
+  }
+  function draw() {
+    const phase = phaseOf(), key = [S.k, S.values, S.traversal, phase].join("|");
+    if (key !== S.capKey) { S.capKey = key; captions(phase); }
+    const g = BEATS[S.k].grp;
+    if (g === 0) { drawNative(BP); drawNative(GD); }
+    else if (S.k !== K.awgn && g === 1) { drawArm(ARM.full); drawArm(ARM.tied); }
+    if (S.k === K.awgn) drawAwgn();
+  }
+
+  /* ---------- engine ---------- */
+  const speedFactor = () => 1900 / (Number($("speed").value) || 1900);
+  const durMs = k => BEATS[k].dur * 1000 / speedFactor();
+  function cancel() { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; if (S.dwell) clearTimeout(S.dwell); S.dwell = 0; S.running = false; }
+  function startBeat(k, keepPlaying) {
+    cancel(); S.k = Math.max(0, Math.min(LAST, k)); S.notice = "";
+    if (!keepPlaying) S.playing = false;
+    if (reduced) { S.f = 1; draw(); endOfBeat(); return; }
+    S.f = 0; S.running = true; S.t0 = performance.now(); draw(); syncUI(); S.raf = requestAnimationFrame(frame);
+  }
+  function frame(now) {
+    if (!S.running) return;
+    S.f = Math.min(1, (now - S.t0) / durMs(S.k)); draw();
+    if (S.f >= 1) { S.running = false; S.raf = 0; endOfBeat(); } else S.raf = requestAnimationFrame(frame);
+  }
+  function endOfBeat() {
+    if (S.playing && S.k === K.scan) { S.playing = false; S.notice = "Paused at the iteration boundary. Play continues to iteration 2."; }
+    else if (S.playing && S.k < LAST) S.dwell = setTimeout(() => { S.dwell = 0; startBeat(S.k + 1, true); }, (reduced ? 2600 : 700) / speedFactor());
+    else S.playing = false;
+    syncUI();
+  }
+  function play() {
+    if (S.playing) { S.playing = false; if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; S.running = false; if (S.dwell) clearTimeout(S.dwell); S.dwell = 0; syncUI(); return; }
+    S.playing = true; S.notice = "";
+    if (S.f < 1) {
+      if (reduced) { S.f = 1; draw(); endOfBeat(); return; }
+      S.running = true; S.t0 = performance.now() - S.f * durMs(S.k); syncUI(); S.raf = requestAnimationFrame(frame); return;
+    }
+    startBeat(S.k >= LAST ? 0 : S.k + 1, true);
+  }
+  function jump(k, f) { cancel(); S.playing = false; S.notice = ""; S.k = Math.max(0, Math.min(LAST, k)); S.f = clamp(f); draw(); syncUI(); }
+  function next() { if (S.f < 1 || S.running) { jump(S.k, 1); return; } if (S.k < LAST) startBeat(S.k + 1, false); }
+  function back() { if (S.k > 0) jump(S.k - 1, 1); else jump(0, 0); }
+
+  const dots = [];
+  (function timeline() {
+    const box = $("core-timeline");
+    [[0, 0, 7, "pair"], [1, 8, 11, "ablation"], [2, 12, 12, "finish"]].forEach(([gi, from, to, cls]) => {
+      const grp = document.createElement("div"); grp.className = "timeline-group " + cls;
+      const lab = document.createElement("span"); lab.className = "timeline-label"; lab.textContent = GRP[gi];
+      const row = document.createElement("div"); row.className = "dots";
+      for (let i = from; i <= to; i++) {
+        const d = document.createElement("button"); d.type = "button"; d.className = "beat-dot"; d.title = `Core beat ${i + 1}: ${BEATS[i].title}`;
+        d.setAttribute("aria-label", d.title); d.addEventListener("click", () => startBeat(i, false)); row.appendChild(d); dots[i] = d;
+      }
+      grp.append(lab, row); box.appendChild(grp);
+    });
+  })();
+  function syncUI(updateHash) {
+    if (!S.active) return;
+    const b = BEATS[S.k];
+    $("beat-title").textContent = b.title;
+    $("beat-count").textContent = `Beat ${S.k + 1} of ${BEATS.length} · Core story · ${GRP[b.grp]}`;
+    $("play").textContent = S.playing ? "Pause" : "Play";
+    window.RQ1_MODES.setButtons(S.k === 0 && S.f <= 0, S.k === LAST && S.f >= 1);
+    dots.forEach((d, j) => { d.className = "beat-dot" + (j < S.k ? " past" : j === S.k ? " now" : ""); if (j === S.k) d.setAttribute("aria-current", "step"); else d.removeAttribute("aria-current"); });
+    $("core-notice").textContent = S.notice;
+    if (updateHash !== false && S.hashK !== S.k && history.replaceState) { history.replaceState(null, "", `#core=${S.k + 1}`); S.hashK = S.k; }
+  }
+  function setFlags(fl) {
+    if ("values" in fl) S.values = !!fl.values;
+    if ("traversal" in fl) S.traversal = !!fl.traversal;
+    $("t-values").setAttribute("aria-pressed", String(S.values));
+    $("t-traversal").setAttribute("aria-pressed", String(S.traversal));
+    $("t-values").disabled = S.traversal;
+    S.capKey = ""; draw();
+  }
+  $("t-values").addEventListener("click", () => setFlags({ values: !S.values }));
+  $("t-traversal").addEventListener("click", () => setFlags({ traversal: !S.traversal }));
+  $("t-survives").addEventListener("click", () => { if (S.traversal) setFlags({ traversal: false }); startBeat(K.scan, false); });
+  if (motion) { const onMotion = () => { reduced = motion.matches; if (reduced && S.running) jump(S.k, 1); }; if (motion.addEventListener) motion.addEventListener("change", onMotion); else if (motion.addListener) motion.addListener(onMotion); }
+
+  window.RQ1_CORE = {
+    count: BEATS.length, beats: BEATS,
+    activate(k, f, updateHash) { S.active = true; S.hashK = -1; if (k != null) { cancel(); S.playing = false; S.k = Math.max(0, Math.min(LAST, k)); S.f = f == null ? 1 : clamp(f); } S.capKey = ""; draw(); syncUI(updateHash); },
+    deactivate() { cancel(); S.playing = false; S.active = false; },
+    play, next, back, restart: () => jump(0, 0), stop: () => { if (S.playing) play(); }, go: k => startBeat(k, false), jump, setFlags,
+    onSpeed() { if (S.running) S.t0 = performance.now() - S.f * durMs(S.k); },
+    state: () => ({ k: S.k, f: S.f, playing: S.playing, running: S.running, values: S.values, traversal: S.traversal }),
+    smoke() {
+      const keep = { values: S.values, traversal: S.traversal };
+      [[false, false], [true, false], [false, true], [true, true]].forEach(([v, t]) => {
+        S.values = v; S.traversal = t;
+        for (let k = 0; k <= LAST; k++) for (const f of [0, 0.31, 0.57, 0.83, 0.95, 1]) {
+          cancel(); S.k = k; S.f = f; draw();
+          if (!$("core-title").textContent) throw new Error(`core beat ${k + 1} has no title`);
+        }
+      });
+      S.values = keep.values; S.traversal = keep.traversal; cancel(); S.k = 0; S.f = 0; S.capKey = ""; draw(); syncUI(false);
+      return BEATS.length;
+    }
+  };
+})();
+</script>
+
+<script>
+/* Mode switch: one set of controls drives whichever mode is shown. */
+(function () {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const ctl = { core: window.RQ1_CORE, full: window.RQ1_FULL };
+  const views = { core: ["core-view", "core-timeline", "core-tools"], full: ["stage", "timeline"] };
+  let mode = null;
+  function setButtons(backOff, nextOff) {
+    const back = $("back"), next = $("next"), focus = document.activeElement;
+    if ((focus === back && backOff) || (focus === next && nextOff)) $("play").focus();
+    back.disabled = backOff; next.disabled = nextOff;
+  }
+  window.RQ1_MODES = { setButtons, mode: () => mode };
+  function setMode(m, opts) {
+    opts = opts || {};
+    if (mode === m && !opts.force) return;
+    if (mode && mode !== m) ctl[mode].deactivate();
+    mode = m;
+    Object.keys(views).forEach(k => views[k].forEach(id => { $(id).hidden = k !== m; }));
+    $("tab-core").setAttribute("aria-selected", String(m === "core"));
+    $("tab-full").setAttribute("aria-selected", String(m === "full"));
+    if (m === "core") ctl.core.activate(opts.k, opts.f, opts.hash);
+    else ctl.full.activate(opts.k, opts.hash);
+  }
+  $("tab-core").addEventListener("click", () => setMode("core"));
+  $("tab-full").addEventListener("click", () => setMode("full"));
+  $("restart").addEventListener("click", () => ctl[mode].restart());
+  $("back").addEventListener("click", () => ctl[mode].back());
+  $("next").addEventListener("click", () => ctl[mode].next());
+  $("play").addEventListener("click", () => ctl[mode].play());
+  $("speed").addEventListener("change", () => ctl[mode].onSpeed());
+  $("export").addEventListener("click", () => {
+    const evidence = JSON.parse($("rq1-evidence").textContent);
+    const blob = new Blob([JSON.stringify(evidence, null, 2)], { type: "application/json" }); const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "rq1_mechanism_animation_evidence.json"; a.click(); window.setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  document.addEventListener("keydown", e => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const t = e.target, tag = t && t.tagName;
+    if (["INPUT", "SELECT", "TEXTAREA", "BUTTON", "SUMMARY", "A"].includes(tag) || (t && t.isContentEditable)) return;
+    const c = ctl[mode];
+    if (e.key === " " && !e.shiftKey) { e.preventDefault(); if (!e.repeat) c.play(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); c.next(); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); c.back(); }
+    else if (e.key === "Home") { e.preventDefault(); c.restart(); }
+  });
+  function fromHash() {
+    let m = /^#core=(\d+)(?:\.(\d+))?$/.exec(location.hash);
+    if (m) { setMode("core", { force: true, k: Number(m[1]) - 1, f: m[2] != null ? Number("0." + m[2]) : 1, hash: false }); return true; }
+    m = /^#beat=(\d+)$/.exec(location.hash);
+    if (m) { setMode("full", { force: true, k: Number(m[1]) - 1, hash: false }); return true; }
+    return false;
+  }
+  window.addEventListener("hashchange", fromHash);
+  const params = new URLSearchParams(location.search);
+  if (params.get("values") === "1" || params.get("traversal") === "1") ctl.core.setFlags({ values: params.get("values") === "1", traversal: params.get("traversal") === "1" });
+  if (!fromHash()) setMode("core", { force: true, k: 0, f: 0, hash: false });
+  document.documentElement.dataset.rq1Ready = "true";
+  if (params.has("smoke")) {
+    try {
+      const nFull = ctl.full.smoke(), nCore = ctl.core.smoke();
+      document.documentElement.dataset.rq1SmokeFull = String(nFull);
+      document.documentElement.dataset.rq1SmokeCore = String(nCore);
+      setMode("core", { force: true, k: 0, f: 0, hash: false });
+      document.documentElement.dataset.rq1Smoke = "passed";
+    } catch (err) { document.documentElement.dataset.rq1Smoke = "failed:" + err.message; }
+  }
 })();
 </script>
 </body>
