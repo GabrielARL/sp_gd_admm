@@ -240,16 +240,21 @@ html.fit .lane.zoom, html.fit .poly.zoom { position: absolute; left: 0; top: 0; 
 html.fit .lane.zoom { grid-column: 1 / -1; grid-row: 1 / -1; }
 html.fit .poly.zoom { grid-column: 1 / -1; grid-row: 3; }
 html:not(.fit) .lane.zoom, html:not(.fit) .poly.zoom { position: fixed; inset: 8px; display: flex; flex-direction: column; overflow: auto; }
-html.fit .lane.zoom { display: grid; grid-template-columns: 1040px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px; }
+html.fit .lane.zoom { display: grid; grid-template-columns: 1040px minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px; }
 .lane.zoom > h2, .lane.zoom > .state-tray { grid-column: 1 / -1; }
-.lane.zoom > .graph-wrap { grid-column: 1; grid-row: 3 / span 2; align-self: start; }
-.lane.zoom > .math { grid-column: 2; grid-row: 3; min-height: 0; font-size: 18px; }
-.lane.zoom > .explain { grid-column: 2; grid-row: 4; font-size: 18px; }
-html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); gap: 12px 28px; padding: 16px; }
+.lane.zoom > .graph-wrap { grid-column: 1; grid-row: 3 / span 3; align-self: start; }
+.lane.zoom > .tour-guide { grid-column: 2; grid-row: 3; }
+.lane.zoom > .math { grid-column: 2; grid-row: 4; min-height: 0; font-size: 18px; }
+.lane.zoom > .explain { grid-column: 2; grid-row: 5; font-size: 18px; }
+html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr); grid-template-rows: auto auto auto auto auto minmax(0, 1fr); gap: 10px 28px; padding: 16px; }
 .poly.zoom > h2 { grid-column: 1 / -1; }
-.poly.zoom > .poly-wrap { grid-column: 1; grid-row: 2 / span 4; max-width: none; margin: 0; }
-.poly.zoom > .poly-readout, .poly.zoom > .update-card, .poly.zoom > .rules, .poly.zoom > .source-note { grid-column: 2; }
-.poly.zoom > .source-note { grid-row: 5; align-self: end; font-size: 13px; }
+.poly.zoom > .poly-wrap { grid-column: 1; grid-row: 2 / span 5; max-width: none; margin: 0; }
+.poly.zoom > .tour-guide, .poly.zoom > .poly-readout, .poly.zoom > .update-card, .poly.zoom > .rules, .poly.zoom > .source-note { grid-column: 2; }
+.poly.zoom > .tour-guide { grid-row: 2; }
+.poly.zoom > .poly-readout { grid-row: 3; }
+.poly.zoom > .update-card { grid-row: 4; }
+.poly.zoom > .rules { grid-row: 5; }
+.poly.zoom > .source-note { grid-row: 6; align-self: end; font-size: 13px; }
 .poly.zoom .chips { font-size: 2.6cqw; }
 .poly.zoom .poly-readout { font-size: 20px; }
 .poly.zoom .update-card .katex { font-size: 1.45em; }
@@ -257,26 +262,69 @@ html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr)
 .poly.zoom .rules b { font-size: 14px; }
 
 /* ---------- tutorial mode: in an enlarged panel, one highlighted step plays per click ---------- */
-.lane.zoom, .poly.zoom { overflow: hidden; }
+html.fit .lane.zoom, html.fit .poly.zoom { overflow: hidden; }
+html:not(.fit) .lane.zoom, html:not(.fit) .poly.zoom { overflow: auto; }
+html:not(.fit) .lane.zoom > * { flex-shrink: 0; }
 .zoom .zoom-btn { z-index: 32; }
 .spotlight {
   position: absolute; z-index: 30; pointer-events: none; border-radius: 14px;
-  box-shadow: 0 0 0 3px var(--flash-ink), 0 0 26px 6px rgb(239 124 0 / 35%), 0 0 0 4000px rgb(243 240 232 / 88%);
+  box-shadow: 0 0 0 4px var(--flash-ink), 0 0 26px 6px rgb(239 124 0 / 35%), 0 0 0 4000px rgb(243 240 232 / 58%);
   transition: left .45s ease, top .45s ease, width .45s ease, height .45s ease;
 }
+.spotlight::before {
+  content: "LOOK HERE"; position: absolute; top: 7px; left: 8px; padding: 3px 7px;
+  color: #fff; background: var(--flash-ink); border-radius: 5px; font: 800 11px/1 var(--sans); letter-spacing: .08em;
+  box-shadow: 0 2px 7px rgb(23 33 38 / 22%);
+}
+.spotlight.preview::after {
+  content: "Click ‘Reveal step’ to show this visual"; position: absolute; inset: 0; display: grid; place-items: center; padding: 34px;
+  color: var(--flash-ink); text-align: center; font: 800 16px/1.3 var(--sans);
+}
+.spotlight[hidden] { display: none; }
+html.tour-smoke .spotlight { transition: none; }
+.tour-guide {
+  position: relative; z-index: 31; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 14px; align-items: center; padding: 10px 12px;
+  color: var(--ink); background: #fffaf0; border: 2px solid var(--flash-ink); border-radius: 11px;
+  box-shadow: 0 8px 24px rgb(23 33 38 / 15%);
+}
+.tour-copy { min-width: 0; display: grid; gap: 4px; }
+.tour-guide-head { min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.tour-mode { color: var(--flash-ink); font-size: 10.5px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.tour-progress { font-size: 14px; }
+.tour-context { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tour-action { min-width: 0; }
+.tour-action-label { display: block; color: var(--muted); font-size: 9.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.tour-action-list { display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 1px; color: var(--flash-ink); font-size: 16px; font-weight: 800; line-height: 1.25; }
+.tour-action-item + .tour-action-item::before { content: "+ "; color: var(--muted); }
+.tour-hint { grid-column: 1; color: var(--muted); font-size: 11.5px; line-height: 1.3; }
+.tour-key { white-space: nowrap; }
+.tour-key::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 4px; vertical-align: -1px; border-radius: 3px; }
+.tour-key.look::before { border: 2px solid var(--flash-ink); }
+.tour-key.context::before { background: color-mix(in srgb, var(--paper) 58%, transparent); border: 1px solid var(--line); }
 .tour-next {
-  position: absolute; z-index: 31; display: inline-flex; gap: .45em; align-items: center; padding: 10px 20px;
+  grid-column: 2; grid-row: 1 / span 3; position: relative; z-index: 32; display: inline-flex; gap: .45em; align-items: center; justify-content: center;
+  min-width: 132px; max-width: 200px; padding: 10px 16px;
   color: #fff; background: var(--flash-ink); border: 0; border-radius: 999px; cursor: pointer;
-  font: 700 17px/1.2 var(--sans); white-space: nowrap; box-shadow: 0 8px 22px rgb(179 90 0 / 35%);
+  font: 800 15px/1.2 var(--sans); text-align: center; box-shadow: 0 8px 22px rgb(179 90 0 / 35%);
 }
 .tour-next[hidden] { display: none; }
 .tour-next .katex { font-size: 1.05em; }
-.tour-next.pop { animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both, beckon 1.6s ease-in-out .5s infinite; }
+.tour-next.pop { animation: pop .35s cubic-bezier(.2, 1.4, .4, 1) both; }
 .tour-next:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.tour-guide.running .tour-mode { color: var(--good); }
+.tour-guide.complete { border-color: var(--good); background: #f4fbf7; }
+.tour-guide.complete .tour-mode, .tour-guide.complete .tour-action-list { color: var(--good); }
+.zoom.tour-waiting .graph .dependency, .zoom.tour-waiting .graph .message,
+.zoom.tour-waiting .hover, .zoom.tour-waiting .next-cue, .zoom.tour-waiting .chip.travelling { animation-play-state: paused; }
 @keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-@keyframes beckon {
-  0%, 100% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 0 rgb(239 124 0 / 50%); }
-  50% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 12px rgb(239 124 0 / 0%); }
+
+html:not(.fit) .tour-guide { position: sticky; top: 4px; flex: none; margin-right: 40px; }
+html:not(.fit) .zoom > .zoom-btn { position: fixed; top: 16px; right: 16px; }
+
+@media (max-width: 899px) {
+  .tour-guide { flex: none; grid-template-columns: minmax(0, 1fr) auto; margin: 2px 0; }
+  .tour-next { min-width: 112px; max-width: 150px; padding-inline: 12px; }
 }
 
 @media (min-width: 900px) {
@@ -310,8 +358,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   <nav class="topbar" aria-label="Animation controls">
     <div class="button-row">
       <button class="control" id="back" type="button" aria-label="Previous beat">← Back</button>
-      <button class="control primary" id="play" type="button">Play</button>
-      <button class="control" id="next" type="button" aria-label="Next beat">Next →</button>
+      <button class="control primary" id="play" type="button">Play beat</button>
+      <button class="control" id="next" type="button" aria-label="Next beat">Next beat →</button>
       <button class="control" id="restart" type="button">Restart</button>
     </div>
     <div class="readout" aria-live="polite">
@@ -490,11 +538,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   const SLOT_T = [0.38, 0.62, 0.62, 0.38];
   const DECK_W = 1920, DECK_H = 1000;
   const TIME = { sub: 1000, fly: 1400, stagger: 600, res: 450, gap: 1000, travel: 2000, hold: 4500, morph: 3000, read: 4200 };
-  let current = 0, playing = false, frozen = false, speed = 1;
+  let current = 0, playing = false, frozen = true, speed = 1;
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const query = new URLSearchParams(location.search);
   const smoke = query.get("smoke") === "1";
   const tourSmoke = query.get("tour-smoke") === "1";
+  if (tourSmoke) document.documentElement.classList.add("tour-smoke");
   const KATEX = typeof window.katex === "object" && typeof window.katex.renderToString === "function";
   document.documentElement.dataset.math = KATEX ? "katex" : "fallback";
   LBFGS_EXPLAIN[8] = R`Both checks read $x_2^{(1)}=${tn(LB.x1[1])}$. The earlier $\mathbf{s}$ and $\mathbf{y}$ vectors shape the next direction; they do not change the value each check reads.`;
@@ -553,7 +602,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   // Tutorial stops: each one plays a single action [at, until] of one panel ("bp", "lbfgs" or "poly").
   let STOPS = [];
   function addStop(lane, at, until, target, label) { STOPS.push({ lane, at, until: Math.max(at, until), target, label }); }
-  const tour = { on: false, stops: [], i: 0, running: false, limit: Infinity, spot: null, next: null, returnFocus: null };
+  const tour = { on: false, stops: [], i: 0, running: false, limit: Infinity, spot: null, guide: null, next: null, returnFocus: null };
   const lerp = (a, b, p) => a + (b - a) * p;
   const ease = p => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
   const nodeOf = target => (typeof target === "function" ? target() : target);
@@ -562,8 +611,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     events.sort((a, b) => a.at - b.at);
     clock.events = events; clock.t = 0; clock.length = length;
     events.forEach(e => { e.state = 0; if (e.init) e.init(); });
-    if (reduced || smoke) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
-    wake();
+    if (smoke || (reduced && !zoomed)) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
+    if (playing && !frozen) wake();
   }
   function wake() {
     if (clock.raf) return;
@@ -574,29 +623,31 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     clock.raf = 0;
     const dt = Math.min(80, Math.max(0, now - clock.last));
     clock.last = now;
-    if (!frozen) clock.t = Math.min(clock.t + dt * speed, tour.on ? tour.limit : Infinity);
-    const pending = runEvents();
+    if (!frozen && (playing || tour.running)) clock.t = Math.min(clock.t + dt * speed, tour.on ? tour.limit : clock.length);
+    runEvents();
     if (tour.on) {
       if (tour.running) { tourPlace(); if (clock.t >= tour.limit) tourArrive(); else clock.raf = requestAnimationFrame(tick); }
       return;
     }
-    if (playing && !frozen && clock.t >= clock.length) { advance(); return; }
-    if (pending || playing) clock.raf = requestAnimationFrame(tick);
+    if (playing && !frozen && clock.t >= clock.length) {
+      playing = false; frozen = true; updatePlay();
+      return;
+    }
+    if (playing && !frozen) clock.raf = requestAnimationFrame(tick);
   }
   function runEvents() {
-    let pending = false;
     for (const e of clock.events) {
       if (e.state === 2) continue;
-      if (clock.t < e.at) { pending = true; continue; }
+      if (clock.t < e.at) continue;
       if (e.state === 0) { e.state = 1; if (e.start) e.start(); }
       const p = e.dur > 0 ? Math.min(1, (clock.t - e.at) / e.dur) : 1;
       if (e.apply) e.apply(p);
-      if (p >= 1) { e.state = 2; if (e.end) e.end(); } else pending = true;
+      if (p >= 1) { e.state = 2; if (e.end) e.end(); }
     }
-    return pending;
   }
   function seek(ms) {
     playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
     clock.t = Math.max(clock.t, Number(ms));
     runEvents();
     updatePlay();
@@ -719,7 +770,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     } else if (v) L.outcomes.push(`.${id}b`);
     out.next = out.done + TIME.gap;
     addStop(L.method, t, out.done + 500, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); },
-      v ? "Substitute the values" : "Show the result");
+      v ? `Substitute the values in $${lhs}$` : `Show $${lhs}$`);
     return out;
   }
   function formula(L, t, src, className = "") {
@@ -733,7 +784,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const id = `${L.method}${++L.n}`;
     L.lines.push(`<span class="line prose" data-line="${id}">${mixed(text)}</span>`);
     L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
-    addStop(L.method, t, t + 600, () => L.root.querySelector(`[data-line="${id}"]`), "Next line");
+    addStop(L.method, t, t + 600, () => L.root.querySelector(`[data-line="${id}"]`), "Read the next conclusion");
     return { done: t + 600, next: t + 600 + TIME.gap };
   }
   function commit(L) {
@@ -835,7 +886,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         place(label, edgePoint(e, rest));
       } });
     ev.push(blink(label, at + TIME.travel));
-    addStop(G.method, at, at + TIME.travel, () => G.svg.parentNode, "Send the message");
+    const address = dir === "up"
+      ? R`Send $Q_{${EDGES[e].i + 1}\to ${CHECK[EDGES[e].a]}}$ to check ${CHECK[EDGES[e].a]}`
+      : R`Send $U_{${CHECK[EDGES[e].a]}\to ${EDGES[e].i + 1}}$ to bit ${EDGES[e].i + 1}`;
+    addStop(G.method, at, at + TIME.travel, () => G.svg.parentNode, address);
     return { label, land: at + TIME.travel };
   }
 
@@ -943,12 +997,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
     const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
     const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
-    const steps = first ? [{ tex: F.q, tag: "BP variable update", note: R`the message bit $i$ sends to check $a$; the sum runs over $b\in N(i)\setminus a$`, hold: 3600 }] : [];
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: "Neighbours", note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ from this sum`,
+    const steps = first ? [{ tex: F.q, tag: "Show the BP variable-update rule", note: R`the message bit $i$ sends to check $a$; the sum runs over $b\in N(i)\setminus a$`, hold: 3600 }] : [];
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: `List bit ${I}'s neighbouring checks`, note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ only from the sum`,
       note: R`$N(i)\setminus a$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
     steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{b\in ${set(rest)}} U${uSup}_{b\to ${I}}} = L_${I} + ${sum}`,
-      tag: rest.length ? `Message to check ${A}` : "Empty sum",
+      tag: rest.length ? R`Form $Q${sup}_{${I}\to ${A}}$ from the remaining terms` : R`Use $L_${I}$ because the sum is empty`,
       note: rest.length ? R`bit ${I} is preparing a message for check ${A}: use the channel LLR $L_${I}$ and the check-to-variable message $${sum}$ from check ${rest.join(", ")}; leave out check ${A}’s preceding check-to-variable message`
         : R`bit ${I} is preparing a message for check ${A}; no other neighboring check remains, so the message contains only its channel LLR $L_${I}$` });
     return steps;
@@ -1621,7 +1675,13 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     updatePlay();
     if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
   }
-  function updatePlay() { $("play").textContent = tour.on ? "Next step" : playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
+  function updatePlay() {
+    const atEnd = clock.t >= clock.length;
+    const label = tour.on ? "Next step" : playing ? "Pause beat" :
+      (atEnd ? "Replay beat" : (clock.t > 0 ? "Resume beat" : "Play beat"));
+    $("play").textContent = label;
+    $("play").setAttribute("aria-label", label);
+  }
   // On wide windows the whole page is one 1920 x 1000 screen scaled to fit; narrow windows scroll.
   function fit() {
     const deck = $("deck"), w = window.innerWidth, h = window.innerHeight;
@@ -1631,28 +1691,28 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const s = Math.min(w / DECK_W, h / DECK_H);
     deck.style.transform = `translate(${(w - DECK_W * s) / 2}px, ${(h - DECK_H * s) / 2}px) scale(${s})`;
   }
-  function advance() {
-    if (current >= BEATS.length - 1) { playing = false; updatePlay(); return; }
-    current += 1;
-    render();
-  }
   function play() {
     if (tour.on) { tourNext(); return; }
-    if (playing) { playing = false; frozen = true; updatePlay(); return; }
-    playing = true;
-    if (frozen) { frozen = false; updatePlay(); wake(); return; }
+    if (playing) {
+      playing = false; frozen = true;
+      if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+      updatePlay();
+      return;
+    }
     if (clock.t >= clock.length) {
-      if (current >= BEATS.length - 1) current = 0; else current += 1;
       render();
     }
+    playing = true; frozen = false;
     updatePlay();
     wake();
   }
   function goTo(index) {
-    playing = false; frozen = false;
+    playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
     current = Math.max(0, Math.min(BEATS.length - 1, Number(index)));
     render();
   }
+  function resetCurrentBeat() { goTo(current); }
 
   // ---------- tutorial mode: the enlarged panel plays one highlighted step per click ----------
   // Between steps the clock waits; a spotlight rings the part that changes next and a button pops out
@@ -1682,8 +1742,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     };
   }
   function tourStart() {
-    if (!zoomed || smoke || reduced) return;
+    if (!zoomed || smoke) return;
     const panel = PANELS[zoomed]();
+    panel.scrollLeft = 0; panel.scrollTop = 0;
     tour.on = true; tour.running = false; tour.limit = Infinity; playing = false; frozen = true;
     if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
     const merged = [];
@@ -1699,13 +1760,29 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     tour.stops = merged; tour.i = 0;
     settle();
     if (!tour.spot) { tour.spot = document.createElement("div"); tour.spot.className = "spotlight"; }
+    if (!tour.guide) {
+      tour.guide = document.createElement("section");
+      tour.guide.className = "tour-guide";
+      tour.guide.setAttribute("role", "group");
+      tour.guide.setAttribute("aria-label", "Click-through presentation guide");
+      tour.guide.innerHTML = `
+        <div class="tour-copy" role="status" aria-live="polite" aria-atomic="true">
+          <div class="tour-guide-head"><span class="tour-mode"></span><strong class="tour-progress"></strong><span class="tour-context"></span></div>
+          <div class="tour-action"><span class="tour-action-label"></span><div class="tour-action-list"></div></div>
+          <div class="tour-hint"></div>
+        </div>`;
+    }
     if (!tour.next) {
       tour.next = document.createElement("button");
       tour.next.type = "button"; tour.next.className = "tour-next";
       tour.next.addEventListener("click", tourNext);
+      tour.guide.appendChild(tour.next);
     }
     tour.returnFocus = panel.querySelector(".zoom-btn");
-    panel.append(tour.spot, tour.next);
+    panel.classList.add("tour-active", "tour-waiting");
+    panel.classList.remove("tour-running");
+    panel.querySelector("h2").after(tour.guide);
+    panel.appendChild(tour.spot);
     tourShow();
     updatePlay();
   }
@@ -1715,7 +1792,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     tour.on = false; tour.running = false; tour.limit = Infinity; frozen = true;
     if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
     settle();
-    tour.spot.remove(); tour.next.remove();
+    if (zoomed) PANELS[zoomed]().classList.remove("tour-active", "tour-waiting", "tour-running");
+    tour.spot.remove(); tour.guide.remove();
     tour.returnFocus = null;
     if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
     updatePlay();
@@ -1723,17 +1801,50 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   function tourShow() {
     const stop = tour.stops[tour.i];
     const labels = stop.labels || [stop.label];
-    const label = labels.length === 1 ? labels[0] : `Play ${labels.length} synchronized actions`;
-    tour.next.innerHTML = `${mixed(label)}<span aria-hidden="true">▶</span>`;
-    tour.next.setAttribute("aria-label", labels.map(plain).join("; "));
+    const panel = PANELS[zoomed](), terminal = Boolean(stop.end);
+    const total = tour.stops.filter(item => !item.end).length;
+    const stepNumber = terminal ? total : Math.min(tour.i + 1, total);
+    const actionText = labels.map(plain);
+    const method = zoomed === "bp" ? "BP" : (zoomed === "lbfgs" ? "L-BFGS" : "L-BFGS box");
+    const mode = tour.guide.querySelector(".tour-mode"), progress = tour.guide.querySelector(".tour-progress");
+    const context = tour.guide.querySelector(".tour-context"), actionLabel = tour.guide.querySelector(".tour-action-label");
+    const actionList = tour.guide.querySelector(".tour-action-list"), hint = tour.guide.querySelector(".tour-hint");
+    tour.guide.dataset.step = String(stepNumber);
+    tour.guide.dataset.total = String(total);
+    tour.guide.dataset.terminal = String(terminal);
+    tour.guide.dataset.action = actionText.join(" | ");
+    tour.guide.classList.toggle("complete", terminal);
+    tour.guide.classList.remove("running");
+    panel.classList.add("tour-waiting");
+    panel.classList.remove("tour-running");
+    mode.textContent = terminal ? "Beat complete" : "Click-through";
+    progress.textContent = terminal ? `All ${total} presentation steps shown` : `Presentation step ${stepNumber} of ${total}`;
+    context.textContent = `${method} · Beat ${current + 1} of ${BEATS.length}`;
+    actionLabel.textContent = terminal ? (current < BEATS.length - 1 ? "Next" : "Complete") : "Next visual change";
+    if (terminal) {
+      actionList.innerHTML = current < BEATS.length - 1
+        ? `<span class="tour-action-item">Continue to Beat ${current + 2}: ${mixed(BEATS[current + 1].subtitle)}</span>`
+        : `<span class="tour-action-item">Close the enlarged view</span>`;
+      hint.textContent = "The beat remains paused. Continue only when you are ready.";
+      tour.next.innerHTML = `${mixed(stop.label)}<span aria-hidden="true">${current < BEATS.length - 1 ? "→" : "✓"}</span>`;
+      tour.next.setAttribute("aria-label", plain(stop.label));
+    } else {
+      actionList.innerHTML = labels.map(label => `<span class="tour-action-item">${mixed(label)}</span>`).join("");
+      hint.innerHTML = `<span class="tour-key look">Orange frame = next change</span> · <span class="tour-key context">Dimmed = context, not removed</span> · Presentation clock waits for your click.`;
+      tour.next.innerHTML = `Reveal step ${stepNumber}<span aria-hidden="true">▶</span>`;
+      tour.next.setAttribute("aria-label", `Reveal presentation step ${stepNumber} of ${total}: ${actionText.join("; ")}`);
+    }
     tour.next.hidden = false;
-    tour.next.classList.remove("pop"); void tour.next.offsetWidth; tour.next.classList.add("pop");
+    tour.next.classList.remove("pop");
+    if (!tourSmoke) { void tour.next.offsetWidth; tour.next.classList.add("pop"); }
+    tour.spot.hidden = terminal;
     tourReveal();
     tour.next.focus({ preventScroll: true });
   }
   function tourReveal() {
     const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
     if (!panel || !stop) return;
+    if (stop.end) { tourPlace(); return; }
     const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
     if (panel.scrollWidth > panel.clientWidth + 1) panel.scrollLeft += ((r.left + r.right) / 2 - (p.left + p.right) / 2) / k;
     if (panel.scrollHeight > panel.clientHeight + 1) panel.scrollTop += ((r.top + r.bottom) / 2 - (p.top + p.bottom) / 2) / k;
@@ -1742,6 +1853,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   function tourPlace() {
     const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
     if (!panel || !stop) return;
+    if (stop.end) { tour.spot.hidden = true; return; }
+    tour.spot.hidden = false;
     const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
     const sx = panel.scrollLeft, sy = panel.scrollTop, W = panel.clientWidth, H = panel.clientHeight, pad = 8;
     let w = Math.min(r.width / k + 2 * pad, W - 8), h = Math.min(r.height / k + 2 * pad, H - 8);
@@ -1749,14 +1862,11 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     x = Math.max(sx + 4, Math.min(sx + W - w - 4, x));
     y = Math.max(sy + 4, Math.min(sy + H - h - 4, y));
     Object.assign(tour.spot.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
-    if (tour.next.hidden) return;
-    const bw = tour.next.offsetWidth, bh = tour.next.offsetHeight;
-    let bx = x + w - bw, by = y + h + 12;
-    if (by + bh > sy + H - 8) by = y - bh - 12;
-    if (by < sy + 8) by = y + h - bh - 8;
-    bx = Math.max(sx + 8, Math.min(sx + W - bw - 8, bx));
-    by = Math.max(sy + 8, Math.min(sy + H - bh - 8, by));
-    Object.assign(tour.next.style, { left: `${bx}px`, top: `${by}px` });
+    const hiddenTargets = stopTargets(stop).every(node => {
+      const style = getComputedStyle(node), box = node.getBoundingClientRect();
+      return style.display === "none" || style.visibility === "hidden" || Number(style.opacity) < 0.05 || box.width === 0 || box.height === 0;
+    });
+    tour.spot.classList.toggle("preview", hiddenTargets);
   }
   function tourNext() {
     if (!tour.on || tour.running) return;
@@ -1768,6 +1878,17 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     tour.next.hidden = true;
     if (clock.t < stop.at) { clock.t = stop.at; runEvents(); }
     tour.limit = stop.until; tour.running = true; frozen = false;
+    const panel = PANELS[zoomed]();
+    panel.classList.remove("tour-waiting"); panel.classList.add("tour-running");
+    tour.guide.classList.add("running");
+    tour.guide.querySelector(".tour-mode").textContent = "Showing step";
+    tour.guide.querySelector(".tour-hint").textContent = "This clicked step is playing; the presentation clock will pause at the next boundary.";
+    if (reduced) {
+      clock.t = tour.limit;
+      runEvents();
+      tourArrive();
+      return;
+    }
     tourPlace();
     wake();
   }
@@ -1798,6 +1919,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     $("deck").classList.add("zoomed");
     panel.classList.add("zoom");
     updateZoomButtons();
+    resetCurrentBeat();
     tourStart();
     if (!animateZoom) return;
     const last = panel.getBoundingClientRect();
@@ -1877,34 +1999,114 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   window.BP_LBFGS_STATE_ANIMATION = {
     data: DATA, beats: BEATS.slice(),
     getBeat: () => current,
+    getInteractionState: () => {
+      const stop = tour.stops[tour.i];
+      return {
+        beat: current, time: clock.t, length: clock.length, playing, frozen, zoomed, raf: clock.raf,
+        tour: { on: tour.on, running: tour.running, index: tour.i, stop: stop ? { at: stop.at, until: stop.until, end: Boolean(stop.end) } : null }
+      };
+    },
     setBeat: index => goTo(index),
     length: () => clock.length,
     seek
   };
-  const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
   function tourControlFits() {
-    if (!zoomed || !tour.next || tour.next.hidden) return false;
-    const panelBox = PANELS[zoomed]().getBoundingClientRect(), buttonBox = tour.next.getBoundingClientRect();
-    const spotBox = tour.spot.getBoundingClientRect();
+    if (!zoomed || !tour.next || tour.next.hidden || !tour.guide || !tour.guide.isConnected) return false;
+    const panel = PANELS[zoomed](), panelBox = panel.getBoundingClientRect(), buttonBox = tour.next.getBoundingClientRect();
+    const guideBox = tour.guide.getBoundingClientRect(), spotBox = tour.spot.getBoundingClientRect();
     const buttonInside = buttonBox.left >= panelBox.left - 1 && buttonBox.right <= panelBox.right + 1 &&
       buttonBox.top >= panelBox.top - 1 && buttonBox.bottom <= panelBox.bottom + 1;
-    const spotlightVisible = spotBox.width > 0 && spotBox.height > 0 && spotBox.right > panelBox.left &&
-      spotBox.left < panelBox.right && spotBox.bottom > panelBox.top && spotBox.top < panelBox.bottom;
-    return buttonInside && spotlightVisible;
+    const guideInside = guideBox.width > 0 && guideBox.height > 0 && guideBox.left >= panelBox.left - 1 &&
+      guideBox.right <= panelBox.right + 1 && guideBox.top >= panelBox.top - 1 && guideBox.bottom <= panelBox.bottom + 1;
+    const terminal = tour.stops[tour.i] && tour.stops[tour.i].end;
+    const spotlightVisible = terminal || (spotBox.width > 0 && spotBox.height > 0 && spotBox.right > panelBox.left &&
+      spotBox.left < panelBox.right && spotBox.bottom > panelBox.top && spotBox.top < panelBox.bottom);
+    const closeBox = panel.querySelector(".zoom-btn").getBoundingClientRect();
+    const guideHitsClose = guideBox.left < closeBox.right - 1 && guideBox.right > closeBox.left + 1 &&
+      guideBox.top < closeBox.bottom - 1 && guideBox.bottom > closeBox.top + 1;
+    const hit = document.elementFromPoint(buttonBox.left + buttonBox.width / 2, buttonBox.top + buttonBox.height / 2);
+    const buttonClickable = hit === tour.next || tour.next.contains(hit);
+    const guideUnclipped = tour.guide.scrollWidth <= tour.guide.clientWidth + 1 && tour.guide.scrollHeight <= tour.guide.clientHeight + 1;
+    const rect = box => [Math.round(box.left), Math.round(box.top), Math.round(box.right), Math.round(box.bottom)];
+    tourControlFits.last = { buttonInside, guideInside, spotlightVisible, guideHitsClose, buttonClickable, guideUnclipped,
+      panel: rect(panelBox), guide: rect(guideBox), spot: rect(spotBox), scroll: [panel.scrollLeft, panel.scrollTop],
+      scrollSize: [panel.scrollWidth, panel.scrollHeight, panel.clientWidth, panel.clientHeight] };
+    return buttonInside && guideInside && spotlightVisible && !guideHitsClose && buttonClickable && guideUnclipped;
   }
   async function runTourSmoke() {
     const root = document.documentElement;
     const check = (condition, message) => { if (!condition) throw new Error(message); };
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const stateSignature = () => `${current}|${clock.t}|${playing}|${frozen}|${clock.events.map(event => event.state).join("")}`;
+    const guideSignature = () => `${tour.guide.dataset.step}|${tour.guide.dataset.total}|${tour.guide.dataset.terminal}|${tour.guide.dataset.action}|${visibleText(tour.guide)}`;
+    const guideMatchesStop = () => {
+      const stop = tour.stops[tour.i], labels = (stop.labels || [stop.label]).map(plain);
+      const total = tour.stops.filter(item => !item.end).length;
+      check(tour.guide.isConnected, "presentation guide is not attached to the enlarged panel");
+      check(tour.guide.dataset.total === String(total), "presentation guide has the wrong total");
+      check(tour.guide.dataset.step === String(stop.end ? total : tour.i + 1), "presentation guide has the wrong step number");
+      check(tour.guide.dataset.terminal === String(Boolean(stop.end)), "presentation guide has the wrong terminal state");
+      check(tour.guide.dataset.action === labels.join(" | "), "presentation guide does not expose every current action");
+      check(tour.guide.querySelector(".tour-copy").getAttribute("role") === "status", "presentation guide lacks its live status region");
+      check(Number(getComputedStyle(tour.guide).zIndex) > Number(getComputedStyle(tour.spot).zIndex), "presentation guide is hidden below the spotlight mask");
+    };
     root.dataset.tourSmoke = "running";
+    root.dataset.tourSmokeMotion = reduced ? "reduced" : "full";
     try {
+      const controls = ["back", "play", "next", "restart", "speed"].map($);
+      const topbarBox = document.querySelector(".topbar").getBoundingClientRect();
+      controls.forEach(control => {
+        const box = control.getBoundingClientRect();
+        check(box.width > 0 && box.height > 0, `${control.id} control is not visible`);
+        check(box.left >= topbarBox.left - 1 && box.right <= topbarBox.right + 1 &&
+          box.top >= topbarBox.top - 1 && box.bottom <= topbarBox.bottom + 1, `${control.id} control is clipped by the top bar`);
+      });
+      for (let a = 0; a < controls.length; a += 1) for (let b = a + 1; b < controls.length; b += 1) {
+        const x = controls[a].getBoundingClientRect(), y = controls[b].getBoundingClientRect();
+        const overlaps = x.left < y.right - 1 && x.right > y.left + 1 && x.top < y.bottom - 1 && x.bottom > y.top + 1;
+        check(!overlaps, `${controls[a].id} and ${controls[b].id} controls overlap`);
+      }
+      check($("play").textContent === "Play beat", "overview playback is not explicitly opt-in");
+      check($("next").textContent.trim() === "Next beat →", "next-beat control is not explicit");
+      root.dataset.tourSmokeControls = "passed";
+
+      const loadState = stateSignature();
+      await wait(1200);
+      check(stateSignature() === loadState && clock.t === 0, "animation advanced before a click");
+      root.dataset.tourSmokeLoadIdle = "passed";
+
       speed = 1000;
+      const playedBeat = current;
+      $("play").click();
+      check(playing && !frozen, "Play beat did not start the current beat");
+      if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+      for (let frame = 0; frame < 100 && playing; frame += 1) tick(clock.last + 80);
+      check(!playing && frozen && current === playedBeat && clock.t === clock.length, "Play beat did not stop at the end of the current beat");
+      check($("play").textContent === "Replay beat", "completed beat is not ready for an explicit replay");
+      root.dataset.tourSmokePlayBeat = "passed";
+
+      goTo(playedBeat);
+      seek(1800);
+      check(clock.t === 1800, "test setup could not move inside the beat");
       openZoom("lbfgs");
-      await nextFrame();
+      await wait(20);
       check(tour.on && zoomed === "lbfgs", "L-BFGS tutorial did not open");
+      check(clock.t === 0 && tour.i === 0 && frozen && !tour.running, "enlarged tutorial did not reset to its first click step");
+      check($("play").textContent === "Next step", "enlarged top control is not a step control");
+      guideMatchesStop();
+      check(visibleText(tour.guide).includes("Presentation step 1 of"), "presentation guide does not orient the viewer at step 1");
+      check(visibleText(tour.guide).includes("Presentation clock waits for your click"), "presentation guide does not explain the manual pause");
+      const zoomState = stateSignature(), zoomIndex = tour.i;
+      await wait(200);
+      check(stateSignature() === zoomState && tour.i === zoomIndex, "enlarged tutorial advanced without a click");
+      root.dataset.tourSmokeZoomIdle = "passed";
+
       const grouped = tour.stops.findIndex(stop => stop.labels && stop.labels.length > 1);
       check(grouped >= 0, "overlapping actions were not grouped");
       tour.i = grouped; tourShow();
-      check(tour.next.textContent.includes("synchronized actions"), "grouped action label is missing");
+      guideMatchesStop();
+      check(tour.guide.querySelectorAll(".tour-action-item").length === tour.stops[grouped].labels.length, "grouped action labels are not all visible");
+      check(visibleText(tour.next).startsWith("Reveal step"), "grouped action does not retain one explicit reveal button");
       check(tourControlFits(), "grouped tutorial control is outside the enlarged panel");
       root.dataset.tourSmokeGrouping = "passed";
 
@@ -1914,32 +2116,92 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       check(tour.i === beforeKey && !tour.running, "ArrowRight advanced while the speed control had focus");
       root.dataset.tourSmokeKeyboard = "passed";
 
+      const clickedStop = tour.stops[tour.i], beforeStep = tour.i, beforeGuideStep = Number(tour.guide.dataset.step);
+      tour.next.click();
+      if (reduced) check(!tour.running && frozen, "reduced-motion click did not complete the grouped presentation step immediately");
+      else {
+        check(tour.running, "click did not start the grouped presentation step");
+        if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+        for (let frame = 0; frame < 100 && tour.running; frame += 1) tick(clock.last + 80);
+      }
+      check(!tour.running && frozen, "one click did not stop after one grouped presentation step");
+      check(tour.i === beforeStep + 1, "one click advanced more or less than one grouped presentation step");
+      check(clock.t === clickedStop.until, "one click did not stop at the grouped presentation-step boundary");
+      guideMatchesStop();
+      check(Number(tour.guide.dataset.step) === beforeGuideStep + 1, "presentation guide did not advance exactly one step");
+      root.dataset.tourSmokeSingleStep = "passed";
+
+      const stoppedState = stateSignature(), stoppedIndex = tour.i, stoppedGuide = guideSignature();
+      await wait(200);
+      check(stateSignature() === stoppedState && tour.i === stoppedIndex, "grouped presentation step kept moving after it arrived");
+      check(guideSignature() === stoppedGuide, "presentation guide changed while the presentation clock was paused");
+      root.dataset.tourSmokeStepIdle = "passed";
+
+      resetCurrentBeat();
       tour.i = tour.stops.findIndex(stop => !stop.end); tourShow(); speed = 0.01;
       const returnButton = PANELS.lbfgs().querySelector(".zoom-btn");
       tourNext();
-      check(tour.running, "tutorial step did not start");
+      check(reduced ? (!tour.running && frozen) : tour.running, "tutorial step did not follow the selected motion mode");
       closeZoom();
       check(!tour.on && zoomed === null && clock.raf === 0, "closing did not stop the tutorial clock");
+      check(!tour.guide.isConnected, "closing left the presentation guide attached");
       check(!clock.events.some(event => event.state === 1), "closing left a partially rendered event");
       check(document.activeElement === returnButton, "closing did not restore focus to the zoom button");
       root.dataset.tourSmokeClose = "passed";
       root.dataset.tourSmokeFocus = "passed";
 
       speed = 1000; goTo(1); openZoom("bp");
-      await nextFrame();
+      await wait(20);
       check(tour.on && zoomed === "bp", "BP tutorial did not open");
       for (let i = 0; i < tour.stops.length; i += 1) {
         tour.i = i; tourShow();
+        guideMatchesStop();
         check(tourControlFits(), `tutorial control ${i + 1} is outside the enlarged BP panel`);
       }
       root.dataset.tourSmokeVisibility = "passed";
 
       const beforeBeat = current;
-      tour.i = tour.stops.length - 1; tourShow(); tourNext();
+      tour.i = tour.stops.length - 1; tourShow();
+      guideMatchesStop();
+      check(tour.guide.classList.contains("complete") && tour.guide.dataset.step === tour.guide.dataset.total,
+        "terminal presentation guide is not a bounded beat-complete state");
+      check(visibleText(tour.next).startsWith("Next beat") && tour.next.getAttribute("aria-label") === "Next beat", "terminal control is not labelled Next beat");
+      await wait(120);
+      check(current === beforeBeat, "terminal control advanced the beat without a click");
+      root.dataset.tourSmokeNextBeatLabel = "passed";
+      tour.next.click();
       check(current === beforeBeat + 1 && tour.on && zoomed === "bp", "Next beat did not retain the tutorial");
+      guideMatchesStop();
+      check(tour.guide.dataset.step === "1" && tour.guide.dataset.terminal === "false", "Next beat did not reset the presentation guide to step 1");
       root.dataset.tourSmokeBeat = "passed";
 
-      current = BEATS.length - 1; render();
+      closeZoom();
+      for (let beat = 0; beat < BEATS.length; beat += 1) {
+        goTo(beat);
+        for (const key of ["bp", "lbfgs", "poly"]) {
+          openZoom(key);
+          check(tour.on && zoomed === key, `${key} click-through did not open for beat ${beat + 1}`);
+          let visited = 0;
+          while (visited < tour.stops.length + 1) {
+            guideMatchesStop();
+            check(tourControlFits(), `${key} guide or control is clipped at beat ${beat + 1}, step ${tour.i + 1}: ${JSON.stringify(tourControlFits.last)}`);
+            if (tour.stops[tour.i].end) break;
+            const before = tour.i;
+            tourNext();
+            if (!reduced) {
+              if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+              for (let frame = 0; frame < 100 && tour.running; frame += 1) tick(clock.last + 80);
+            }
+            check(tour.i === before + 1 && !tour.running && frozen, `${key} clarity sweep did not finish one step`);
+            visited += 1;
+          }
+          check(visited < tour.stops.length + 1, `${key} clarity sweep exceeded its stop count`);
+          closeZoom();
+        }
+      }
+      root.dataset.tourSmokeClarity = "passed";
+
+      goTo(BEATS.length - 1); openZoom("bp");
       const finalReturnButton = PANELS.bp().querySelector(".zoom-btn");
       tour.i = tour.stops.length - 1; tourShow(); tourNext();
       check(!tour.on && zoomed === null, "Finish did not close the tutorial");
@@ -2045,8 +2307,6 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     } catch (error) {
       document.documentElement.dataset.animationSmoke = `failed: ${error.message}`;
     }
-  } else if (!reduced && !match && !seekTo && window.innerWidth > 930) {
-    setTimeout(() => { if (!playing && !frozen && current === 0) play(); }, 900);
   }
 })();
 </script>

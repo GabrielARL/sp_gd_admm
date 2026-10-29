@@ -415,7 +415,7 @@ def check_wording_and_structure(html: str) -> None:
         '"Expand the square"',
         '"Drop constants"',
         "Form the two variable-to-check messages addressed to A",
-        r"Omit $U${uSup}_{${A}\to ${I}}$ from this sum",
+        r"Omit $U${uSup}_{${A}\to ${I}}$ only from the sum",
         r"$N(i)\setminus a$ changes only this sum’s index set.",
         r"is still sent along the bit-${I}–check ${A} edge",
         "bit ${I} is preparing a message for check ${A}",
@@ -424,6 +424,19 @@ def check_wording_and_structure(html: str) -> None:
         "the Tanner-graph edge remains",
         "Bit 2 is speaking to check A.",
         r"Here $U^{(0)}_{B\to 2}=0$",
+        ">Play beat</button>",
+        ">Next beat →</button>",
+        'const label = tour.on ? "Next step"',
+        'atEnd ? "Replay beat"',
+        "function resetCurrentBeat()",
+        "getInteractionState",
+        "Presentation step ${stepNumber} of ${total}",
+        "Next visual change",
+        "Dimmed = context, not removed",
+        "Presentation clock waits for your click",
+        "Reveal step ${stepNumber}",
+        "Show the BP variable-update rule",
+        "tour-guide",
         "it grows as a product moves away from $+1$",
         "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
     )
@@ -437,14 +450,19 @@ def check_wording_and_structure(html: str) -> None:
         "Leave out check ${A}",
         'class: "strike"',
         ".graph .strike",
+        "setTimeout(() => { if (!playing && !frozen && current === 0) play(); }, 900)",
+        "function advance()",
+        "Show ${labels.length} synchronized actions",
+        "beckon 1.6s",
     ):
-        assert stale not in html, f"stale recipient-exclusion explanation remains: {stale!r}"
+        assert stale not in html, f"stale wording or automatic-advance behavior remains: {stale!r}"
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
     assert 'tour.next.className = "tour-next"' in html and "function tourNext()" in html, "tutorial mode is missing"
     assert "function runTourSmoke()" in html, "tutorial interaction smoke test is missing"
-    assert "if (!zoomed || smoke || reduced) return;" in html, "reduced-motion mode must not start the timed tutorial"
+    assert "if (!zoomed || smoke) return;" in html, "enlarged tutorial must be click-driven"
+    assert "if (reduced)" in html and "tourArrive();" in html, "reduced-motion stepping must complete on click without timed motion"
     assert sorted(re.findall(r'class="zoom-btn" type="button" data-zoom="(\w+)"', html)) == ["bp", "lbfgs", "poly"], (
         "each of the three panels needs one enlarge button"
     )
@@ -454,7 +472,13 @@ def check_wording_and_structure(html: str) -> None:
     assert html.count('R`\\neq`, "sign")') == 2 and html.count('"=", "sign")') == 2, "iteration-2 sign chips are missing"
 
 
-def dump_dom(browser: str, url: str, virtual_time_budget: int, window_size: str = "1910,940") -> str:
+def dump_dom(
+    browser: str,
+    url: str,
+    virtual_time_budget: int,
+    window_size: str = "1910,940",
+    extra_args: tuple[str, ...] = (),
+) -> str:
     with tempfile.TemporaryDirectory(prefix="bp-lbfgs-state-animation-chrome-") as profile:
         command = [
             browser,
@@ -466,6 +490,7 @@ def dump_dom(browser: str, url: str, virtual_time_budget: int, window_size: str 
             f"--window-size={window_size}",
             f"--user-data-dir={profile}",
             f"--virtual-time-budget={virtual_time_budget}",
+            *extra_args,
             "--dump-dom",
             url,
         ]
@@ -499,13 +524,52 @@ def browser_smoke(data: dict[str, Any]) -> str:
     )
     assert "Beat 1 of 10" in smoke_dom, "smoke cycle did not reset to beat 1"
 
-    tour_dom = dump_dom(browser, base_url + "?tour-smoke=1", 5000, window_size="800,700")
-    tour_error = re.search(r'data-tour-smoke-error="([^"]*)"', tour_dom)
-    assert 'data-tour-smoke="passed"' in tour_dom, (
-        f"tutorial interaction smoke failed: {tour_error.group(1) if tour_error else 'no completed result'}"
+    tour_gates = (
+        "controls",
+        "load-idle",
+        "play-beat",
+        "zoom-idle",
+        "grouping",
+        "keyboard",
+        "close",
+        "focus",
+        "single-step",
+        "step-idle",
+        "clarity",
+        "visibility",
+        "next-beat-label",
+        "beat",
+        "finish",
     )
-    for gate in ("grouping", "keyboard", "close", "focus", "visibility", "beat", "finish"):
-        assert f'data-tour-smoke-{gate}="passed"' in tour_dom, f"tutorial interaction gate did not pass: {gate}"
+    for window_size in ("1910,940", "800,700"):
+        tour_dom = dump_dom(browser, base_url + "?tour-smoke=1", 8000, window_size=window_size)
+        tour_error = re.search(r'data-tour-smoke-error="([^"]*)"', tour_dom)
+        assert 'data-tour-smoke="passed"' in tour_dom, (
+            f"tutorial interaction smoke failed at {window_size}: "
+            f"{tour_error.group(1) if tour_error else 'no completed result'}"
+        )
+        for gate in tour_gates:
+            assert f'data-tour-smoke-{gate}="passed"' in tour_dom, (
+                f"tutorial interaction gate did not pass at {window_size}: {gate}"
+            )
+
+    reduced_dom = dump_dom(
+        browser,
+        base_url + "?tour-smoke=1",
+        8000,
+        window_size="800,700",
+        extra_args=("--force-prefers-reduced-motion=reduce",),
+    )
+    reduced_error = re.search(r'data-tour-smoke-error="([^"]*)"', reduced_dom)
+    assert 'data-tour-smoke-motion="reduced"' in reduced_dom, "browser did not enter reduced-motion mode"
+    assert 'data-tour-smoke="passed"' in reduced_dom, (
+        "reduced-motion tutorial interaction smoke failed: "
+        f"{reduced_error.group(1) if reduced_error else 'no completed result'}"
+    )
+    for gate in tour_gates:
+        assert f'data-tour-smoke-{gate}="passed"' in reduced_dom, (
+            f"reduced-motion tutorial interaction gate did not pass: {gate}"
+        )
 
     snapshots = extract_element_text(
         smoke_dom,
