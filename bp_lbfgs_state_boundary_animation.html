@@ -1,0 +1,1578 @@
+<!doctype html>
+<html lang="en" data-animation-ready="false" data-animation-smoke="not-run" data-animation-smoke-beats="0" data-math="pending">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BP versus L-BFGS: what crosses the iteration boundary?</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<style>
+:root {
+  --paper: #f3f0e8;
+  --card: #fffdf8;
+  --ink: #172126;
+  --muted: #5e6b70;
+  --line: #d5cfc4;
+  --tint: #faf8f3;
+  --bp: #155b8a;
+  --bp-soft: #dcebf4;
+  --lbfgs: #087d77;
+  --lbfgs-soft: #d9efeb;
+  --focus: #78519b;
+  --gold: #b67913;
+  --good: #24704a;
+  --bad: #a64040;
+  --flash: #ffe3a1;
+  --flash-ring: rgb(232 160 32 / 42%);
+  --flash-ink: #b35a00;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 6% 0%, rgb(21 91 138 / 9%), transparent 31rem),
+    radial-gradient(circle at 96% 25rem, rgb(8 125 119 / 8%), transparent 32rem),
+    var(--paper);
+  color: var(--ink);
+  font: 15px/1.5 var(--sans);
+}
+button, select { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.katex { font-size: 1.08em; }
+.tex-fallback { font: .88em ui-monospace, SFMono-Regular, Consolas, monospace; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .92em; }
+
+/* ---------- page frame: scrolls on narrow screens, fits one screen on wide ones ---------- */
+.deck { width: min(1440px, calc(100% - 24px)); margin: 0 auto; padding: 12px 0 28px; display: grid; gap: 10px; }
+.topbar {
+  display: grid; grid-template-columns: auto minmax(0, 1.1fr) minmax(160px, 1fr) auto; gap: 16px; align-items: center;
+  padding: 8px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+}
+.button-row { display: flex; gap: 6px; align-items: center; }
+.control { min-height: 36px; padding: 5px 14px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.control:hover { border-color: var(--focus); }
+.control.primary { min-width: 6rem; color: #fff; background: var(--focus); border-color: var(--focus); }
+.control:focus-visible, .dot:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.readout { display: flex; gap: 12px; align-items: baseline; min-width: 0; white-space: nowrap; }
+.readout b { font-size: 16px; }
+.readout > span { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; }
+.timeline { display: flex; gap: 5px; }
+.dot { height: 10px; min-width: 12px; flex: 1; padding: 0; background: #d3cdc2; border: 0; border-radius: 999px; cursor: pointer; }
+.dot.past { background: color-mix(in srgb, var(--focus) 42%, #d3cdc2); }
+.dot.now { background: var(--focus); box-shadow: 0 0 0 3px rgb(120 81 155 / 18%); }
+.speed { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.speed select { margin-left: 4px; padding: 4px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.clock { margin: 0; padding: 0 4px; color: var(--muted); font-size: 12px; }
+.clock b { margin-right: 6px; color: var(--focus); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.clock > span + span { margin-left: 8px; }
+
+/* ---------- method lanes ---------- */
+.lanes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 16px; }
+.lane {
+  --accent: var(--bp); --soft: var(--bp-soft);
+  min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 12px;
+}
+.lane.lbfgs { --accent: var(--lbfgs); --soft: var(--lbfgs-soft); }
+.lane h2, .poly h2 { margin: 0; color: var(--accent); font: 700 24px/1.2 var(--serif); }
+.kind { display: block; margin-top: 2px; color: var(--muted); font: 13px/1.35 var(--sans); }
+.state-tray { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 42px; padding: 5px 8px; background: var(--tint); border-radius: 8px; }
+.state-tray::before { content: "STATE TRAY"; margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+.state-card, .scratch-card, .faded-card { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 9px; border-radius: 6px; font: 15px/1.2 var(--serif); }
+.state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.05em; }
+.state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
+.lane.bp .state-card { padding-right: 15px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
+.lane.bp .state-card.updated-card { background: var(--bp-soft); }
+.lane.bp .state-card.q-card { background: var(--bp-soft); border-style: dashed; }
+.lane.bp .state-card.fixed-card { padding-right: 9px; clip-path: none; border-style: double; border-width: 3px; }
+.lane.lbfgs .state-card.pair-card { border-style: double; border-width: 3px; }
+.scratch-card { color: var(--lbfgs); background: var(--lbfgs-soft); border: 2px dashed var(--lbfgs); }
+.faded-card {
+  color: #8c8780; border: 1px dashed #aaa39a; opacity: .62; font-size: 13px; text-decoration: line-through;
+  background: linear-gradient(transparent calc(50% - 1px), #aaa39a calc(50% - 1px), #aaa39a calc(50% + 1px), transparent calc(50% + 1px)), #f0ede7;
+}
+.graph-wrap { position: relative; width: 100%; container-type: inline-size; }
+.graph { display: block; width: 100%; height: auto; }
+.graph text { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
+.graph .base { stroke: #c5beb2; stroke-width: 3; }
+.graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
+.graph .dependency { stroke: var(--lbfgs); stroke-width: 3; stroke-dasharray: 7 7; fill: none; animation: dash 1.6s linear infinite; }
+.graph .message { stroke: var(--bp); stroke-width: 3.5; fill: none; stroke-dasharray: 9 7; animation: dash 1.6s linear infinite; }
+.graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
+.graph .bit.hot, .graph .check.hot { stroke-width: 5; }
+.graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
+.graph .node-label { font-size: 15px; font-weight: 800; }
+.graph .small { fill: var(--muted); font-size: 12px; }
+.graph .tick circle { fill: var(--good); }
+.graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
+.chips { position: absolute; inset: 0; pointer-events: none; font-size: 2.15cqw; }
+.chip {
+  position: absolute; z-index: 1; transform: translate(-50%, -50%);
+  padding: .16em .5em; color: var(--ink); white-space: nowrap; line-height: 1.15;
+  background: #fff; border: .12em solid var(--accent); border-radius: .5em;
+}
+.chip .katex { font-size: 1.14em; }
+.chip.lbfgs { background: var(--lbfgs-soft); border-style: dashed; }
+.chip.value { background: transparent; border-color: transparent; }
+.chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
+.chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
+/* general formulas float in the band above the Tanner graph while they are in use; a derivation may grow down over the graph */
+.hover-layer { position: absolute; z-index: 2; inset: 0 0 auto; min-height: 24.74%; display: grid; place-items: center; pointer-events: none; font-size: 2.75cqw; }
+.hover {
+  grid-area: 1 / 1; max-width: 97%; padding: .25em .9em .35em; color: var(--ink); text-align: center;
+  background: rgb(255 255 255 / 96%); border: .1em solid var(--accent); border-radius: .6em;
+  box-shadow: 0 .45em 1.3em rgb(23 33 38 / 14%); animation: float 5s ease-in-out infinite;
+}
+.hover .katex-display { margin: 0; }
+.hover .katex { font-size: 1.05em; }
+.hover-note { margin: .15em 0 0; font: .85em/1.35 var(--serif); }
+.hover-note .katex { font-size: 1.05em; }
+.hover-note .tag { margin-right: .5em; color: var(--flash-ink); font: 800 .84em/1 var(--sans); letter-spacing: .02em; }
+.hover-note .tag .katex { font-size: 1.15em; }
+.hover.morph { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: center; overflow: visible; font-size: 1.04em; }
+.morph-step { grid-area: 1 / 1; white-space: nowrap; }
+.morph-step .hover-note { max-width: 34em; margin-inline: auto; white-space: normal; }
+.hover .dim { opacity: .26; }
+.hover .hl { color: var(--flash-ink); }
+.hover .gone { color: var(--bad); opacity: .7; }
+.morph-ghost { position: absolute; z-index: 2; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
+.sparkle {
+  position: absolute; z-index: 3; width: .8em; height: .8em; margin: -.4em 0 0 -.4em; pointer-events: none;
+  background: radial-gradient(circle, #fffbe6 0 22%, #ffc83d 48%, #e38b00 100%);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+.math {
+  position: relative; min-height: 150px; padding: 8px 12px; overflow-x: auto; overflow-y: hidden;
+  background: var(--soft); border-radius: 8px; font: 16px/1.65 var(--serif);
+}
+.math .line { display: block; white-space: nowrap; padding: 1px 0; }
+.math .line.block { padding: 3px 0; }
+.math .katex { font-size: 1.2em; }
+.math .outcome { color: var(--accent); }
+.flying { position: absolute; z-index: 3; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
+.explain { margin: 0; font-size: 16px; line-height: 1.45; }
+
+/* ---------- the box [-1, 1]^3 where L-BFGS moves x ---------- */
+.poly {
+  --accent: var(--lbfgs); --soft: var(--lbfgs-soft);
+  min-width: 0; display: flex; flex-direction: column; gap: 7px; padding: 12px;
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--lbfgs); border-radius: 12px;
+}
+.poly > * { flex-shrink: 0; }
+.poly-wrap { position: relative; width: 100%; max-width: 348px; margin: 0 auto; container-type: inline-size; }
+.cube { display: block; width: 100%; height: auto; }
+.cube text { font-family: var(--sans); }
+.cube .cube-edge { stroke: #98a3a1; stroke-width: 1.6; }
+.cube .cube-edge.hidden { stroke-dasharray: 5 5; opacity: .55; }
+.cube .face { fill: var(--lbfgs-soft); opacity: .7; }
+.cube .zero-edge { stroke-width: 7; stroke-linecap: round; opacity: .55; }
+.cube .zero-edge.a { stroke: var(--lbfgs); }
+.cube .zero-edge.b { stroke: var(--gold); }
+.cube .zero-edge.faint { opacity: .2; }
+.cube .corner { fill: #fff; stroke: #8c9593; stroke-width: 1.5; }
+.cube .corner.code { fill: var(--lbfgs); stroke: var(--lbfgs); }
+.cube .corner-label { fill: var(--muted); font-size: 13px; }
+.cube .corner-label.code { fill: var(--lbfgs); font-size: 15px; font-weight: 800; }
+.cube .axis { stroke: var(--muted); stroke-width: 1.6; }
+.cube .x-arrow { stroke: var(--lbfgs); stroke-width: 3; fill: none; }
+.cube .x-arrow.hot { stroke: var(--flash-ink); }
+.cube .trail { stroke: var(--flash-ink); stroke-width: 2.5; opacity: .75; }
+.cube .x-dot { fill: var(--flash-ink); stroke: #fff; stroke-width: 2; }
+.cube .x-dot.old { fill: #fff; stroke: var(--flash-ink); stroke-width: 2; }
+.cube .x-dot.step { r: 3.5px; stroke-width: 0; opacity: .8; }
+.cube .blink { animation: glow 1.3s ease-in-out; }
+.poly .chips { font-size: 4.1cqw; }
+.poly .chip.value { padding: 0 .2em; background: rgb(255 255 255 / 78%); }
+.poly .chip.axis-label { color: var(--muted); }
+.poly-readout { padding: 6px 12px; background: var(--lbfgs-soft); border-radius: 8px; font: 15.5px/1.45 var(--serif); }
+.update-card { padding: 6px 10px; background: var(--tint); border-left: 4px solid var(--lbfgs); border-radius: 6px; text-align: center; }
+.update-card .katex-display { margin: 0; }
+.update-card .katex { font-size: 1.12em; }
+.rules { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; font: 14.5px/1.38 var(--serif); }
+.rules::before { content: "EXACT VARIANT RULES FOR THIS BEAT"; color: var(--muted); font: 800 10.5px var(--sans); letter-spacing: .06em; }
+.rules li { display: none; padding: 2px 0 2px 10px; border-left: 3px solid var(--line); border-radius: 2px; }
+.rules li.visible { display: block; }
+.rules li[data-rule="direction"] { font-size: 12.5px; line-height: 1.3; }
+.rules b { margin-right: 4px; color: var(--lbfgs); font: 800 12.5px var(--sans); }
+.source-note { margin: auto 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+
+.chip.blink, .state-card.blink, .scratch-card.blink, .hover.blink, .rules li.blink { animation: flash 1.3s ease-in-out; }
+.chip.travelling { animation: flash .8s ease-in-out infinite; }
+.chip.sign.blink, .math .blink, .hover .blink, .update-card .blink { animation: ink 1.3s ease-in-out; }
+@keyframes flash { 15%, 55% { background-color: var(--flash); box-shadow: 0 0 0 .3em var(--flash-ring); } 35%, 75% { box-shadow: none; } }
+@keyframes ink { 15%, 55% { color: var(--flash-ink); text-shadow: 0 0 .45em var(--flash-ring); } 35%, 75% { text-shadow: none; } }
+@keyframes glow { 15%, 55% { filter: drop-shadow(0 0 5px #f0a020); } 35%, 75% { filter: none; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.12em); } }
+@keyframes dash { to { stroke-dashoffset: -32; } }
+
+@media (min-width: 900px) {
+  .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); }
+  .lane { grid-row: span 5; display: grid; grid-template-rows: subgrid; }
+}
+@media (max-width: 899px) {
+  .topbar { grid-template-columns: 1fr; }
+  .readout { white-space: normal; flex-wrap: wrap; }
+}
+/* one 1920 x 1000 screen, scaled to the window by fit() */
+html.fit, html.fit body { height: 100%; overflow: hidden; }
+html.fit .deck {
+  position: fixed; top: 0; left: 0; width: 1920px; height: 1000px; margin: 0; padding: 14px 24px;
+  grid-template-columns: 712px 712px 416px; grid-template-rows: 52px 20px minmax(0, 1fr); gap: 8px 16px; transform-origin: 0 0;
+}
+html.fit .topbar, html.fit .clock { grid-column: 1 / -1; }
+html.fit .clock { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+html.fit .lanes { grid-column: 1 / span 2; grid-row: 3; min-height: 0; grid-template-columns: 712px 712px; grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+html.fit .lane { grid-row: 1 / span 5; }
+html.fit .math { min-height: 0; }
+html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+</head>
+<body>
+<main class="deck" id="deck">
+  <h1 class="sr-only">BP versus L-BFGS: what crosses the iteration boundary?</h1>
+  <nav class="topbar" aria-label="Animation controls">
+    <div class="button-row">
+      <button class="control" id="back" type="button" aria-label="Previous beat">← Back</button>
+      <button class="control primary" id="play" type="button">Play</button>
+      <button class="control" id="next" type="button" aria-label="Next beat">Next →</button>
+      <button class="control" id="restart" type="button">Restart</button>
+    </div>
+    <div class="readout" aria-live="polite">
+      <b id="beat-readout">Beat 1 of 10</b>
+      <span id="beat-subtitle">Fixed graph and channel evidence; stated L-BFGS objective function</span>
+    </div>
+    <div class="timeline" id="timeline" aria-label="Animation timeline"></div>
+    <label class="speed">Speed
+      <select id="speed" aria-label="Playback speed">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </label>
+  </nav>
+  <p class="clock">
+    <b>Synchronized explanation clock</b>
+    <span>Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.</span>
+    <span>All L-BFGS terms shown for A then B are calculated from the same frozen x before one update; A then B is presentation order, not a sequential update.</span>
+  </p>
+
+  <section class="lanes" id="lanes">
+    <article class="lane bp" aria-labelledby="bp-heading">
+      <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
+      <div class="state-tray" id="bp-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="bp-graph" viewBox="0 0 620 388" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+        <div class="chips" id="bp-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="bp-hover"></div>
+      </div>
+      <div class="math" id="bp-math"></div>
+      <p class="explain" id="bp-explain"></p>
+    </article>
+
+    <article class="lane lbfgs" aria-labelledby="lbfgs-heading">
+      <h2 id="lbfgs-heading">L-BFGS<span class="kind">constructed teaching variant · box projection follows each step · the current <span class="tex">\mathbf{x}</span> has one scalar per bit, and up to ten earlier <span class="tex">\mathbf{s}</span> and <span class="tex">\mathbf{y}</span> vectors also cross iterations · <span class="tex">x_i = +1</span> favours bit 0 · dashed cards are temporary calculations, not messages</span></h2>
+      <div class="state-tray" id="lbfgs-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="lbfgs-graph" viewBox="0 0 620 388" role="img" aria-label="Tanner graph showing the dependencies of the L-BFGS gradient terms"></svg>
+        <div class="chips" id="lbfgs-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="lbfgs-hover"></div>
+      </div>
+      <div class="math" id="lbfgs-math"></div>
+      <p class="explain" id="lbfgs-explain"></p>
+    </article>
+  </section>
+
+  <aside class="poly" aria-labelledby="poly-heading">
+    <h2 id="poly-heading">Where L-BFGS moves <span class="tex">\mathbf{x}</span><span class="kind">the box <span class="tex">[-1,1]^3</span>: each corner gives a hard-decision estimate; 000 and 111 are the codewords</span></h2>
+    <div class="poly-wrap">
+      <svg class="cube" id="poly-graph" viewBox="0 0 400 360" role="img" aria-label="The box of relaxed bit vectors with the L-BFGS iterate"></svg>
+      <div class="chips" id="poly-chips" aria-hidden="true"></div>
+    </div>
+    <div class="poly-readout" id="poly-readout"></div>
+    <div class="update-card" id="update-card"></div>
+    <ul class="rules" id="rules"></ul>
+    <p class="source-note">One three-bit teaching variant. The channel evidence, <span class="tex">J</span>, <span class="tex">\mathbf{x}^{(0)}</span>, and first gradient are anchored to <code title="experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json">rq1_endpoint_001/…/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The subsequent L-BFGS trajectory is generated by the explicit rules on this page and independently recomputed by this artifact’s verifier. It is not the retained projected-gradient-descent endpoint, not the L-BFGS implementation used elsewhere in JadeJcade, and not evidence for the active BP–projected-GD research question. It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble.</p>
+  </aside>
+</main>
+
+<script id="animation-data" type="application/json">
+{
+  "schema": "bp-lbfgs-state-boundary-animation/v1",
+  "source": {
+    "path": "experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json",
+    "sha256": "c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"
+  },
+  "graph": {"checks": [[1, 2], [2, 3]], "edge_order": ["1-A", "2-A", "2-B", "3-B"]},
+  "bp": {
+    "L": [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453],
+    "u0": [0.0, 0.0, 0.0, 0.0],
+    "q1": [-2.1972245773362196, 0.4054651081081644, 0.4054651081081644, 0.6931471805599453],
+    "u1": [0.40546510810816433, -2.1972245773362196, 0.6931471805599453, 0.40546510810816433],
+    "posterior1": [-1.7917594692280552, -1.0986122886681098, 1.0986122886681096],
+    "q2": [-2.1972245773362196, 1.0986122886681096, -1.7917594692280552, 0.6931471805599453]
+  },
+  "objective": {
+    "ell": [2.1972245773362196, -0.4054651081081644, -0.6931471805599453],
+    "x0": [0.8, -0.19999999999999998, -0.3333333333333333],
+    "n": 3,
+    "weights": {"channel": 1.0, "parity": 2.0, "binary": 0.2},
+    "residual": {"A": 1.16, "B": 0.9333333333333333},
+    "g": {"A": [0.3093333333333333, -1.2373333333333334], "B": [0.4148148148148148, 0.24888888888888888]},
+    "channel_partial": [-0.3662040962227033, 0.0675775180180274, 0.11552453009332421],
+    "binary_partial": [-0.0768, 0.051199999999999996, 0.07901234567901234],
+    "gradient": [-0.13367076288936997, -0.7037410005004913, 0.4434257646612254],
+    "loss_before": 1.2555753472472062
+  },
+  "lbfgs": {
+    "memory_pairs": 10,
+    "max_halvings": 16,
+    "d0": [0.13367076288936997, 0.703741000500491, -0.4434257646612254],
+    "alpha0": 1.0,
+    "x1": [0.93367076288937, 0.5037410005004911, -0.7767590979945587],
+    "loss1": 1.1285882405613068,
+    "grad1": [-0.7538943607641094, 0.7488731487653123, -0.736779379667242],
+    "s0": [0.13367076288936997, 0.703741000500491, -0.44342576466122535],
+    "y0": [-0.6202235978747395, 1.4526141492658033, -1.1802051443284673],
+    "gamma1": 0.37624065498809167,
+    "d1": [0.10928269158155003, -0.28598025840139973, 0.22855974811486568],
+    "alpha1": 1.0,
+    "raw2": [1.04295345447092, 0.21776074209909135, -0.548199349879693],
+    "x2": [1.0, 0.21776074209909135, -0.548199349879693],
+    "loss2": 0.9215607219299438,
+    "path": [
+      [0.8, -0.19999999999999998, -0.3333333333333333],
+      [0.93367076288937, 0.5037410005004911, -0.7767590979945587],
+      [1.0, 0.21776074209909135, -0.548199349879693],
+      [1.0, 0.2798243390333324, -0.5110364824551831],
+      [1.0, 0.33259565892011195, -0.4370732101538449],
+      [1.0, 0.399992144567656, -0.33207750024737237],
+      [1.0, 0.4924027447927605, -0.187724540807156],
+      [1.0, 0.6179356546725692, 0.00717754010774313],
+      [1.0, 0.7774795968434585, 0.2560625195635281],
+      [1.0, 0.9459105885309922, 0.5303860702094174],
+      [1.0, 1.0, 1.0],
+      [1.0, 0.9928654490732852, 0.9250952543552258],
+      [1.0, 1.0, 0.93399693012146],
+      [1.0, 1.0, 0.9356035809941381],
+      [1.0, 1.0, 0.9364167274708521],
+      [1.0, 1.0, 0.9364158944938741]
+    ],
+    "loss_path": [1.255575347247206, 1.1285882405613068, 0.9215607219299438, 0.9034314837092872, 0.8736727940480616, 0.817817697304684, 0.713073979240703, 0.5265994048689089, 0.24521295332686333, -0.03834907811855069, -0.18310204811135167, -0.18637519067751554, -0.18673645460659463, -0.1867410409583933, -0.18674162418953802, -0.186741624190151]
+  },
+  "beat_count": 10
+}
+</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("animation-data").textContent);
+  const BP = DATA.bp, OBJ = DATA.objective, LB = DATA.lbfgs;
+  const R = String.raw;
+  const EDGES = [
+    { i: 0, a: 0, label: "1→A" }, { i: 1, a: 0, label: "2→A" },
+    { i: 1, a: 1, label: "2→B" }, { i: 2, a: 1, label: "3→B" }
+  ];
+  const USLOT = [R`A\to 1`, R`A\to 2`, R`B\to 2`, R`B\to 3`];
+  const QSLOT = [R`1\to A`, R`2\to A`, R`2\to B`, R`3\to B`];
+  const BEATS = [
+    { subtitle: "Fixed graph and channel evidence; stated L-BFGS objective function" },
+    { subtitle: "Four addressed BP slots versus three bit scalars" },
+    { subtitle: "A touches bits 1 and 2" },
+    { subtitle: "Addressed BP messages versus derivative terms" },
+    { subtitle: "B touches bits 2 and 3" },
+    { subtitle: "Persistent edge values versus temporary calculation cards" },
+    { subtitle: "BP recurrence versus one L-BFGS step with box projection" },
+    { subtitle: "Retained state crosses; temporary calculations fade" },
+    { subtitle: R`BP supplies two different $Q$ values; both checks read one $x_2$` },
+    { subtitle: "Representation, addressing, retention, and next-state use" }
+  ];
+  const BP_EXPLAIN = [
+    "The fixed LLR vector is expressed with positive values favouring bit 1.",
+    "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
+    "A receives two $Q$ messages. In iteration 1, the value from bit 2 equals $L_2$ because the other incoming $U$ is still zero.",
+    "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
+    "B receives the frozen variable-to-check values for bits 2 and 3.",
+    R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
+    "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
+    R`The solid $U$ cards cross the boundary. $Q$ and the a-posteriori LLR can be recalculated from the fixed $\mathbf{L}$ and retained $U$ values.`,
+    "Bit 2 now supplies a positive $Q$ to A and a negative $Q$ to B because each calculation excludes the message from its recipient check.",
+    "BP preserves which check supplied the preceding information and uses that address when calculating the next $Q$."
+  ];
+  const LBFGS_EXPLAIN = [
+    R`The objective function $J$ has three terms, introduced one at a time above the graph. $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ starts from the channel evidence.`,
+    "The independent bit state has three coordinates. Written out for this graph, each term of $J$ contains only the $x_j$ it shows.",
+    "A evaluates $r_A=1-x_1x_2$ from the frozen scalar vector. The dashed guide means mathematical dependence, not a traveling message.",
+    "Differentiating with respect to $x_1$ drops every term without $x_1$; the chain rule turns check A’s squared term into $g_{A,1}$. These are temporary calculations for this update.",
+    "B reads the same $x_2$ value that A read because there is one retained scalar for bit 2.",
+    "B’s terms are also temporary. They will be combined with A’s terms and the channel and binary terms by coordinate.",
+    R`At bit 2, four contributions sum to $\partial J/\partial x_2$. Before any $\mathbf{s},\mathbf{y}$ values exist, L-BFGS steps along $-\nabla J$, and the line search accepts $\alpha_0=1$.`,
+    R`Across the next iteration, L-BFGS keeps $\mathbf{x}^{(1)}$, $\mathbf{s}^{(0)}$, and $\mathbf{y}^{(0)}$. The entries of $\mathbf{s}^{(0)}$ and $\mathbf{y}^{(0)}$ are indexed by bit, not by check; the check terms are recomputed.`,
+    null,
+    "L-BFGS sums the terms for each $\\partial J/\\partial x_i$ and moves one $\\mathbf{x}$. Every $\\mathbf{s}$ and $\\mathbf{y}$ entry is indexed by bit, not by BP edge address."
+  ];
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const VW = 620, VH = 388;
+  const PX = [90, 310, 530], PY = 274, CX = [200, 420], CY = 132, BIT_R = 26;
+  const SLOT_T = [0.38, 0.62, 0.62, 0.38];
+  const DECK_W = 1920, DECK_H = 1000;
+  const TIME = { sub: 1000, fly: 1000, stagger: 380, res: 450, gap: 1000, travel: 2000, hold: 4500, morph: 1800, read: 4200 };
+  let current = 0, playing = false, frozen = false, speed = 1;
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const smoke = location.search.includes("smoke=1");
+  const KATEX = typeof window.katex === "object" && typeof window.katex.renderToString === "function";
+  document.documentElement.dataset.math = KATEX ? "katex" : "fallback";
+  LBFGS_EXPLAIN[8] = R`Both checks read $x_2^{(1)}=${tn(LB.x1[1])}$. The earlier $\mathbf{s}$ and $\mathbf{y}$ vectors shape the next direction; they do not change the value each check reads.`;
+
+  // ---------- numbers and typesetting ----------
+  function tn(value, digits = 6, sign = true) {
+    if (value === 0) return "0";
+    const v = Math.abs(value) < 0.5 * Math.pow(10, -digits) ? 0 : value;
+    return (sign && v >= 0 ? "+" : "") + v.toFixed(digits);
+  }
+  function tp(value, digits = 6) { const s = tn(value, digits, false); return s.startsWith("-") ? `(${s})` : s; }
+  function vecT(values, digits = 6) { return R`\left(` + values.map(v => tn(v, digits)).join(R`,\ `) + R`\right)`; }
+  const M = m => ({ m });
+  function vecParts(items) {
+    const out = [R`\left(`];
+    items.forEach((item, j) => { if (j) out.push(R`,\ `); out.push(M(item)); });
+    out.push(R`\right)`);
+    return out;
+  }
+  function sumParts(values, digits = 6) {
+    const out = [];
+    values.forEach((v, j) => {
+      if (j === 0) out.push(M(tn(v, digits, false)));
+      else out.push(v < 0 ? " - " : " + ", M(tn(Math.abs(v), digits, false)));
+    });
+    return out;
+  }
+  function esc(text) { return String(text).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+  function tex(src, display = false) {
+    if (!KATEX) return `<code class="tex-fallback">${esc(src.replace(/\\htmlClass\{[^}]*\}/g, ""))}</code>`;
+    return window.katex.renderToString(src, {
+      displayMode: display, throwOnError: false, strict: "ignore", output: "htmlAndMathml",
+      trust: context => context.command === "\\htmlClass"
+    });
+  }
+  // Inline math between $...$; punctuation right after a formula stays on the formula's line.
+  function mixed(text) {
+    return String(text).split(/(\$[^$]+\$[,.;:)]?)/).map(part => {
+      const m = /^\$([^$]+)\$([,.;:)]?)$/.exec(part);
+      if (!m) return esc(part);
+      return m[2] ? `<span style="white-space:nowrap">${tex(m[1])}${m[2]}</span>` : tex(m[1]);
+    }).join("");
+  }
+  function plain(text) { return String(text).replace(/\$([^$]*)\$/g, "$1").replace(/[\\{}]/g, ""); }
+  function visibleText(node) {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll(".katex-mathml").forEach(n => n.remove());
+    return copy.textContent.replace(/​/g, "").replace(/\s+/g, " ").trim();
+  }
+  const corner = x => x.map(v => (v >= 0 ? "0" : "1")).join("");
+
+  // ---------- beat clock ----------
+  // Every visual cue in a beat is an event on one clock: it starts at `at` ms and
+  // runs for `dur` ms. Without motion, each event jumps straight to its end state.
+  const clock = { t: 0, last: 0, length: 0, events: [], raf: 0 };
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const ease = p => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+  const nodeOf = target => (typeof target === "function" ? target() : target);
+
+  function startTimeline(events, length) {
+    events.sort((a, b) => a.at - b.at);
+    clock.events = events; clock.t = 0; clock.length = length;
+    events.forEach(e => { e.state = 0; if (e.init) e.init(); });
+    if (reduced || smoke) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
+    wake();
+  }
+  function wake() {
+    if (clock.raf) return;
+    clock.last = performance.now();
+    clock.raf = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    clock.raf = 0;
+    const dt = Math.min(80, Math.max(0, now - clock.last));
+    clock.last = now;
+    if (!frozen) clock.t += dt * speed;
+    const pending = runEvents();
+    if (playing && !frozen && clock.t >= clock.length) { advance(); return; }
+    if (pending || playing) clock.raf = requestAnimationFrame(tick);
+  }
+  function runEvents() {
+    let pending = false;
+    for (const e of clock.events) {
+      if (e.state === 2) continue;
+      if (clock.t < e.at) { pending = true; continue; }
+      if (e.state === 0) { e.state = 1; if (e.start) e.start(); }
+      const p = e.dur > 0 ? Math.min(1, (clock.t - e.at) / e.dur) : 1;
+      if (e.apply) e.apply(p);
+      if (p >= 1) { e.state = 2; if (e.end) e.end(); } else pending = true;
+    }
+    return pending;
+  }
+  function seek(ms) {
+    playing = false; frozen = true;
+    clock.t = Math.max(clock.t, Number(ms));
+    runEvents();
+    updatePlay();
+  }
+  function show(target, at, dur = 600) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); if (node) node.style.opacity = "0"; },
+      apply(p) { if (node) node.style.opacity = String(p); },
+      end() { if (node) node.style.opacity = ""; } };
+  }
+  function hide(target, at, dur = 600) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); },
+      apply(p) { if (node) node.style.opacity = String(1 - p); },
+      end() { if (node) node.style.opacity = "0"; } };
+  }
+  function blink(target, at) {
+    let node = null;
+    return { at, dur: 1300,
+      start() { node = nodeOf(target); if (!node) return; node.classList.remove("blink"); void node.getBoundingClientRect(); node.classList.add("blink"); },
+      end() { if (node) node.classList.remove("blink"); } };
+  }
+  function swap(target, at, html, cls) {
+    return { at, dur: 0, end() { const node = nodeOf(target); if (!node) return; node.innerHTML = html; if (cls) node.classList.add(cls); } };
+  }
+  function morph(target, at, dur, render) {
+    let node = null, last = "";
+    const set = p => { const html = render(p); if (node && html !== last) { node.innerHTML = html; last = html; } };
+    return { at, dur, init() { node = nodeOf(target); set(0); }, apply(p) { set(ease(p)); }, end() { set(1); } };
+  }
+  // A substituted value lifts off its symbol and lands in its slot further along the equation.
+  function flight(root, symSel, valSel, at) {
+    let sym = null, val = null, clone = null, from = null, to = null;
+    return { at, dur: TIME.fly,
+      init() { sym = root.querySelector(symSel); val = root.querySelector(valSel); if (val) val.style.opacity = "0"; },
+      start() {
+        if (!sym || !val) return;
+        const box = root.getBoundingClientRect(), k = box.width / root.offsetWidth || 1;
+        const centre = rect => [(rect.left - box.left + rect.width / 2) / k + root.scrollLeft, (rect.top - box.top + rect.height / 2) / k + root.scrollTop];
+        from = centre(sym.getBoundingClientRect());
+        to = centre(val.getBoundingClientRect());
+        clone = document.createElement("span");
+        clone.className = "katex flying";
+        clone.style.fontSize = getComputedStyle(val).fontSize;
+        clone.innerHTML = val.innerHTML;
+        root.appendChild(clone);
+      },
+      apply(p) {
+        if (!clone) return;
+        const e = ease(p);
+        clone.style.left = `${lerp(from[0], to[0], e)}px`;
+        clone.style.top = `${lerp(from[1], to[1], e) - 16 * Math.sin(Math.PI * p)}px`;
+      },
+      end() { if (clone) clone.remove(); clone = null; if (val) val.style.opacity = ""; } };
+  }
+
+  // ---------- equation lines ----------
+  function mathLane(method) { return { method, n: 0, lines: [], ev: [], outcomes: [], root: $(`${method}-math`) }; }
+  function marked(list, tag) {
+    let count = 0;
+    const names = [];
+    const src = list.map(item => {
+      if (typeof item === "string") return item;
+      const name = `${tag}${++count}`;
+      names.push(name);
+      return R`\htmlClass{${name}}{${item.m}}`;
+    }).join("");
+    return { src, names };
+  }
+  // lhs = symbolic form, then = substituted values (each flies from its symbol), then = outcome (blinks).
+  function chain(L, t, lhs, sym, val, res, opts = {}) {
+    const id = `${L.method}${++L.n}`;
+    const find = sel => () => L.root.querySelector(sel);
+    const s = sym ? marked(sym, `${id}y`) : null;
+    const v = val ? marked(val, `${id}v`) : null;
+    const r = Array.isArray(res) ? marked(res, `${id}r`) : null;
+    const resSrc = r ? r.src : res;
+    const subSrc = v ? R`\htmlClass{${id}b}{{}={}{${v.src}}}` : "";
+    const outSrc = resSrc != null ? R`\htmlClass{${id}c}{{}={}{${resSrc}}}` : "";
+    const src = opts.aligned
+      ? R`\begin{aligned}\htmlClass{${id}l}{${lhs}} &\htmlClass{${id}a}{{}={}{${s.src}}} \\ &${subSrc}${outSrc}\end{aligned}`
+      : R`\htmlClass{${id}a}{${lhs}${s ? " = " + s.src : ""}}${subSrc}${outSrc}`;
+    L.lines.push(`<span class="line${opts.aligned ? " block" : ""}">${tex(src)}</span>`);
+    L.ev.push(show(find(`.${id}l`), t), show(find(`.${id}a`), t));
+    const out = { t, subs: [], lands: [], comps: [], done: t + 600 };
+    let cursor = t + 600;
+    if (v) {
+      const t0 = t + TIME.sub;
+      L.ev.push(show(find(`.${id}b`), t0, 500));
+      v.names.forEach((name, j) => {
+        const at = t0 + j * TIME.stagger;
+        const symName = s && s.names[j];
+        if (symName) L.ev.push(blink(find(`.${symName}`), at), flight(L.root, `.${symName}`, `.${name}`, at));
+        else L.ev.push(show(find(`.${name}`), at, TIME.fly));
+        L.ev.push(blink(find(`.${name}`), at + TIME.fly));
+        out.subs.push(at);
+        out.lands.push(at + TIME.fly);
+      });
+      cursor = out.lands[out.lands.length - 1];
+      out.done = cursor;
+    }
+    if (resSrc != null) {
+      const t1 = v ? cursor + TIME.res : t + TIME.sub;
+      L.ev.push(show(find(`.${id}c`), t1, 500));
+      if (r) {
+        r.names.forEach((name, j) => {
+          const at = t1 + 200 + j * 600;
+          L.ev.push(show(find(`.${name}`), at, 450), blink(find(`.${name}`), at));
+          out.comps.push(at);
+        });
+        out.done = out.comps[out.comps.length - 1];
+      } else {
+        L.ev.push(blink(find(`.${id}c`), t1));
+        out.done = t1;
+      }
+      L.outcomes.push(`.${id}c`);
+    } else if (v) L.outcomes.push(`.${id}b`);
+    out.next = out.done + TIME.gap;
+    return out;
+  }
+  function formula(L, t, src) {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line">${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`.${id}a`), t));
+    return { done: t + 600, next: t + 600 + TIME.gap };
+  }
+  function prose(L, t, text) {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line prose" data-line="${id}">${mixed(text)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
+    return { done: t + 600, next: t + 600 + TIME.gap };
+  }
+  function commit(L) {
+    L.root.innerHTML = L.lines.join("");
+    L.outcomes.forEach(sel => { const node = L.root.querySelector(sel); if (node) node.classList.add("outcome"); });
+    return L.ev;
+  }
+
+  // ---------- Tanner graph ----------
+  function svgEl(parent, name, attrs = {}, text = null) {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    if (text !== null) node.textContent = text;
+    parent.appendChild(node);
+    return node;
+  }
+  function addMarker(svg, color, id) {
+    const defs = svgEl(svg, "defs");
+    const marker = svgEl(defs, "marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    svgEl(marker, "path", { d: "M 0 0 L 10 5 L 0 10 z", fill: color });
+  }
+  function edgePoint(e, t) { const { i, a } = EDGES[e]; return [lerp(PX[i], CX[a], t), lerp(PY, CY, t)]; }
+  const atBit = e => (BIT_R + 3) / Math.hypot(CX[EDGES[e].a] - PX[EDGES[e].i], PY - CY);
+  const AT_CHECK = (PY - (CY + 22)) / (PY - CY);
+  const below = (i, row = 0) => [PX[i], PY + 48 + row * 30];
+  function activeEdges(k) {
+    if (k === 2 || k === 3) return [0, 1];
+    if (k === 4 || k === 5) return [2, 3];
+    if (k === 8) return [1, 2];
+    return k === 0 ? [0, 1, 2, 3] : [];
+  }
+  function graph(method, k) {
+    const svg = $(`${method}-graph`), layer = $(`${method}-chips`);
+    svg.replaceChildren();
+    layer.replaceChildren();
+    addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
+    const active = activeEdges(k);
+    EDGES.forEach((edge, index) => {
+      svgEl(svg, "line", { x1: PX[edge.i], y1: PY, x2: CX[edge.a], y2: CY, class: "base" + (active.includes(index) ? " active" : "") });
+    });
+    const flows = svgEl(svg, "g", { class: "flow-layer" });
+    const nodes = svgEl(svg, "g", { class: "node-layer" });
+    [0, 1].forEach(a => {
+      const hot = (a === 0 && (k === 2 || k === 3)) || (a === 1 && (k === 4 || k === 5)) || k === 8;
+      svgEl(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
+      svgEl(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
+    });
+    [0, 1, 2].forEach(i => {
+      svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
+      svgEl(nodes, "text", { x: PX[i], y: PY + 5, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
+    });
+    svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
+    const hoverLayer = $(`${method}-hover`);
+    hoverLayer.replaceChildren();
+    return { method, svg, layer, flows, nodes, hoverLayer };
+  }
+  function place(node, xy, w = VW, h = VH) { node.style.left = `${(xy[0] / w) * 100}%`; node.style.top = `${(xy[1] / h) * 100}%`; }
+  function chip(G, xy, src, cls = "") {
+    const node = document.createElement("span");
+    node.className = `chip ${G.method}${cls ? " " + cls : ""}`;
+    node.innerHTML = tex(src);
+    place(node, xy, G.w, G.h);
+    G.layer.appendChild(node);
+    return node;
+  }
+  function guide(G, e) {
+    const a = edgePoint(e, atBit(e)), b = edgePoint(e, AT_CHECK);
+    return svgEl(G.flows, "line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: "dependency" });
+  }
+  function tickMark(G, x, y) {
+    const group = svgEl(G.nodes, "g", { class: "tick" });
+    svgEl(group, "circle", { cx: x, cy: y, r: 9 });
+    svgEl(group, "path", { d: `M ${x - 4.5} ${y} l 3.5 3.5 l 6 -7` });
+    return group;
+  }
+  // A BP message is drawn from sender to recipient; its label rides the arrow tip
+  // until it reaches its edge slot, blinking while it moves.
+  function message(G, e, dir, src, at, ev, cls = "hot", rest = SLOT_T[e]) {
+    const t0 = dir === "up" ? atBit(e) : AT_CHECK, t1 = dir === "up" ? AT_CHECK : atBit(e);
+    const start = edgePoint(e, t0), stop = edgePoint(e, t1);
+    const line = svgEl(G.flows, "line", { x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message", "marker-end": `url(#${G.method}-arrow)` });
+    const label = chip(G, edgePoint(e, rest), src, cls);
+    if (ev === null) return { label, land: 0 };
+    const hold = t => (t1 > t0 ? Math.min(rest, t) : Math.max(rest, t));
+    ev.push({ at, dur: TIME.travel,
+      init() { line.style.opacity = "0"; label.style.opacity = "0"; },
+      start() { line.style.opacity = ""; label.style.opacity = ""; label.classList.add("travelling"); },
+      apply(p) {
+        const t = lerp(t0, t1, ease(p)), tip = edgePoint(e, t);
+        line.setAttribute("x2", tip[0]); line.setAttribute("y2", tip[1]);
+        place(label, edgePoint(e, hold(t)));
+      },
+      end() {
+        line.style.opacity = ""; label.style.opacity = ""; label.classList.remove("travelling");
+        line.setAttribute("x2", stop[0]); line.setAttribute("y2", stop[1]);
+        place(label, edgePoint(e, rest));
+      } });
+    ev.push(blink(label, at + TIME.travel));
+    return { label, land: at + TIME.travel };
+  }
+
+  // A general formula floats above the graph while it is in use; its terms blink as values are substituted.
+  const F = {
+    q: R`Q^{(t)}_{i\to a} = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{b\in N(i)\setminus a} U^{(t-1)}_{b\to i}}`,
+    lam: R`\Lambda^{(t)}_i = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{a\in N(i)} U^{(t)}_{a\to i}}`,
+    r: R`r_a = 1-\htmlClass{hP}{\prod_{j\in a}x_j}`,
+    g: R`g_{a,i} = -\htmlClass{hW}{\frac{2w_{\mathrm{par}}}{n}}\,\htmlClass{hR}{r_a}\htmlClass{hP}{\prod_{j\in a,\,j\neq i}x_j}`
+  };
+  // ---------- derivations of the L-BFGS gradient terms from the objective function ----------
+  // A term id is wrapped in a style: "dim", "hl" (highlighted) or "gone" (crossed out: its derivative is 0).
+  function styled(src, style) {
+    if (style === "gone") return R`\htmlClass{gone}{\cancel{${src}}}`;
+    return style ? R`\htmlClass{${style}}{${src}}` : src;
+  }
+  function jGeneral(mark = {}) {
+    const ch = styled(R`-\frac{w_{\mathrm{ch}}}{2n}\sum_i \ell_i x_i`, mark.c);
+    const par = styled(R`\frac{w_{\mathrm{par}}}{n}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2`, mark.p);
+    const bin = styled(R`\frac{w_{\mathrm{bin}}}{n}\sum_i\bigl(1-x_i^2\bigr)^2`, mark.b);
+    return R`J(\mathbf{x}) = \htmlClass{hC}{${ch}} + \htmlClass{hPar}{${par}} + \htmlClass{hB}{${bin}}`;
+  }
+  // J written out for checks A = {1, 2} and B = {2, 3}, with n = 3, w_ch = 1, w_par = 2, w_bin = 0.2.
+  const TERMS = {
+    c1: R`\ell_1x_1`, c2: R`\ell_2x_2`, c3: R`\ell_3x_3`, pA: R`(1-x_1x_2)^2`, pB: R`(1-x_2x_3)^2`,
+    b1: R`(1-x_1^2)^2`, b2: R`(1-x_2^2)^2`, b3: R`(1-x_3^2)^2`
+  };
+  function jWritten(lhs, mark = {}, wrt = "") {
+    const t = id => R`\htmlClass{${id}}{${styled(TERMS[id], mark[id])}}`;
+    const ch = styled(R`-\tfrac{1}{6}\bigl(${t("c1")}+${t("c2")}+${t("c3")}\bigr)`, mark.c);
+    const par = styled(R`\tfrac{2}{3}\bigl[${t("pA")}+${t("pB")}\bigr]`, mark.p);
+    const bin = styled(R`\tfrac{1}{15}\bigl[${t("b1")}+${t("b2")}+${t("b3")}\bigr]`, mark.b);
+    const open = wrt ? R`\frac{\partial}{\partial ${wrt}}\Bigl[` : "", close = wrt ? R`\Bigr]` : "";
+    return R`\begin{aligned}${lhs} &= ${open}\htmlClass{hC}{${ch}} + \htmlClass{hPar}{${par}}\\ &\qquad + \htmlClass{hB}{${bin}}${close}\end{aligned}`;
+  }
+  const dJ = i => R`\frac{\partial J}{\partial x_${i}}`;
+  const J_INTRO = [
+    { tex: jGeneral(), tag: "Objective function", note: R`L-BFGS changes $\mathbf{x}$ to make $J(\mathbf{x})$ smaller; $J$ adds three terms` },
+    { tex: jGeneral({ c: "hl", p: "dim", b: "dim" }), tag: "Term 1 · channel", note: R`smaller when each $x_i$ has the sign of $\ell_i$, so it follows the channel evidence`, sparkle: ["hC"] },
+    { tex: jGeneral({ c: "dim", p: "hl", b: "dim" }), tag: "Term 2 · parity", note: R`$0$ when every check product $\prod_{j\in a}x_j$ equals $+1$; it grows when a check is violated`, sparkle: ["hPar"] },
+    { tex: jGeneral({ c: "dim", p: "dim", b: "hl" }), tag: "Term 3 · binary", note: R`$0$ at $x_i=\pm1$; it pulls each $x_i$ toward a hard value`, sparkle: ["hB"] },
+    { tex: jGeneral(), tag: "Weights", note: R`in this example $n=3$, $w_{\mathrm{ch}}=1$, $w_{\mathrm{par}}=2$ and $w_{\mathrm{bin}}=0.2$` }
+  ];
+  const J_WRITE = [
+    { tex: jGeneral(), tag: "Objective function", note: R`the general form, summed over bits $i$ and checks $a$` },
+    { tex: jWritten(R`J(\mathbf{x})`), tag: "Write out", note: R`$A=\{1,2\}$ and $B=\{2,3\}$; $\tfrac{w_{\mathrm{ch}}}{2n}=\tfrac16$, $\tfrac{w_{\mathrm{par}}}{n}=\tfrac23$, $\tfrac{w_{\mathrm{bin}}}{n}=\tfrac1{15}$. Each term contains only the $x_j$ it shows`,
+      keys: ["hC", "hPar", "hB"], sparkle: ["hC", "hPar", "hB"], hold: 5200 }
+  ];
+  function rSteps(a) {
+    const N = a ? "B" : "A", pid = a ? "pB" : "pA", pair = a ? "x_2x_3" : "x_1x_2", bits = a ? "x_2=x_3" : "x_1=x_2";
+    const focus = a ? { c: "dim", b: "dim", pA: "dim", pB: "hl" } : { c: "dim", b: "dim", pA: "hl", pB: "dim" };
+    return [
+      { tex: jWritten(R`J(\mathbf{x})`), tag: "Objective function", note: R`written out for this graph` },
+      { tex: jWritten(R`J(\mathbf{x})`, focus), tag: `Check ${N}`, note: R`check $${N}=\{${a ? "2,3" : "1,2"}\}$ appears in exactly one term of $J$`, sparkle: [pid] },
+      { tex: R`\tfrac{2}{3}\htmlClass{${pid}}{\bigl(\htmlClass{mR}{1-${pair}}\bigr)^2}`, tag: "Zoom in", note: R`keep check $${N}$’s term`, keys: [pid], sparkle: [pid] },
+      { tex: R`\tfrac{2}{3}\,\htmlClass{mRa}{r_${N}}^2,\qquad \htmlClass{mDef}{r_${N} = \htmlClass{mR}{1-${pair}}}`, tag: "Name", note: R`the bracket gets a name, $r_${N}$; nothing is calculated yet`, keys: ["mR"], sparkle: ["mRa", "mR"] },
+      { tex: R`\htmlClass{mDef}{r_${N} = 1-\htmlClass{hP}{${pair}}}`, tag: "Meaning", note: R`inside the box, $r_${N}=0$ exactly when $${bits}=\pm1$`, keys: ["mDef"], sparkle: ["mDef"] }
+    ];
+  }
+  const G_A = [
+    { tex: jWritten(dJ(1), {}, "x_1"), tag: R`With respect to $x_1$`, note: R`only $x_1$ changes; $x_2$ and $x_3$ are held fixed, like numbers` },
+    { tex: jWritten(dJ(1), { c2: "gone", c3: "gone", pB: "gone", b2: "gone", b3: "gone" }, "x_1"), tag: "Constant rule",
+      note: R`a term without $x_1$ does not change when $x_1$ changes, so its derivative is $0$`, sparkle: ["c2", "c3", "pB", "b2", "b3"], hold: 5200 },
+    { tex: R`${dJ(1)} = \htmlClass{dim}{-\tfrac{1}{6}\ell_1} + \htmlClass{pA}{\tfrac{2}{3}\,\frac{\partial}{\partial x_1}(1-x_1x_2)^2} + \htmlClass{dim}{\tfrac{1}{15}\,\frac{\partial}{\partial x_1}(1-x_1^2)^2}`, tag: "Sum rule",
+      note: R`differentiate the three surviving terms one at a time; this beat follows check $A$’s term`, keys: ["pA"], sparkle: ["pA"], hold: 5200 },
+    { tex: R`\htmlClass{pA}{\tfrac{2}{3}\,\frac{\partial}{\partial x_1}(1-x_1x_2)^2} = \tfrac{2}{3}\cdot 2\,\htmlClass{mU}{(1-x_1x_2)}\cdot\htmlClass{mI}{\frac{\partial}{\partial x_1}(1-x_1x_2)}`, tag: "Chain rule",
+      note: R`$\partial_{x_1}\bigl(u^2\bigr) = 2u\,\partial_{x_1}u$, with $u = 1-x_1x_2$`, keys: ["pA"], sparkle: ["mU", "mI"], hold: 5200 },
+    { tex: R`\tfrac{2}{3}\,\frac{\partial}{\partial x_1}(1-x_1x_2)^2 = \tfrac{2}{3}\cdot 2\,\htmlClass{mU}{r_A}\cdot\htmlClass{mI}{(-x_2)}`, tag: "Constant multiple",
+      note: R`$x_2$ is fixed, so $\partial_{x_1}(1-x_1x_2) = -x_2$; the bracket $1-x_1x_2$ is $r_A$`, keys: ["mU", "mI"], sparkle: ["mU", "mI"], hold: 5200 },
+    { tex: R`\htmlClass{mG}{g_{A,1} = -\tfrac{4}{3}\,r_A\,x_2},\qquad \htmlClass{mG2}{g_{A,2} = -\tfrac{4}{3}\,r_A\,x_1}`, tag: "Result",
+      note: R`check $A$’s part of $\partial J/\partial x_1$; the same steps with respect to $x_2$ give $g_{A,2}$`, sparkle: ["mG", "mG2"] },
+    { tex: F.g, tag: "General form", note: R`for any check $a$ and bit $i$ in it; here $\tfrac{2w_{\mathrm{par}}}{n} = \tfrac{4}{3}$` }
+  ];
+  const G_B = [
+    { tex: R`\frac{\partial}{\partial x_3}\,\tfrac{2}{3}\bigl[\htmlClass{pA}{(1-x_1x_2)^2} + \htmlClass{pB}{(1-x_2x_3)^2}\bigr]`, tag: R`With respect to $x_3$`, note: R`the parity term of $J$; $x_1$ and $x_2$ are held fixed` },
+    { tex: R`\frac{\partial}{\partial x_3}\,\tfrac{2}{3}\bigl[\htmlClass{pA}{\htmlClass{gone}{\cancel{(1-x_1x_2)^2}}} + \htmlClass{pB}{(1-x_2x_3)^2}\bigr]`, tag: "Constant rule", note: R`check $A$’s term has no $x_3$, so its derivative is $0$`, sparkle: ["pA"] },
+    { tex: R`\tfrac{2}{3}\cdot 2\,\htmlClass{mU}{r_B}\cdot\htmlClass{mI}{(-x_2)} = \htmlClass{mG}{g_{B,3} = -\tfrac{4}{3}\,r_B\,x_2}`, tag: "Chain rule",
+      note: R`then the constant multiple rule, as for $A$; with respect to $x_2$ the same steps give $g_{B,2} = -\tfrac{4}{3}\,r_B\,x_3$`, sparkle: ["mG"], hold: 5200 },
+    { tex: F.g, tag: "General form", note: R`$g_{B,2}$ and $g_{B,3}$ use the same frozen $\mathbf{x}$ as check $A$’s terms` }
+  ];
+  const GRAD2 = [
+    { tex: jWritten(dJ(2), {}, "x_2"), tag: R`With respect to $x_2$`, note: R`only $x_2$ changes; $x_1$ and $x_3$ are held fixed` },
+    { tex: jWritten(dJ(2), { c1: "gone", c3: "gone", b1: "gone", b3: "gone" }, "x_2"), tag: "Constant rule",
+      note: R`terms without $x_2$ have derivative $0$; both check terms keep $x_2$, because bit 2 sits in $A$ and in $B$`, sparkle: ["c1", "c3", "b1", "b3"], hold: 5200 },
+    { tex: R`${dJ(2)} = \htmlClass{hC}{-\tfrac{1}{6}\ell_2} + \htmlClass{hPar}{g_{A,2}+g_{B,2}} + \htmlClass{hB}{\tfrac{1}{15}\cdot 2\bigl(1-x_2^2\bigr)\bigl(-2x_2\bigr)}`, tag: "Sum rule",
+      note: R`channel: $\partial_{x_2}\bigl(-\tfrac16\ell_2x_2\bigr) = -\tfrac16\ell_2$; parity: the $g$ terms of beats 4 and 6; binary: chain rule with $u = 1-x_2^2$`, sparkle: ["hC", "hPar", "hB"], hold: 6000 },
+    { tex: R`${dJ(2)} = \htmlClass{hPar}{g_{A,2}+g_{B,2}} - \htmlClass{hC}{\tfrac{w_{\mathrm{ch}}}{2n}\ell_2} + \htmlClass{hB}{\tfrac{4w_{\mathrm{bin}}}{n}x_2\bigl(x_2^2-1\bigr)}`, tag: "Simplify",
+      note: R`$\tfrac1{15}\cdot 2\cdot(-2x_2)(1-x_2^2) = \tfrac4{15}\,x_2(x_2^2-1)$, and $\tfrac4{15} = \tfrac{4w_{\mathrm{bin}}}{n}$`, keys: ["hPar", "hC", "hB"] }
+  ];
+  const NOTES = {
+    agree: R`Each check here joins two bits and requires them to agree; therefore $U_{a\to i}$ is the other incoming $Q$.`,
+    boundary: R`This page places the iteration boundary after the check calculation, so the four $U$ values feed the next variable calculation.`,
+    recompute: R`L-BFGS keeps $\mathbf{x}^{(1)}$ and the pair $(\mathbf{s}^{(0)},\mathbf{y}^{(0)})$; the check terms $r$ and $g$ are recomputed from $\mathbf{x}^{(1)}$.`
+  };
+  // A floating derivation: TeX steps cross-fade into each other while parts tagged
+  // \htmlClass{m...} glide to their new place and sparkle where they land.
+  function stepLayer(step) {
+    const layer = document.createElement("div");
+    layer.className = "morph-step";
+    const tag = step.tag ? `<span class="tag">${mixed(step.tag)}</span>` : "";
+    layer.innerHTML = tex(step.tex, true) + (step.note ? `<p class="hover-note">${tag}${mixed(step.note)}</p>` : "");
+    return layer;
+  }
+  function extent(node, box, k) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    [node, ...node.querySelectorAll("*")].forEach(n => {
+      for (const r of n.getClientRects()) {
+        if (!r.width || !r.height) continue;
+        x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+      }
+    });
+    if (x0 === Infinity) return null;
+    return { x: (x0 - box.left) / k, y: (y0 - box.top) / k, w: (x1 - x0) / k, h: (y1 - y0) / k };
+  }
+  function morphStep(card, state, step, at, dur, seed) {
+    let from = null, to = null, ghosts = [], sparks = [], size = null;
+    let r = seed * 7919 % 233280;
+    const rand = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+    const per = (step.sparkle || []).length > 3 ? 9 : 16;
+    return { at, dur,
+      start() {
+        from = state.layer;
+        const w0 = card.offsetWidth, h0 = card.offsetHeight;
+        to = stepLayer(step);
+        to.style.opacity = "0";
+        card.appendChild(to);
+        const padX = card.offsetWidth - card.clientWidth + parseFloat(getComputedStyle(card).paddingLeft) * 2;
+        const padY = card.offsetHeight - card.clientHeight + parseFloat(getComputedStyle(card).paddingTop) + parseFloat(getComputedStyle(card).paddingBottom);
+        size = [w0, h0, to.offsetWidth + padX, to.offsetHeight + padY];
+        card.style.width = `${w0}px`; card.style.height = `${h0}px`;
+        const box = card.getBoundingClientRect(), k = box.width / card.offsetWidth || 1;
+        (step.keys || []).forEach(key => {
+          const a = from && from.querySelector(`.${key}`), b = to.querySelector(`.${key}`);
+          if (!a || !b) return;
+          const ea = extent(a, box, k), eb = extent(b, box, k);
+          if (!ea || !eb) return;
+          const ghost = document.createElement("span");
+          ghost.className = "katex morph-ghost";
+          ghost.style.fontSize = getComputedStyle(a).fontSize;
+          ghost.innerHTML = a.innerHTML;
+          card.appendChild(ghost);
+          a.style.visibility = "hidden";
+          b.style.opacity = "0";
+          ghosts.push({ ghost, b, from: [ea.x + ea.w / 2, ea.y + ea.h / 2], to: [eb.x + eb.w / 2, eb.y + eb.h / 2] });
+        });
+        (step.sparkle || []).forEach(key => {
+          const b = to.querySelector(`.${key}`), eb = b && extent(b, box, k);
+          if (!eb) return;
+          for (let n = 0; n < per; n += 1) {
+            const spark = document.createElement("i");
+            spark.className = "sparkle";
+            card.appendChild(spark);
+            const side = rand() * 4 | 0, u = rand();
+            const x = side < 2 ? eb.x + u * eb.w : eb.x + (side === 2 ? -6 : eb.w + 6);
+            const y = side < 2 ? eb.y + (side === 0 ? -6 : eb.h + 6) : eb.y + u * eb.h;
+            sparks.push({ spark, x, y, delay: 0.3 + rand() * 0.45, life: 0.22 + rand() * 0.2, size: 0.7 + rand() * 1.1, spin: rand() * 180 - 90 });
+          }
+        });
+      },
+      apply(p) {
+        if (!to) return;
+        const e = ease(p);
+        if (from) from.style.opacity = String(Math.max(0, 1 - p / 0.4));
+        to.style.opacity = String(Math.min(1, Math.max(0, (p - 0.45) / 0.4)));
+        card.style.width = `${lerp(size[0], size[2], e)}px`;
+        card.style.height = `${lerp(size[1], size[3], e)}px`;
+        ghosts.forEach(g => {
+          g.ghost.style.left = `${lerp(g.from[0], g.to[0], e)}px`;
+          g.ghost.style.top = `${lerp(g.from[1], g.to[1], e) - 10 * Math.sin(Math.PI * p)}px`;
+        });
+        sparks.forEach(sp => {
+          const q = Math.min(1, Math.max(0, (p - sp.delay) / sp.life)), glow = Math.sin(Math.PI * q);
+          sp.spark.style.left = `${sp.x}px`;
+          sp.spark.style.top = `${sp.y - 6 * q}px`;
+          sp.spark.style.opacity = String(glow);
+          sp.spark.style.transform = `scale(${0.2 + sp.size * glow}) rotate(${sp.spin * q}deg)`;
+        });
+      },
+      end() {
+        if (!to) { to = stepLayer(step); card.appendChild(to); from = state.layer; }
+        if (from) from.remove();
+        ghosts.forEach(g => { g.ghost.remove(); g.b.style.opacity = ""; });
+        sparks.forEach(sp => sp.spark.remove());
+        ghosts = []; sparks = [];
+        to.style.opacity = "";
+        card.style.width = ""; card.style.height = "";
+        state.layer = to;
+      } };
+  }
+  // Step k lands TIME.morph ms after its transition starts and is read for its own hold (default TIME.read).
+  function derivation(G, ev, at, steps) {
+    const card = document.createElement("div");
+    card.className = "hover morph";
+    G.hoverLayer.appendChild(card);
+    const state = { layer: null };
+    ev.push({ at, dur: 600,
+      init() { card.replaceChildren(); state.layer = stepLayer(steps[0]); card.appendChild(state.layer); card.style.opacity = "0"; },
+      apply(p) { card.style.opacity = String(p); },
+      end() { card.style.opacity = ""; } });
+    ev.push(blink(card, at));
+    const part = name => () => card.querySelector(`.${name}`);
+    const holdOf = step => step.hold || TIME.read;
+    let t = at + holdOf(steps[0]);
+    for (let k = 1; k < steps.length; k += 1) {
+      ev.push(morphStep(card, state, steps[k], t, TIME.morph, k));
+      (steps[k].sparkle || []).forEach(key => ev.push(blink(part(key), t + TIME.morph)));
+      t += TIME.morph + (k < steps.length - 1 ? holdOf(steps[k]) : 0);
+    }
+    return { card, done: t, part };
+  }
+  function hover(G, ev, at, src, note = "", until = null) {
+    const card = document.createElement("div");
+    card.className = "hover";
+    card.innerHTML = (src ? tex(src, true) : "") + (note ? `<p class="hover-note">${mixed(note)}</p>` : "");
+    G.hoverLayer.appendChild(card);
+    ev.push(show(card, at, 600), blink(card, at));
+    if (until !== null) ev.push(hide(card, until, 500));
+    return { card, part: name => () => card.querySelector(`.${name}`) };
+  }
+
+  // ---------- the box [-1, 1]^3 where L-BFGS moves x ----------
+  // Oblique view: azimuth -28 degrees around the x3 axis, elevation 22 degrees.
+  const CV = { w: 400, h: 360, s: 100, cx: 202, cy: 182 };
+  const CAM = (() => {
+    const az = -28 * Math.PI / 180, el = 22 * Math.PI / 180;
+    return {
+      c: [Math.cos(el) * Math.cos(az), Math.cos(el) * Math.sin(az), Math.sin(el)],
+      r: [-Math.sin(az), Math.cos(az), 0],
+      u: [-Math.sin(el) * Math.cos(az), -Math.sin(el) * Math.sin(az), Math.cos(el)]
+    };
+  })();
+  const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const proj = x => [CV.cx + CV.s * dot3(CAM.r, x), CV.cy - CV.s * dot3(CAM.u, x)];
+  const UPDATE_TEX = R`\begin{aligned}\mathbf{x}^{(t+1)} &= \Pi_{[-1,1]^3}\bigl(\htmlClass{pX}{\mathbf{x}^{(t)}} + \htmlClass{pE}{\alpha_t}\,\htmlClass{pD}{\mathbf{d}^{(t)}}\bigr)\\ \mathbf{d}^{(t)}_{F_t} &= -\htmlClass{pH}{\mathbf{H}^{(F_t)}_t}\,\htmlClass{pG}{[\nabla J(\mathbf{x}^{(t)})]_{F_t}},\qquad \mathbf{d}^{(t)}_{F_t^{\mathsf c}}=0\end{aligned}`;
+  const RULES = [
+    ["first", "First step", R`before any $\mathbf{s},\mathbf{y}$ values exist, $\mathbf{H}_0=\mathbf{I}$ and $\mathbf{d}^{(0)}=-\nabla J$.`],
+    ["memory", "$s$ and $y$", R`Keep a new $(\mathbf{s},\mathbf{y})=(\Delta\mathbf{x},\Delta\nabla J)$ only if $\mathbf{s}^{\top}\mathbf{y}>10^{-12}$, and keep no more than the newest 10. Before $\mathbf{H}^{(F_t)}_t$ is evaluated, set entries outside $F_t$ to zero in the gradient and in every earlier $\mathbf{s}$ and $\mathbf{y}$; omit a resulting pair if $\mathbf{s}^{\top}\mathbf{y}\leq10^{-12}$.`],
+    ["direction", "Direction", R`Set $\mathbf{q}\leftarrow[\nabla J]_{F_t}$. For usable pairs, newest to oldest, set $\rho_j=(\mathbf{y}_j^\top\mathbf{s}_j)^{-1}$, $a_j=\rho_j\mathbf{s}_j^\top\mathbf{q}$, and $\mathbf{q}\leftarrow\mathbf{q}-a_j\mathbf{y}_j$. Set $\mathbf{r}\leftarrow\gamma_t\mathbf{q}$, where $\gamma_t=(\mathbf{s}^\top\mathbf{y})/(\mathbf{y}^\top\mathbf{y})$ for the newest usable pair, or $1$ if none. For the same pairs, oldest to newest, set $b_j=\rho_j\mathbf{y}_j^\top\mathbf{r}$ and $\mathbf{r}\leftarrow\mathbf{r}+\mathbf{s}_j(a_j-b_j)$; then $\mathbf{d}_{F_t}=-\mathbf{r}$.`],
+    ["step", "Step and stop", R`$\alpha_t$ starts at $1$ and is halved at most 16 times until $J(\Pi(\mathbf{x}+\alpha_t\mathbf{d}))<J(\mathbf{x})$; stop if no trial is accepted, if $\max_{i\in F_t}|\partial J/\partial x_i|<10^{-9}$, or after $100$ accepted updates.`],
+    ["box", "Box", R`$F_t$ contains every index $i$ not fixed by either condition: $x_i=+1$ with $\partial J/\partial x_i<0$, or $x_i=-1$ with $\partial J/\partial x_i>0$. The operator $\Pi$ clips every trial coordinate to $[-1,1]$.`]
+  ];
+  const RULES_BY_BEAT = [
+    ["first"], ["box"], ["box"], ["box"], ["box"],
+    ["memory"], ["first"], ["memory"], ["direction"], ["step"]
+  ];
+  const rule = key => () => $("rules").querySelector(`[data-rule="${key}"]`);
+  const upd = key => () => $("update-card").querySelector(`.${key}`);
+  function cube() {
+    const svg = $("poly-graph"), layer = $("poly-chips");
+    svg.replaceChildren();
+    layer.replaceChildren();
+    addMarker(svg, "#087d77", "poly-arrow");
+    addMarker(svg, "#b35a00", "poly-arrow-hot");
+    const C = { method: "lbfgs", svg, layer, w: CV.w, h: CV.h };
+    C.faces = svgEl(svg, "g"); C.zero = svgEl(svg, "g"); C.edges = svgEl(svg, "g");
+    C.marks = svgEl(svg, "g"); C.paths = svgEl(svg, "g"); C.points = svgEl(svg, "g");
+    const V = [];
+    [-1, 1].forEach(a => [-1, 1].forEach(b => [-1, 1].forEach(c => V.push([a, b, c]))));
+    const back = V.reduce((m, v) => (dot3(CAM.c, v) < dot3(CAM.c, m) ? v : m));
+    V.forEach(v => [0, 1, 2].forEach(i => {
+      if (v[i] !== -1) return;
+      const w = v.slice(); w[i] = 1;
+      const p = proj(v), q = proj(w), hidden = v.join() === back.join() || w.join() === back.join();
+      svgEl(C.edges, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: "cube-edge" + (hidden ? " hidden" : "") });
+    }));
+    V.forEach(v => {
+      const p = proj(v), word = corner(v), code = word === "000" || word === "111";
+      const dx = p[0] - CV.cx, dy = p[1] - CV.cy, len = Math.hypot(dx, dy) || 1;
+      // the hidden back corner sits behind the iterates' region, so its label goes up and to the right
+      const at = v.join() === back.join() ? [p[0] + 18, p[1] - 8] : [p[0] + dx / len * 21, p[1] + dy / len * 21 + 5];
+      C[`v${word}`] = svgEl(C.marks, "circle", { cx: p[0], cy: p[1], r: code ? 7 : 4, class: code ? "corner code" : "corner" });
+      svgEl(C.marks, "text", { x: at[0], y: at[1], "text-anchor": "middle", class: code ? "corner-label code" : "corner-label" }, word);
+    });
+    // axis triad in the free upper-right corner: each arrow points toward +x_i
+    const o = [344, 50];
+    [0, 1, 2].forEach(i => {
+      const d = [CAM.r[i] * 26, -CAM.u[i] * 26];
+      svgEl(C.marks, "line", { x1: o[0], y1: o[1], x2: o[0] + d[0], y2: o[1] + d[1], class: "axis", "marker-end": "url(#poly-arrow)" });
+      chip(C, [o[0] + d[0] * 1.6 + (i === 2 ? -12 : 4), o[1] + d[1] * 1.6 + (i === 2 ? 6 : 0)], `x_${i + 1}`, "value axis-label");
+    });
+    return C;
+  }
+  function zeroEdges(C, which, cls = "") {
+    const lines = [];
+    [-1, 1].forEach(s => {
+      const ends = which === "A" ? [[s, s, -1], [s, s, 1]] : [[-1, s, s], [1, s, s]];
+      const p = proj(ends[0]), q = proj(ends[1]);
+      lines.push(svgEl(C.zero, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: `zero-edge ${which.toLowerCase()}${cls ? " " + cls : ""}` }));
+    });
+    return lines;
+  }
+  function face(C) {
+    const pts = [[1, -1, -1], [1, 1, -1], [1, 1, 1], [1, -1, 1]].map(v => proj(v).join(",")).join(" ");
+    return svgEl(C.faces, "polygon", { points: pts, class: "face" });
+  }
+  function xDot(C, x, cls = "") { const p = proj(x); return svgEl(C.points, "circle", { cx: p[0], cy: p[1], r: 7, class: "x-dot" + (cls ? " " + cls : "") }); }
+  function xArrow(C, a, b, cls = "") {
+    const p = proj(a), q = proj(b);
+    return svgEl(C.paths, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: "x-arrow" + (cls ? " " + cls : ""), "marker-end": `url(#poly-arrow${cls.includes("hot") ? "-hot" : ""})` });
+  }
+  function segment(C, a, b, cls) { const p = proj(a), q = proj(b); return svgEl(C.paths, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: cls }); }
+  function xLabel3(C, x, src, dx, dy) { const p = proj(x); return chip(C, [p[0] + dx, p[1] + dy], src, "value"); }
+  // An arrow or line is drawn out from its tail.
+  function grow(line, at, dur = 1500) {
+    let end = null;
+    return { at, dur,
+      init() { end = [line.getAttribute("x2"), line.getAttribute("y2")].map(Number); line.style.opacity = "0"; },
+      start() { line.style.opacity = ""; },
+      apply(p) {
+        const e = ease(p), x1 = Number(line.getAttribute("x1")), y1 = Number(line.getAttribute("y1"));
+        line.setAttribute("x2", lerp(x1, end[0], e)); line.setAttribute("y2", lerp(y1, end[1], e));
+      },
+      end() { line.style.opacity = ""; line.setAttribute("x2", end[0]); line.setAttribute("y2", end[1]); } };
+  }
+  // Each accepted update is drawn as a straight segment; the complete box-projected path is piecewise linear and can kink at a wall.
+  function slide(dot, a, b, at, dur = 1600) {
+    const p = proj(a), q = proj(b);
+    return { at, dur,
+      apply(s) { const e = ease(s); dot.setAttribute("cx", lerp(p[0], q[0], e)); dot.setAttribute("cy", lerp(p[1], q[1], e)); },
+      end() { dot.setAttribute("cx", q[0]); dot.setAttribute("cy", q[1]); } };
+  }
+  function polyText(k) {
+    const v3 = x => R`\left(${x.map(t => tn(t, 3, false)).join(R`,\ `)}\right)`;
+    const last = LB.path.length - 1, end = LB.path[last];
+    switch (k) {
+      case 0: return R`Each corner gives a hard-decision estimate ($x_i=+1$ means bit 0). $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ lies nearest corner ${corner(OBJ.x0)}, which violates check $A$.`;
+      case 1: return R`$\mathbf{x}^{(0)}=${v3(OBJ.x0)}$ is one point: three scalars, one per bit. The checks do not hold their own copies of $x_2$.`;
+      case 2: return R`Inside the box, $r_A=0$ only on the two teal edges, where $x_1=x_2=\pm1$. At $\mathbf{x}^{(0)}$, $r_A=${tn(OBJ.residual.A, 3, false)}$.`;
+      case 3: return R`$g_{A,1}$ and $g_{A,2}$ are evaluated at the point $\mathbf{x}^{(0)}$. The point does not move until the update in beat 7.`;
+      case 4: return R`$r_B=0$ only on the gold edges, where $x_2=x_3=\pm1$. Both residuals are $0$ only at the codewords 000 and 111.`;
+      case 5: return R`All four check terms are evaluated at the same frozen point $\mathbf{x}^{(0)}$.`;
+      case 6: return R`$-\nabla J$ points downhill. With $\alpha_0=1$ the step stays inside the box, so $\Pi$ changes nothing, and $J$ falls from $${tn(OBJ.loss_before, 6, false)}$ to $${tn(LB.loss1, 6, false)}$.`;
+      case 7: return R`The arrow is $\mathbf{s}^{(0)}=\mathbf{x}^{(1)}-\mathbf{x}^{(0)}$, the step just taken. L-BFGS keeps it, with $\mathbf{y}^{(0)}$, to shape the next direction.`;
+      case 8: {
+        const norm = v => Math.hypot(...v), ratio = norm(LB.d1) / norm(LB.grad1);
+        const turn = Math.acos(-dot3(LB.d1, LB.grad1) / (norm(LB.d1) * norm(LB.grad1))) * 180 / Math.PI;
+        return R`Using $\mathbf{s}^{(0)}$ and $\mathbf{y}^{(0)}$, $\mathbf{d}^{(1)}=-\mathbf{H}_1\nabla J$ is $${ratio.toFixed(2)}$ times as long as $-\nabla J$, turned $${turn.toFixed(0)}^\circ$. It reaches $x_1=${tn(LB.raw2[0], 3, false)}$, so $\Pi$ sets $x_1=1$ (shaded face).`;
+      }
+      default: return R`After ${last} updates, $\mathbf{x}=${v3(end)}$: hard-decision estimate ${corner(end)}, a codeword. $J$ fell from $${tn(LB.loss_path[0], 6, false)}$ to $${tn(LB.loss_path[last], 6, false)}$.`;
+    }
+  }
+  // The box shows the iterate for each beat; times come from the L-BFGS lane so the two stay in step.
+  function polyBeat(k, ev, sync) {
+    const C = cube();
+    const readout = $("poly-readout");
+    readout.innerHTML = mixed(polyText(k));
+    if (k !== 9) ev.push(show(readout, sync.readout != null ? sync.readout : 300, 700));
+    if (k >= 2) {
+      const a = zeroEdges(C, "A", k >= 4 ? "faint" : "");
+      if (k === 2) a.forEach(line => ev.push(show(line, sync.edges, 900), blink(line, sync.edges + 900)));
+    }
+    if (k >= 4) {
+      const b = zeroEdges(C, "B", k >= 6 ? "faint" : "");
+      if (k === 4) b.forEach(line => ev.push(show(line, sync.edges, 900)));
+      if (k === 4) ["v000", "v111"].forEach(v => ev.push(blink(C[v], sync.edges + 900)));
+    }
+    if (k <= 5) {
+      const dot = xDot(C, OBJ.x0), label = xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      if (k === 0) ev.push(show(dot, sync.x0, 600), show(label, sync.x0, 600), blink(dot, sync.x0 + 600));
+      return;
+    }
+    if (k === 6) {
+      const old = xDot(C, OBJ.x0, "old"), dot = xDot(C, OBJ.x0);
+      xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      const arrow = xArrow(C, OBJ.x0, LB.x1, "hot");
+      const arrowLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`-\nabla J`, 16, -16);
+      const next = xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      ev.push(grow(arrow, sync.arrow), show(arrowLabel, sync.arrow + 800, 600), show(old, sync.step, 400));
+      ev.push(slide(dot, OBJ.x0, LB.x1, sync.step), show(next, sync.step + 1600, 600), blink(dot, sync.step + 1600));
+      return;
+    }
+    if (k === 7) {
+      xDot(C, OBJ.x0, "old");
+      xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      const arrow = xArrow(C, OBJ.x0, LB.x1);
+      const label = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`\mathbf{s}^{(0)}`, 16, -16);
+      const dot = xDot(C, LB.x1);
+      xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      ev.push(blink(dot, sync.x1), grow(arrow, sync.s), show(label, sync.s + 900, 600));
+      return;
+    }
+    if (k === 8) {
+      const plane = face(C);
+      xDot(C, OBJ.x0, "old");
+      segment(C, OBJ.x0, LB.x1, "trail");
+      const dir = xArrow(C, LB.x1, LB.raw2, "hot");
+      const dirLabel = xLabel3(C, LB.raw2, R`\mathbf{d}^{(1)}`, -46, 12);
+      const old = xDot(C, LB.x1, "old"), dot = xDot(C, LB.x1);
+      xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      const next = xLabel3(C, LB.x2, R`\mathbf{x}^{(2)}`, 26, -18);
+      const t = sync.start;
+      ev.push(grow(dir, t + 2400), show(dirLabel, t + 3400, 600), blink(rule("direction"), t + 2400), blink(upd("pH"), t + 2400));
+      ev.push(show(old, t + 4600, 300), slide(dot, LB.x1, LB.x2, t + 4600, 1600), blink(rule("box"), t + 6200), show(plane, t + 6200, 900), show(next, t + 6200, 600));
+      return;
+    }
+    // k === 9: the whole run, one update after another
+    const plane = face(C);
+    const path = LB.path, step = 700, t0 = sync.start;
+    ev.push(show(plane, t0, 600));
+    xLabel3(C, path[0], R`\mathbf{x}^{(0)}`, -30, -16);
+    const dot = xDot(C, path[0]);
+    for (let j = 1; j < path.length; j += 1) {
+      const line = segment(C, path[j - 1], path[j], "trail"), mark = xDot(C, path[j - 1], "step");
+      ev.push(show(mark, t0 + (j - 1) * step, 200), grow(line, t0 + (j - 1) * step, step), slide(dot, path[j - 1], path[j], t0 + (j - 1) * step, step));
+    }
+    C.points.appendChild(dot);
+    const done = t0 + (path.length - 1) * step;
+    const label = xLabel3(C, path[path.length - 1], R`\mathbf{x}^{(${path.length - 1})}`, -34, 14);
+    ev.push(show(label, done, 600), show(readout, done, 700), blink(dot, done), blink(C.v000, done));
+  }
+
+  // ---------- beat scripts ----------
+  function script(k) {
+    $("rules").querySelectorAll("li").forEach(node => node.classList.toggle("visible", RULES_BY_BEAT[k].includes(node.dataset.rule)));
+    const B = mathLane("bp"), G = mathLane("lbfgs");
+    const bg = graph("bp", k), gg = graph("lbfgs", k);
+    const ev = [];
+    const sync = {};
+    const card = (src, cls, key) => `<span class="${cls}" data-card="${key}">${tex(src)}</span>`;
+    const bpCard = key => () => $("bp-state").querySelector(`[data-card="${key}"]`);
+    const lbfgsCard = key => () => $("lbfgs-state").querySelector(`[data-card="${key}"]`);
+    const uLabel = (e, value) => R`U_{${USLOT[e]}} = ${tn(value, 3)}`;
+    const trayU = upTo => BP.u0.map((initial, e) => {
+      const updated = (e < 2 && upTo >= 3) || (e >= 2 && upTo >= 5);
+      return card(uLabel(e, updated ? BP.u1[e] : initial), updated ? "state-card updated-card" : "state-card", `u${e}`);
+    }).join("");
+    const xLabel = (i, value, iter, digits = 3) => R`x^{(${iter})}_${i + 1} = ${tn(value, digits)}`;
+    const trayX0 = () => OBJ.x0.map((v, i) => card(xLabel(i, v, 0), "state-card", `x${i}`)).join("");
+    const trayX1 = () => LB.x1.map((v, i) => card(xLabel(i, v, 1), "state-card", `x${i}`)).join("");
+    const pairCard = () => card(R`\mathbf{s}^{(0)},\mathbf{y}^{(0)}\ \text{kept for the next update}`, "state-card pair-card", "pair");
+    const gCard = (a, j) => {
+      const name = a === 0 ? "A" : "B", bit = (a === 0 ? [1, 2] : [2, 3])[j];
+      return card(R`g_{${name},${bit}} = ${tn(OBJ.g[name][j], 3)}`, "scratch-card", `g${name}${j}`);
+    };
+    const trayG = upTo => (upTo >= 3 ? gCard(0, 0) + gCard(0, 1) : "") + (upTo >= 5 ? gCard(1, 0) + gCard(1, 1) : "");
+    const lChips = () => BP.L.map((v, i) => chip(bg, below(i), R`L_${i + 1} = ${tn(v, 3)}`, "value"));
+    const xChips = values => values.map((v, i) => chip(gg, below(i), R`x_${i + 1} = ${tn(v, 3)}`, "value"));
+    const uChips = values => values.map((v, e) => chip(bg, edgePoint(e, SLOT_T[e]), uLabel(e, v)));
+    const qLabel = (e, iter) => R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}} = ${tn((iter === 2 ? BP.q2 : BP.q1)[e], 3)}`;
+    // Q_{i→a} = L_i + U_{b→i} from the bit's other check (edges 1 and 2 share bit 2).
+    const qChain = (t, e, iter) => {
+      const { i } = EDGES[e];
+      const other = e === 1 ? 2 : e === 2 ? 1 : null;
+      const u = iter === 2 ? BP.u1 : BP.u0, q = iter === 2 ? BP.q2 : BP.q1;
+      const lhs = R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}}`;
+      if (other === null) return chain(B, t, lhs, [M(`L_${i + 1}`)], [M(tn(BP.L[i]))], null);
+      return chain(B, t, lhs, [M(`L_${i + 1}`), " + ", M(R`U^{(${iter - 1})}_{${USLOT[other]}}`)],
+        [M(tp(BP.L[i])), " + ", M(tp(u[other]))], tn(q[e]));
+    };
+    // U_{a→i} = Q_{j→a}: each two-bit check returns the other incoming message.
+    const uChain = (t, e) => {
+      const from = [1, 0, 3, 2][e];
+      return chain(B, t, R`U^{(1)}_{${USLOT[e]}}`, [M(R`Q^{(1)}_{${QSLOT[from]}}`)], [M(tn(BP.q1[from]))], null);
+    };
+    const rChain = (t, a) => {
+      const name = a === 0 ? "A" : "B", [i, j] = a === 0 ? [0, 1] : [1, 2];
+      return chain(G, t, `r_${name}`, ["1 - ", M(`x_${i + 1}`), M(`x_${j + 1}`)],
+        ["1 - (", M(tn(OBJ.x0[i], 6, false)), ")(", M(tn(OBJ.x0[j], 6, false)), ")"], tn(OBJ.residual[name], 6, false));
+    };
+    const gChain = (t, a, j) => {
+      const name = a === 0 ? "A" : "B", bits = a === 0 ? [0, 1] : [1, 2], self = bits[j], other = bits[1 - j];
+      return chain(G, t, R`g_{${name},${self + 1}}`,
+        ["-", M(R`\tfrac{2w_{\mathrm{par}}}{n}`), R`\,`, M(`r_${name}`), R`\,`, M(`x_${other + 1}`)],
+        ["-", M(R`\tfrac{4}{3}`), "(", M(tn(OBJ.residual[name], 6, false)), ")(", M(tn(OBJ.x0[other], 6, false)), ")"],
+        tn(OBJ.g[name][j]));
+    };
+    const rChip = a => chip(gg, [CX[a] + (a === 0 ? -89 : 89), CY], R`r_${a === 0 ? "A" : "B"} = ${tn(OBJ.residual[a === 0 ? "A" : "B"], 3, false)}`);
+    let bpTray = "", lbfgsTray = "";
+
+    if (k === 0) {
+      const lc = lChips();
+      bpTray = BP.L.map((v, i) => card(R`L_${i + 1} = ${tn(v, 3)}`, "state-card fixed-card", `L${i}`)).join("");
+      const c = chain(B, 300, R`\mathbf{L}`, vecParts(["L_1", "L_2", "L_3"]), vecParts(BP.L.map(v => tn(v))), null);
+      lc.forEach((node, i) => ev.push(show(node, c.lands[i], 450), blink(node, c.lands[i]),
+        show(bpCard(`L${i}`), c.lands[i], 450), blink(bpCard(`L${i}`), c.lands[i])));
+      hover(bg, ev, c.next, F.q);
+
+      const xc = xChips(OBJ.x0);
+      lbfgsTray = trayX0();
+      const jd = derivation(gg, ev, 300, J_INTRO);
+      const g1 = chain(G, 300, R`\boldsymbol{\ell}`, [R`-\mathbf{L}`], null, vecT(OBJ.ell));
+      const g2 = chain(G, g1.next, R`\mathbf{x}^{(0)}`, [R`\tanh\left(\boldsymbol{\ell}/2\right)`], null, vecParts(OBJ.x0.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(node, g2.comps[i], 450), blink(node, g2.comps[i]),
+        show(lbfgsCard(`x${i}`), g2.comps[i], 450), blink(lbfgsCard(`x${i}`), g2.comps[i])));
+      ev.push(blink(jd.part("hC"), g1.done));
+      sync.x0 = g2.done; sync.readout = g2.done;
+    } else if (k === 1) {
+      lChips();
+      bpTray = trayU(1);
+      const uc = uChips(BP.u0);
+      const c = chain(B, 300, R`\mathbf{U}^{(0)}`, vecParts(USLOT.map(s => R`U_{${s}}`)), vecParts(BP.u0.map(v => tn(v))), null);
+      uc.forEach((node, e) => ev.push(show(node, c.lands[e], 450), blink(node, c.lands[e]), blink(bpCard(`u${e}`), c.lands[e])));
+      prose(B, c.next, "four slots are indexed by check and bit");
+
+      const xc = xChips(OBJ.x0);
+      lbfgsTray = trayX0();
+      derivation(gg, ev, 300, J_WRITE);
+      const g = chain(G, 300, R`\mathbf{x}^{(0)}`, vecParts(["x_1", "x_2", "x_3"]), vecParts(OBJ.x0.map(v => tn(v))), null);
+      xc.forEach((node, i) => ev.push(blink(node, g.lands[i]), blink(lbfgsCard(`x${i}`), g.lands[i])));
+      prose(G, g.next, "retained state: one independently updated scalar per bit");
+    } else if (k === 2 || k === 4) {
+      const a = k === 2 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
+      const lc = lChips();
+      bpTray = trayU(k);
+      const qh = hover(bg, ev, 300, F.q);
+      let t = 300;
+      edges.forEach(e => {
+        const c = qChain(t, e, 1);
+        ev.push(blink(lc[EDGES[e].i], c.subs[0]), blink(qh.part("hL"), c.subs[0]));
+        if (c.subs.length > 1) ev.push(blink(qh.part("hU"), c.subs[1]));
+        message(bg, e, "up", qLabel(e, 1), c.done, ev);
+        t = c.next;
+      });
+
+      const xc = xChips(OBJ.x0);
+      lbfgsTray = trayX0() + trayG(k);
+      const rd = derivation(gg, ev, 300, rSteps(a).slice(a === 0 ? 0 : 1));
+      const r = rChain(rd.done + 600, a);
+      r.subs.forEach(at => ev.push(blink(rd.part("hP"), at)));
+      edges.forEach((e, j) => {
+        ev.push(show(guide(gg, e), r.t));
+        const bit = EDGES[e].i;
+        const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_${bit + 1} = ${tn(OBJ.x0[bit], 3)}`);
+        ev.push(show(read, r.subs[j], 450), blink(read, r.subs[j]), blink(xc[bit], r.subs[j]));
+      });
+      const rc = rChip(a);
+      ev.push(show(rc, r.done, 450), blink(rc, r.done));
+      prose(G, r.next, a === 0 ? "A reads the frozen $x_1$ and $x_2$" : "B reads the same frozen $x_2$ and $x_3$");
+      sync.edges = rd.done;
+    } else if (k === 3 || k === 5) {
+      const a = k === 3 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
+      lChips();
+      bpTray = trayU(k - 1);
+      const ah = hover(bg, ev, 300, "", NOTES.agree);
+      let t = 300;
+      edges.forEach(e => {
+        const c = uChain(t, e);
+        ev.push(blink(ah.card, c.subs[0]));
+        const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
+        ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
+        t = c.next;
+      });
+
+      const xc = xChips(OBJ.x0);
+      lbfgsTray = trayX0() + trayG(k);
+      const rc = rChip(a);
+      const lbfgs = derivation(gg, ev, 300, a === 0 ? G_A : G_B);
+      t = lbfgs.done + 600;
+      [0, 1].forEach(j => {
+        const g = gChain(t, a, j);
+        ev.push(blink(lbfgs.part("hW"), g.subs[0]), blink(lbfgs.part("hR"), g.subs[1]), blink(lbfgs.part("hP"), g.subs[2]));
+        const bits = a === 0 ? [0, 1] : [1, 2];
+        ev.push(blink(rc, g.subs[1]), blink(xc[bits[1 - j]], g.subs[2]));
+        const name = a === 0 ? "A" : "B";
+        const term = chip(gg, edgePoint(edges[j], SLOT_T[edges[j]]), R`g_{${name},${bits[j] + 1}} = ${tn(OBJ.g[name][j], 3)}`);
+        ev.push(show(term, g.done, 450), blink(term, g.done), show(lbfgsCard(`g${name}${j}`), g.done, 450), blink(lbfgsCard(`g${name}${j}`), g.done));
+        t = g.next;
+      });
+    } else if (k === 6) {
+      const lc = lChips();
+      bpTray = trayU(5);
+      const uc = uChips(BP.u1);
+      const lh = hover(bg, ev, 300, F.lam);
+      const c = chain(B, 900, R`\Lambda^{(1)}_2`,
+        [M("L_2"), " + ", M(R`U^{(1)}_{A\to 2}`), " + ", M(R`U^{(1)}_{B\to 2}`)],
+        [M(tp(BP.L[1])), " + ", M(tp(BP.u1[1])), " + ", M(tp(BP.u1[2]))], tn(BP.posterior1[1]), { aligned: true });
+      ev.push(blink(lc[1], c.subs[0]), blink(uc[1], c.subs[1]), blink(uc[2], c.subs[2]));
+      ev.push(blink(lh.part("hL"), c.subs[0]), blink(lh.part("hU"), c.subs[1]), blink(lh.part("hU"), c.subs[2]));
+      const lam = BP.posterior1.map((v, i) => chip(bg, below(i, 1), R`\Lambda^{(1)}_${i + 1} = ${tn(v, 3)}`, "value"));
+      ev.push(show(lam[1], c.done, 450), blink(lam[1], c.done));
+      const vec = chain(B, c.next, R`\boldsymbol{\Lambda}^{(1)}`, null, null, vecParts(BP.posterior1.map(v => tn(v))));
+      [0, 2].forEach(i => ev.push(show(lam[i], vec.comps[i], 450), blink(lam[i], vec.comps[i])));
+      ev.push(blink(lam[1], vec.comps[1]));
+
+      const xc = xChips(OBJ.x0);
+      lbfgsTray = trayX0() + card(R`\nabla J = ${vecT(OBJ.gradient, 3)}`, "scratch-card", "grad");
+      const kd = derivation(gg, ev, 300, GRAD2);
+      const t0 = kd.done + 600;
+      const terms = [
+        chip(gg, edgePoint(1, SLOT_T[1]), R`g_{A,2} = ${tn(OBJ.g.A[1], 3)}`),
+        chip(gg, edgePoint(2, SLOT_T[2]), R`g_{B,2} = ${tn(OBJ.g.B[0], 3)}`),
+        chip(gg, [200, PY], R`\text{channel } ${tn(OBJ.channel_partial[1], 3)}`),
+        chip(gg, [420, PY], R`\text{binary } ${tn(OBJ.binary_partial[1], 3)}`)
+      ];
+      const grad = chain(G, t0, R`\frac{\partial J}{\partial x_2}`,
+        [M(R`g_{A,2}`), " + ", M(R`g_{B,2}`), " ", M(R`-\tfrac{w_{\mathrm{ch}}}{2n}\ell_2`), " + ", M(R`\tfrac{4w_{\mathrm{bin}}}{n}x_2\left(x_2^2-1\right)`)],
+        sumParts([OBJ.g.A[1], OBJ.g.B[0], OBJ.channel_partial[1], OBJ.binary_partial[1]]),
+        tn(OBJ.gradient[1]), { aligned: true });
+      terms.forEach((node, j) => ev.push(show(node, t0), blink(node, grad.subs[j]), hide(node, grad.done + 900)));
+      ev.push(blink(kd.part("hPar"), grad.subs[0]), blink(kd.part("hPar"), grad.subs[1]), blink(kd.part("hC"), grad.subs[2]), blink(kd.part("hB"), grad.subs[3]));
+      const sum = chip(gg, below(1, 1), R`\partial J/\partial x_2 = ${tn(OBJ.gradient[1], 3)}`);
+      ev.push(show(sum, grad.done, 450), blink(sum, grad.done), show(lbfgsCard("grad"), grad.done, 450), blink(lbfgsCard("grad"), grad.done));
+      const d = chain(G, grad.next, R`\mathbf{d}^{(0)}`, [R`-\mathbf{H}_0\nabla J(\mathbf{x}^{(0)}) = -\nabla J(\mathbf{x}^{(0)})`], null, vecParts(LB.d0.map(v => tn(v))));
+      ev.push(blink(rule("first"), d.t), blink(upd("pH"), d.t), blink(upd("pG"), d.t + 600));
+      const ls = chain(G, d.next, R`J\bigl(\Pi(\mathbf{x}^{(0)}+1\cdot\mathbf{d}^{(0)})\bigr)`, null, null,
+        R`${tn(LB.loss1, 6, false)} < ${tn(OBJ.loss_before, 6, false)} = J(\mathbf{x}^{(0)}) \;\Rightarrow\; \alpha_0 = ${LB.alpha0}`);
+      ev.push(blink(rule("step"), ls.t));
+      const up = chain(G, ls.next, R`x^{(1)}_2`,
+        [R`\Pi\bigl(`, M(R`x^{(0)}_2`), " + ", M(R`\alpha_0`), R`\,`, M(R`d^{(0)}_2`), R`\bigr)`],
+        [R`\Pi\bigl(`, M(tn(OBJ.x0[1], 6, false)), " + ", M(String(LB.alpha0)), R`\cdot`, M(tn(LB.d0[1], 6, false)), R`\bigr)`],
+        tn(LB.x1[1]));
+      ev.push(blink(xc[1], up.subs[0]), blink(upd("pX"), up.subs[0]), blink(upd("pE"), up.subs[1]), blink(upd("pD"), up.subs[2]));
+      xc.forEach((node, i) => {
+        ev.push(morph(node, up.done, 1200, p => tex(R`x_${i + 1} = ${tn(lerp(OBJ.x0[i], LB.x1[i], p), 3)}`)), blink(node, up.done + 1200));
+        ev.push(morph(lbfgsCard(`x${i}`), up.done, 1200, p => tex(p === 0 ? xLabel(i, OBJ.x0[i], 0) : xLabel(i, lerp(OBJ.x0[i], LB.x1[i], p), 1))),
+          blink(lbfgsCard(`x${i}`), up.done + 1200));
+      });
+      sync.arrow = d.done; sync.step = up.done; sync.readout = up.done;
+    } else if (k === 7) {
+      lChips();
+      bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
+      const uc = uChips(BP.u1);
+      hover(bg, ev, 300, "", NOTES.boundary);
+      const c = chain(B, 300, R`\mathbf{U}^{(1)}`, null, null, vecParts(BP.u1.map(v => tn(v))));
+      uc.forEach((node, e) => {
+        const p = edgePoint(e, SLOT_T[e]);
+        ev.push(show(tickMark(bg, p[0], p[1] - 25), c.comps[e], 450), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
+      });
+      const p1 = prose(B, c.next, R`next variable phase reads $\mathbf{L}$ and $\mathbf{U}^{(1)}$`);
+      const p2 = prose(B, p1.next, R`$Q^{(2)}$ is then recomputed for each recipient check`);
+      ev.push(show(bpCard("faded"), p2.done, 600));
+
+      const xc = xChips(LB.x1);
+      lbfgsTray = trayX1() + pairCard() + `<span class="faded-card" data-card="faded"><span>${mixed(R`$r$, $g$, $\nabla J$ and $\mathbf{d}$ are recomputed`)}</span></span>`;
+      hover(gg, ev, 300, "", NOTES.recompute);
+      const g = chain(G, 300, R`\text{carried: }\mathbf{x}^{(1)}`, null, null, vecParts(LB.x1.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(tickMark(gg, PX[i] + 24, PY - 26), g.comps[i], 450), blink(node, g.comps[i]), blink(lbfgsCard(`x${i}`), g.comps[i])));
+      const s = chain(G, g.next, R`\mathbf{s}^{(0)}`, [R`\mathbf{x}^{(1)}-\mathbf{x}^{(0)}`], null, vecParts(LB.s0.map(v => tn(v))));
+      const y = chain(G, s.next, R`\mathbf{y}^{(0)}`, [R`\nabla J(\mathbf{x}^{(1)})-\nabla J(\mathbf{x}^{(0)})`], null, vecParts(LB.y0.map(v => tn(v))));
+      ev.push(show(lbfgsCard("pair"), y.done, 600), blink(lbfgsCard("pair"), y.done + 600), blink(rule("memory"), y.done));
+      const p3 = prose(G, y.next, R`check terms are recalculated from $\mathbf{x}^{(1)}$; the pair is kept`);
+      ev.push(show(lbfgsCard("faded"), Math.max(p2.done, p3.done), 600));
+      sync.x1 = g.done; sync.s = s.done;
+    } else {
+      const animate = k === 8;
+      const lc = lChips();
+      bpTray = BP.q2.map((v, e) => card(qLabel(e, 2), "state-card q-card", `q${e}`)).join("");
+      const xc = xChips(LB.x1);
+      lbfgsTray = trayX1() + pairCard();
+      [1, 2].forEach(e => { const line = guide(gg, e); if (animate) ev.push(show(line, 300)); });
+      const qh = hover(bg, ev, 300, F.q);
+      const gh = hover(gg, ev, 300, animate ? F.r : jGeneral());
+      if (animate) {
+        [0, 3].forEach(e => {
+          const m = message(bg, e, "up", qLabel(e, 2), 300, ev, "", SLOT_T[e]);
+          ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
+        });
+        let t = 1200, last = 0;
+        [1, 2].forEach((e, j) => {
+          const c = qChain(t, e, 2);
+          ev.push(blink(lc[1], c.subs[0]), blink(qh.part("hL"), c.subs[0]), blink(qh.part("hU"), c.subs[1]));
+          const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
+          ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
+          const r = chain(G, c.done - TIME.sub, R`\text{${j === 0 ? "A" : "B"} reads } x^{(1)}_2`, null, null, tn(LB.x1[1]));
+          const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`);
+          ev.push(show(read, r.done, 450), blink(read, r.done), blink(xc[1], r.done), blink(gh.part("hP"), r.done));
+          t = c.next; last = m.land;
+        });
+        const ne = chip(bg, [310, CY + 16], R`\neq`, "sign"), eq = chip(gg, [310, CY + 16], "=", "sign");
+        ev.push(show(ne, last + 300, 500), blink(ne, last + 300), show(eq, last + 300, 500), blink(eq, last + 300));
+        prose(G, last + 1200, R`$\mathbf{d}^{(1)}$ will use $\nabla J(\mathbf{x}^{(1)})$, $\mathbf{s}^{(0)}$, and $\mathbf{y}^{(0)}$`);
+        sync.start = 1200;
+      } else {
+        [0, 1, 2, 3].forEach(e => message(bg, e, "up", qLabel(e, 2), 0, null, e === 1 || e === 2 ? "hot" : "", SLOT_T[e]));
+        [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`));
+        chip(bg, [310, CY + 16], R`\neq`, "sign");
+        chip(gg, [310, CY + 16], "=", "sign");
+        const p1 = prose(B, 300, R`$Q_{i\to a}$ excludes the preceding $U$ from recipient $a$`);
+        prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
+        const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{a\in N(i)} g_{a,i} + \text{channel term} + \text{binary term}`);
+        prose(G, f.next, R`L-BFGS turns $\nabla J$ and earlier $\mathbf{s},\mathbf{y}$ values into one direction for one $\mathbf{x}$`);
+        sync.start = 900;
+      }
+    }
+
+    $("bp-state").innerHTML = bpTray;
+    $("lbfgs-state").innerHTML = lbfgsTray;
+    polyBeat(k, ev, sync);
+    const events = commit(B).concat(commit(G), ev);
+    const end = events.reduce((m, e) => Math.max(m, e.at + e.dur), 0);
+    return { events, end };
+  }
+
+  function render() {
+    const beat = BEATS[current];
+    $("beat-readout").textContent = `Beat ${current + 1} of ${BEATS.length}`;
+    $("beat-subtitle").innerHTML = mixed(beat.subtitle);
+    $("bp-explain").innerHTML = mixed(BP_EXPLAIN[current]);
+    $("lbfgs-explain").innerHTML = mixed(LBFGS_EXPLAIN[current]);
+    const { events, end } = script(current);
+    startTimeline(events, Math.max(9000, end + TIME.hold));
+    document.querySelectorAll(".dot").forEach((dot, index) => {
+      dot.classList.toggle("past", index < current);
+      dot.classList.toggle("now", index === current);
+      dot.setAttribute("aria-current", index === current ? "step" : "false");
+    });
+    updatePlay();
+    if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
+  }
+  function updatePlay() { $("play").textContent = playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
+  // On wide windows the whole page is one 1920 x 1000 screen scaled to fit; narrow windows scroll.
+  function fit() {
+    const deck = $("deck"), w = window.innerWidth, h = window.innerHeight;
+    const on = w >= 1100 && h >= 560 && w / h >= 1.35;
+    document.documentElement.classList.toggle("fit", on);
+    if (!on) { deck.style.transform = ""; return; }
+    const s = Math.min(w / DECK_W, h / DECK_H);
+    deck.style.transform = `translate(${(w - DECK_W * s) / 2}px, ${(h - DECK_H * s) / 2}px) scale(${s})`;
+  }
+  function advance() {
+    if (current >= BEATS.length - 1) { playing = false; updatePlay(); return; }
+    current += 1;
+    render();
+  }
+  function play() {
+    if (playing) { playing = false; frozen = true; updatePlay(); return; }
+    playing = true;
+    if (frozen) { frozen = false; updatePlay(); wake(); return; }
+    if (clock.t >= clock.length) {
+      if (current >= BEATS.length - 1) current = 0; else current += 1;
+      render();
+    }
+    updatePlay();
+    wake();
+  }
+  function goTo(index) {
+    playing = false; frozen = false;
+    current = Math.max(0, Math.min(BEATS.length - 1, Number(index)));
+    render();
+  }
+
+  fit();
+  document.querySelectorAll(".tex").forEach(node => { node.innerHTML = tex(node.textContent.trim(), node.classList.contains("display")); });
+  $("update-card").innerHTML = tex(UPDATE_TEX, true);
+  $("rules").innerHTML = RULES.map(([key, name, text]) => `<li data-rule="${key}"><b>${name}</b>${mixed(text)}</li>`).join("");
+  const timeline = $("timeline");
+  BEATS.forEach((beat, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button"; dot.className = "dot"; dot.title = `Beat ${index + 1}: ${plain(beat.subtitle)}`;
+    dot.setAttribute("aria-label", dot.title);
+    dot.addEventListener("click", () => goTo(index));
+    timeline.appendChild(dot);
+  });
+  $("play").addEventListener("click", play);
+  $("back").addEventListener("click", () => goTo(current - 1));
+  $("next").addEventListener("click", () => goTo(current + 1));
+  $("restart").addEventListener("click", () => goTo(0));
+  $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
+  window.addEventListener("resize", fit);
+  document.addEventListener("keydown", event => {
+    if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
+    if (event.key === " ") { event.preventDefault(); play(); }
+    if (event.key === "ArrowRight") { event.preventDefault(); goTo(current + 1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); goTo(current - 1); }
+    if (event.key === "Home") { event.preventDefault(); goTo(0); }
+  });
+  const match = /^#beat=(\d+)$/.exec(location.hash);
+  if (match) current = Math.max(0, Math.min(BEATS.length - 1, Number(match[1]) - 1));
+
+  window.BP_LBFGS_STATE_ANIMATION = {
+    data: DATA, beats: BEATS.slice(),
+    getBeat: () => current,
+    setBeat: index => goTo(index),
+    length: () => clock.length,
+    seek
+  };
+  render();
+  const seekTo = /[?&]at=(\d+)/.exec(location.search);
+  if (seekTo && !smoke) seek(seekTo[1]);
+  document.documentElement.dataset.animationReady = "true";
+  if (smoke) {
+    try {
+      const snapshots = document.createElement("section");
+      snapshots.id = "animation-smoke-snapshots";
+      snapshots.hidden = true;
+      const saveSnapshot = (id, sourceId) => {
+        const snapshot = document.createElement("p");
+        snapshot.id = id;
+        snapshot.textContent = visibleText($(sourceId));
+        snapshots.appendChild(snapshot);
+      };
+      const overflow = [];
+      for (let k = 0; k < BEATS.length; k += 1) {
+        current = k; render();
+        if (!$("beat-subtitle").textContent || !$("bp-math").textContent || !$("lbfgs-math").textContent || !$("poly-readout").textContent) throw new Error(`empty beat ${k + 1}`);
+        if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
+        if (k === 6) saveSnapshot("smoke-beat7-lbfgs-math", "lbfgs-math");
+        if (k === 6) saveSnapshot("smoke-beat7-bp-math", "bp-math");
+        if (k === 7) saveSnapshot("smoke-beat8-lbfgs-math", "lbfgs-math");
+        if (k === 8) {
+          saveSnapshot("smoke-beat9-bp-math", "bp-math");
+          saveSnapshot("smoke-beat9-lbfgs-math", "lbfgs-math");
+          saveSnapshot("smoke-beat9-poly", "poly-readout");
+          if (!$("bp-chips").querySelector(".sign") || !$("lbfgs-chips").querySelector(".sign")) throw new Error("iteration-2 contrast signs missing");
+        }
+        if (k === 9) saveSnapshot("smoke-beat10-poly", "poly-readout");
+        if (document.documentElement.classList.contains("fit")) {
+          document.querySelectorAll(".deck, .lanes, .lane, .poly, .math, .clock, .readout, .poly-readout").forEach(node => {
+            if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`beat ${k + 1}: ${node.className || node.id}`);
+          });
+          // a floating card may cover the checks, but never the bits or their values
+          document.querySelectorAll(".graph-wrap").forEach(wrap => {
+            const limit = wrap.getBoundingClientRect().top + wrap.getBoundingClientRect().height * (PY - BIT_R) / VH;
+            wrap.querySelectorAll(".hover").forEach(cardNode => {
+              if (cardNode.style.opacity !== "0" && cardNode.getBoundingClientRect().bottom > limit + 1) overflow.push(`beat ${k + 1}: floating card covers the bits`);
+            });
+          });
+        }
+      }
+      document.documentElement.dataset.layoutOverflow = overflow.length ? overflow.join("; ") : (document.documentElement.classList.contains("fit") ? "none" : "not-fit");
+      document.body.appendChild(snapshots);
+      current = 0; render();
+      document.documentElement.dataset.animationSmoke = "passed";
+      document.documentElement.dataset.animationSmokeBeats = String(BEATS.length);
+    } catch (error) {
+      document.documentElement.dataset.animationSmoke = `failed: ${error.message}`;
+    }
+  } else if (!reduced && !match && !seekTo && window.innerWidth > 930) {
+    setTimeout(() => { if (!playing && !frozen && current === 0) play(); }, 900);
+  }
+})();
+</script>
+</body>
+</html>
