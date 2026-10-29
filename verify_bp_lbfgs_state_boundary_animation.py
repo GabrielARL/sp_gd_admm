@@ -439,6 +439,26 @@ def check_wording_and_structure(html: str) -> None:
         "tour-guide",
         "it grows as a product moves away from $+1$",
         "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
+        "Carried from Beat 3",
+        "A is joined to two bits in both panels; the retained state differs",
+        "retained by edge",
+        "retained by bit",
+        "temporary this update",
+        "dashed = input dependence; solid teal = g-to-bit pairing; neither is message motion",
+        "Two check-to-variable messages, one along each edge from A.",
+        "Two g terms, one for each bit joined to A.",
+        "derivative-contribution",
+        'q.line.dataset.handoff = "bp-q"',
+        'read.dataset.handoff = "lbfgs-x-read"',
+        'readout.dataset.handoff = "beat3-poly-readout"',
+        "beat4HandoffMatches",
+        "beat4ParallelMatches",
+        "graphToBoxBridgeMatches",
+        "frozenAccumulationMatches",
+        "beat7CausalMatches",
+        "the three scalars become the coordinates of one point",
+        "it does not replace the Tanner graph",
+        "First assemble $\\nabla J(\\mathbf{x}^{(0)})$, then form $\\mathbf{d}^{(0)}$; movement waits.",
     )
     lowered = html.lower()
     for phrase in required:
@@ -539,6 +559,11 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "visibility",
         "next-beat-label",
         "beat",
+        "handoff",
+        "parallel",
+        "bridge",
+        "frozen",
+        "causal",
         "finish",
     )
     for window_size in ("1910,940", "800,700"):
@@ -575,6 +600,10 @@ def browser_smoke(data: dict[str, Any]) -> str:
         smoke_dom,
         "smoke-beat3-bp-explain",
         "smoke-beat3-bp-hover",
+        "smoke-beat4-bp-state",
+        "smoke-beat4-lbfgs-state",
+        "smoke-beat4-bp-hover",
+        "smoke-beat4-lbfgs-hover",
         "smoke-beat7-bp-math",
         "smoke-beat7-lbfgs-math",
         "smoke-beat8-lbfgs-math",
@@ -597,6 +626,31 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "rendered recipient-exclusion formula note",
     )
     assert_in_order(
+        snapshots["smoke-beat4-bp-state"],
+        ["retained by edge", signed_fixed(bp["u1"][0], 3), signed_fixed(bp["u1"][1], 3), "UB→2=0", "UB→3=0"],
+        "rendered Beat-4 BP retained edge state",
+    )
+    assert_in_order(
+        snapshots["smoke-beat4-lbfgs-state"],
+        [
+            "retained by bit",
+            *[signed_fixed(value, 3) for value in obj["x0"]],
+            "temporary this update",
+            *[signed_fixed(value, 3) for value in obj["g"]["A"]],
+        ],
+        "rendered Beat-4 retained x and temporary g terms",
+    )
+    assert_in_order(
+        snapshots["smoke-beat4-bp-hover"],
+        ["Two check-to-variable messages", "one along each edge from A", "Both remain in the U slots above"],
+        "rendered Beat-4 BP fan-out conclusion",
+    )
+    assert_in_order(
+        snapshots["smoke-beat4-lbfgs-hover"],
+        ["Two g terms", "one for each bit joined to A", "They are temporary", "x remains in retained state"],
+        "rendered Beat-4 L-BFGS fan-out conclusion",
+    )
+    assert_in_order(
         snapshots["smoke-beat7-bp-math"],
         [signed_fixed(value) for value in bp["posterior1"]],
         "rendered BP posterior",
@@ -617,21 +671,14 @@ def browser_smoke(data: dict[str, Any]) -> str:
     for _alpha, trial_loss in lb["trials0"]:
         assert f"{trial_loss:.6f}" in beat7_lbfgs_math, "a first line-search trial loss is not rendered"
     assert f"{obj['loss_before']:.6f}" in beat7_lbfgs_math, "J(x0) is not rendered with the line-search trials"
-    (alpha1, loss1), (alpha2, loss2), (alpha3, loss3) = lb["trials0"]
-    assert_in_order(
-        beat7_lbfgs_math,
-        [
-            f"Jα={alpha1:g}={loss1:.6f}>J0",
-            f"Jα={alpha2:g}={loss2:.6f}>J0",
-            f"Jα={alpha3:g}={loss3:.6f}<J0={obj['loss_before']:.6f}",
-            f"⇒α0={lb['alpha0']:g}",
-        ],
-        "rendered first line-search trial labels and decisions",
-    )
+    (alpha1, _loss1), (alpha2, _loss2), (alpha3, _loss3) = lb["trials0"]
+    for alpha in (alpha1, alpha2, alpha3):
+        assert f"Jα={alpha:g}" in beat7_lbfgs_math, f"line-search trial α={alpha:g} is not labelled"
     assert beat7_lbfgs_math.count(">") >= 2 and beat7_lbfgs_math.count("<") >= 1, (
         "the first line-search card does not visibly distinguish two rejected trials from the accepted trial"
     )
-    assert "⇒α0" in beat7_lbfgs_math, "the accepted first line-search step is not visibly identified"
+    assert beat7_lbfgs_math.count("reject") == 2, "the two rejected first-step trials are not labelled"
+    assert f"accept: α0={lb['alpha0']:g}" in beat7_lbfgs_math, "the accepted first line-search step is not visibly identified"
     assert_in_order(
         snapshots["smoke-beat8-lbfgs-math"],
         [signed_fixed(value) for value in lb["x1"] + lb["s0"] + lb["y0"]],

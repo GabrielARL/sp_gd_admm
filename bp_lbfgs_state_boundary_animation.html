@@ -80,7 +80,13 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .lane h2, .poly h2 { margin: 0; color: var(--accent); font: 700 24px/1.2 var(--serif); }
 .kind { display: block; margin-top: 2px; color: var(--muted); font: 13px/1.35 var(--sans); }
 .state-tray { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 42px; padding: 5px 8px; background: var(--tint); border-radius: 8px; }
-.state-tray::before { content: "STATE TRAY"; margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+.state-tray::before { content: attr(data-label); margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+.state-tray.parallel { min-height: 62px; gap: 5px; }
+.tray-group { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; padding: 3px 5px; border-radius: 7px; }
+.tray-group.retained { background: rgb(255 255 255 / 78%); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.tray-group.temporary { background: color-mix(in srgb, var(--soft) 78%, #fff); border: 1px dashed var(--accent); }
+.tray-group.temporary.spent { opacity: .42; filter: saturate(.45); }
+.tray-group-label { max-width: 62px; color: var(--muted); font: 800 9px/1.1 var(--sans); letter-spacing: .05em; text-transform: uppercase; }
 .state-card, .scratch-card, .faded-card { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 9px; border-radius: 6px; font: 15px/1.2 var(--serif); }
 .state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.05em; }
 .state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
@@ -99,7 +105,8 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .graph text { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
 .graph .base { stroke: #c5beb2; stroke-width: 3; }
 .graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
-.graph .dependency { stroke: var(--lbfgs); stroke-width: 3; stroke-dasharray: 7 7; fill: none; animation: dash 1.6s linear infinite; }
+.graph .dependency { stroke: var(--lbfgs); stroke-width: 3; stroke-dasharray: 7 7; fill: none; }
+.graph .derivative-contribution { stroke: var(--lbfgs); stroke-width: 4; stroke-linecap: round; fill: none; }
 .graph .message { stroke: var(--bp); stroke-width: 3.5; fill: none; stroke-dasharray: 9 7; animation: dash 1.6s linear infinite; }
 .graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
 .graph .bit.hot, .graph .check.hot { stroke-width: 5; }
@@ -123,6 +130,11 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
 .chip.excluded { color: var(--bad); border-color: var(--bad); background: #fff7f7; }
 .chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
+.handoff-cue {
+  position: absolute; z-index: 3; left: 1.5%; top: 1.5%; padding: .35em .65em;
+  color: var(--muted); background: #fffdf8; border: 1px solid #cfc7ba; border-radius: 999px;
+  font: 700 .72em/1 var(--sans); letter-spacing: .02em; box-shadow: 0 .18em .55em rgb(23 33 38 / 10%);
+}
 /* general formulas float in the band above the Tanner graph while they are in use; a derivation may grow down over the graph */
 .hover-layer { position: absolute; z-index: 2; inset: 0 0 auto; min-height: 24.74%; display: grid; place-items: center; pointer-events: none; font-size: 2.75cqw; }
 .hover {
@@ -165,6 +177,9 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .math .katex { font-size: 1.2em; }
 .math .line.compact .katex { font-size: .98em; }
 .math .outcome { color: var(--accent); }
+.math.first-update { position: relative; font-size: 13.5px; line-height: 1.32; }
+.math.first-update .line { position: absolute; inset: 8px 12px auto; padding-block: 0; }
+.math.first-update .katex { font-size: 1.03em; }
 .flying { position: absolute; z-index: 3; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
 .explain { margin: 0; font-size: 16px; line-height: 1.45; }
 
@@ -175,9 +190,40 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
   background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--lbfgs); border-radius: 12px;
 }
 .poly > * { flex-shrink: 0; }
-.poly-wrap { position: relative; width: 100%; max-width: 348px; margin: 0 auto; container-type: inline-size; }
+.poly-phase {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 7px;
+  min-height: 32px; padding: 3px 7px; color: var(--muted); background: #f8f6f1;
+  border: 1px solid #d8d2c8; border-radius: 8px; font: 11.5px/1.22 var(--sans);
+}
+.poly-phase .phase-badge {
+  align-self: stretch; display: grid; place-items: center; min-width: 62px; padding: 2px 6px;
+  color: #fff; background: var(--lbfgs); border-radius: 6px; font-weight: 900; letter-spacing: .05em;
+}
+.poly-phase[data-stage="frozen"] .phase-badge { background: #6d5b32; }
+.poly-phase[data-stage="gradient"] .phase-badge { background: #486b78; }
+.poly-phase[data-stage="direction"] .phase-badge { background: #245d76; }
+.poly-phase[data-stage="step-size"] .phase-badge { background: #765d24; }
+.poly-phase[data-stage="moving"] .phase-badge { background: var(--flash-ink); }
+.poly-phase .phase-copy { min-width: 0; }
+.poly-phase .phase-copy b { color: var(--ink); }
+.poly-phase .phase-copy .katex { font-size: 1.02em; }
+.poly-wrap {
+  position: relative; width: 100%; max-width: 300px; margin: 0 auto; container-type: inline-size;
+  transition: max-width .55s ease;
+}
+.poly[data-phase="frozen"] .poly-wrap { max-width: 220px; }
+.poly[data-phase="update"] .poly-wrap { max-width: 282px; }
 .cube { display: block; width: 100%; height: auto; }
 .cube text { font-family: var(--sans); }
+.cube .cube-frame { transform-box: view-box; transform-origin: 202px 182px; }
+.cube .representation-bridge .bridge-edge { stroke: #c5beb2; stroke-width: 2.2; }
+.cube .representation-bridge .bridge-check { fill: #dceaf0; stroke: var(--lbfgs); stroke-width: 2.4; }
+.cube .representation-bridge .bridge-bit { fill: #fff; stroke: var(--lbfgs); stroke-width: 2.4; }
+.cube .representation-bridge .bridge-label { fill: var(--ink); font-size: 13px; font-weight: 800; text-anchor: middle; }
+.cube .representation-bridge .bridge-value { fill: var(--lbfgs); font: 700 14px var(--serif); text-anchor: middle; }
+.cube .representation-bridge .bridge-note { fill: var(--muted); font-size: 12px; text-anchor: middle; }
+.cube .representation-bridge .vector-bracket { fill: none; stroke: var(--lbfgs); stroke-width: 2.4; }
+.cube .representation-bridge .coordinate-arrow { stroke: var(--lbfgs); stroke-width: 2.6; fill: none; }
 .cube .cube-edge { stroke: #98a3a1; stroke-width: 1.6; }
 .cube .cube-edge.hidden { stroke-dasharray: 5 5; opacity: .55; }
 .cube .face { fill: var(--lbfgs-soft); opacity: .7; }
@@ -212,7 +258,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .rules b { margin-right: 4px; color: var(--lbfgs); font: 800 12.5px var(--sans); }
 .source-note { margin: auto 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
 
-.chip.blink, .state-card.blink, .scratch-card.blink, .hover.blink, .rules li.blink { animation: flash 1.3s ease-in-out; }
+.chip.blink, .state-card.blink, .scratch-card.blink, .tray-group.blink, .hover.blink, .rules li.blink { animation: flash 1.3s ease-in-out; }
 .chip.travelling { animation: flash .8s ease-in-out infinite; }
 .chip.sign.blink, .math .blink, .hover .blink, .update-card .blink { animation: ink 1.3s ease-in-out; }
 @keyframes flash { 15%, 55% { background-color: var(--flash); box-shadow: 0 0 0 .3em var(--flash-ring); } 35%, 75% { box-shadow: none; } }
@@ -387,7 +433,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     <article class="lane bp" aria-labelledby="bp-heading">
       <button class="zoom-btn" type="button" data-zoom="bp" aria-label="Enlarge the BP panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
-      <div class="state-tray" id="bp-state"></div>
+      <div class="state-tray" id="bp-state" data-label="STATE TRAY"></div>
       <div class="graph-wrap">
         <svg class="graph" id="bp-graph" viewBox="0 0 620 388" role="img" aria-label="Belief-propagation Tanner graph"></svg>
         <div class="chips" id="bp-chips" aria-hidden="true"></div>
@@ -400,7 +446,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     <article class="lane lbfgs" aria-labelledby="lbfgs-heading">
       <button class="zoom-btn" type="button" data-zoom="lbfgs" aria-label="Enlarge the L-BFGS panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="lbfgs-heading">L-BFGS<span class="kind">constructed teaching variant · box projection follows each step · the current <span class="tex">\mathbf{x}</span> has one scalar per bit, and up to ten earlier <span class="tex">\mathbf{s}</span> and <span class="tex">\mathbf{y}</span> vectors also cross iterations · <span class="tex">x_i = +1</span> favours bit 0 · dashed cards are temporary calculations, not messages</span></h2>
-      <div class="state-tray" id="lbfgs-state"></div>
+      <div class="state-tray" id="lbfgs-state" data-label="STATE TRAY"></div>
       <div class="graph-wrap">
         <svg class="graph" id="lbfgs-graph" viewBox="0 0 620 388" role="img" aria-label="Tanner graph showing the dependencies of the L-BFGS gradient terms"></svg>
         <div class="chips" id="lbfgs-chips" aria-hidden="true"></div>
@@ -411,9 +457,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     </article>
   </section>
 
-  <aside class="poly" aria-labelledby="poly-heading">
+  <aside class="poly" id="poly-panel" aria-labelledby="poly-heading">
     <button class="zoom-btn" type="button" data-zoom="poly" aria-label="Enlarge the box panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
     <h2 id="poly-heading">Where L-BFGS moves <span class="tex">\mathbf{x}</span><span class="kind">the box <span class="tex">[-1,1]^3</span>: each corner gives a hard-decision estimate; 000 and 111 are the codewords</span></h2>
+    <div class="poly-phase" id="poly-phase" aria-live="polite"></div>
     <div class="poly-wrap">
       <svg class="cube" id="poly-graph" viewBox="0 0 400 360" role="img" aria-label="The box of relaxed bit vectors with the L-BFGS iterate"></svg>
       <div class="chips" id="poly-chips" aria-hidden="true"></div>
@@ -499,7 +546,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     { subtitle: "Fixed graph and channel evidence; stated L-BFGS objective function" },
     { subtitle: "Four addressed BP slots versus three bit scalars" },
     { subtitle: "Form the two variable-to-check messages addressed to A" },
-    { subtitle: "Addressed BP messages versus derivative terms" },
+    { subtitle: "A is joined to two bits in both panels; the retained state differs" },
     { subtitle: "B touches bits 2 and 3" },
     { subtitle: "Persistent edge values versus temporary calculation cards" },
     { subtitle: "BP recurrence versus one L-BFGS step with box projection" },
@@ -511,7 +558,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     "The fixed LLR vector is expressed with positive values favouring bit 1.",
     "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
     R`Bit 2 is speaking to check A. It combines its channel LLR $L_2$ with the check-to-variable message from its other neighboring check, B, and leaves out A’s preceding check-to-variable message. Here $U^{(0)}_{B\to 2}=0$, so $Q^{(1)}_{2\to A}=L_2=${tn(BP.L[1])}$.`,
-    "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
+    "Check A sends one check-to-variable message along each of its two edges. The two results remain in their separate U slots above.",
     "B receives the frozen variable-to-check values for bits 2 and 3.",
     R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
     "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
@@ -523,7 +570,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     R`The objective function $J$ has two terms, introduced one at a time above the graph. $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ starts from the channel evidence.`,
     R`With BPSK modulation in an AWGN channel, the negative log-likelihood on $x_i\in\{-1,+1\}$ equals $-\tfrac12\sum_i\ell_i x_i$ plus a constant. This teaching objective uses that linear expression for relaxed $\mathbf{x}\in[-1,1]^3$.`,
     "A evaluates $r_A=1-x_1x_2$ from the frozen scalar vector. The dashed guide means mathematical dependence, not a traveling message.",
-    "Differentiating with respect to $x_1$ drops every term without $x_1$; the chain rule turns check A’s squared term into $g_{A,1}$. These are temporary calculations for this update.",
+    R`Check A calculates $g_{A,1}$ and $g_{A,2}$, one for each joined bit. They later enter $\partial J/\partial x_1$ and $\partial J/\partial x_2$. The $g$ terms are temporary; $\mathbf{x}$ remains in retained state.`,
     "B reads the same $x_2$ value that A read because there is one retained scalar for bit 2.",
     "B’s terms are also temporary. They will be combined with A’s terms and the channel term by coordinate.",
     R`At bit 2, three contributions sum to $\partial J/\partial x_2$. Before any $\mathbf{s},\mathbf{y}$ values exist, L-BFGS steps along $-\nabla J$; the line search halves $\alpha$ until $J$ decreases and accepts $\alpha_0=${LB.alpha0}$.`,
@@ -611,7 +658,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     events.sort((a, b) => a.at - b.at);
     clock.events = events; clock.t = 0; clock.length = length;
     events.forEach(e => { e.state = 0; if (e.init) e.init(); });
-    if (smoke || (reduced && !zoomed)) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
+    if (smoke) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
     if (playing && !frozen) wake();
   }
   function wake() {
@@ -773,12 +820,13 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       v ? `Substitute the values in $${lhs}$` : `Show $${lhs}$`);
     return out;
   }
-  function formula(L, t, src, className = "") {
+  function formula(L, t, src, className = "", opts = {}) {
     const id = `${L.method}${++L.n}`;
-    L.lines.push(`<span class="line${className ? ` ${className}` : ""}">${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
+    const testId = opts.testId ? ` data-check="${opts.testId}"` : "";
+    L.lines.push(`<span class="line${className ? ` ${className}` : ""}"${testId}>${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
     L.ev.push(show(() => L.root.querySelector(`.${id}a`), t));
     addStop(L.method, t, t + 600, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); }, "Show the formula");
-    return { done: t + 600, next: t + 600 + TIME.gap };
+    return { t, done: t + 600, next: t + 600 + TIME.gap };
   }
   function prose(L, t, text) {
     const id = `${L.method}${++L.n}`;
@@ -786,6 +834,16 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
     addStop(L.method, t, t + 600, () => L.root.querySelector(`[data-line="${id}"]`), "Read the next conclusion");
     return { done: t + 600, next: t + 600 + TIME.gap };
+  }
+  // Seed the next beat with the completed equation or conclusion from the
+  // preceding beat. These are visual handoff results, not added state cards.
+  function handoffFormula(L, src, role) {
+    L.lines.push(`<span class="line" data-handoff="${role}">${tex(src)}</span>`);
+    return () => L.root.querySelector(`[data-handoff="${role}"]`);
+  }
+  function handoffProse(L, text, role) {
+    L.lines.push(`<span class="line prose" data-handoff="${role}">${mixed(text)}</span>`);
+    return () => L.root.querySelector(`[data-handoff="${role}"]`);
   }
   function commit(L) {
     L.root.innerHTML = L.lines.join("");
@@ -839,7 +897,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     if (method === "bp" && (k === 2 || k === 4 || k === 8)) {
       svgEl(nodes, "text", { x: 12, y: VH - 24, class: "small" }, "red crossed U = omit that preceding check-to-variable message; the Tanner-graph edge remains");
     }
-    svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
+    const graphNote = method === "bp"
+      ? "arrowheads and travelling labels show BP message direction"
+      : (k === 3 || k === 5
+        ? "dashed = input dependence; solid teal = g-to-bit pairing; neither is message motion"
+        : "dashed guides = factor dependence, not message motion");
+    svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, graphNote);
     const hoverLayer = $(`${method}-hover`);
     hoverLayer.replaceChildren();
     return { method, svg, layer, flows, nodes, hoverLayer };
@@ -853,9 +916,23 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     G.layer.appendChild(node);
     return node;
   }
+  function handoffCue(G) {
+    const node = document.createElement("span");
+    node.className = "handoff-cue";
+    node.dataset.handoff = `${G.method}-cue`;
+    node.textContent = "Carried from Beat 3";
+    G.layer.appendChild(node);
+    return node;
+  }
   function guide(G, e) {
     const a = edgePoint(e, atBit(e)), b = edgePoint(e, AT_CHECK);
     return svgEl(G.flows, "line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: "dependency" });
+  }
+  function derivativeBranch(G, e) {
+    const start = edgePoint(e, AT_CHECK), end = edgePoint(e, atBit(e));
+    return svgEl(G.flows, "line", {
+      x1: start[0], y1: start[1], x2: end[0], y2: end[1], class: "derivative-contribution"
+    });
   }
   function tickMark(G, x, y) {
     const group = svgEl(G.nodes, "g", { class: "tick" });
@@ -870,7 +947,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const start = edgePoint(e, t0), stop = edgePoint(e, t1);
     const line = svgEl(G.flows, "line", { x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message", "marker-end": `url(#${G.method}-arrow)` });
     const label = chip(G, edgePoint(e, rest), src, cls);
-    if (ev === null) return { label, land: 0 };
+    if (ev === null) return { line, label, land: 0 };
     const hold = t => (t1 > t0 ? Math.min(rest, t) : Math.max(rest, t));
     ev.push({ at, dur: TIME.travel,
       init() { line.style.opacity = "0"; label.style.opacity = "0"; },
@@ -890,7 +967,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       ? R`Send $Q_{${EDGES[e].i + 1}\to ${CHECK[EDGES[e].a]}}$ to check ${CHECK[EDGES[e].a]}`
       : R`Send $U_{${CHECK[EDGES[e].a]}\to ${EDGES[e].i + 1}}$ to bit ${EDGES[e].i + 1}`;
     addStop(G.method, at, at + TIME.travel, () => G.svg.parentNode, address);
-    return { label, land: at + TIME.travel };
+    return { line, label, land: at + TIME.travel };
   }
 
   // A general formula floats above the graph while it is in use; its terms blink as values are substituted.
@@ -1204,8 +1281,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     addMarker(svg, "#087d77", "poly-arrow");
     addMarker(svg, "#b35a00", "poly-arrow-hot");
     const C = { method: "lbfgs", svg, layer, w: CV.w, h: CV.h };
-    C.faces = svgEl(svg, "g"); C.zero = svgEl(svg, "g"); C.edges = svgEl(svg, "g");
-    C.marks = svgEl(svg, "g"); C.paths = svgEl(svg, "g"); C.points = svgEl(svg, "g");
+    C.frame = svgEl(svg, "g", { class: "cube-frame", "data-check": "coordinate-box" });
+    C.faces = svgEl(C.frame, "g"); C.zero = svgEl(C.frame, "g"); C.edges = svgEl(C.frame, "g");
+    C.marks = svgEl(C.frame, "g"); C.paths = svgEl(C.frame, "g"); C.points = svgEl(C.frame, "g");
     const V = [];
     [-1, 1].forEach(a => [-1, 1].forEach(b => [-1, 1].forEach(c => V.push([a, b, c]))));
     const back = V.reduce((m, v) => (dot3(CAM.c, v) < dot3(CAM.c, m) ? v : m));
@@ -1231,6 +1309,59 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       chip(C, [o[0] + d[0] * 1.6 + (i === 2 ? -12 : 4), o[1] + d[1] * 1.6 + (i === 2 ? 6 : 0)], `x_${i + 1}`, "value axis-label");
     });
     return C;
+  }
+  function setPolyPhase(stage, badge, lead, detail = "") {
+    const node = $("poly-phase");
+    node.dataset.stage = stage;
+    node.innerHTML = `<span class="phase-badge">${esc(badge)}</span><span class="phase-copy"><b>${esc(lead)}</b>${detail ? ` ${mixed(detail)}` : ""}</span>`;
+  }
+  function phaseAt(at, stage, badge, lead, detail = "") {
+    return { at, dur: 0, end() { setPolyPhase(stage, badge, lead, detail); } };
+  }
+  // This bridge changes the view of the retained state. The Tanner graph remains
+  // the dependency structure; its three bit scalars become the coordinates of one point.
+  function representationBridge(C) {
+    const group = svgEl(C.svg, "g", { class: "representation-bridge", "data-check": "graph-to-box-bridge" });
+    const structure = svgEl(group, "g", { "data-bridge-part": "graph-structure" });
+    const checks = [[130, 72, "A"], [270, 72, "B"]];
+    const bits = [[70, 180], [200, 180], [330, 180]];
+    [[0, 0], [1, 0], [1, 1], [2, 1]].forEach(([i, a]) => {
+      svgEl(structure, "line", { x1: bits[i][0], y1: bits[i][1], x2: checks[a][0], y2: checks[a][1] + 18, class: "bridge-edge" });
+    });
+    checks.forEach(([x, y, name]) => {
+      svgEl(structure, "rect", { x: x - 22, y: y - 16, width: 44, height: 32, rx: 5, class: "bridge-check" });
+      svgEl(structure, "text", { x, y: y + 5, class: "bridge-label" }, name);
+    });
+    svgEl(structure, "text", { x: 200, y: 28, class: "bridge-note" }, "Tanner graph: one retained scalar at each bit");
+    const valueText = OBJ.x0.map(v => tn(v, 3));
+    const bitGroups = bits.map(([x, y], i) => {
+      const bit = svgEl(group, "g", { transform: `translate(${x} ${y})`, "data-bridge-bit": String(i + 1) });
+      svgEl(bit, "circle", { cx: 0, cy: 0, r: 25, class: "bridge-bit" });
+      svgEl(bit, "text", { x: 0, y: 5, class: "bridge-label" }, `bit ${i + 1}`);
+      svgEl(bit, "text", { x: 0, y: 47, class: "bridge-value" }, `x${i + 1}=${valueText[i].replace("-", "−")}`);
+      return bit;
+    });
+    const vector = svgEl(group, "g", { "data-bridge-part": "coordinate-vector" });
+    svgEl(vector, "path", { d: "M 36 246 h -9 v 67 h 9 M 364 246 h 9 v 67 h -9", class: "vector-bracket" });
+    svgEl(vector, "text", { x: 200, y: 337, class: "bridge-note" }, "the three scalars become the coordinates of one point");
+    const arrow = svgEl(group, "line", { x1: 200, y1: 225, x2: 200, y2: 242, class: "coordinate-arrow", "marker-end": "url(#poly-arrow)" });
+    return { group, structure, bitGroups, vector, arrow, origins: bits, destinations: [[86, 268], [200, 268], [314, 268]] };
+  }
+  function moveSvgGroup(node, from, to, at, dur = 1200) {
+    return { at, dur,
+      apply(p) {
+        const e = ease(p);
+        node.setAttribute("transform", `translate(${lerp(from[0], to[0], e)} ${lerp(from[1], to[1], e)})`);
+      },
+      end() { node.setAttribute("transform", `translate(${to[0]} ${to[1]})`); }
+    };
+  }
+  function unfoldCube(node, at, dur = 1200) {
+    return { at, dur,
+      init() { node.style.opacity = "0"; node.style.transform = "scale(.16)"; },
+      apply(p) { const e = ease(p); node.style.opacity = String(p); node.style.transform = `scale(${lerp(.16, 1, e)})`; },
+      end() { node.style.opacity = ""; node.style.transform = ""; }
+    };
   }
   function zeroEdges(C, which, cls = "") {
     const lines = [];
@@ -1294,12 +1425,52 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   // The box shows the iterate for each beat; times come from the L-BFGS lane so the two stay in step.
   function polyBeat(k, ev, sync) {
     const C = cube();
-    const svgT = () => $("poly-graph"), readT = () => $("poly-readout");
-    if (k === 0) addStop("poly", sync.x0, sync.x0 + 1300, svgT, R`Place $\mathbf{x}^{(0)}$`);
+    const panel = $("poly-panel"), svgT = () => $("poly-graph"), readT = () => $("poly-readout");
+    panel.dataset.phase = k === 0 ? "bridge" : (k >= 3 && k <= 5 ? "frozen" : (k === 6 ? "update" : "state"));
+    ["sourceReadyAt", "bridgeStartAt", "vectorAt", "boxAt", "boxReadyAt"].forEach(key => delete panel.dataset[key]);
+    let bridgeTimes = null;
+    if (k === 0) {
+      const bridge = representationBridge(C);
+      const sourceReady = sync.x0 + 450;
+      const start = sourceReady + 300, collect = start + 1600, unfold = collect + 1900, done = unfold + 1400;
+      bridgeTimes = { start, collect, unfold, done };
+      panel.dataset.sourceReadyAt = String(sourceReady);
+      panel.dataset.bridgeStartAt = String(start);
+      panel.dataset.vectorAt = String(collect);
+      panel.dataset.boxAt = String(unfold);
+      panel.dataset.boxReadyAt = String(done);
+      setPolyPhase("bridge", "GRAPH", "Read the retained bit scalars", "The Tanner graph remains the dependency structure.");
+      ev.push(show(bridge.group, start, 600));
+      ev.push(hide(bridge.structure, collect, 700), show(bridge.vector, collect, 500), show(bridge.arrow, collect, 500));
+      bridge.bitGroups.forEach((bit, i) => ev.push(moveSvgGroup(bit, bridge.origins[i], bridge.destinations[i], collect, 1300)));
+      ev.push(phaseAt(collect, "bridge", "VECTOR", "Collect the three scalars", R`They form $\mathbf{x}^{(0)}=(x_1,x_2,x_3)$.`));
+      ev.push(hide(bridge.group, unfold, 700), unfoldCube(C.frame, unfold, 1200), show(C.layer, unfold + 450, 700));
+      ev.push(phaseAt(unfold, "bridge", "BOX", "Use the scalars as coordinates", R`The box shows $\mathbf{x}$; it does not replace the Tanner graph.`));
+      addStop("poly", start, start + 900, () => bridge.group, "Read the three retained bit scalars");
+      addStop("poly", collect, collect + 1500, () => bridge.group, R`Collect $x_1,x_2,x_3$ into $\mathbf{x}^{(0)}$`);
+      addStop("poly", unfold, done, svgT, R`Use $x_1,x_2,x_3$ as box coordinates`);
+    } else if (k === 3) {
+      setPolyPhase("frozen", "LOCKED", "Keep x^(0) fixed", R`Check A's two $g$ terms are ready; check B and the channel term have not yet been combined.`);
+    } else if (k === 4) {
+      setPolyPhase("frozen", "LOCKED", "Keep x^(0) fixed", R`A's terms remain temporary while check B reads the same $\mathbf{x}^{(0)}$.`);
+    } else if (k === 5) {
+      setPolyPhase("frozen", "LOCKED", "Keep x^(0) fixed", R`The A and B terms are ready; the partial derivatives are assembled next.`);
+    } else if (k === 6) {
+      setPolyPhase("frozen", "LOCKED", "All terms use x^(0)", R`First assemble $\nabla J(\mathbf{x}^{(0)})$, then form $\mathbf{d}^{(0)}$; movement waits.`);
+      ev.push(phaseAt(sync.gradient, "gradient", "GRADIENT", "Partial derivatives assembled", R`$\mathbf{x}^{(0)}$ is still locked.`));
+      ev.push(phaseAt(sync.arrow, "direction", "DIRECTION", "Search direction ready", R`$\mathbf{d}^{(0)}=-\nabla J(\mathbf{x}^{(0)})$ for the first step; the point has not moved.`));
+      ev.push(phaseAt(sync.lineSearch, "step-size", "STEP SIZE", "Choose the accepted step length", R`The line search tests $\alpha$ while $\mathbf{x}^{(0)}$ remains locked.`));
+      ev.push(phaseAt(sync.step, "moving", "UPDATE", "Now move the retained iterate", R`Apply the accepted step and the box projection.`));
+      ev.push(phaseAt(sync.moveDone, "state", "UPDATED", "The retained state is now x^(1)", "The temporary check terms will be recalculated at the new point."));
+    } else if (k < 3) {
+      setPolyPhase("state", "CURRENT", "One point represents x", R`Each coordinate is the scalar for one bit.`);
+    } else {
+      setPolyPhase("state", "RETAINED", "The box tracks x^(t)", R`Only an accepted update changes $\mathbf{x}$.`);
+    }
     if (k === 1 || k === 3 || k === 5) addStop("poly", 300, 1000, readT, "Read what the box shows");
     if (k === 2 || k === 4) addStop("poly", sync.edges, sync.edges + 2300, svgT, R`Show where $r_${k === 2 ? "A" : "B"}=0$`);
     if (k === 6) {
-      addStop("poly", sync.arrow, sync.arrow + 2400, svgT, R`Show $-\nabla J$`);
+      addStop("poly", sync.arrow, sync.lineSearch, svgT, R`Show $\mathbf{d}^{(0)}=-\nabla J$`);
       addStop("poly", sync.step, sync.step + 2400, svgT, "Take the step");
     }
     if (k === 7) addStop("poly", sync.s, sync.s + 1600, svgT, R`Draw $\mathbf{s}^{(0)}$`);
@@ -1309,8 +1480,22 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     }
     if (k === 9) addStop("poly", sync.start, sync.start + (LB.path.length - 1) * 700 + 700, svgT, "Run every update");
     const readout = $("poly-readout");
-    readout.innerHTML = mixed(polyText(k));
-    if (k !== 9) ev.push(show(readout, sync.readout != null ? sync.readout : 300, 700));
+    if (k === 0) {
+      readout.innerHTML = mixed(R`The three retained bit scalars are first collected into $\mathbf{x}^{(0)}$; then that vector is shown as one point in $[-1,1]^3$.`);
+      delete readout.dataset.handoff;
+      ev.push(show(readout, bridgeTimes.start, 700), { at: bridgeTimes.unfold, dur: 0, end() { readout.innerHTML = mixed(polyText(0)); } }, blink(readout, bridgeTimes.unfold));
+    } else if (k === 3) {
+      readout.innerHTML = mixed(polyText(2));
+      readout.dataset.handoff = "beat3-poly-readout";
+      ev.push({ at: 300, dur: 0, end() {
+        readout.innerHTML = mixed(polyText(3));
+        delete readout.dataset.handoff;
+      } }, blink(readout, 300));
+    } else {
+      readout.innerHTML = mixed(polyText(k));
+      delete readout.dataset.handoff;
+      if (k !== 9) ev.push(show(readout, sync.readout != null ? sync.readout : 300, 700));
+    }
     if (k >= 2) {
       const a = zeroEdges(C, "A", k >= 4 ? "faint" : "");
       if (k === 2) a.forEach(line => ev.push(show(line, sync.edges, 900), blink(line, sync.edges + 900)));
@@ -1322,17 +1507,28 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     }
     if (k <= 5) {
       const dot = xDot(C, OBJ.x0), label = xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
-      if (k === 0) ev.push(show(dot, sync.x0, 600), show(label, sync.x0, 600), blink(dot, sync.x0 + 600));
+      if (k === 0) ev.push(blink(dot, bridgeTimes.done));
       return;
     }
     if (k === 6) {
       const old = xDot(C, OBJ.x0, "old"), dot = xDot(C, OBJ.x0);
+      dot.dataset.check = "lbfgs-first-x-motion";
       xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
-      const arrow = xArrow(C, OBJ.x0, LB.x1, "hot");
-      const arrowLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`-\nabla J`, 4, -26);
+      // A short ray shows only orientation. It deliberately does not end at x^(1),
+      // because the accepted displacement is unknown until the line search finishes.
+      const dNorm = Math.hypot(...LB.d0) || 1;
+      const rayEnd = OBJ.x0.map((v, i) => v + .45 * LB.d0[i] / dNorm);
+      const direction = xArrow(C, OBJ.x0, rayEnd, "hot");
+      direction.dataset.check = "lbfgs-first-direction-arrow";
+      const directionLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + rayEnd[i]) / 2), R`\mathbf{d}^{(0)}`, 4, -26);
+      const step = xArrow(C, OBJ.x0, LB.x1);
+      step.dataset.check = "lbfgs-first-accepted-step";
+      const stepLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`\alpha_0\mathbf{d}^{(0)}`, 4, -26);
       const next = xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
-      ev.push(grow(arrow, sync.arrow), show(arrowLabel, sync.arrow + 800, 600), show(old, sync.step, 400));
-      ev.push(slide(dot, OBJ.x0, LB.x1, sync.step), show(next, sync.step + 1600, 600), blink(dot, sync.step + 1600));
+      ev.push(grow(direction, sync.arrow, 900), show(directionLabel, sync.arrow + 450, 450),
+        hide(direction, sync.lineSearch, 450), hide(directionLabel, sync.lineSearch, 450), show(old, sync.step, 400));
+      ev.push(grow(step, sync.step, 1600), show(stepLabel, sync.step + 700, 500),
+        slide(dot, OBJ.x0, LB.x1, sync.step), show(next, sync.step + 1600, 600), blink(dot, sync.step + 1600));
       return;
     }
     if (k === 7) {
@@ -1378,12 +1574,17 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   // ---------- beat scripts ----------
   function script(k) {
     STOPS = [];
+    $("lbfgs-math").classList.toggle("first-update", k === 6);
     $("rules").querySelectorAll("li").forEach(node => node.classList.toggle("visible", RULES_BY_BEAT[k].includes(node.dataset.rule)));
     const B = mathLane("bp"), G = mathLane("lbfgs");
     const bg = graph("bp", k), gg = graph("lbfgs", k);
     const ev = [];
     const sync = {};
     const card = (src, cls, key) => `<span class="${cls}" data-card="${key}">${tex(src)}</span>`;
+    const trayGroup = (label, contents, kind, attrs = {}) => {
+      const extra = Object.entries(attrs).map(([key, value]) => ` data-${key}="${esc(value)}"`).join("");
+      return `<span class="tray-group ${kind}" data-tray-group="${kind}"${extra}><span class="tray-group-label">${esc(label)}</span>${contents}</span>`;
+    };
     const bpCard = key => () => $("bp-state").querySelector(`[data-card="${key}"]`);
     const lbfgsCard = key => () => $("lbfgs-state").querySelector(`[data-card="${key}"]`);
     const uLabel = (e, value) => R`U_{${USLOT[e]}} = ${tn(value, 3)}`;
@@ -1394,12 +1595,21 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const xLabel = (i, value, iter, digits = 3) => R`x^{(${iter})}_${i + 1} = ${tn(value, digits)}`;
     const trayX0 = () => OBJ.x0.map((v, i) => card(xLabel(i, v, 0), "state-card", `x${i}`)).join("");
     const trayX1 = () => LB.x1.map((v, i) => card(xLabel(i, v, 1), "state-card", `x${i}`)).join("");
+    const trayXCompact = (values, iter) => card(R`\mathbf{x}^{(${iter})} = ${vecT(values, 3)}`, "state-card compact-x", "xvec");
     const pairCard = () => card(R`\mathbf{s}^{(0)},\mathbf{y}^{(0)}\ \text{kept for the next update}`, "state-card pair-card", "pair");
     const gCard = (a, j) => {
       const name = a === 0 ? "A" : "B", bit = (a === 0 ? [1, 2] : [2, 3])[j];
       return card(R`g_{${name},${bit}} = ${tn(OBJ.g[name][j], 3)}`, "scratch-card", `g${name}${j}`);
     };
     const trayG = upTo => (upTo >= 3 ? gCard(0, 0) + gCard(0, 1) : "") + (upTo >= 5 ? gCard(1, 0) + gCard(1, 1) : "");
+    const termShelf = name => {
+      const a = name === "A" ? 0 : 1;
+      const label = `temporary this update · ${name}`;
+      return trayGroup(label, gCard(a, 0) + gCard(a, 1), "temporary",
+        { "check-terms": name, "evaluated-at": "x0", retention: "temporary" });
+    };
+    const retainedX0 = () => trayGroup("retained by bit · frozen", trayXCompact(OBJ.x0, 0), "retained",
+      { "x-lock": "locked", "x-iterate": "0" });
     const lChips = () => BP.L.map((v, i) => chip(bg, below(i), R`L_${i + 1} = ${tn(v, 3)}`, "value"));
     const xChips = values => values.map((v, i) => chip(gg, below(i), R`x_${i + 1} = ${tn(v, 3)}`, "value"));
     const uChips = values => values.map((v, e) => chip(bg, edgePoint(e, SLOT_T[e]), uLabel(e, v)));
@@ -1483,7 +1693,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       });
 
       const xc = xChips(OBJ.x0);
-      lbfgsTray = trayX0() + trayG(k);
+      lbfgsTray = k === 4 ? retainedX0() + termShelf("A") : trayX0() + trayG(k);
       const rd = derivation(gg, ev, 300, rSteps(a).slice(a === 0 ? 0 : 1));
       const r = rChain(rd.done + 600, a);
       r.subs.forEach(at => ev.push(blink(rd.part("hP"), at)));
@@ -1499,21 +1709,78 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       sync.edges = rd.done;
     } else if (k === 3 || k === 5) {
       const a = k === 3 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
+      const handoff = k === 3 ? { q: [], qLines: [], reads: [], guides: [], cues: [] } : null;
+      if (handoff) {
+        handoff.cues.push(handoffCue(bg));
+        edges.forEach(e => {
+          const q = message(bg, e, "up", qLabel(e, 1), 0, null);
+          q.line.dataset.handoff = "bp-q";
+          q.label.dataset.handoff = "bp-q";
+          q.line.dataset.edge = String(e);
+          q.label.dataset.edge = String(e);
+          q.label.dataset.value = String(BP.q1[e]);
+          handoff.q[e] = q;
+        });
+        handoff.qLines[0] = handoffFormula(B,
+          R`Q_{1\to A} = L_1 = ${tn(BP.q1[0])}`, "beat3-bp-q1");
+        handoff.qLines[1] = handoffFormula(B,
+          R`Q_{2\to A} = L_2 + U^{(0)}_{B\to 2} = ${tp(BP.L[1])} + ${tn(BP.u0[2])} = ${tn(BP.q1[1])}`,
+          "beat3-bp-q2");
+      }
       lChips();
-      bpTray = trayU(k - 1);
+      bpTray = handoff ? trayGroup("retained by edge", trayU(k - 1), "retained") : trayU(k - 1);
       const ah = hover(bg, ev, 300, "", NOTES.agree);
+      if (handoff) {
+        ev.push(hide(handoff.cues[0], 300, 400), blink(handoff.q[0].label, 300), blink(handoff.q[1].label, 300));
+      }
       let t = 300;
-      edges.forEach(e => {
+      edges.forEach((e, n) => {
         const c = uChain(t, e);
         ev.push(blink(ah.card, c.subs[0]));
+        if (handoff) {
+          const source = [1, 0, 3, 2][e];
+          ev.push(blink(handoff.qLines[source], c.subs[0]));
+          if (handoff.q[source]) ev.push(blink(handoff.q[source].label, c.subs[0]));
+        }
         const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
+        if (handoff) {
+          m.line.dataset.beat4Output = `u${e}`;
+          m.label.dataset.beat4Output = `u${e}`;
+          m.line.dataset.beat4Incidence = "bp-u";
+          m.line.dataset.edge = String(e);
+          m.line.dataset.from = "A";
+          m.line.dataset.toBit = String(EDGES[e].i + 1);
+          if (n === 0) handoff.q.filter(Boolean).forEach(q => ev.push(hide(q.line, c.done, 500), hide(q.label, c.done, 500)));
+        }
         ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
         t = c.next;
       });
 
       const xc = xChips(OBJ.x0);
-      lbfgsTray = trayX0() + trayG(k);
+      lbfgsTray = retainedX0() + termShelf("A") + (k === 5 ? termShelf("B") : "");
       const rc = rChip(a);
+      if (handoff) {
+        handoff.cues.push(handoffCue(gg));
+        rc.dataset.handoff = "lbfgs-r";
+        rc.dataset.value = String(OBJ.residual.A);
+        edges.forEach((e, j) => {
+          const bit = EDGES[e].i;
+          const dependency = guide(gg, e);
+          dependency.dataset.handoff = "lbfgs-dependency";
+          dependency.dataset.edge = String(e);
+          handoff.guides.push(dependency);
+          const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_${bit + 1} = ${tn(OBJ.x0[bit], 3)}`);
+          read.dataset.handoff = "lbfgs-x-read";
+          read.dataset.bit = String(bit + 1);
+          read.dataset.value = String(OBJ.x0[bit]);
+          handoff.reads[j] = read;
+        });
+        handoffFormula(G,
+          R`r_A = 1 - x_1x_2 = 1 - (${tn(OBJ.x0[0], 6, false)})(${tn(OBJ.x0[1], 6, false)}) = ${tn(OBJ.residual.A, 6, false)}`,
+          "beat3-lbfgs-r");
+        handoffProse(G, "A reads the frozen $x_1$ and $x_2$", "beat3-lbfgs-read");
+        ev.push(hide(handoff.cues[1], 300, 400), blink(rc, 300));
+      }
       const lbfgs = derivation(gg, ev, 300, a === 0 ? G_A : G_B);
       t = lbfgs.done + 600;
       [0, 1].forEach(j => {
@@ -1521,11 +1788,42 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         ev.push(blink(lbfgs.part("hW"), g.subs[0]), blink(lbfgs.part("hR"), g.subs[1]), blink(lbfgs.part("hP"), g.subs[2]));
         const bits = a === 0 ? [0, 1] : [1, 2];
         ev.push(blink(rc, g.subs[1]), blink(xc[bits[1 - j]], g.subs[2]));
+        if (handoff) ev.push(blink(handoff.reads[1 - j], g.subs[2]));
         const name = a === 0 ? "A" : "B";
         const term = chip(gg, edgePoint(edges[j], SLOT_T[edges[j]]), R`g_{${name},${bits[j] + 1}} = ${tn(OBJ.g[name][j], 3)}`);
+        const branch = derivativeBranch(gg, edges[j]);
+        branch.dataset.edge = String(edges[j]);
+        branch.dataset.from = name;
+        branch.dataset.toBit = String(bits[j] + 1);
+        if (handoff) {
+          term.dataset.beat4Output = `g${name}${j}`;
+          branch.dataset.beat4Output = `g${name}${j}-branch`;
+          branch.dataset.beat4Incidence = "lbfgs-g";
+          ev.push(hide(handoff.guides[j], g.done, 450));
+        }
+        ev.push(grow(branch, g.done, 900), blink(branch, g.done + 900));
         ev.push(show(term, g.done, 450), blink(term, g.done), show(lbfgsCard(`g${name}${j}`), g.done, 450), blink(lbfgsCard(`g${name}${j}`), g.done));
+        if (handoff) ev.push(hide(handoff.reads[j], g.done, 450));
         t = g.next;
       });
+      if (handoff) {
+        const compareAt = t + 400;
+        hover(bg, ev, compareAt,
+          R`A:\quad U^{(1)}_{A\to 1},\ U^{(1)}_{A\to 2}`,
+          "Two check-to-variable messages, one along each edge from A. Both remain in the U slots above.");
+        hover(gg, ev, compareAt,
+          R`A:\quad g_{A,1},\ g_{A,2}`,
+          "Two g terms, one for each bit joined to A. They are temporary; x remains in retained state.");
+        ev.push(hide(ah.card, compareAt, 500), hide(lbfgs.card, compareAt, 500));
+        const trayAt = compareAt + 2400;
+        const bpRetained = () => $("bp-state").querySelector('[data-tray-group="retained"]');
+        const lbfgsRetained = () => $("lbfgs-state").querySelector('[data-tray-group="retained"]');
+        const lbfgsTemporary = () => $("lbfgs-state").querySelector('[data-tray-group="temporary"]');
+        ev.push(blink(bpRetained, trayAt), blink(lbfgsRetained, trayAt), blink(lbfgsTemporary, trayAt));
+        addStop("bp", trayAt, trayAt + 1300, bpRetained, "See the U values retained by edge");
+        addStop("lbfgs", trayAt, trayAt + 1300, lbfgsRetained, "See x retained by bit");
+        addStop("lbfgs", trayAt, trayAt + 1300, lbfgsTemporary, "See the temporary g terms");
+      }
     } else if (k === 6) {
       const lc = lChips();
       bpTray = trayU(5);
@@ -1543,7 +1841,11 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       ev.push(blink(lam[1], vec.comps[1]));
 
       const xc = xChips(OBJ.x0);
-      lbfgsTray = trayX0() + card(R`\nabla J = ${vecT(OBJ.gradient, 3)}`, "scratch-card", "grad");
+      lbfgsTray = retainedX0() + termShelf("A") + termShelf("B") +
+        trayGroup("assembled for this update",
+          card(R`\nabla J\ \text{assembled}`, "scratch-card", "grad") +
+          card(R`\mathbf{d}^{(0)}\ \text{ready}`, "scratch-card", "direction"),
+          "temporary", { retention: "temporary", "update-work": "gradient-direction" });
       const kd = derivation(gg, ev, 300, GRAD2);
       const t0 = kd.done + 600;
       const terms = [
@@ -1554,32 +1856,71 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       const grad = chain(G, t0, R`\frac{\partial J}{\partial x_2}`,
         [M(R`g_{A,2}`), " + ", M(R`g_{B,2}`), " ", M(R`-\tfrac{w_{\mathrm{ch}}}{2}\ell_2`)],
         sumParts([OBJ.g.A[1], OBJ.g.B[0], OBJ.channel_partial[1]]),
-        tn(OBJ.gradient[1]), { aligned: true });
+        tn(OBJ.gradient[1]), { aligned: true, testId: "lbfgs-first-x2-partial" });
       terms.forEach((node, j) => ev.push(show(node, t0), blink(node, grad.subs[j]), hide(node, grad.done + 900)));
       ev.push(blink(kd.part("hPar"), grad.subs[0]), blink(kd.part("hPar"), grad.subs[1]), blink(kd.part("hC"), grad.subs[2]));
       const sum = chip(gg, below(1, 1), R`\partial J/\partial x_2 = ${tn(OBJ.gradient[1], 3)}`);
-      ev.push(show(sum, grad.done, 450), blink(sum, grad.done), show(lbfgsCard("grad"), grad.done, 450), blink(lbfgsCard("grad"), grad.done));
-      const d = chain(G, grad.next, R`\mathbf{d}^{(0)}`, [R`-\mathbf{H}_0\nabla J(\mathbf{x}^{(0)}) = -\nabla J(\mathbf{x}^{(0)})`], null, vecParts(LB.d0.map(v => tn(v))));
+      ev.push(show(sum, grad.done, 450), blink(sum, grad.done));
+      const fullGrad = chain(G, grad.next, R`\nabla J(\mathbf{x}^{(0)})`, [R`\begin{bmatrix}
+        g_{A,1}-\tfrac{w_{\mathrm{ch}}}{2}\ell_1\\
+        g_{A,2}+g_{B,2}-\tfrac{w_{\mathrm{ch}}}{2}\ell_2\\
+        g_{B,3}-\tfrac{w_{\mathrm{ch}}}{2}\ell_3
+      \end{bmatrix}`], null, vecParts(OBJ.gradient.map(v => tn(v))),
+      { aligned: true, testId: "lbfgs-first-gradient" });
+      ev.push(hide(() => G.root.querySelector('[data-check="lbfgs-first-x2-partial"]'), fullGrad.t, 450));
+      ["gA0", "gA1", "gB0", "gB1"].forEach(key => ev.push(blink(lbfgsCard(key), fullGrad.t)));
+      ev.push(show(lbfgsCard("grad"), fullGrad.done, 450), blink(lbfgsCard("grad"), fullGrad.done));
+      const d = chain(G, fullGrad.next, R`\mathbf{d}^{(0)}`,
+        [R`-\mathbf{H}_0\nabla J(\mathbf{x}^{(0)}) = -\nabla J(\mathbf{x}^{(0)})`], null,
+        vecParts(LB.d0.map(v => tn(v))), { testId: "lbfgs-first-direction" });
+      ev.push(hide(() => G.root.querySelector('[data-check="lbfgs-first-gradient"]'), d.t, 450));
       ev.push(blink(rule("first"), d.t), blink(upd("pH"), d.t), blink(upd("pG"), d.t + 600));
+      ev.push(show(lbfgsCard("direction"), d.done, 450), blink(lbfgsCard("direction"), d.done));
       // each trial halves alpha until J falls below J(x0)
       const j0 = tn(OBJ.loss_before, 6, false);
       const [[a1, j1], [a2, j2], [a3, j3]] = LB.trials0;
-      const ls = formula(G, d.next,
-        R`J_{\alpha=${a1}}=${tn(j1, 6, false)}>J_0,\quad J_{\alpha=${a2}}=${tn(j2, 6, false)}>J_0,\quad J_{\alpha=${a3}}=${tn(j3, 6, false)}<J_0=${j0}\Rightarrow\alpha_0=${LB.alpha0}`,
-        "compact");
-      ev.push(blink(rule("step"), d.next));
+      // Leave a full visual beat for the direction ray before introducing alpha.
+      const lineSearchAt = d.next + 1000;
+      const ls = formula(G, lineSearchAt,
+        R`\begin{gathered}
+          \htmlClass{ls-trial-0}{J_{\alpha=${a1}}=${tn(j1, 6, false)}>J_0\quad\text{reject}}\\
+          \htmlClass{ls-trial-1}{J_{\alpha=${a2}}=${tn(j2, 6, false)}>J_0\quad\text{reject}}\\
+          \htmlClass{ls-trial-2}{J_{\alpha=${a3}}=${tn(j3, 6, false)}<J_0=${j0}\quad\text{accept: }\alpha_0=${LB.alpha0}}
+        \end{gathered}`,
+        "compact", { testId: "lbfgs-first-line-search" });
+      ev.push(hide(() => G.root.querySelector('[data-check="lbfgs-first-direction"]'), ls.t, 450));
+      ev.push(blink(rule("step"), lineSearchAt));
       const up = chain(G, ls.next, R`x^{(1)}_2`,
         [R`\Pi\bigl(`, M(R`x^{(0)}_2`), " + ", M(R`\alpha_0`), R`\,`, M(R`d^{(0)}_2`), R`\bigr)`],
         [R`\Pi\bigl(`, M(tn(OBJ.x0[1], 6, false)), " + ", M(String(LB.alpha0)), R`\cdot`, M(tn(LB.d0[1], 6, false)), R`\bigr)`],
         tn(LB.x1[1]), { testId: "lbfgs-first-x-update" });
+      ev.push(hide(() => G.root.querySelector('[data-check="lbfgs-first-line-search"]'), up.t, 450));
+      ev.push(hide(sum, up.done, 450));
       ev.push(blink(xc[1], up.subs[0]), blink(upd("pX"), up.subs[0]), blink(upd("pE"), up.subs[1]), blink(upd("pD"), up.subs[2]));
       xc.forEach((node, i) => {
-        ev.push(morph(node, up.done, 1200, p => tex(R`x_${i + 1} = ${tn(lerp(OBJ.x0[i], LB.x1[i], p), 3)}`)), blink(node, up.done + 1200));
-        ev.push(morph(lbfgsCard(`x${i}`), up.done, 1200, p => tex(p === 0 ? xLabel(i, OBJ.x0[i], 0) : xLabel(i, lerp(OBJ.x0[i], LB.x1[i], p), 1))),
-          blink(lbfgsCard(`x${i}`), up.done + 1200));
+        ev.push(morph(node, up.done, 1600, p => tex(R`x_${i + 1} = ${tn(lerp(OBJ.x0[i], LB.x1[i], p), 3)}`)), blink(node, up.done + 1600));
       });
-      addStop("lbfgs", up.done, up.done + 1400, () => gg.svg.parentNode, R`Move $\mathbf{x}$ to $\mathbf{x}^{(1)}$`);
-      sync.arrow = d.done; sync.step = up.done; sync.readout = up.done;
+      ev.push(morph(lbfgsCard("xvec"), up.done, 1600, p => {
+        const name = p <= 0 ? R`\mathbf{x}^{(0)}` : (p >= 1 ? R`\mathbf{x}^{(1)}` : R`\mathbf{x}^{(0)}\to\mathbf{x}^{(1)}`);
+        return tex(`${name} = ${vecT(OBJ.x0.map((v, i) => lerp(v, LB.x1[i], p)), 3)}`);
+      }),
+      { at: up.done, dur: 1600, init() {
+        const node = nodeOf(lbfgsCard("xvec"));
+        if (node) node.dataset.displayState = "x0";
+      }, start() {
+        const node = nodeOf(lbfgsCard("xvec"));
+        if (node) node.dataset.displayState = "transition";
+      }, apply() {
+        const node = nodeOf(lbfgsCard("xvec"));
+        if (node) node.dataset.displayState = "transition";
+      }, end() {
+        const node = nodeOf(lbfgsCard("xvec"));
+        if (node) node.dataset.displayState = "x1";
+      } },
+      blink(lbfgsCard("xvec"), up.done + 1600));
+      addStop("lbfgs", up.done, up.done + 1800, () => gg.svg.parentNode, R`Move $\mathbf{x}$ to $\mathbf{x}^{(1)}$`);
+      sync.gradient = fullGrad.done + 450; sync.arrow = d.done + 450; sync.lineSearch = ls.t;
+      sync.step = up.done; sync.moveDone = up.done + 1600; sync.readout = up.done;
     } else if (k === 7) {
       lChips();
       bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
@@ -1652,6 +1993,50 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
     $("bp-state").innerHTML = bpTray;
     $("lbfgs-state").innerHTML = lbfgsTray;
+    $("bp-state").classList.toggle("parallel", k === 3);
+    $("bp-state").dataset.label = k === 3 ? "ITERATION BOUNDARY" : "STATE TRAY";
+    const lbfgsState = $("lbfgs-state");
+    lbfgsState.classList.toggle("parallel", k >= 3 && k <= 6);
+    lbfgsState.dataset.label = k >= 3 && k <= 5 ? "FROZEN x / UPDATE WORK" : (k === 6 ? "UPDATE WORKSPACE" : "STATE TRAY");
+    if (k >= 3 && k <= 6) {
+      lbfgsState.dataset.xLock = "locked";
+      lbfgsState.dataset.xIterate = "0";
+      lbfgsState.dataset.xValues = OBJ.x0.map(String).join(",");
+    } else {
+      delete lbfgsState.dataset.xLock;
+      delete lbfgsState.dataset.xIterate;
+      delete lbfgsState.dataset.xValues;
+    }
+    if (k === 6) {
+      lbfgsState.dataset.gradientReadyAt = String(sync.gradient);
+      lbfgsState.dataset.directionReadyAt = String(sync.arrow);
+      lbfgsState.dataset.lineSearchAt = String(sync.lineSearch);
+      lbfgsState.dataset.moveAt = String(sync.step);
+      lbfgsState.dataset.moveDoneAt = String(sync.moveDone);
+      ev.push({ at: sync.moveDone, dur: 0, end() {
+        lbfgsState.dataset.xLock = "unlocked";
+        lbfgsState.dataset.xIterate = "1";
+        lbfgsState.dataset.xValues = LB.x1.map(String).join(",");
+        const retained = lbfgsState.querySelector('[data-tray-group="retained"]');
+        if (retained) {
+          retained.dataset.xLock = "unlocked";
+          retained.dataset.xIterate = "1";
+          const label = retained.querySelector(".tray-group-label");
+          if (label) label.textContent = "retained by bit · updated";
+        }
+        lbfgsState.querySelectorAll('[data-retention="temporary"]').forEach(group => {
+          group.classList.add("spent");
+          const label = group.querySelector(".tray-group-label");
+          if (label) label.textContent = "used — not retained";
+        });
+      } });
+    } else {
+      delete lbfgsState.dataset.gradientReadyAt;
+      delete lbfgsState.dataset.directionReadyAt;
+      delete lbfgsState.dataset.lineSearchAt;
+      delete lbfgsState.dataset.moveAt;
+      delete lbfgsState.dataset.moveDoneAt;
+    }
     polyBeat(k, ev, sync);
     const events = commit(B).concat(commit(G), ev);
     const end = events.reduce((m, e) => Math.max(m, e.at + e.dur), 0);
@@ -2050,6 +2435,175 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       check(tour.guide.querySelector(".tour-copy").getAttribute("role") === "status", "presentation guide lacks its live status region");
       check(Number(getComputedStyle(tour.guide).zIndex) > Number(getComputedStyle(tour.spot).zIndex), "presentation guide is hidden below the spotlight mask");
     };
+    const beat4HandoffMatches = () => {
+      const shown = node => node && node.isConnected && node.style.opacity !== "0";
+      const qLabels = [...document.querySelectorAll('#bp-chips .chip[data-handoff="bp-q"]')];
+      const qLines = [...document.querySelectorAll('#bp-graph .message[data-handoff="bp-q"]')];
+      const xReads = [...document.querySelectorAll('#lbfgs-chips .chip[data-handoff="lbfgs-x-read"]')];
+      const dependencies = [...document.querySelectorAll('#lbfgs-graph .dependency[data-handoff="lbfgs-dependency"]')];
+      const residual = document.querySelector('#lbfgs-chips .chip[data-handoff="lbfgs-r"]');
+      const cues = [...document.querySelectorAll('.handoff-cue[data-handoff]')];
+      const outputs = [...document.querySelectorAll('[data-beat4-output]')];
+      const uCards = [...$("bp-state").querySelectorAll('[data-card^="u"]')];
+      check(current === 3 && clock.t === 0 && !playing && frozen && clock.raf === 0, "Beat 4 handoff is not paused at t=0");
+      check(qLabels.length === 2 && qLines.length === 2 && qLabels.every(shown) && qLines.every(shown), "Beat 4 lost the two completed BP Q messages");
+      check(qLabels.map(node => node.dataset.value).join(",") === BP.q1.slice(0, 2).map(String).join(","), "Beat 4 BP Q handoff values changed");
+      check(xReads.length === 2 && dependencies.length === 2 && xReads.every(shown) && dependencies.every(shown), "Beat 4 lost A's two frozen-x dependencies");
+      check(xReads.map(node => node.dataset.value).join(",") === OBJ.x0.slice(0, 2).map(String).join(","), "Beat 4 frozen-x handoff values changed");
+      check(shown(residual) && residual.dataset.value === String(OBJ.residual.A), "Beat 4 lost r_A");
+      check(cues.length === 2 && cues.every(shown), "Beat 4 does not identify both carried input groups");
+      check($("poly-readout").dataset.handoff === "beat3-poly-readout", "Beat 4 box readout did not carry Beat 3's conclusion");
+      check(outputs.length === 8 && outputs.every(node => node.style.opacity === "0"), "Beat 4 revealed a new U or g result before a click");
+      check(uCards.length === 4 && uCards.every(node => !node.classList.contains("updated-card") && /=\s*0$/.test(visibleText(node))), "Beat 4 BP tray is not the four zero U slots");
+      check(!document.querySelector('.travelling, .flying'), "Beat 4 handoff replayed prior motion");
+    };
+    const beat4ParallelMatches = () => {
+      const shown = node => node && node.isConnected && node.style.opacity !== "0";
+      const bpOut = [...$("bp-graph").querySelectorAll('[data-beat4-incidence="bp-u"]')];
+      const lbfgsOut = [...$("lbfgs-graph").querySelectorAll('[data-beat4-incidence="lbfgs-g"]')];
+      const edgeSet = nodes => nodes.map(node => node.dataset.edge).sort().join(",");
+      check(bpOut.length === 2 && lbfgsOut.length === 2 && edgeSet(bpOut) === "0,1" && edgeSet(lbfgsOut) === "0,1",
+        "Beat 4 does not pair both A incidences across the two panels");
+      check([...bpOut, ...lbfgsOut].every(shown), "a Beat 4 A-incidence line is hidden at the comparison step");
+      check(bpOut.every(node => node.classList.contains("message") && node.hasAttribute("marker-end")),
+        "the BP A incidences are not directed message lines");
+      check(lbfgsOut.every(node => node.classList.contains("derivative-contribution") && !node.classList.contains("message") &&
+        !node.classList.contains("travelling") && !node.hasAttribute("marker-end")),
+        "the L-BFGS A incidences incorrectly imply message motion");
+      check([...bpOut, ...lbfgsOut].every(node => node.dataset.from === "A") &&
+        bpOut.map(node => node.dataset.toBit).join(",") === "1,2" && lbfgsOut.map(node => node.dataset.toBit).join(",") === "1,2",
+        "the Beat 4 incidence destinations changed");
+      const u = [...$("bp-state").querySelectorAll('.state-card[data-card^="u"]')];
+      const uUpdated = u.filter(node => node.classList.contains("updated-card"));
+      const xs = [...$("lbfgs-state").querySelectorAll('.state-card[data-card^="x"]')];
+      const gs = [...$("lbfgs-state").querySelectorAll('.scratch-card[data-card^="gA"]')];
+      check(u.length === 4 && uUpdated.map(node => node.dataset.card).join(",") === "u0,u1" &&
+        $("bp-state").querySelector('[data-card^="u"].scratch-card') === null,
+        "Beat 4 does not retain the two A outputs in the edge-addressed U state");
+      check(xs.length === 1 && xs[0].dataset.card === "xvec" && gs.length === 2 &&
+        $("lbfgs-state").querySelector('.state-card[data-card^="g"], .scratch-card[data-card^="x"]') === null,
+        "Beat 4 does not separate retained x from temporary g terms");
+      check($("bp-state").querySelector('[data-tray-group="retained"]') &&
+        $("lbfgs-state").querySelector('[data-tray-group="retained"]') &&
+        $("lbfgs-state").querySelector('[data-tray-group="temporary"]'),
+        "Beat 4 boundary shelves are missing");
+    };
+    const graphToBoxBridgeMatches = () => {
+      const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
+      goTo(0);
+      const panel = $("poly-panel");
+      const sourceReady = Number(panel.dataset.sourceReadyAt), start = Number(panel.dataset.bridgeStartAt);
+      const vector = Number(panel.dataset.vectorAt);
+      const box = Number(panel.dataset.boxAt), ready = Number(panel.dataset.boxReadyAt);
+      check(0 < sourceReady && sourceReady < start && start < vector && vector < box && box < ready,
+        "graph-to-box transition began before x^(0) was ready or its stages are out of order");
+      seek(start + 600);
+      const bridgeValues = [...document.querySelectorAll('[data-check="graph-to-box-bridge"] .bridge-value')]
+        .map(node => node.textContent);
+      const expectedValues = OBJ.x0.map((value, i) => `x${i + 1}=${tn(value, 3).replace("-", "−")}`);
+      check(shown(document.querySelector('[data-check="graph-to-box-bridge"]')) &&
+        !shown(document.querySelector('[data-check="coordinate-box"]')) && bridgeValues.join("|") === expectedValues.join("|"),
+      "the coordinate box appeared before the Tanner-graph state was introduced");
+      goTo(0); seek(vector + 1300);
+      const movedBits = [...document.querySelectorAll('[data-bridge-bit]')];
+      const destinations = ["translate(86 268)", "translate(200 268)", "translate(314 268)"];
+      check(shown(document.querySelector('[data-bridge-part="coordinate-vector"]')) && movedBits.length === 3 &&
+        movedBits.every((node, i) => node.getAttribute("transform") === destinations[i]),
+      "the three retained bit scalars were not collected into the coordinate vector");
+      goTo(0); seek(ready);
+      const point = document.querySelector('#poly-graph .x-dot'), expectedPoint = proj(OBJ.x0);
+      check(!shown(document.querySelector('[data-check="graph-to-box-bridge"]')) &&
+        shown(document.querySelector('[data-check="coordinate-box"]')) && $("poly-phase").dataset.stage === "bridge" &&
+        visibleText($("poly-phase")).includes("Use the scalars as coordinates") && point && shown(point) &&
+        Math.hypot(Number(point.getAttribute("cx")) - expectedPoint[0], Number(point.getAttribute("cy")) - expectedPoint[1]) < 1e-6,
+      "the coordinate box did not unfold after the representation transition");
+    };
+    const frozenAccumulationMatches = () => {
+      const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
+      const inspect = beat => {
+        goTo(beat); seek(clock.length);
+        const state = $("lbfgs-state"), groups = [...state.querySelectorAll('[data-check-terms]')];
+        check(state.dataset.xLock === "locked" && state.dataset.xIterate === "0" &&
+          state.dataset.xValues === OBJ.x0.map(String).join(",") && state.querySelector('[data-card="xvec"]'),
+        `Beat ${beat + 1} did not retain the locked x^(0)`);
+        return { values: state.dataset.xValues, groups };
+      };
+      const a = inspect(3);
+      const aCards = a.groups[0] ? [...a.groups[0].querySelectorAll('[data-card^="gA"]')] : [];
+      check(a.groups.length === 1 && a.groups[0].dataset.checkTerms === "A" &&
+        a.groups[0].dataset.evaluatedAt === "x0" && a.groups[0].dataset.retention === "temporary" &&
+        aCards.map(node => node.dataset.card).join(",") === "gA0,gA1" &&
+        aCards.every((node, i) => visibleText(node).includes(tn(OBJ.g.A[i], 3).replace("-", "−"))),
+      "Beat 4 did not accumulate exactly check A's temporary terms");
+      const b = inspect(5);
+      check(b.values === a.values && b.groups.map(node => node.dataset.checkTerms).join(",") === "A,B" &&
+        b.groups.every(node => node.dataset.evaluatedAt === "x0" && node.dataset.retention === "temporary") &&
+        b.groups[0].querySelectorAll('[data-card^="gA"]').length === 2 &&
+        b.groups[1].querySelectorAll('[data-card^="gB"]').length === 2,
+      "Beat 6 did not add B's temporary terms to the same frozen iterate");
+      const bBranches = [...$("lbfgs-graph").querySelectorAll('.derivative-contribution')];
+      check(bBranches.length === 2 && bBranches.map(node => node.dataset.edge).sort().join(",") === "2,3" &&
+        bBranches.every(node => shown(node) && node.dataset.from === "B" && !node.hasAttribute("marker-end") && !node.classList.contains("message")) &&
+        bBranches.map(node => node.dataset.toBit).sort().join(",") === "2,3",
+      "Beat 6 does not show B's non-message derivative-term pairing");
+    };
+    const beat7CausalMatches = () => {
+      const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
+      const outcome = id => document.querySelector(`[data-check="${id}"] .outcome`);
+      const point = () => {
+        const node = document.querySelector('[data-check="lbfgs-first-x-motion"]');
+        return [Number(node.getAttribute("cx")), Number(node.getAttribute("cy"))];
+      };
+      const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) < 1e-6;
+      goTo(6);
+      let state = $("lbfgs-state");
+      const tg = Number(state.dataset.gradientReadyAt), td = Number(state.dataset.directionReadyAt);
+      const tl = Number(state.dataset.lineSearchAt);
+      const tm = Number(state.dataset.moveAt), te = Number(state.dataset.moveDoneAt);
+      check(0 < tg && tg < td && td + 900 < tl && tl < tm && tm < te, "Beat 7 causal milestones are out of order");
+      seek(tg);
+      check(state.dataset.xLock === "locked" && state.dataset.xIterate === "0" &&
+        shown(outcome("lbfgs-first-gradient")) && !shown(outcome("lbfgs-first-direction")) &&
+        !shown(document.querySelector('[data-check="lbfgs-first-direction-arrow"]')) &&
+        near(point(), proj(OBJ.x0)) && $("poly-phase").dataset.stage === "gradient",
+      "Beat 7 did not show the assembled partial derivatives before the direction or movement");
+      goTo(6); state = $("lbfgs-state"); seek(td + 1);
+      check(state.dataset.xLock === "locked" && shown(outcome("lbfgs-first-direction")) &&
+        shown(document.querySelector('[data-check="lbfgs-first-direction-arrow"]')) && near(point(), proj(OBJ.x0)) &&
+        $("poly-phase").dataset.stage === "direction",
+      "Beat 7 did not form the visible search direction while x^(0) remained fixed");
+      goTo(6); state = $("lbfgs-state"); seek(tl + 500);
+      const trialRows = LB.trials0.map((trial, i) => document.querySelector(`.ls-trial-${i}`));
+      const pairedTrials = trialRows.every((row, i) => {
+        if (!row) return false;
+        const [alpha, loss] = LB.trials0[i], text = visibleText(row).replace(/\s+/g, "");
+        const decision = i === LB.trials0.length - 1 ? "accept:" : "reject";
+        return text.includes(`Jα=${alpha}`) && text.includes(tn(loss, 6, false).replace("-", "−")) && text.includes(decision);
+      });
+      check(state.dataset.xLock === "locked" && near(point(), proj(OBJ.x0)) &&
+        !shown(document.querySelector('[data-check="lbfgs-first-direction-arrow"]')) &&
+        !shown(document.querySelector('[data-check="lbfgs-first-accepted-step"]')) &&
+        $("poly-phase").dataset.stage === "step-size" && pairedTrials,
+      "Beat 7 did not separate the direction ray from line-search acceptance");
+      goTo(6); state = $("lbfgs-state"); seek(tm - 1);
+      check(state.dataset.xLock === "locked" && near(point(), proj(OBJ.x0)) &&
+        !shown(document.querySelector('[data-check="lbfgs-first-accepted-step"]')),
+      "x or its accepted displacement appeared before the accepted update");
+      goTo(6); state = $("lbfgs-state"); seek(te - 1);
+      check(state.dataset.xLock === "locked" && state.querySelector('[data-card="xvec"]').dataset.displayState === "transition" &&
+        !near(point(), proj(OBJ.x0)) && !near(point(), proj(LB.x1)) && $("poly-phase").dataset.stage === "moving",
+      "the graph, tray, and coordinate-box movement did not remain synchronized");
+      goTo(6); state = $("lbfgs-state"); seek(te);
+      check(state.dataset.xLock === "unlocked" && state.dataset.xIterate === "1" &&
+        state.dataset.xValues === LB.x1.map(String).join(",") && near(point(), proj(LB.x1)) &&
+        state.querySelector('[data-card="xvec"]').dataset.displayState === "x1" &&
+        shown(outcome("lbfgs-first-x-update")) && shown(document.querySelector('[data-check="lbfgs-first-accepted-step"]')) &&
+        !shown(document.querySelector('[data-check="lbfgs-first-direction-arrow"]')) && $("poly-phase").dataset.stage === "state" &&
+        [...state.querySelectorAll('[data-retention="temporary"]')].every(group => group.classList.contains("spent")) &&
+        [...state.querySelectorAll('[data-retention="temporary"]')].every(group => visibleText(group).includes("used — not retained")) &&
+        visibleText(state.querySelector('[data-tray-group="retained"]')).includes("updated"),
+      "the visible direction did not lead to the verified x^(1) update");
+    };
     root.dataset.tourSmoke = "running";
     root.dataset.tourSmokeMotion = reduced ? "reduced" : "full";
     try {
@@ -2150,7 +2704,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       root.dataset.tourSmokeClose = "passed";
       root.dataset.tourSmokeFocus = "passed";
 
-      speed = 1000; goTo(1); openZoom("bp");
+      speed = 1000; goTo(2); openZoom("bp");
       await wait(20);
       check(tour.on && zoomed === "bp", "BP tutorial did not open");
       for (let i = 0; i < tour.stops.length; i += 1) {
@@ -2173,9 +2727,22 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       check(current === beforeBeat + 1 && tour.on && zoomed === "bp", "Next beat did not retain the tutorial");
       guideMatchesStop();
       check(tour.guide.dataset.step === "1" && tour.guide.dataset.terminal === "false", "Next beat did not reset the presentation guide to step 1");
+      beat4HandoffMatches();
       root.dataset.tourSmokeBeat = "passed";
 
       closeZoom();
+      goTo(2); $("next").click();
+      beat4HandoffMatches();
+      const handoffState = stateSignature();
+      await wait(200);
+      check(stateSignature() === handoffState, "Beat 4 handoff advanced without a click");
+      root.dataset.tourSmokeHandoff = "passed";
+      graphToBoxBridgeMatches();
+      root.dataset.tourSmokeBridge = "passed";
+      frozenAccumulationMatches();
+      root.dataset.tourSmokeFrozen = "passed";
+      beat7CausalMatches();
+      root.dataset.tourSmokeCausal = "passed";
       for (let beat = 0; beat < BEATS.length; beat += 1) {
         goTo(beat);
         for (const key of ["bp", "lbfgs", "poly"]) {
@@ -2196,6 +2763,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
             visited += 1;
           }
           check(visited < tour.stops.length + 1, `${key} clarity sweep exceeded its stop count`);
+          if (beat === 3 && key === "bp") {
+            beat4ParallelMatches();
+            root.dataset.tourSmokeParallel = "passed";
+          }
           closeZoom();
         }
       }
@@ -2246,6 +2817,36 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
           if (!finalOmitted || getComputedStyle(finalOmitted).opacity === "0") throw new Error("the final omitted check-to-variable message is not visible");
           saveSnapshot("smoke-beat3-bp-explain", "bp-explain");
           saveSnapshot("smoke-beat3-bp-hover", "bp-hover");
+        }
+        if (k === 3) {
+          const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
+          const bpOut = [...$("bp-graph").querySelectorAll('[data-beat4-incidence="bp-u"]')];
+          const lbfgsOut = [...$("lbfgs-graph").querySelectorAll('[data-beat4-incidence="lbfgs-g"]')];
+          const edgeSet = nodes => nodes.map(node => node.dataset.edge).sort().join(",");
+          if (bpOut.length !== 2 || lbfgsOut.length !== 2 || edgeSet(bpOut) !== "0,1" || edgeSet(lbfgsOut) !== "0,1" ||
+              ![...bpOut, ...lbfgsOut].every(shown)) throw new Error("Beat 4 does not show both A incidences in both panels");
+          if (!bpOut.every(node => node.classList.contains("message") && node.hasAttribute("marker-end")) ||
+              !lbfgsOut.every(node => node.classList.contains("derivative-contribution") && !node.classList.contains("message") &&
+                !node.classList.contains("travelling") && !node.hasAttribute("marker-end"))) {
+            throw new Error("Beat 4 confuses BP message direction with L-BFGS derivative terms");
+          }
+          const u = [...$("bp-state").querySelectorAll('.state-card[data-card^="u"]')];
+          const xs = [...$("lbfgs-state").querySelectorAll('.state-card[data-card^="x"]')];
+          const gs = [...$("lbfgs-state").querySelectorAll('.scratch-card[data-card^="gA"]')];
+          if (u.length !== 4 || u.filter(node => node.classList.contains("updated-card")).map(node => node.dataset.card).join(",") !== "u0,u1" ||
+              xs.length !== 1 || xs[0].dataset.card !== "xvec" || gs.length !== 2 || $("bp-state").querySelector('[data-card^="u"].scratch-card') ||
+              $("lbfgs-state").querySelector('.state-card[data-card^="g"], .scratch-card[data-card^="x"]')) {
+            throw new Error("Beat 4 boundary shelves do not separate retained state from temporary terms");
+          }
+          if (!$("bp-state").querySelector('[data-tray-group="retained"]') ||
+              !$("lbfgs-state").querySelector('[data-tray-group="retained"]') ||
+              !$("lbfgs-state").querySelector('[data-tray-group="temporary"]')) {
+            throw new Error("Beat 4 boundary shelf labels are missing");
+          }
+          saveSnapshot("smoke-beat4-bp-state", "bp-state");
+          saveSnapshot("smoke-beat4-lbfgs-state", "lbfgs-state");
+          saveSnapshot("smoke-beat4-bp-hover", "bp-hover");
+          saveSnapshot("smoke-beat4-lbfgs-hover", "lbfgs-hover");
         }
         if (k === 6) saveSnapshot("smoke-beat7-lbfgs-math", "lbfgs-math");
         if (k === 6) saveSnapshot("smoke-beat7-bp-math", "bp-math");
