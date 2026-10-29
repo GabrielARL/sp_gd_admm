@@ -154,7 +154,7 @@ def native_fingerprint(trace: dict[str, Any]) -> dict[str, Any]:
 
 
 def check_source_and_math(data: dict[str, Any]) -> int:
-    assert data["schema"] == "bp-lbfgs-state-boundary-animation/v1"
+    assert data["schema"] == "bp-lbfgs-state-boundary-animation/v2"
     assert data["beat_count"] == 10
     assert data["source"]["path"] == SOURCE_REL.as_posix(), "HTML source path is not the authorized retained trace"
     assert data["source"]["sha256"] == SOURCE_SHA256, "HTML source digest is not the authorized retained digest"
@@ -197,28 +197,26 @@ def check_source_and_math(data: dict[str, Any]) -> int:
 
     obj = data["objective"]
     close_vector(obj["ell"], trace["channel_evidence"]["ell_bit0_positive"], "objective-anchor ell")
-    native = trace["rung_results"][6]
-    assert native["card_id"] == "RQ1-ENDPOINT-PG-001"
-    first = native["result"]["trace"][0]
+    # The page's J is the channel rung's objective (channel and parity terms, no binary term)
+    # multiplied by n = 3: that removes the rung's 1/n factor without moving its minimizers.
+    assert obj["anchor_card"] == "RQ1-BRIDGE-CHANNEL-001", "objective anchor is not the channel rung"
+    anchor = next(r for r in trace["rung_results"] if r["card_id"] == obj["anchor_card"])
+    scale = obj["anchor_scale"]
+    assert scale == len(obj["x0"]) == 3, "the anchor scale must be n = 3"
+    first = anchor["result"]["trace"][0]
     close_vector(obj["x0"], first["x_before"], "objective-anchor x0")
-    close_vector(obj["gradient"], first["gradient"], "objective-anchor gradient")
-    close(obj["loss_before"], first["loss_before"], "objective-anchor loss before")
-
-    fingerprint = native_fingerprint(trace)
-    assert fingerprint["schedule"] == "frozen_synchronous_full_gradient"
-    assert fingerprint["projection"] == "componentwise_box"
-    assert fingerprint["preconditioner"] == "native_curvature_bound"
-    assert fingerprint["line_search"] == "native_strict_decrease"
+    close_vector(obj["gradient"], [scale * value for value in first["gradient"]], "objective-anchor gradient times n")
+    close(obj["loss_before"], scale * first["loss_before"], "objective-anchor J(x0) times n")
+    fingerprint = next(f["payload"] for f in trace["fingerprints"] if f["card_id"] == obj["anchor_card"])
     close(obj["weights"]["channel"], fingerprint["channel_weight"], "channel weight")
     close(obj["weights"]["parity"], fingerprint["parity_weight"], "parity weight")
-    close(obj["weights"]["binary"], fingerprint["binary_weight"], "binary weight")
+    close(fingerprint["binary_weight"], 0.0, "anchor rung binary weight")
+    assert set(obj["weights"]) == {"channel", "parity"}, "the page's objective must have exactly two terms"
 
-    n = obj["n"]
     x = obj["x0"]
     ell = obj["ell"]
     w_ch = obj["weights"]["channel"]
     w_par = obj["weights"]["parity"]
-    w_bin = obj["weights"]["binary"]
     checks = [(0, 1), (1, 2)]
     residuals: list[float] = []
     check_terms = [[0.0, 0.0], [0.0, 0.0]]
@@ -226,8 +224,8 @@ def check_source_and_math(data: dict[str, Any]) -> int:
     for check_index, (left, right) in enumerate(checks):
         residual = 1.0 - x[left] * x[right]
         residuals.append(residual)
-        g_left = -(2.0 * w_par / n) * residual * x[right]
-        g_right = -(2.0 * w_par / n) * residual * x[left]
+        g_left = -(2.0 * w_par) * residual * x[right]
+        g_right = -(2.0 * w_par) * residual * x[left]
         check_terms[check_index] = [g_left, g_right]
         parity[left] += g_left
         parity[right] += g_right
@@ -236,11 +234,9 @@ def check_source_and_math(data: dict[str, Any]) -> int:
     close_vector(check_terms[0], obj["g"]["A"], "objective check A terms")
     close_vector(check_terms[1], obj["g"]["B"], "objective check B terms")
 
-    channel = [-(w_ch / (2.0 * n)) * value for value in ell]
-    binary = [(4.0 * w_bin / n) * value * (value * value - 1.0) for value in x]
-    gradient = [parity[i] + channel[i] + binary[i] for i in range(3)]
+    channel = [-(w_ch / 2.0) * value for value in ell]
+    gradient = [parity[i] + channel[i] for i in range(3)]
     close_vector(channel, obj["channel_partial"], "objective channel partial")
-    close_vector(binary, obj["binary_partial"], "objective binary partial")
     close_vector(gradient, obj["gradient"], "recomputed objective gradient")
     close(objective(obj, x), obj["loss_before"], "recomputed J(x0)")
 
@@ -249,20 +245,20 @@ def check_source_and_math(data: dict[str, Any]) -> int:
 
 
 def objective(obj: dict[str, Any], x: list[float]) -> float:
-    n, ell, w = obj["n"], obj["ell"], obj["weights"]
-    channel = -(w["channel"] / (2.0 * n)) * sum(e * v for e, v in zip(ell, x))
-    parity = (w["parity"] / n) * ((1.0 - x[0] * x[1]) ** 2 + (1.0 - x[1] * x[2]) ** 2)
-    binary = (w["binary"] / n) * sum((1.0 - v * v) ** 2 for v in x)
-    return channel + parity + binary
+    """J(x) = -(w_ch / 2) sum_i ell_i x_i + w_par sum_a (1 - prod_{j in a} x_j)^2."""
+    ell, w = obj["ell"], obj["weights"]
+    channel = -(w["channel"] / 2.0) * sum(e * v for e, v in zip(ell, x))
+    parity = w["parity"] * ((1.0 - x[0] * x[1]) ** 2 + (1.0 - x[1] * x[2]) ** 2)
+    return channel + parity
 
 
 def gradient_of(obj: dict[str, Any], x: list[float]) -> list[float]:
-    n, ell, w = obj["n"], obj["ell"], obj["weights"]
-    grad = [-(w["channel"] / (2.0 * n)) * e + (4.0 * w["binary"] / n) * v * (v * v - 1.0) for e, v in zip(ell, x)]
+    ell, w = obj["ell"], obj["weights"]
+    grad = [-(w["channel"] / 2.0) * e for e in ell]
     for left, right in ((0, 1), (1, 2)):
         residual = 1.0 - x[left] * x[right]
-        grad[left] -= (2.0 * w["parity"] / n) * residual * x[right]
-        grad[right] -= (2.0 * w["parity"] / n) * residual * x[left]
+        grad[left] -= 2.0 * w["parity"] * residual * x[right]
+        grad[right] -= 2.0 * w["parity"] * residual * x[left]
     return grad
 
 
@@ -325,6 +321,18 @@ def check_lbfgs(obj: dict[str, Any], lb: dict[str, Any]) -> None:
     close_vector(first["direction"], [-value for value in obj["gradient"]], "L-BFGS first direction is -grad J")
     close_vector(lb["d0"], first["direction"], "L-BFGS d0")
     close(lb["alpha0"], first["alpha"], "L-BFGS alpha0")
+    trials, alpha = [], 1.0
+    for _halving in range(lb["max_halvings"] + 1):
+        proposal = [min(1.0, max(-1.0, xi + alpha * di)) for xi, di in zip(obj["x0"], first["direction"])]
+        trials.append((alpha, objective(obj, proposal)))
+        if trials[-1][1] < obj["loss_before"]:
+            break
+        alpha /= 2.0
+    assert len(lb["trials0"]) == len(trials), "displayed first line-search trials differ in number"
+    for index, ((shown_alpha, shown_loss), (alpha_k, loss_k)) in enumerate(zip(lb["trials0"], trials)):
+        close(shown_alpha, alpha_k, f"first line-search alpha[{index}]")
+        close(shown_loss, loss_k, f"first line-search J[{index}]")
+    assert all(-1.0 < value < 1.0 for value in first["raw"]), "the page says the first step stays inside the box"
     close_vector(lb["x1"], first["x_next"], "L-BFGS x1")
     close(lb["loss1"], first["loss_next"], "L-BFGS J(x1)")
     close_vector(lb["grad1"], first["grad_next"], "L-BFGS grad J(x1)")
@@ -366,7 +374,8 @@ def check_wording_and_structure(html: str) -> None:
         r"\bADMM\b|matched[ -]inputs?|input[ -]matched|common inputs|same inputs|"
         r"identical[ -]inputs?|gradient messages?|hard word|hard decision|"
         r"stored pairs?|retained vectors?|gradient coordinate|box wall|"
-        r"projected L-BFGS|L-BFGS with box projection|"
+        r"projected L-BFGS|L-BFGS with box projection|AWGN log-likelihood|BPSK over AWGN|"
+        r"Constant rule|Sum rule|Constant multiple|Square of a difference|"
         r"\bGD\s+(?:sends|returns|delivers)\b",
         flags=re.IGNORECASE,
     )
@@ -395,10 +404,19 @@ def check_wording_and_structure(html: str) -> None:
         "after $100$ accepted updates",
         "It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble.",
         "independently recomputed by this artifact’s verifier",
-        '"Constant rule"',
-        '"Sum rule"',
+        '"Terms that do not change"',
+        '"Differentiate the remaining terms"',
         '"Chain rule"',
-        '"Constant multiple"',
+        '"Hold x₂ fixed"',
+        '"Channel model"',
+        "With BPSK modulation",
+        "In an AWGN channel",
+        r"does not treat $x_i^2$ as constant inside the box",
+        '"Expand the square"',
+        '"Drop constants"',
+        '"Leave out the recipient"',
+        "it grows as a product moves away from $+1$",
+        "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
     )
     lowered = html.lower()
     for phrase in required:
@@ -475,20 +493,37 @@ def browser_smoke(data: dict[str, Any]) -> str:
         [signed_fixed(value) for value in bp["posterior1"]],
         "rendered BP posterior",
     )
+    beat7_lbfgs_math = snapshots["smoke-beat7-lbfgs-math"]
     assert_in_order(
-        snapshots["smoke-beat7-lbfgs-math"],
+        beat7_lbfgs_math,
         [
             signed_fixed(obj["g"]["A"][1]),
             signed_fixed(obj["g"]["B"][0]),
             signed_fixed(obj["channel_partial"][1]),
-            signed_fixed(obj["binary_partial"][1]),
             signed_fixed(obj["gradient"][1]),
             *[signed_fixed(value) for value in lb["d0"]],
-            f"{lb['loss1']:.6f}", f"{obj['loss_before']:.6f}",
             signed_fixed(lb["x1"][1]),
         ],
         "rendered L-BFGS partial derivative and first update",
     )
+    for _alpha, trial_loss in lb["trials0"]:
+        assert f"{trial_loss:.6f}" in beat7_lbfgs_math, "a first line-search trial loss is not rendered"
+    assert f"{obj['loss_before']:.6f}" in beat7_lbfgs_math, "J(x0) is not rendered with the line-search trials"
+    (alpha1, loss1), (alpha2, loss2), (alpha3, loss3) = lb["trials0"]
+    assert_in_order(
+        beat7_lbfgs_math,
+        [
+            f"Jα={alpha1:g}={loss1:.6f}>J0",
+            f"Jα={alpha2:g}={loss2:.6f}>J0",
+            f"Jα={alpha3:g}={loss3:.6f}<J0={obj['loss_before']:.6f}",
+            f"⇒α0={lb['alpha0']:g}",
+        ],
+        "rendered first line-search trial labels and decisions",
+    )
+    assert beat7_lbfgs_math.count(">") >= 2 and beat7_lbfgs_math.count("<") >= 1, (
+        "the first line-search card does not visibly distinguish two rejected trials from the accepted trial"
+    )
+    assert "⇒α0" in beat7_lbfgs_math, "the accepted first line-search step is not visibly identified"
     assert_in_order(
         snapshots["smoke-beat8-lbfgs-math"],
         [signed_fixed(value) for value in lb["x1"] + lb["s0"] + lb["y0"]],
@@ -520,12 +555,13 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "rendered L-BFGS endpoint in the box",
     )
 
-    # Seek into beat 3: at 1800 ms the value of L_1 is flying into Q_{1->A}; at 3000 ms the
-    # Q_{1->A} label is travelling along its edge; at 5600 ms the r_A derivation is morphing.
-    substitution_dom = dump_dom(browser, base_url + "?at=1800#beat=3", 2500)
-    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 1800 ms"
-    travel_dom = dump_dom(browser, base_url + "?at=3000#beat=3", 2500)
-    assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 3000 ms"
+    # Seek into beat 3. Q_{1->A} is first explained as N(1) \\ A, so its substitution starts later:
+    # at 5600 ms the derivations are morphing, at 22400 ms L_1 is flying into Q_{1->A},
+    # and at 24000 ms the Q_{1->A} label is travelling along its edge.
+    substitution_dom = dump_dom(browser, base_url + "?at=22400#beat=3", 2500)
+    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 22400 ms"
+    travel_dom = dump_dom(browser, base_url + "?at=24000#beat=3", 2500)
+    assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 24000 ms"
     morph_dom = dump_dom(browser, base_url + "?at=5600#beat=3", 2500)
     assert 'class="sparkle"' in morph_dom, "the r_A derivation is not sparkling between two steps at beat 3, 5600 ms"
 
