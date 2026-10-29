@@ -257,6 +257,29 @@ html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr)
 .poly.zoom .rules, .poly.zoom .rules li[data-rule="direction"] { font-size: 18px; }
 .poly.zoom .rules b { font-size: 14px; }
 
+/* ---------- tutorial mode: in an enlarged panel, one highlighted step plays per click ---------- */
+.lane.zoom, .poly.zoom { overflow: hidden; }
+.zoom .zoom-btn { z-index: 32; }
+.spotlight {
+  position: absolute; z-index: 30; pointer-events: none; border-radius: 14px;
+  box-shadow: 0 0 0 3px var(--flash-ink), 0 0 26px 6px rgb(239 124 0 / 35%), 0 0 0 4000px rgb(243 240 232 / 88%);
+  transition: left .45s ease, top .45s ease, width .45s ease, height .45s ease;
+}
+.tour-next {
+  position: absolute; z-index: 31; display: inline-flex; gap: .45em; align-items: center; padding: 10px 20px;
+  color: #fff; background: var(--flash-ink); border: 0; border-radius: 999px; cursor: pointer;
+  font: 700 17px/1.2 var(--sans); white-space: nowrap; box-shadow: 0 8px 22px rgb(179 90 0 / 35%);
+}
+.tour-next[hidden] { display: none; }
+.tour-next .katex { font-size: 1.05em; }
+.tour-next.pop { animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both, beckon 1.6s ease-in-out .5s infinite; }
+.tour-next:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+@keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes beckon {
+  0%, 100% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 0 rgb(239 124 0 / 50%); }
+  50% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 12px rgb(239 124 0 / 0%); }
+}
+
 @media (min-width: 900px) {
   .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); }
   .lane { grid-row: span 5; display: grid; grid-template-rows: subgrid; }
@@ -470,7 +493,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   const TIME = { sub: 1000, fly: 1400, stagger: 600, res: 450, gap: 1000, travel: 2000, hold: 4500, morph: 3000, read: 4200 };
   let current = 0, playing = false, frozen = false, speed = 1;
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const smoke = location.search.includes("smoke=1");
+  const query = new URLSearchParams(location.search);
+  const smoke = query.get("smoke") === "1";
+  const tourSmoke = query.get("tour-smoke") === "1";
   const KATEX = typeof window.katex === "object" && typeof window.katex.renderToString === "function";
   document.documentElement.dataset.math = KATEX ? "katex" : "fallback";
   LBFGS_EXPLAIN[8] = R`Both checks read $x_2^{(1)}=${tn(LB.x1[1])}$. The earlier $\mathbf{s}$ and $\mathbf{y}$ vectors shape the next direction; they do not change the value each check reads.`;
@@ -526,6 +551,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   // Every visual cue in a beat is an event on one clock: it starts at `at` ms and
   // runs for `dur` ms. Without motion, each event jumps straight to its end state.
   const clock = { t: 0, last: 0, length: 0, events: [], raf: 0 };
+  // Tutorial stops: each one plays a single action [at, until] of one panel ("bp", "lbfgs" or "poly").
+  let STOPS = [];
+  function addStop(lane, at, until, target, label) { STOPS.push({ lane, at, until: Math.max(at, until), target, label }); }
+  const tour = { on: false, stops: [], i: 0, running: false, limit: Infinity, spot: null, next: null, returnFocus: null };
   const lerp = (a, b, p) => a + (b - a) * p;
   const ease = p => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
   const nodeOf = target => (typeof target === "function" ? target() : target);
@@ -546,8 +575,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     clock.raf = 0;
     const dt = Math.min(80, Math.max(0, now - clock.last));
     clock.last = now;
-    if (!frozen) clock.t += dt * speed;
+    if (!frozen) clock.t = Math.min(clock.t + dt * speed, tour.on ? tour.limit : Infinity);
     const pending = runEvents();
+    if (tour.on) {
+      if (tour.running) { tourPlace(); if (clock.t >= tour.limit) tourArrive(); else clock.raf = requestAnimationFrame(tick); }
+      return;
+    }
     if (playing && !frozen && clock.t >= clock.length) { advance(); return; }
     if (pending || playing) clock.raf = requestAnimationFrame(tick);
   }
@@ -686,18 +719,22 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       L.outcomes.push(`.${id}c`);
     } else if (v) L.outcomes.push(`.${id}b`);
     out.next = out.done + TIME.gap;
+    addStop(L.method, t, out.done + 500, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); },
+      v ? "Substitute the values" : "Show the result");
     return out;
   }
   function formula(L, t, src, className = "") {
     const id = `${L.method}${++L.n}`;
     L.lines.push(`<span class="line${className ? ` ${className}` : ""}">${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
     L.ev.push(show(() => L.root.querySelector(`.${id}a`), t));
+    addStop(L.method, t, t + 600, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); }, "Show the formula");
     return { done: t + 600, next: t + 600 + TIME.gap };
   }
   function prose(L, t, text) {
     const id = `${L.method}${++L.n}`;
     L.lines.push(`<span class="line prose" data-line="${id}">${mixed(text)}</span>`);
     L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
+    addStop(L.method, t, t + 600, () => L.root.querySelector(`[data-line="${id}"]`), "Next line");
     return { done: t + 600, next: t + 600 + TIME.gap };
   }
   function commit(L) {
@@ -796,6 +833,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         place(label, edgePoint(e, rest));
       } });
     ev.push(blink(label, at + TIME.travel));
+    addStop(G.method, at, at + TIME.travel, () => G.svg.parentNode, "Send the message");
     return { label, land: at + TIME.travel };
   }
 
@@ -1044,6 +1082,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       apply(p) { card.style.opacity = String(p); },
       end() { card.style.opacity = ""; } });
     ev.push(blink(card, at));
+    addStop(G.method, at, at + 600, card, steps[0].tag || "Show the formula");
     const part = name => () => card.querySelector(`.${name}`);
     const holdOf = step => step.hold || TIME.read;
     let t = at + holdOf(steps[0]);
@@ -1057,6 +1096,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         apply(p) { cue.style.opacity = String(p); },
         end() { cue.style.opacity = ""; } }, hide(cue, t, 250));
       ev.push(morphStep(card, state, steps[k], t, TIME.morph, k));
+      addStop(G.method, t, t + TIME.morph, card, steps[k].tag || "Next expression");
       (steps[k].sparkle || []).forEach(key => ev.push(blink(part(key), t + TIME.morph)));
       lands.push(t + TIME.morph);
       t += TIME.morph + (k < steps.length - 1 ? holdOf(steps[k]) : 0);
@@ -1069,6 +1109,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     card.innerHTML = (src ? tex(src, true) : "") + (note ? `<p class="hover-note">${mixed(note)}</p>` : "");
     G.hoverLayer.appendChild(card);
     ev.push(show(card, at, 600), blink(card, at));
+    addStop(G.method, at, at + 600, card, src ? "Show the formula" : "Read the note");
     if (until !== null) ev.push(hide(card, until, 500));
     return { card, part: name => () => card.querySelector(`.${name}`) };
   }
@@ -1197,6 +1238,20 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   // The box shows the iterate for each beat; times come from the L-BFGS lane so the two stay in step.
   function polyBeat(k, ev, sync) {
     const C = cube();
+    const svgT = () => $("poly-graph"), readT = () => $("poly-readout");
+    if (k === 0) addStop("poly", sync.x0, sync.x0 + 1300, svgT, R`Place $\mathbf{x}^{(0)}$`);
+    if (k === 1 || k === 3 || k === 5) addStop("poly", 300, 1000, readT, "Read what the box shows");
+    if (k === 2 || k === 4) addStop("poly", sync.edges, sync.edges + 2300, svgT, R`Show where $r_${k === 2 ? "A" : "B"}=0$`);
+    if (k === 6) {
+      addStop("poly", sync.arrow, sync.arrow + 2400, svgT, R`Show $-\nabla J$`);
+      addStop("poly", sync.step, sync.step + 2400, svgT, "Take the step");
+    }
+    if (k === 7) addStop("poly", sync.s, sync.s + 1600, svgT, R`Draw $\mathbf{s}^{(0)}$`);
+    if (k === 8) {
+      addStop("poly", sync.start + 2400, sync.start + 4100, svgT, R`Use $\mathbf{s}^{(0)}$ and $\mathbf{y}^{(0)}$`);
+      addStop("poly", sync.start + 4600, sync.start + 7100, svgT, "Take the step");
+    }
+    if (k === 9) addStop("poly", sync.start, sync.start + (LB.path.length - 1) * 700 + 700, svgT, "Run every update");
     const readout = $("poly-readout");
     readout.innerHTML = mixed(polyText(k));
     if (k !== 9) ev.push(show(readout, sync.readout != null ? sync.readout : 300, 700));
@@ -1218,7 +1273,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       const old = xDot(C, OBJ.x0, "old"), dot = xDot(C, OBJ.x0);
       xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
       const arrow = xArrow(C, OBJ.x0, LB.x1, "hot");
-      const arrowLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`-\nabla J`, 16, -16);
+      const arrowLabel = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`-\nabla J`, 4, -26);
       const next = xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
       ev.push(grow(arrow, sync.arrow), show(arrowLabel, sync.arrow + 800, 600), show(old, sync.step, 400));
       ev.push(slide(dot, OBJ.x0, LB.x1, sync.step), show(next, sync.step + 1600, 600), blink(dot, sync.step + 1600));
@@ -1228,7 +1283,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       xDot(C, OBJ.x0, "old");
       xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
       const arrow = xArrow(C, OBJ.x0, LB.x1);
-      const label = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`\mathbf{s}^{(0)}`, 16, -16);
+      const label = xLabel3(C, OBJ.x0.map((v, i) => (v + LB.x1[i]) / 2), R`\mathbf{s}^{(0)}`, 4, -26);
       const dot = xDot(C, LB.x1);
       xLabel3(C, LB.x1, R`\mathbf{x}^{(1)}`, 26, 16);
       ev.push(blink(dot, sync.x1), grow(arrow, sync.s), show(label, sync.s + 900, 600));
@@ -1266,6 +1321,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
   // ---------- beat scripts ----------
   function script(k) {
+    STOPS = [];
     $("rules").querySelectorAll("li").forEach(node => node.classList.toggle("visible", RULES_BY_BEAT[k].includes(node.dataset.rule)));
     const B = mathLane("bp"), G = mathLane("lbfgs");
     const bg = graph("bp", k), gg = graph("lbfgs", k);
@@ -1466,6 +1522,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         ev.push(morph(lbfgsCard(`x${i}`), up.done, 1200, p => tex(p === 0 ? xLabel(i, OBJ.x0[i], 0) : xLabel(i, lerp(OBJ.x0[i], LB.x1[i], p), 1))),
           blink(lbfgsCard(`x${i}`), up.done + 1200));
       });
+      addStop("lbfgs", up.done, up.done + 1400, () => gg.svg.parentNode, R`Move $\mathbf{x}$ to $\mathbf{x}^{(1)}$`);
       sync.arrow = d.done; sync.step = up.done; sync.readout = up.done;
     } else if (k === 7) {
       lChips();
@@ -1553,6 +1610,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     $("lbfgs-explain").innerHTML = mixed(LBFGS_EXPLAIN[current]);
     const { events, end } = script(current);
     startTimeline(events, Math.max(9000, end + TIME.hold));
+    if (tour.on) tourStart();
     document.querySelectorAll(".dot").forEach((dot, index) => {
       dot.classList.toggle("past", index < current);
       dot.classList.toggle("now", index === current);
@@ -1561,7 +1619,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     updatePlay();
     if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
   }
-  function updatePlay() { $("play").textContent = playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
+  function updatePlay() { $("play").textContent = tour.on ? "Next step" : playing ? "Pause" : (frozen ? "Resume" : (current === BEATS.length - 1 ? "Replay" : "Play")); }
   // On wide windows the whole page is one 1920 x 1000 screen scaled to fit; narrow windows scroll.
   function fit() {
     const deck = $("deck"), w = window.innerWidth, h = window.innerHeight;
@@ -1577,6 +1635,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     render();
   }
   function play() {
+    if (tour.on) { tourNext(); return; }
     if (playing) { playing = false; frozen = true; updatePlay(); return; }
     playing = true;
     if (frozen) { frozen = false; updatePlay(); wake(); return; }
@@ -1593,10 +1652,135 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     render();
   }
 
+  // ---------- tutorial mode: the enlarged panel plays one highlighted step per click ----------
+  // Between steps the clock waits; a spotlight rings the part that changes next and a button pops out
+  // beside it. Actions whose time windows overlap become one synchronized step with every target
+  // highlighted. A paused or closed step must not leave anything half faded.
+  function settle(startedBefore = Infinity) {
+    clock.events.forEach(e => {
+      if (e.state === 1 && e.at < startedBefore) {
+        if (e.apply) e.apply(1);
+        if (e.end) e.end();
+        e.state = 2;
+      }
+    });
+  }
+  function stopTargets(stop) {
+    return (stop.targets || [stop.target]).map(nodeOf).filter(node => node && node.isConnected);
+  }
+  function stopBounds(stop, panel) {
+    const nodes = stopTargets(stop);
+    if (!nodes.length) return panel.getBoundingClientRect();
+    const boxes = nodes.map(node => node.getBoundingClientRect());
+    return {
+      left: Math.min(...boxes.map(box => box.left)), top: Math.min(...boxes.map(box => box.top)),
+      right: Math.max(...boxes.map(box => box.right)), bottom: Math.max(...boxes.map(box => box.bottom)),
+      width: Math.max(...boxes.map(box => box.right)) - Math.min(...boxes.map(box => box.left)),
+      height: Math.max(...boxes.map(box => box.bottom)) - Math.min(...boxes.map(box => box.top))
+    };
+  }
+  function tourStart() {
+    if (!zoomed || smoke || reduced) return;
+    const panel = PANELS[zoomed]();
+    tour.on = true; tour.running = false; tour.limit = Infinity; playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    const merged = [];
+    STOPS.filter(st => st.lane === zoomed && st.at >= clock.t - 1).sort((a, b) => a.at - b.at).forEach(st => {
+      const last = merged[merged.length - 1];
+      if (last && st.at <= last.until) {
+        last.until = Math.max(last.until, st.until);
+        last.targets.push(st.target);
+        if (!last.labels.includes(st.label)) last.labels.push(st.label);
+      } else merged.push({ ...st, targets: [st.target], labels: [st.label] });
+    });
+    merged.push({ end: true, at: clock.length, until: clock.length, target: panel, label: current < BEATS.length - 1 ? "Next beat" : "Finish" });
+    tour.stops = merged; tour.i = 0;
+    settle();
+    if (!tour.spot) { tour.spot = document.createElement("div"); tour.spot.className = "spotlight"; }
+    if (!tour.next) {
+      tour.next = document.createElement("button");
+      tour.next.type = "button"; tour.next.className = "tour-next";
+      tour.next.addEventListener("click", tourNext);
+    }
+    tour.returnFocus = panel.querySelector(".zoom-btn");
+    panel.append(tour.spot, tour.next);
+    tourShow();
+    updatePlay();
+  }
+  function tourStop() {
+    if (!tour.on) return;
+    const returnFocus = tour.returnFocus;
+    tour.on = false; tour.running = false; tour.limit = Infinity; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    settle();
+    tour.spot.remove(); tour.next.remove();
+    tour.returnFocus = null;
+    if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
+    updatePlay();
+  }
+  function tourShow() {
+    const stop = tour.stops[tour.i];
+    const labels = stop.labels || [stop.label];
+    const label = labels.length === 1 ? labels[0] : `Play ${labels.length} synchronized actions`;
+    tour.next.innerHTML = `${mixed(label)}<span aria-hidden="true">▶</span>`;
+    tour.next.setAttribute("aria-label", labels.map(plain).join("; "));
+    tour.next.hidden = false;
+    tour.next.classList.remove("pop"); void tour.next.offsetWidth; tour.next.classList.add("pop");
+    tourReveal();
+    tour.next.focus({ preventScroll: true });
+  }
+  function tourReveal() {
+    const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
+    if (!panel || !stop) return;
+    const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
+    if (panel.scrollWidth > panel.clientWidth + 1) panel.scrollLeft += ((r.left + r.right) / 2 - (p.left + p.right) / 2) / k;
+    if (panel.scrollHeight > panel.clientHeight + 1) panel.scrollTop += ((r.top + r.bottom) / 2 - (p.top + p.bottom) / 2) / k;
+    tourPlace();
+  }
+  function tourPlace() {
+    const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
+    if (!panel || !stop) return;
+    const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
+    const sx = panel.scrollLeft, sy = panel.scrollTop, W = panel.clientWidth, H = panel.clientHeight, pad = 8;
+    let w = Math.min(r.width / k + 2 * pad, W - 8), h = Math.min(r.height / k + 2 * pad, H - 8);
+    let x = sx + (r.left - p.left) / k - pad, y = sy + (r.top - p.top) / k - pad;
+    x = Math.max(sx + 4, Math.min(sx + W - w - 4, x));
+    y = Math.max(sy + 4, Math.min(sy + H - h - 4, y));
+    Object.assign(tour.spot.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    if (tour.next.hidden) return;
+    const bw = tour.next.offsetWidth, bh = tour.next.offsetHeight;
+    let bx = x + w - bw, by = y + h + 12;
+    if (by + bh > sy + H - 8) by = y - bh - 12;
+    if (by < sy + 8) by = y + h - bh - 8;
+    bx = Math.max(sx + 8, Math.min(sx + W - bw - 8, bx));
+    by = Math.max(sy + 8, Math.min(sy + H - bh - 8, by));
+    Object.assign(tour.next.style, { left: `${bx}px`, top: `${by}px` });
+  }
+  function tourNext() {
+    if (!tour.on || tour.running) return;
+    const stop = tour.stops[tour.i];
+    if (stop.end) {
+      if (current < BEATS.length - 1) { current += 1; render(); } else zoom(null);
+      return;
+    }
+    tour.next.hidden = true;
+    if (clock.t < stop.at) { clock.t = stop.at; runEvents(); }
+    tour.limit = stop.until; tour.running = true; frozen = false;
+    tourPlace();
+    wake();
+  }
+  function tourArrive() {
+    const arrivedAt = tour.limit;
+    tour.running = false; frozen = true; tour.limit = Infinity;
+    settle(arrivedAt);
+    tour.i = Math.min(tour.i + 1, tour.stops.length - 1);
+    tourShow();
+  }
+
   // ---------- enlarge one panel; the other two fade into the background ----------
   // The panel switches to a landscape layout and zooms there from where it stood (a FLIP transition).
   const PANELS = { bp: () => document.querySelector(".lane.bp"), lbfgs: () => document.querySelector(".lane.lbfgs"), poly: () => document.querySelector(".poly") };
-  const animateZoom = !(smoke || reduced);
+  const animateZoom = !(smoke || tourSmoke || reduced);
   let zoomed = null, zoomBusy = false;
   const deckScale = () => $("deck").getBoundingClientRect().width / $("deck").offsetWidth || 1;
   function updateZoomButtons() {
@@ -1612,6 +1796,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     $("deck").classList.add("zoomed");
     panel.classList.add("zoom");
     updateZoomButtons();
+    tourStart();
     if (!animateZoom) return;
     const last = panel.getBoundingClientRect();
     panel.style.transition = "none";
@@ -1635,6 +1820,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       if (then) then();
     };
     zoomBusy = true;
+    tourStop();
     $("deck").classList.remove("zoomed");
     if (!animateZoom) { finish(); return; }
     const last = panel.getBoundingClientRect();
@@ -1672,10 +1858,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   $("next").addEventListener("click", () => goTo(current + 1));
   $("restart").addEventListener("click", () => goTo(0));
   $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
-  window.addEventListener("resize", fit);
+  window.addEventListener("resize", () => { fit(); if (tour.on) tourPlace(); });
   document.addEventListener("keydown", event => {
     if (event.key === "Escape" && zoomed) { event.preventDefault(); zoom(null); return; }
-    if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
+    const control = event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary");
+    if (tour.on && event.key === "ArrowRight" && (!control || event.target === tour.next)) { event.preventDefault(); tourNext(); return; }
+    if (control) return;
     if (event.key === " ") { event.preventDefault(); play(); }
     if (event.key === "ArrowRight") { event.preventDefault(); goTo(current + 1); }
     if (event.key === "ArrowLeft") { event.preventDefault(); goTo(current - 1); }
@@ -1691,10 +1879,81 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     length: () => clock.length,
     seek
   };
+  const nextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+  function tourControlFits() {
+    if (!zoomed || !tour.next || tour.next.hidden) return false;
+    const panelBox = PANELS[zoomed]().getBoundingClientRect(), buttonBox = tour.next.getBoundingClientRect();
+    const spotBox = tour.spot.getBoundingClientRect();
+    const buttonInside = buttonBox.left >= panelBox.left - 1 && buttonBox.right <= panelBox.right + 1 &&
+      buttonBox.top >= panelBox.top - 1 && buttonBox.bottom <= panelBox.bottom + 1;
+    const spotlightVisible = spotBox.width > 0 && spotBox.height > 0 && spotBox.right > panelBox.left &&
+      spotBox.left < panelBox.right && spotBox.bottom > panelBox.top && spotBox.top < panelBox.bottom;
+    return buttonInside && spotlightVisible;
+  }
+  async function runTourSmoke() {
+    const root = document.documentElement;
+    const check = (condition, message) => { if (!condition) throw new Error(message); };
+    root.dataset.tourSmoke = "running";
+    try {
+      speed = 1000;
+      openZoom("lbfgs");
+      await nextFrame();
+      check(tour.on && zoomed === "lbfgs", "L-BFGS tutorial did not open");
+      const grouped = tour.stops.findIndex(stop => stop.labels && stop.labels.length > 1);
+      check(grouped >= 0, "overlapping actions were not grouped");
+      tour.i = grouped; tourShow();
+      check(tour.next.textContent.includes("synchronized actions"), "grouped action label is missing");
+      check(tourControlFits(), "grouped tutorial control is outside the enlarged panel");
+      root.dataset.tourSmokeGrouping = "passed";
+
+      const beforeKey = tour.i;
+      $("speed").focus();
+      $("speed").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+      check(tour.i === beforeKey && !tour.running, "ArrowRight advanced while the speed control had focus");
+      root.dataset.tourSmokeKeyboard = "passed";
+
+      tour.i = tour.stops.findIndex(stop => !stop.end); tourShow(); speed = 0.01;
+      const returnButton = PANELS.lbfgs().querySelector(".zoom-btn");
+      tourNext();
+      check(tour.running, "tutorial step did not start");
+      closeZoom();
+      check(!tour.on && zoomed === null && clock.raf === 0, "closing did not stop the tutorial clock");
+      check(!clock.events.some(event => event.state === 1), "closing left a partially rendered event");
+      check(document.activeElement === returnButton, "closing did not restore focus to the zoom button");
+      root.dataset.tourSmokeClose = "passed";
+      root.dataset.tourSmokeFocus = "passed";
+
+      speed = 1000; goTo(1); openZoom("bp");
+      await nextFrame();
+      check(tour.on && zoomed === "bp", "BP tutorial did not open");
+      for (let i = 0; i < tour.stops.length; i += 1) {
+        tour.i = i; tourShow();
+        check(tourControlFits(), `tutorial control ${i + 1} is outside the enlarged BP panel`);
+      }
+      root.dataset.tourSmokeVisibility = "passed";
+
+      const beforeBeat = current;
+      tour.i = tour.stops.length - 1; tourShow(); tourNext();
+      check(current === beforeBeat + 1 && tour.on && zoomed === "bp", "Next beat did not retain the tutorial");
+      root.dataset.tourSmokeBeat = "passed";
+
+      current = BEATS.length - 1; render();
+      const finalReturnButton = PANELS.bp().querySelector(".zoom-btn");
+      tour.i = tour.stops.length - 1; tourShow(); tourNext();
+      check(!tour.on && zoomed === null, "Finish did not close the tutorial");
+      check(document.activeElement === finalReturnButton, "Finish did not restore focus");
+      root.dataset.tourSmokeFinish = "passed";
+      root.dataset.tourSmoke = "passed";
+    } catch (error) {
+      root.dataset.tourSmoke = "failed";
+      root.dataset.tourSmokeError = error && error.message ? error.message : String(error);
+    }
+  }
   render();
   const seekTo = /[?&]at=(\d+)/.exec(location.search);
   if (seekTo && !smoke) seek(seekTo[1]);
   document.documentElement.dataset.animationReady = "true";
+  if (tourSmoke) runTourSmoke();
   if (smoke) {
     try {
       const snapshots = document.createElement("section");
@@ -1711,6 +1970,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         current = k; render();
         if (!$("beat-subtitle").textContent || !$("bp-math").textContent || !$("lbfgs-math").textContent || !$("poly-readout").textContent) throw new Error(`empty beat ${k + 1}`);
         if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
+        ["bp", "lbfgs", "poly"].forEach(lane => { if (!STOPS.some(st => st.lane === lane)) throw new Error(`no tutorial step for ${lane} in beat ${k + 1}`); });
+        STOPS.forEach(st => { if (!nodeOf(st.target)) throw new Error(`tutorial step "${plain(st.label)}" in beat ${k + 1} has no target`); });
         if (k === 6) saveSnapshot("smoke-beat7-lbfgs-math", "lbfgs-math");
         if (k === 6) saveSnapshot("smoke-beat7-bp-math", "bp-math");
         if (k === 7) saveSnapshot("smoke-beat8-lbfgs-math", "lbfgs-math");

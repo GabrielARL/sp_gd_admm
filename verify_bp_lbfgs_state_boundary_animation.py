@@ -424,6 +424,9 @@ def check_wording_and_structure(html: str) -> None:
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
+    assert 'tour.next.className = "tour-next"' in html and "function tourNext()" in html, "tutorial mode is missing"
+    assert "function runTourSmoke()" in html, "tutorial interaction smoke test is missing"
+    assert "if (!zoomed || smoke || reduced) return;" in html, "reduced-motion mode must not start the timed tutorial"
     assert sorted(re.findall(r'class="zoom-btn" type="button" data-zoom="(\w+)"', html)) == ["bp", "lbfgs", "poly"], (
         "each of the three panels needs one enlarge button"
     )
@@ -477,6 +480,14 @@ def browser_smoke(data: dict[str, Any]) -> str:
         f"one-screen layout clips content at 1910x940: {overflow.group(1) if overflow else 'not measured'}"
     )
     assert "Beat 1 of 10" in smoke_dom, "smoke cycle did not reset to beat 1"
+
+    tour_dom = dump_dom(browser, base_url + "?tour-smoke=1", 5000, window_size="800,700")
+    tour_error = re.search(r'data-tour-smoke-error="([^"]*)"', tour_dom)
+    assert 'data-tour-smoke="passed"' in tour_dom, (
+        f"tutorial interaction smoke failed: {tour_error.group(1) if tour_error else 'no completed result'}"
+    )
+    for gate in ("grouping", "keyboard", "close", "focus", "visibility", "beat", "finish"):
+        assert f'data-tour-smoke-{gate}="passed"' in tour_dom, f"tutorial interaction gate did not pass: {gate}"
 
     snapshots = extract_element_text(
         smoke_dom,
