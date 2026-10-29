@@ -414,13 +414,31 @@ def check_wording_and_structure(html: str) -> None:
         r"does not treat $x_i^2$ as constant inside the box",
         '"Expand the square"',
         '"Drop constants"',
-        '"Leave out the recipient"',
+        "Form the two variable-to-check messages addressed to A",
+        r"Omit $U${uSup}_{${A}\to ${I}}$ from this sum",
+        r"$N(i)\setminus a$ changes only this sum’s index set.",
+        r"is still sent along the bit-${I}–check ${A} edge",
+        "bit ${I} is preparing a message for check ${A}",
+        ".chip.excluded",
+        'omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`',
+        "the Tanner-graph edge remains",
+        "Bit 2 is speaking to check A.",
+        r"Here $U^{(0)}_{B\to 2}=0$",
         "it grows as a product moves away from $+1$",
         "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
     )
     lowered = html.lower()
     for phrase in required:
         assert phrase.lower() in lowered, f"required explanation is missing: {phrase!r}"
+    for stale in (
+        "only check ${rest.join",
+        "message comes back to bit",
+        "because the other incoming",
+        "Leave out check ${A}",
+        'class: "strike"',
+        ".graph .strike",
+    ):
+        assert stale not in html, f"stale recipient-exclusion explanation remains: {stale!r}"
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
@@ -451,7 +469,7 @@ def dump_dom(browser: str, url: str, virtual_time_budget: int, window_size: str 
             "--dump-dom",
             url,
         ]
-        completed = subprocess.run(command, capture_output=True, text=True, timeout=45, check=False)
+        completed = subprocess.run(command, capture_output=True, text=True, timeout=90, check=False)
     if completed.returncode != 0:
         raise AssertionError(f"headless browser exited {completed.returncode}:\n{completed.stderr[-1200:]}")
     assert 'data-animation-ready="true"' in completed.stdout, "browser initialization did not finish"
@@ -491,6 +509,8 @@ def browser_smoke(data: dict[str, Any]) -> str:
 
     snapshots = extract_element_text(
         smoke_dom,
+        "smoke-beat3-bp-explain",
+        "smoke-beat3-bp-hover",
         "smoke-beat7-bp-math",
         "smoke-beat7-lbfgs-math",
         "smoke-beat8-lbfgs-math",
@@ -502,6 +522,16 @@ def browser_smoke(data: dict[str, Any]) -> str:
     bp = data["bp"]
     obj = data["objective"]
     lb = data["lbfgs"]
+    assert_in_order(
+        snapshots["smoke-beat3-bp-explain"],
+        ["Bit 2 is speaking to check A.", "check-to-variable message", "leaves out A’s preceding check-to-variable message"],
+        "rendered recipient-exclusion explanation",
+    )
+    assert_in_order(
+        snapshots["smoke-beat3-bp-hover"],
+        ["bit 2 is preparing a message for check A", "check-to-variable message", "leave out check A’s preceding check-to-variable message"],
+        "rendered recipient-exclusion formula note",
+    )
     assert_in_order(
         snapshots["smoke-beat7-bp-math"],
         [signed_fixed(value) for value in bp["posterior1"]],

@@ -109,8 +109,6 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .graph .tick circle { fill: var(--good); }
 .graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
 .graph .member { fill: none; stroke: var(--flash-ink); stroke-width: 3.5; }
-.graph .member.out { stroke: var(--bad); stroke-dasharray: 7 5; }
-.graph .strike { stroke: var(--bad); stroke-width: 4; stroke-linecap: round; }
 .graph .used { stroke: var(--flash-ink); stroke-width: 9; stroke-linecap: round; opacity: .4; }
 .graph .blink { animation: glow 1.3s ease-in-out; }
 .chips { position: absolute; inset: 0; pointer-events: none; font-size: 2.15cqw; }
@@ -123,6 +121,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .chip.lbfgs { background: var(--lbfgs-soft); border-style: dashed; }
 .chip.value { background: transparent; border-color: transparent; }
 .chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
+.chip.excluded { color: var(--bad); border-color: var(--bad); background: #fff7f7; }
 .chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
 /* general formulas float in the band above the Tanner graph while they are in use; a derivation may grow down over the graph */
 .hover-layer { position: absolute; z-index: 2; inset: 0 0 auto; min-height: 24.74%; display: grid; place-items: center; pointer-events: none; font-size: 2.75cqw; }
@@ -451,7 +450,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   const BEATS = [
     { subtitle: "Fixed graph and channel evidence; stated L-BFGS objective function" },
     { subtitle: "Four addressed BP slots versus three bit scalars" },
-    { subtitle: "A touches bits 1 and 2" },
+    { subtitle: "Form the two variable-to-check messages addressed to A" },
     { subtitle: "Addressed BP messages versus derivative terms" },
     { subtitle: "B touches bits 2 and 3" },
     { subtitle: "Persistent edge values versus temporary calculation cards" },
@@ -463,7 +462,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   const BP_EXPLAIN = [
     "The fixed LLR vector is expressed with positive values favouring bit 1.",
     "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
-    "A receives two $Q$ messages. In iteration 1, the value from bit 2 equals $L_2$ because the other incoming $U$ is still zero.",
+    R`Bit 2 is speaking to check A. It combines its channel LLR $L_2$ with the check-to-variable message from its other neighboring check, B, and leaves out A’s preceding check-to-variable message. Here $U^{(0)}_{B\to 2}=0$, so $Q^{(1)}_{2\to A}=L_2=${tn(BP.L[1])}$.`,
     "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
     "B receives the frozen variable-to-check values for bits 2 and 3.",
     R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
@@ -786,6 +785,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
       svgEl(nodes, "text", { x: PX[i], y: PY + 5, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
     });
+    if (method === "bp" && (k === 2 || k === 4 || k === 8)) {
+      svgEl(nodes, "text", { x: 12, y: VH - 24, class: "small" }, "red crossed U = omit that preceding check-to-variable message; the Tanner-graph edge remains");
+    }
     svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
     const hoverLayer = $(`${method}-hover`);
     hoverLayer.replaceChildren();
@@ -940,32 +942,32 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const I = i + 1, A = CHECK[a], sup = iter === 2 ? "^{(2)}" : "", uSup = `^{(${iter - 1})}`;
     const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
     const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
-    const crossed = R`\{${nbr.map(n => (n === A ? R`\htmlClass{gone}{\cancel{${n}}}` : n)).join(R`,\ `)}\}`;
     const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
     const steps = first ? [{ tex: F.q, tag: "BP variable update", note: R`the message bit $i$ sends to check $a$; the sum runs over $b\in N(i)\setminus a$`, hold: 3600 }] : [];
     steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: "Neighbours", note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = ${crossed} = \htmlClass{mS}{${set(rest)}}`, tag: "Leave out the recipient",
-      note: R`$\setminus ${A}$ removes check ${A}, the check that will receive this message`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ from this sum`,
+      note: R`$N(i)\setminus a$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
     steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{b\in ${set(rest)}} U${uSup}_{b\to ${I}}} = L_${I} + ${sum}`,
-      tag: rest.length ? "Result" : "Empty sum",
-      note: rest.length ? R`only check ${rest.join(", ")}’s message comes back to bit ${I}; check ${A}’s own message is left out`
-        : R`a sum over no checks is $0$, so bit ${I} sends only its channel LLR` });
+      tag: rest.length ? `Message to check ${A}` : "Empty sum",
+      note: rest.length ? R`bit ${I} is preparing a message for check ${A}: use the channel LLR $L_${I}$ and the check-to-variable message $${sum}$ from check ${rest.join(", ")}; leave out check ${A}’s preceding check-to-variable message`
+        : R`bit ${I} is preparing a message for check ${A}; no other neighboring check remains, so the message contains only its channel LLR $L_${I}$` });
     return steps;
   }
-  function addClass(node, at, cls) { return { at, dur: 0, init() { node.classList.remove(cls); }, end() { node.classList.add(cls); } }; }
-  // On the graph: circle each check in N(i), cross out the recipient a, then light the edges whose U is summed.
-  function exclusion(G, i, a, ev, tN, tOut, tUse) {
+  // On the graph: circle each check in N(i), cross the omitted preceding U on the
+  // recipient edge (not the check or edge itself), then light each U that is summed.
+  function exclusion(G, i, a, iter, ev, tN, tOut, tUse) {
     const parts = [];
-    EDGES.filter(e => e.i === i).forEach(e => {
-      const b = e.a, x0 = CX[b] - 36, y0 = CY - 28;
+    EDGES.forEach((edge, e) => {
+      if (edge.i !== i) return;
+      const b = edge.a, x0 = CX[b] - 36, y0 = CY - 28;
       const ring = svgEl(G.nodes, "rect", { x: x0, y: y0, width: 72, height: 56, rx: 12, class: "member" });
       ev.push(show(ring, tN, 600), blink(ring, tN + 600));
       parts.push(ring);
       if (b === a) {
-        const s1 = svgEl(G.nodes, "line", { x1: x0, y1: y0, x2: x0 + 72, y2: y0 + 56, class: "strike" });
-        const s2 = svgEl(G.nodes, "line", { x1: x0 + 72, y1: y0, x2: x0, y2: y0 + 56, class: "strike" });
-        ev.push(addClass(ring, tOut, "out"), show(s1, tOut, 500), show(s2, tOut, 500));
-        parts.push(s1, s2);
+        const omitted = chip(G, edgePoint(e, 0.25), R`\cancel{U^{(${iter - 1})}_{${CHECK[a]}\to ${i + 1}}}`, "excluded");
+        omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`;
+        ev.push(show(omitted, tOut, 500), blink(omitted, tOut + 500));
+        parts.push(omitted);
       } else {
         const used = svgEl(G.flows, "line", { x1: CX[b], y1: CY + 20, x2: PX[i], y2: PY - BIT_R, class: "used" });
         ev.push(show(used, tUse, 700), blink(ring, tUse));
@@ -1417,7 +1419,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       edges.forEach((e, n) => {
         const { i } = EDGES[e];
         const qd = derivation(bg, ev, t, qSteps(i, a, 1, n === 0)), o = n === 0 ? 1 : 0;
-        const marks = exclusion(bg, i, a, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+        const marks = exclusion(bg, i, a, 1, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
         const c = qChain(qd.done + 600, e, 1);
         ev.push(blink(lc[i], c.subs[0]), blink(qd.part("hL"), c.subs[0]));
         if (c.subs.length > 1) ev.push(blink(qd.part("hU"), c.subs[1]));
@@ -1566,7 +1568,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         let t = 1200, last = 0;
         [1, 2].forEach((e, j) => {
           const qd = derivation(bg, ev, t, qSteps(1, EDGES[e].a, 2, j === 0)), o = j === 0 ? 1 : 0;
-          const marks = exclusion(bg, 1, EDGES[e].a, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+          const marks = exclusion(bg, 1, EDGES[e].a, 2, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
           const c = qChain(qd.done + 600, e, 2);
           ev.push(blink(lc[1], c.subs[0]), blink(qd.part("hL"), c.subs[0]), blink(qd.part("hU"), c.subs[1]));
           const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
@@ -1972,6 +1974,17 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
         ["bp", "lbfgs", "poly"].forEach(lane => { if (!STOPS.some(st => st.lane === lane)) throw new Error(`no tutorial step for ${lane} in beat ${k + 1}`); });
         STOPS.forEach(st => { if (!nodeOf(st.target)) throw new Error(`tutorial step "${plain(st.label)}" in beat ${k + 1} has no target`); });
+        if (k === 2) {
+          if ($("bp-graph").querySelector(".strike")) throw new Error("recipient check node is incorrectly struck out");
+          if ($("bp-graph").querySelectorAll(".base").length !== EDGES.length) throw new Error("a Tanner-graph edge was removed");
+          const omitted = [...$("bp-chips").querySelectorAll(".excluded")];
+          const omittedMessages = omitted.map(node => node.dataset.message).sort().join(",");
+          if (omittedMessages !== "U^(0)_A->1,U^(0)_A->2") throw new Error("the exact omitted check-to-variable messages are not marked on their edges");
+          const finalOmitted = omitted.find(node => node.dataset.message === "U^(0)_A->2");
+          if (!finalOmitted || getComputedStyle(finalOmitted).opacity === "0") throw new Error("the final omitted check-to-variable message is not visible");
+          saveSnapshot("smoke-beat3-bp-explain", "bp-explain");
+          saveSnapshot("smoke-beat3-bp-hover", "bp-hover");
+        }
         if (k === 6) saveSnapshot("smoke-beat7-lbfgs-math", "lbfgs-math");
         if (k === 6) saveSnapshot("smoke-beat7-bp-math", "bp-math");
         if (k === 7) saveSnapshot("smoke-beat8-lbfgs-math", "lbfgs-math");
