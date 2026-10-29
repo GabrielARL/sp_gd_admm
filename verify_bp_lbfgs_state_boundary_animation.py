@@ -424,6 +424,9 @@ def check_wording_and_structure(html: str) -> None:
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
+    assert sorted(re.findall(r'class="zoom-btn" type="button" data-zoom="(\w+)"', html)) == ["bp", "lbfgs", "poly"], (
+        "each of the three panels needs one enlarge button"
+    )
     assert '"beat_count": 10' in html
     for asset in (KATEX_JS, KATEX_CSS):
         assert asset in html, f"pinned KaTeX asset with integrity hash is missing: {asset[:60]}..."
@@ -564,6 +567,11 @@ def browser_smoke(data: dict[str, Any]) -> str:
     assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 24000 ms"
     morph_dom = dump_dom(browser, base_url + "?at=5600#beat=3", 2500)
     assert 'class="sparkle"' in morph_dom, "the r_A derivation is not sparkling between two steps at beat 3, 5600 ms"
+    cue_dom = dump_dom(browser, base_url + "?at=3300#beat=3", 2500)
+    cues = re.findall(r'<i class="next-cue"(?: style="([^"]*)")?>', cue_dom)
+    assert any("opacity: 0;" not in (style or "") for style in cues), (
+        "no next-expression triangle is showing before the first derivation change at beat 3, 3300 ms"
+    )
 
     endpoint_time = 900 + (len(lb["path"]) - 1) * 700
     before_endpoint = dump_dom(browser, base_url + f"?at={endpoint_time - 500}#beat=10", 2500)

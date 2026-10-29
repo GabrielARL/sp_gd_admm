@@ -138,6 +138,14 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .hover-note .tag { margin-right: .5em; color: var(--flash-ink); font: 800 .84em/1 var(--sans); letter-spacing: .02em; }
 .hover-note .tag .katex { font-size: 1.15em; }
 .hover.morph { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: center; overflow: visible; font-size: 1.04em; }
+.hover.morph { position: relative; }
+/* a small triangle says the expression is about to change */
+.next-cue {
+  position: absolute; right: .25em; bottom: .3em; width: 0; height: 0; pointer-events: none;
+  border-top: .38em solid transparent; border-bottom: .38em solid transparent; border-left: .58em solid var(--flash-ink);
+  animation: nudge 1s ease-in-out infinite;
+}
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(.2em); } }
 .morph-step { grid-area: 1 / 1; white-space: nowrap; }
 .morph-step .hover-note { max-width: 34em; margin-inline: auto; white-space: normal; }
 .hover .dim { opacity: .26; }
@@ -214,6 +222,41 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.12em); } }
 @keyframes dash { to { stroke-dashoffset: -32; } }
 
+/* ---------- enlarge one panel; the other two fade into the background ---------- */
+.lane, .poly { position: relative; transition: opacity .6s ease, filter .6s ease; }
+.zoom-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 4; display: grid; place-items: center; width: 30px; height: 30px; padding: 0;
+  color: var(--accent); background: #fff; border: 1px solid var(--line); border-radius: 7px; cursor: pointer;
+}
+.zoom-btn:hover { border-color: var(--accent); background: var(--soft); }
+.zoom-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.zoom-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.zoom-btn .shrink, .zoom .zoom-btn .grow { display: none; }
+.zoom .zoom-btn .shrink { display: block; }
+.deck.zoomed .lane:not(.zoom), .deck.zoomed .poly:not(.zoom) { opacity: .08; filter: blur(2px); pointer-events: none; }
+.lane.zoom, .poly.zoom { z-index: 20; box-shadow: 0 1.4em 3.5em rgb(23 33 38 / 24%); }
+/* an absolutely placed grid item is measured from its grid area, so an enlarged panel takes the whole lanes area or the deck's third row */
+html.fit .lanes { position: relative; }
+html.fit .lane.zoom, html.fit .poly.zoom { position: absolute; left: 0; top: 0; width: 1872px; height: 884px; }
+html.fit .lane.zoom { grid-column: 1 / -1; grid-row: 1 / -1; }
+html.fit .poly.zoom { grid-column: 1 / -1; grid-row: 3; }
+html:not(.fit) .lane.zoom, html:not(.fit) .poly.zoom { position: fixed; inset: 8px; display: flex; flex-direction: column; overflow: auto; }
+html.fit .lane.zoom { display: grid; grid-template-columns: 1040px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px; }
+.lane.zoom > h2, .lane.zoom > .state-tray { grid-column: 1 / -1; }
+.lane.zoom > .graph-wrap { grid-column: 1; grid-row: 3 / span 2; align-self: start; }
+.lane.zoom > .math { grid-column: 2; grid-row: 3; min-height: 0; font-size: 18px; }
+.lane.zoom > .explain { grid-column: 2; grid-row: 4; font-size: 18px; }
+html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); gap: 12px 28px; padding: 16px; }
+.poly.zoom > h2 { grid-column: 1 / -1; }
+.poly.zoom > .poly-wrap { grid-column: 1; grid-row: 2 / span 4; max-width: none; margin: 0; }
+.poly.zoom > .poly-readout, .poly.zoom > .update-card, .poly.zoom > .rules, .poly.zoom > .source-note { grid-column: 2; }
+.poly.zoom > .source-note { grid-row: 5; align-self: end; font-size: 13px; }
+.poly.zoom .chips { font-size: 2.6cqw; }
+.poly.zoom .poly-readout { font-size: 20px; }
+.poly.zoom .update-card .katex { font-size: 1.45em; }
+.poly.zoom .rules, .poly.zoom .rules li[data-rule="direction"] { font-size: 18px; }
+.poly.zoom .rules b { font-size: 14px; }
+
 @media (min-width: 900px) {
   .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); }
   .lane { grid-row: span 5; display: grid; grid-template-rows: subgrid; }
@@ -272,6 +315,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
   <section class="lanes" id="lanes">
     <article class="lane bp" aria-labelledby="bp-heading">
+      <button class="zoom-btn" type="button" data-zoom="bp" aria-label="Enlarge the BP panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
       <div class="state-tray" id="bp-state"></div>
       <div class="graph-wrap">
@@ -284,6 +328,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     </article>
 
     <article class="lane lbfgs" aria-labelledby="lbfgs-heading">
+      <button class="zoom-btn" type="button" data-zoom="lbfgs" aria-label="Enlarge the L-BFGS panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="lbfgs-heading">L-BFGS<span class="kind">constructed teaching variant · box projection follows each step · the current <span class="tex">\mathbf{x}</span> has one scalar per bit, and up to ten earlier <span class="tex">\mathbf{s}</span> and <span class="tex">\mathbf{y}</span> vectors also cross iterations · <span class="tex">x_i = +1</span> favours bit 0 · dashed cards are temporary calculations, not messages</span></h2>
       <div class="state-tray" id="lbfgs-state"></div>
       <div class="graph-wrap">
@@ -297,6 +342,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   </section>
 
   <aside class="poly" aria-labelledby="poly-heading">
+    <button class="zoom-btn" type="button" data-zoom="poly" aria-label="Enlarge the box panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
     <h2 id="poly-heading">Where L-BFGS moves <span class="tex">\mathbf{x}</span><span class="kind">the box <span class="tex">[-1,1]^3</span>: each corner gives a hard-decision estimate; 000 and 111 are the codewords</span></h2>
     <div class="poly-wrap">
       <svg class="cube" id="poly-graph" viewBox="0 0 400 360" role="img" aria-label="The box of relaxed bit vectors with the L-BFGS iterate"></svg>
@@ -911,13 +957,14 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     return { x: (x0 - box.left) / k, y: (y0 - box.top) / k, w: (x1 - x0) / k, h: (y1 - y0) / k };
   }
   function morphStep(card, state, step, at, dur, seed) {
-    let from = null, to = null, ghosts = [], sparks = [], size = null;
+    let from = null, to = null, ghosts = [], sparks = [], size = null, fs = 16;
     let r = seed * 7919 % 233280;
     const rand = () => (r = (r * 9301 + 49297) % 233280) / 233280;
     const per = (step.sparkle || []).length > 3 ? 9 : 16;
     return { at, dur,
       start() {
         from = state.layer;
+        fs = parseFloat(getComputedStyle(card).fontSize) || 16;
         const w0 = card.offsetWidth, h0 = card.offsetHeight;
         to = stepLayer(step);
         to.style.opacity = "0";
@@ -925,7 +972,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         const padX = card.offsetWidth - card.clientWidth + parseFloat(getComputedStyle(card).paddingLeft) * 2;
         const padY = card.offsetHeight - card.clientHeight + parseFloat(getComputedStyle(card).paddingTop) + parseFloat(getComputedStyle(card).paddingBottom);
         size = [w0, h0, to.offsetWidth + padX, to.offsetHeight + padY];
-        card.style.width = `${w0}px`; card.style.height = `${h0}px`;
+        card.style.width = `${w0 / fs}em`; card.style.height = `${h0 / fs}em`;
         const box = card.getBoundingClientRect(), k = box.width / card.offsetWidth || 1;
         (step.keys || []).forEach(key => {
           const a = from && from.querySelector(`.${key}`), b = to.querySelector(`.${key}`);
@@ -934,7 +981,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
           if (!ea || !eb) return;
           const ghost = document.createElement("span");
           ghost.className = "katex morph-ghost";
-          ghost.style.fontSize = getComputedStyle(a).fontSize;
+          ghost.style.fontSize = `${parseFloat(getComputedStyle(a).fontSize) / fs}em`;
           ghost.innerHTML = a.innerHTML;
           card.appendChild(ghost);
           a.style.visibility = "hidden";
@@ -960,16 +1007,16 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         const e = ease(p);
         if (from) from.style.opacity = String(Math.max(0, 1 - p / 0.4));
         to.style.opacity = String(Math.min(1, Math.max(0, (p - 0.45) / 0.4)));
-        card.style.width = `${lerp(size[0], size[2], e)}px`;
-        card.style.height = `${lerp(size[1], size[3], e)}px`;
+        card.style.width = `${lerp(size[0], size[2], e) / fs}em`;
+        card.style.height = `${lerp(size[1], size[3], e) / fs}em`;
         ghosts.forEach(g => {
-          g.ghost.style.left = `${lerp(g.from[0], g.to[0], e)}px`;
-          g.ghost.style.top = `${lerp(g.from[1], g.to[1], e) - 10 * Math.sin(Math.PI * p)}px`;
+          g.ghost.style.left = `${lerp(g.from[0], g.to[0], e) / fs}em`;
+          g.ghost.style.top = `${(lerp(g.from[1], g.to[1], e) - 10 * Math.sin(Math.PI * p)) / fs}em`;
         });
         sparks.forEach(sp => {
           const q = Math.min(1, Math.max(0, (p - sp.delay) / sp.life)), glow = Math.sin(Math.PI * q);
-          sp.spark.style.left = `${sp.x}px`;
-          sp.spark.style.top = `${sp.y - 6 * q}px`;
+          sp.spark.style.left = `${sp.x / fs}em`;
+          sp.spark.style.top = `${(sp.y - 6 * q) / fs}em`;
           sp.spark.style.opacity = String(glow);
           sp.spark.style.transform = `scale(${0.2 + sp.size * glow}) rotate(${sp.spin * q}deg)`;
         });
@@ -986,6 +1033,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       } };
   }
   // Step k lands TIME.morph ms after its transition starts and is read for its own hold (default TIME.read).
+  const CUE = 1600;
   function derivation(G, ev, at, steps) {
     const card = document.createElement("div");
     card.className = "hover morph";
@@ -1001,6 +1049,13 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     let t = at + holdOf(steps[0]);
     const lands = [at];
     for (let k = 1; k < steps.length; k += 1) {
+      // the triangle appears CUE ms before the expression changes and leaves when the change starts
+      const cue = document.createElement("i");
+      cue.className = "next-cue";
+      ev.push({ at: t - CUE, dur: 500,
+        init() { cue.style.opacity = "0"; card.appendChild(cue); },
+        apply(p) { cue.style.opacity = String(p); },
+        end() { cue.style.opacity = ""; } }, hide(cue, t, 250));
       ev.push(morphStep(card, state, steps[k], t, TIME.morph, k));
       (steps[k].sparkle || []).forEach(key => ev.push(blink(part(key), t + TIME.morph)));
       lands.push(t + TIME.morph);
@@ -1538,6 +1593,67 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     render();
   }
 
+  // ---------- enlarge one panel; the other two fade into the background ----------
+  // The panel switches to a landscape layout and zooms there from where it stood (a FLIP transition).
+  const PANELS = { bp: () => document.querySelector(".lane.bp"), lbfgs: () => document.querySelector(".lane.lbfgs"), poly: () => document.querySelector(".poly") };
+  const animateZoom = !(smoke || reduced);
+  let zoomed = null, zoomBusy = false;
+  const deckScale = () => $("deck").getBoundingClientRect().width / $("deck").offsetWidth || 1;
+  function updateZoomButtons() {
+    document.querySelectorAll(".zoom-btn").forEach(btn => {
+      const on = btn.dataset.zoom === zoomed;
+      btn.setAttribute("aria-pressed", String(on));
+      btn.title = on ? "Back to all three panels" : "Enlarge";
+    });
+  }
+  function openZoom(key) {
+    const panel = PANELS[key](), first = panel.getBoundingClientRect(), k = deckScale();
+    zoomed = key;
+    $("deck").classList.add("zoomed");
+    panel.classList.add("zoom");
+    updateZoomButtons();
+    if (!animateZoom) return;
+    const last = panel.getBoundingClientRect();
+    panel.style.transition = "none";
+    panel.style.transformOrigin = "0 0";
+    panel.style.transform = `translate(${(first.left - last.left) / k}px, ${(first.top - last.top) / k}px) scale(${first.width / last.width})`;
+    panel.style.opacity = "0.5";
+    void panel.offsetWidth;
+    panel.style.transition = "transform .7s cubic-bezier(.2, .7, .2, 1), opacity .5s ease";
+    panel.style.transform = "";
+    panel.style.opacity = "";
+  }
+  function closeZoom(then) {
+    const panel = PANELS[zoomed](), k = deckScale();
+    const finish = () => {
+      if (!zoomBusy) return;
+      zoomBusy = false;
+      panel.classList.remove("zoom");
+      panel.style.transition = panel.style.transform = panel.style.transformOrigin = panel.style.opacity = "";
+      zoomed = null;
+      updateZoomButtons();
+      if (then) then();
+    };
+    zoomBusy = true;
+    $("deck").classList.remove("zoomed");
+    if (!animateZoom) { finish(); return; }
+    const last = panel.getBoundingClientRect();
+    panel.classList.remove("zoom");
+    const home = panel.getBoundingClientRect();
+    panel.classList.add("zoom");
+    panel.style.transformOrigin = "0 0";
+    panel.style.transition = "transform .55s ease-in, opacity .55s ease-in";
+    panel.style.transform = `translate(${(home.left - last.left) / k}px, ${(home.top - last.top) / k}px) scale(${home.width / last.width})`;
+    panel.style.opacity = "0";
+    panel.addEventListener("transitionend", finish, { once: true });
+    setTimeout(finish, 650);
+  }
+  function zoom(key) {
+    if (zoomBusy) return;
+    if (zoomed) closeZoom(key && key !== zoomed ? () => openZoom(key) : null);
+    else if (key) openZoom(key);
+  }
+
   fit();
   document.querySelectorAll(".tex").forEach(node => { node.innerHTML = tex(node.textContent.trim(), node.classList.contains("display")); });
   $("update-card").innerHTML = tex(UPDATE_TEX, true);
@@ -1551,12 +1667,14 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     timeline.appendChild(dot);
   });
   $("play").addEventListener("click", play);
+  document.querySelectorAll(".zoom-btn").forEach(btn => btn.addEventListener("click", () => zoom(btn.dataset.zoom === zoomed ? null : btn.dataset.zoom)));
   $("back").addEventListener("click", () => goTo(current - 1));
   $("next").addEventListener("click", () => goTo(current + 1));
   $("restart").addEventListener("click", () => goTo(0));
   $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
   window.addEventListener("resize", fit);
   document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && zoomed) { event.preventDefault(); zoom(null); return; }
     if (event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary")) return;
     if (event.key === " ") { event.preventDefault(); play(); }
     if (event.key === "ArrowRight") { event.preventDefault(); goTo(current + 1); }
@@ -1627,6 +1745,23 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
             });
           });
         }
+      }
+      // each panel, enlarged, must also fit every beat
+      if (document.documentElement.classList.contains("fit")) {
+        Object.keys(PANELS).forEach(key => {
+          zoom(key);
+          for (let k = 0; k < BEATS.length; k += 1) {
+            current = k; render();
+            const panel = PANELS[key]();
+            [panel, ...panel.querySelectorAll(".math, .poly-readout")].forEach(node => {
+              if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`enlarged ${key}, beat ${k + 1}: ${node.className}`);
+            });
+            const deck = $("deck").getBoundingClientRect(), box = panel.getBoundingClientRect(), scale = deck.width / $("deck").offsetWidth;
+            const at = [box.left - deck.left, box.top - deck.top, box.width, box.height].map(v => Math.round(v / scale));
+            if (at.join() !== "24,102,1872,884") overflow.push(`enlarged ${key} sits at ${at.slice(0, 2)} with size ${at.slice(2).join("x")}`);
+          }
+          zoom(null);
+        });
       }
       document.documentElement.dataset.layoutOverflow = overflow.length ? overflow.join("; ") : (document.documentElement.classList.contains("fit") ? "none" : "not-fit");
       document.body.appendChild(snapshots);
