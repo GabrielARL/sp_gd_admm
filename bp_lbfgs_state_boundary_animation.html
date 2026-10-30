@@ -73,7 +73,7 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .lanes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 16px; }
 .lane {
   --accent: var(--bp); --soft: var(--bp-soft);
-  min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  min-width: 0; display: flex; flex-direction: column; gap: 5px; padding: 12px;
   background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 12px;
 }
 .lane.lbfgs { --accent: var(--lbfgs); --soft: var(--lbfgs-soft); }
@@ -82,6 +82,25 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .state-tray { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 42px; padding: 5px 8px; background: var(--tint); border-radius: 8px; }
 .state-tray::before { content: attr(data-label); margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
 .state-tray.parallel { min-height: 62px; gap: 5px; }
+.state-memory-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 3px; align-items: stretch; min-width: 0; }
+.state-memory-row > .state-tray { min-width: 0; }
+.memory-box {
+  min-width: 0; min-height: 24px; display: flex; align-items: center; gap: 6px; padding: 3px 7px;
+  color: var(--ink); background: color-mix(in srgb, var(--soft) 72%, #fff); border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--line));
+  border-left: 4px solid var(--accent); border-radius: 8px; overflow: hidden;
+}
+.memory-box.comparison-beat { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--gold) 65%, transparent); }
+.memory-head { display: flex; gap: 5px; align-items: center; min-width: 0; }
+.memory-kicker { color: var(--accent); font: 900 8.5px/1 var(--sans); letter-spacing: .055em; white-space: nowrap; }
+.memory-boundary { padding: 2px 4px; color: #5f574d; background: #fff; border-radius: 999px; font: 800 7.5px/1 var(--sans); white-space: nowrap; }
+.memory-primary { display: flex; gap: 4px; align-items: baseline; min-width: 0; padding-left: 6px; border-left: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); white-space: nowrap; }
+.memory-primary strong { color: var(--accent); font: 800 16px/1 var(--sans); }
+.memory-unit { color: var(--ink); font: 800 9.5px/1 var(--sans); }
+.memory-cap { padding: 2px 4px; color: var(--accent); background: #fff; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 5px; font: 800 8px/1 var(--sans); }
+.memory-detail, .memory-growth, .memory-scope { padding-left: 6px; border-left: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); white-space: nowrap; }
+.memory-detail { color: var(--ink); font: 700 8.5px/1 var(--sans); }
+.memory-growth { color: var(--accent); font: 800 8.2px/1 var(--sans); }
+.memory-scope { margin-left: auto; color: var(--muted); font: 7.6px/1 var(--sans); }
 .tray-group { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; padding: 3px 5px; border-radius: 7px; }
 .tray-group.retained { background: rgb(255 255 255 / 78%); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
 .tray-group.temporary { background: color-mix(in srgb, var(--soft) 78%, #fff); border: 1px dashed var(--accent); }
@@ -321,7 +340,7 @@ html.fit .lane.zoom { grid-column: 1 / -1; grid-row: 1 / -1; }
 html.fit .poly.zoom { grid-column: 1 / -1; grid-row: 3; }
 html:not(.fit) .lane.zoom, html:not(.fit) .poly.zoom { position: fixed; inset: 8px; display: flex; flex-direction: column; overflow: auto; }
 html.fit .lane.zoom { display: grid; grid-template-columns: 1040px minmax(0, 1fr); grid-template-rows: auto auto auto minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px; }
-.lane.zoom > h2, .lane.zoom > .state-tray { grid-column: 1 / -1; }
+.lane.zoom > h2, .lane.zoom > .state-memory-row { grid-column: 1 / -1; }
 .lane.zoom > .graph-wrap { grid-column: 1; grid-row: 3 / span 3; align-self: start; }
 .lane.zoom > .tour-guide { grid-column: 2; grid-row: 3; }
 .lane.zoom > .math { grid-column: 2; grid-row: 4; min-height: 0; font-size: 18px; }
@@ -467,7 +486,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     <article class="lane bp" aria-labelledby="bp-heading">
       <button class="zoom-btn" type="button" data-zoom="bp" aria-label="Enlarge the BP panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
-      <div class="state-tray" id="bp-state" data-label="STATE TRAY"></div>
+      <div class="state-memory-row">
+        <div class="state-tray" id="bp-state" data-label="STATE TRAY"></div>
+        <aside class="memory-box" id="bp-memory" aria-label="BP memory consumption"></aside>
+      </div>
       <div class="graph-wrap">
         <svg class="graph" id="bp-graph" viewBox="0 0 620 388" role="img" aria-label="Belief-propagation Tanner graph"></svg>
         <div class="chips" id="bp-chips" aria-hidden="true"></div>
@@ -480,7 +502,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     <article class="lane lbfgs" aria-labelledby="lbfgs-heading">
       <button class="zoom-btn" type="button" data-zoom="lbfgs" aria-label="Enlarge the L-BFGS panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
       <h2 id="lbfgs-heading">L-BFGS<span class="kind">constructed teaching variant · box projection follows each step · the current <span class="tex">\mathbf{x}</span> has one scalar per bit, and up to ten earlier <span class="tex">\mathbf{s}</span> and <span class="tex">\mathbf{y}</span> vectors also cross iterations · <span class="tex">x_i = +1</span> favours bit 0 · dashed cards are temporary calculations, not messages</span></h2>
-      <div class="state-tray" id="lbfgs-state" data-label="STATE TRAY"></div>
+      <div class="state-memory-row">
+        <div class="state-tray" id="lbfgs-state" data-label="STATE TRAY"></div>
+        <aside class="memory-box" id="lbfgs-memory" aria-label="L-BFGS memory consumption"></aside>
+      </div>
       <div class="graph-wrap">
         <svg class="graph" id="lbfgs-graph" viewBox="0 0 620 388" role="img" aria-label="Tanner graph showing the dependencies of the L-BFGS gradient terms"></svg>
         <div class="chips" id="lbfgs-chips" aria-hidden="true"></div>
@@ -675,6 +700,48 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     return copy.textContent.replace(/​/g, "").replace(/\s+/g, " ").trim();
   }
   const corner = x => x.map(v => (v >= 0 ? "0" : "1")).join("");
+
+  function renderMemoryBoxes(beatIndex) {
+    const edgeCount = DATA.graph.edge_order.length;
+    const dimension = OBJ.x0.length;
+    const memoryPairs = LB.memory_pairs;
+    const historyCapScalars = 2 * dimension * memoryPairs;
+    const totalCapScalars = dimension + historyCapScalars;
+    const scope = "Retained floating-point state only; fixed channel evidence, graph structure, and temporary arithmetic are excluded.";
+    const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory");
+
+    Object.assign(bpMemory.dataset, {
+      scope: "boundary-retained", comparisonBeat: "5", retainedScalars: String(edgeCount),
+      edgeCount: String(edgeCount), growth: "O(|E|)"
+    });
+    bpMemory.title = scope;
+    bpMemory.setAttribute("aria-label", `BP memory consumption at the Beat 5 boundary: ${edgeCount} retained scalar slots, one U value per Tanner-graph edge.`);
+    bpMemory.innerHTML = `
+      <span class="memory-head"><span class="memory-kicker">MEMORY CONSUMPTION</span><span class="memory-boundary">BEAT 5</span></span>
+      <span class="memory-primary"><strong>${edgeCount}</strong> <span class="memory-unit">scalar slots</span></span>
+      <span class="memory-detail">U: one / Tanner edge</span>
+      <span class="memory-growth">|E| · O(|E|)</span>
+      <span class="memory-scope">excludes fixed L / graph / scratch</span>
+      <span class="sr-only">one U per Tanner-graph edge. ${scope}</span>`;
+
+    Object.assign(lbfgsMemory.dataset, {
+      scope: "boundary-retained", comparisonBeat: "5", beat5Scalars: String(dimension),
+      beat5HistoryPairs: "0", historyCapScalars: String(historyCapScalars),
+      totalCapScalars: String(totalCapScalars), dimension: String(dimension),
+      memoryPairs: String(memoryPairs), growth: "O(nm)", fixedCapGrowth: "O(n)"
+    });
+    lbfgsMemory.title = scope;
+    lbfgsMemory.setAttribute("aria-label", `L-BFGS memory consumption at the Beat 5 boundary: ${dimension} retained scalar slots for x; ${totalCapScalars} scalar slots at the configured history cap.`);
+    lbfgsMemory.innerHTML = `
+      <span class="memory-head"><span class="memory-kicker">MEMORY CONSUMPTION</span><span class="memory-boundary">BEAT 5</span></span>
+      <span class="memory-primary"><strong>${dimension}</strong> <span class="memory-unit">scalar slots</span> <span class="memory-cap">cap ${totalCapScalars}</span></span>
+      <span class="memory-detail">x only · history 0 / ${memoryPairs}</span>
+      <span class="memory-growth">O(nm); fixed m = ${memoryPairs} ⇒ O(n)</span>
+      <span class="memory-scope">excludes fixed L / graph / scratch</span>
+      <span class="sr-only">${totalCapScalars} configured cap. history 0 / ${memoryPairs} pairs. ${scope}</span>`;
+
+    [bpMemory, lbfgsMemory].forEach(node => node.classList.toggle("comparison-beat", beatIndex === 4));
+  }
 
   // ---------- beat clock ----------
   // Every visual cue in a beat is an event on one clock: it starts at `at` ms and
@@ -2265,6 +2332,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
     $("bp-state").innerHTML = bpTray;
     $("lbfgs-state").innerHTML = lbfgsTray;
+    renderMemoryBoxes(k);
     $("bp-state").classList.toggle("parallel", k === 3);
     $("bp-state").dataset.label = k === 3 ? "ITERATION BOUNDARY" : "STATE TRAY";
     const lbfgsState = $("lbfgs-state");
@@ -2928,6 +2996,45 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       "Beat 5 did not send only Q_(3 to B) after using the empty-sum zero");
       goTo(previousBeat);
     };
+    const memoryBoxMatches = () => {
+      const previousBeat = current;
+      goTo(4);
+      const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory");
+      const edgeCount = DATA.graph.edge_order.length;
+      const dimension = OBJ.x0.length;
+      const memoryPairs = LB.memory_pairs;
+      const historyCapScalars = 2 * dimension * memoryPairs;
+      const totalCapScalars = dimension + historyCapScalars;
+      const bpText = visibleText(bpMemory), lbfgsText = visibleText(lbfgsMemory);
+      check(bpMemory && lbfgsMemory && !bpMemory.closest(".state-tray") && !lbfgsMemory.closest(".state-tray") &&
+        bpMemory.parentElement.classList.contains("state-memory-row") && lbfgsMemory.parentElement.classList.contains("state-memory-row"),
+      "memory-consumption boxes are not separate from the state trays");
+      check(edgeCount === 4 && Number(bpMemory.dataset.retainedScalars) === edgeCount &&
+        Number(bpMemory.dataset.edgeCount) === edgeCount && bpMemory.dataset.growth === "O(|E|)" &&
+        bpText.includes("4 scalar slots") && bpText.includes("one U per Tanner-graph edge"),
+      "BP memory box does not derive its four retained U slots from the graph edges");
+      check(dimension === 3 && memoryPairs === 10 && Number(lbfgsMemory.dataset.beat5Scalars) === dimension &&
+        Number(lbfgsMemory.dataset.beat5HistoryPairs) === 0 &&
+        Number(lbfgsMemory.dataset.historyCapScalars) === historyCapScalars &&
+        Number(lbfgsMemory.dataset.totalCapScalars) === totalCapScalars &&
+        lbfgsMemory.dataset.growth === "O(nm)" && lbfgsMemory.dataset.fixedCapGrowth === "O(n)" &&
+        lbfgsText.includes("3 scalar slots") && lbfgsText.includes("history 0 / 10 pairs") &&
+        lbfgsText.includes("63 configured cap"),
+      "L-BFGS memory box does not separate Beat-5 state from its configured history cap");
+      check(bpMemory.classList.contains("comparison-beat") && lbfgsMemory.classList.contains("comparison-beat") &&
+        bpText.includes("excludes fixed L / graph / scratch") &&
+        lbfgsText.includes("excludes fixed L / graph / scratch"),
+      "Beat 5 memory boxes do not identify their common accounting scope");
+      for (const row of document.querySelectorAll(".state-memory-row")) {
+        const tray = row.querySelector(".state-tray"), memory = row.querySelector(".memory-box");
+        const a = tray.getBoundingClientRect(), b = memory.getBoundingClientRect(), r = row.getBoundingClientRect();
+        check(a.bottom <= b.top + 1 && a.left >= r.left - 1 && a.right <= r.right + 1 &&
+          b.left >= r.left - 1 && b.right <= r.right + 1 &&
+          a.top >= r.top - 1 && a.bottom <= r.bottom + 1 && b.top >= r.top - 1 && b.bottom <= r.bottom + 1,
+        "a memory-consumption box overlaps its state tray or leaves its row");
+      }
+      goTo(previousBeat);
+    };
     const beat7CausalMatches = () => {
       const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
       const outcome = id => document.querySelector(`[data-check="${id}"] .outcome`);
@@ -3014,6 +3121,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       root.dataset.tourSmokeBit2Cue = "passed";
       beat5BpVisualMatches();
       root.dataset.tourSmokeBeat5BpVisual = "passed";
+      memoryBoxMatches();
+      root.dataset.tourSmokeMemoryBox = "passed";
 
       speed = 1000;
       const playedBeat = current;
@@ -3193,6 +3302,12 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
         ["bp", "lbfgs", "poly"].forEach(lane => { if (!STOPS.some(st => st.lane === lane)) throw new Error(`no tutorial step for ${lane} in beat ${k + 1}`); });
         STOPS.forEach(st => { if (!nodeOf(st.target)) throw new Error(`tutorial step "${plain(st.label)}" in beat ${k + 1} has no target`); });
+        const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory");
+        if (!bpMemory || !lbfgsMemory || bpMemory.closest(".state-tray") || lbfgsMemory.closest(".state-tray") ||
+            Number(bpMemory.dataset.retainedScalars) !== DATA.graph.edge_order.length ||
+            Number(lbfgsMemory.dataset.totalCapScalars) !== OBJ.x0.length * (1 + 2 * LB.memory_pairs)) {
+          throw new Error(`memory-consumption box contract failed in beat ${k + 1}`);
+        }
         if (k === 2) {
           if ($("bp-graph").querySelector(".strike")) throw new Error("recipient check node is incorrectly struck out");
           if ($("bp-graph").querySelectorAll(".base").length !== EDGES.length) throw new Error("a Tanner-graph edge was removed");
@@ -3247,8 +3362,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         }
         if (k === 9) saveSnapshot("smoke-beat10-poly", "poly-readout");
         if (document.documentElement.classList.contains("fit")) {
-          document.querySelectorAll(".deck, .lanes, .lane, .poly, .math, .clock, .readout, .poly-readout").forEach(node => {
-            if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`beat ${k + 1}: ${node.className || node.id}`);
+          document.querySelectorAll(".deck, .lanes, .lane, .state-memory-row, .memory-box, .poly, .math, .clock, .readout, .poly-readout").forEach(node => {
+            if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) {
+              overflow.push(`beat ${k + 1}: ${node.className || node.id} (height +${node.scrollHeight - node.clientHeight}, width +${node.scrollWidth - node.clientWidth})`);
+            }
           });
           if (k === 6) {
             const updateLine = document.querySelector('[data-check="lbfgs-first-x-update"]');

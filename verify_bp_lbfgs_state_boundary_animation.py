@@ -240,6 +240,14 @@ def check_source_and_math(data: dict[str, Any]) -> int:
     close_vector(gradient, obj["gradient"], "recomputed objective gradient")
     close(objective(obj, x), obj["loss_before"], "recomputed J(x0)")
 
+    edge_count = len(data["graph"]["edge_order"])
+    dimension = len(obj["x0"])
+    memory_pairs = data["lbfgs"]["memory_pairs"]
+    assert edge_count == len(bp["u0"]) == 4, "BP memory count must be one U scalar per Tanner-graph edge"
+    assert (dimension, memory_pairs, dimension + 2 * dimension * memory_pairs) == (3, 10, 63), (
+        "L-BFGS memory count must be x plus at most ten (s,y) vector pairs"
+    )
+
     check_lbfgs(obj, data["lbfgs"])
     return numeric_count(bp) + numeric_count(obj) + numeric_count(data["lbfgs"])
 
@@ -460,6 +468,15 @@ def check_wording_and_structure(html: str) -> None:
         'root.dataset.tourSmokeBit2Cue = "passed"',
         "beat5BpVisualMatches",
         'root.dataset.tourSmokeBeat5BpVisual = "passed"',
+        'class="memory-box" id="bp-memory"',
+        'class="memory-box" id="lbfgs-memory"',
+        "function renderMemoryBoxes",
+        "MEMORY CONSUMPTION",
+        "one U per Tanner-graph edge",
+        "configured cap",
+        "Retained floating-point state only; fixed channel evidence, graph structure, and temporary arithmetic are excluded.",
+        "const memoryBoxMatches =",
+        'root.dataset.tourSmokeMemoryBox = "passed"',
         "gold double arrows = connections · blue dashed arrows = BP messages",
         'tag: `DROP ${A}`',
         r"\text{KEEP }U",
@@ -511,6 +528,10 @@ def check_wording_and_structure(html: str) -> None:
     ):
         assert stale not in html, f"stale wording or automatic-advance behavior remains: {stale!r}"
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"
+    assert html.count('class="state-memory-row"') == 2, "each method lane needs one state-and-memory row"
+    assert html.count('id="bp-memory"') == 1 and html.count('id="lbfgs-memory"') == 1, (
+        "each method lane needs exactly one separate memory-consumption box"
+    )
     assert html.count('dot.className = "dot"') == 1, "timeline generator is missing or duplicated"
     assert '<button class="dot"' not in html, "timeline dots must not be duplicated statically"
     assert 'tour.next.className = "tour-next"' in html and "function tourNext()" in html, "tutorial mode is missing"
@@ -608,6 +629,7 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "parallel",
         "bit2-cue",
         "beat5-bp-visual",
+        "memory-box",
         "bridge",
         "frozen",
         "causal",
