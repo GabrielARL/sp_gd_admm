@@ -420,15 +420,17 @@ def check_wording_and_structure(html: str) -> None:
         r"U^{(t-1)}_{c'\to i}",
         r"r_c = 1-",
         r"g_{c,i} = -",
-        r"$c$ is the recipient check; $c'$ runs over the other neighbouring checks",
+        r"Send to $c$; sum $U$ only from the other checks.",
         r"N(${I})\setminus\{${A}\}",
-        r"Omit $U${uSup}_{${A}\to ${I}}$ only from the sum",
-        r"$N(i)\setminus\{c\}$ changes only this sum’s index set.",
-        r"is still sent along the bit-${I}–check ${A} edge",
-        "bit ${I} is preparing a message for check ${A}",
+        r"N(${I})=${crossedNbr}\quad\Longrightarrow\quad \htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}",
+        'tag: `DROP ${A}`',
+        "moveTeachingChip",
+        "bpCombinationCue",
+        'node.dataset.cue = "bp-combine"',
+        "grow(used, tUse",
         ".chip.excluded",
         'omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`',
-        "the Tanner-graph edge remains",
+        "Tanner-graph edges stay",
         "Bit 2 is speaking to check A.",
         r"Here $U^{(0)}_{B\to 2}=0$",
         ">Play beat</button>",
@@ -442,7 +444,14 @@ def check_wording_and_structure(html: str) -> None:
         "Dimmed = context, not removed",
         "Presentation clock waits for your click",
         "Reveal step ${stepNumber}",
-        "Show the BP variable-update rule",
+        "bit2CueMatches",
+        'root.dataset.tourSmokeBit2Cue = "passed"',
+        "beat5BpVisualMatches",
+        'root.dataset.tourSmokeBeat5BpVisual = "passed"',
+        "gold double arrows = connections · blue dashed arrows = BP messages",
+        'tag: `DROP ${A}`',
+        r"\text{KEEP }U",
+        r"\text{DROP }\cancel{U",
         "tour-guide",
         "it grows as a product moves away from $+1$",
         "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
@@ -496,6 +505,17 @@ def check_wording_and_structure(html: str) -> None:
     assert "function runTourSmoke()" in html, "tutorial interaction smoke test is missing"
     assert "if (!zoomed || smoke) return;" in html, "enlarged tutorial must be click-driven"
     assert "if (reduced)" in html and "tourArrive();" in html, "reduced-motion stepping must complete on click without timed motion"
+    cue_patterns = {
+        "bit-2 focus cue": r'["\']bit-2-focus["\']',
+        "bit-2 adjacency cue": r'["\']bit-2-adjacency["\']',
+        "adjacency relation": r'["\']data-relation["\']\s*:\s*["\']adjacency["\']',
+        "bit-2 adjacency origin": r'["\']data-from-bit["\']\s*:',
+        "adjacency check address": r'["\']data-check["\']\s*:',
+    }
+    for label, pattern in cue_patterns.items():
+        assert re.search(pattern, html), f"missing {label} data hook"
+    assert re.search(r'class\s*:\s*["\']bit-sparkle["\']', html), "bit-2 focus cue lacks sparkle elements"
+    assert re.search(r'class\s*:\s*["\']neighbour-arrow["\']', html), "bit-2 adjacency cue lacks neighbour arrows"
     assert sorted(re.findall(r'class="zoom-btn" type="button" data-zoom="(\w+)"', html)) == ["bp", "lbfgs", "poly"], (
         "each of the three panels needs one enlarge button"
     )
@@ -574,6 +594,8 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "beat",
         "handoff",
         "parallel",
+        "bit2-cue",
+        "beat5-bp-visual",
         "bridge",
         "frozen",
         "causal",
@@ -635,7 +657,7 @@ def browser_smoke(data: dict[str, Any]) -> str:
     )
     assert_in_order(
         snapshots["smoke-beat3-bp-hover"],
-        ["bit 2 is preparing a message for check A", "check-to-variable message", "leave out check A’s preceding check-to-variable message"],
+        ["Q2→A", "KEEP B", "Build Q2→A", "send it to A"],
         "rendered recipient-exclusion formula note",
     )
     assert_in_order(
@@ -724,18 +746,18 @@ def browser_smoke(data: dict[str, Any]) -> str:
     )
 
     # Seek into beat 3. Q_{1->A} is first explained as N(1) \\ A, so its substitution starts later:
-    # at 5600 ms the derivations are morphing, at 22400 ms L_1 is flying into Q_{1->A},
-    # and at 24000 ms the Q_{1->A} label is travelling along its edge.
-    substitution_dom = dump_dom(browser, base_url + "?at=22400#beat=3", 2500)
-    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 22400 ms"
-    travel_dom = dump_dom(browser, base_url + "?at=24000#beat=3", 2500)
-    assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 24000 ms"
+    # at 5600 ms the derivations are morphing, at 19000 ms L_1 is flying into Q_{1->A},
+    # and at 20500 ms the Q_{1->A} label is travelling along its edge.
+    substitution_dom = dump_dom(browser, base_url + "?at=19000#beat=3", 2500)
+    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 19000 ms"
+    travel_dom = dump_dom(browser, base_url + "?at=20500#beat=3", 2500)
+    assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 20500 ms"
     morph_dom = dump_dom(browser, base_url + "?at=5600#beat=3", 2500)
     assert 'class="sparkle"' in morph_dom, "the r_A derivation is not sparkling between two steps at beat 3, 5600 ms"
-    cue_dom = dump_dom(browser, base_url + "?at=3300#beat=3", 2500)
+    cue_dom = dump_dom(browser, base_url + "?at=2700#beat=3", 2500)
     cues = re.findall(r'<i class="next-cue"(?: style="([^"]*)")?>', cue_dom)
     assert any("opacity: 0;" not in (style or "") for style in cues), (
-        "no next-expression triangle is showing before the first derivation change at beat 3, 3300 ms"
+        "no next-expression triangle is showing before the first derivation change at beat 3, 2700 ms"
     )
 
     endpoint_time = 900 + (len(lb["path"]) - 1) * 700

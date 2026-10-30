@@ -107,7 +107,10 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
 .graph .dependency { stroke: var(--lbfgs); stroke-width: 3; stroke-dasharray: 7 7; fill: none; }
 .graph .derivative-contribution { stroke: var(--lbfgs); stroke-width: 4; stroke-linecap: round; fill: none; }
-.graph .message { stroke: var(--bp); stroke-width: 3.5; fill: none; stroke-dasharray: 9 7; animation: dash 1.6s linear infinite; }
+.graph .message {
+  stroke: #004f86; stroke-width: 4.5; fill: none; stroke-dasharray: 10 7;
+  filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff); animation: dash 1.35s linear infinite;
+}
 .graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
 .graph .bit.hot, .graph .check.hot { stroke-width: 5; }
 .graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
@@ -116,8 +119,18 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .graph .tick circle { fill: var(--good); }
 .graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
 .graph .member { fill: none; stroke: var(--flash-ink); stroke-width: 3.5; }
+.graph .member.recipient { stroke: var(--bad); stroke-dasharray: 7 5; }
+.graph .member.survivor { stroke: var(--flash-ink); stroke-width: 5; }
 .graph .used { stroke: var(--flash-ink); stroke-width: 9; stroke-linecap: round; opacity: .4; }
 .graph .blink { animation: glow 1.3s ease-in-out; }
+.graph .bit-focus-halo {
+  fill: rgb(255 200 61 / 12%); stroke: var(--flash-ink); stroke-width: 3.5; stroke-dasharray: 5 4;
+}
+.graph .bit-sparkle { fill: #ffc83d; stroke: #9b5100; stroke-width: 1.2; }
+.graph .neighbour-arrow {
+  fill: none; stroke: var(--flash-ink); stroke-width: 4.5; stroke-linecap: round;
+  filter: drop-shadow(0 1px 1px rgb(255 255 255 / 95%));
+}
 .chips { position: absolute; inset: 0; pointer-events: none; font-size: 2.15cqw; }
 .chip {
   position: absolute; z-index: 1; transform: translate(-50%, -50%);
@@ -129,6 +142,10 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .chip.value { background: transparent; border-color: transparent; }
 .chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
 .chip.excluded { color: var(--bad); border-color: var(--bad); background: #fff7f7; }
+.chip.kept { color: #8a4a00; border-color: var(--flash-ink); background: #fff8d8; }
+.chip.destination { color: #fff; border-color: #8d3300; background: #b85f00; font: 800 .9em/1 var(--sans); }
+.chip.combine-input { background: #fff; box-shadow: 0 0 0 .18em rgb(255 255 255 / 88%); }
+.chip.combine-result { background: var(--bp-soft); border-width: 3px; box-shadow: 0 0 0 .22em rgb(0 79 134 / 13%); }
 .chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
 .handoff-cue {
   position: absolute; z-index: 3; left: 1.5%; top: 1.5%; padding: .35em .65em;
@@ -547,7 +564,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     { subtitle: "Four addressed BP slots versus three bit scalars" },
     { subtitle: "Form the two variable-to-check messages addressed to A" },
     { subtitle: "A is joined to two bits in both panels; the retained state differs" },
-    { subtitle: "B touches bits 2 and 3" },
+    { subtitle: "To B: bit 2 keeps A; bit 3 keeps no check" },
     { subtitle: "Persistent edge values versus temporary calculation cards" },
     { subtitle: "BP recurrence versus one L-BFGS step with box projection" },
     { subtitle: "Retained state crosses; temporary calculations fade" },
@@ -559,7 +576,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
     R`Bit 2 is speaking to check A. It combines its channel LLR $L_2$ with the check-to-variable message from its other neighboring check, B, and leaves out A’s preceding check-to-variable message. Here $U^{(0)}_{B\to 2}=0$, so $Q^{(1)}_{2\to A}=L_2=${tn(BP.L[1])}$.`,
     "Check A sends one check-to-variable message along each of its two edges. The two results remain in their separate U slots above.",
-    "B receives the frozen variable-to-check values for bits 2 and 3.",
+    "To send to B: DROP B from the sum. Bit 2 KEEPS A; bit 3 keeps nothing and uses L₃.",
     R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
     "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
     R`The solid $U$ cards cross the boundary. $Q$ and the a-posteriori LLR can be recalculated from the fixed $\mathbf{L}$ and retained $U$ values.`,
@@ -878,27 +895,35 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const svg = $(`${method}-graph`), layer = $(`${method}-chips`);
     svg.replaceChildren();
     layer.replaceChildren();
+    ["bit2FocusAt", "bit2AdjacencyAt", "bit2OmitAt", "bit2ClearAt", "bit2CombineAt", "bit2ResultAt", "bit2SendAt",
+      "bit3FocusAt", "bit3AdjacencyAt", "bit3OmitAt", "bit3ClearAt", "bit3CombineAt", "bit3ResultAt", "bit3SendAt"]
+      .forEach(key => delete svg.dataset[key]);
     addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
+    if (method === "bp") addMarker(svg, "#b85f00", "bp-neighbour-arrow");
     const active = activeEdges(k);
     EDGES.forEach((edge, index) => {
-      svgEl(svg, "line", { x1: PX[edge.i], y1: PY, x2: CX[edge.a], y2: CY, class: "base" + (active.includes(index) ? " active" : "") });
+      svgEl(svg, "line", {
+        x1: PX[edge.i], y1: PY, x2: CX[edge.a], y2: CY,
+        class: "base" + (active.includes(index) ? " active" : ""),
+        "data-edge": index, "data-bit": edge.i + 1, "data-check": CHECK[edge.a]
+      });
     });
     const flows = svgEl(svg, "g", { class: "flow-layer" });
     const nodes = svgEl(svg, "g", { class: "node-layer" });
     [0, 1].forEach(a => {
       const hot = (a === 0 && (k === 2 || k === 3)) || (a === 1 && (k === 4 || k === 5)) || k === 8;
-      svgEl(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
+      svgEl(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : ""), "data-check-node": CHECK[a] });
       svgEl(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
     });
     [0, 1, 2].forEach(i => {
-      svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
+      svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : ""), "data-bit": i + 1 });
       svgEl(nodes, "text", { x: PX[i], y: PY + 5, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
     });
     if (method === "bp" && (k === 2 || k === 4 || k === 8)) {
-      svgEl(nodes, "text", { x: 12, y: VH - 24, class: "small" }, "red crossed U = omit that preceding check-to-variable message; the Tanner-graph edge remains");
+      svgEl(nodes, "text", { x: 12, y: VH - 24, class: "small" }, "red = DROP · gold = KEEP · Tanner-graph edges stay");
     }
     const graphNote = method === "bp"
-      ? "arrowheads and travelling labels show BP message direction"
+      ? "gold double arrows = connections · blue dashed arrows = BP messages"
       : (k === 3 || k === 5
         ? "dashed = input dependence; solid teal = g-to-bit pairing; neither is message motion"
         : "dashed guides = factor dependence, not message motion");
@@ -945,7 +970,16 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   function message(G, e, dir, src, at, ev, cls = "hot", rest = SLOT_T[e]) {
     const t0 = dir === "up" ? atBit(e) : AT_CHECK, t1 = dir === "up" ? AT_CHECK : atBit(e);
     const start = edgePoint(e, t0), stop = edgePoint(e, t1);
-    const line = svgEl(G.flows, "line", { x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message", "marker-end": `url(#${G.method}-arrow)` });
+    const edge = EDGES[e];
+    const line = svgEl(G.flows, "line", {
+      x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message",
+      "marker-end": `url(#${G.method}-arrow)`, "data-relation": "bp-message", "data-edge": e
+    });
+    if (dir === "up") {
+      line.dataset.fromBit = String(edge.i + 1); line.dataset.toCheck = CHECK[edge.a];
+    } else {
+      line.dataset.fromCheck = CHECK[edge.a]; line.dataset.toBit = String(edge.i + 1);
+    }
     const label = chip(G, edgePoint(e, rest), src, cls);
     if (ev === null) return { line, label, land: 0 };
     const hold = t => (t1 > t0 ? Math.min(rest, t) : Math.max(rest, t));
@@ -1074,37 +1108,182 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
     const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
     const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
-    const steps = first ? [{ tex: F.q, tag: "Show the BP variable-update rule", note: R`$c$ is the recipient check; $c'$ runs over the other neighbouring checks in $N(i)\setminus\{c\}$. In this graph, $c$ is $A$ or $B$`, hold: 3600 }] : [];
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: `List bit ${I}'s neighbouring checks`, note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus\{${A}\}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ only from the sum`,
-      note: R`$N(i)\setminus\{c\}$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
-    steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{c'\in ${set(rest)}} U${uSup}_{c'\to ${I}}} = L_${I} + ${sum}`,
-      tag: rest.length ? R`Form $Q${sup}_{${I}\to ${A}}$ from the remaining terms` : R`Use $L_${I}$ because the sum is empty`,
-      note: rest.length ? R`bit ${I} is preparing a message for check ${A}: use the channel LLR $L_${I}$ and the check-to-variable message $${sum}$ from check ${rest.join(", ")}; leave out check ${A}’s preceding check-to-variable message`
-        : R`bit ${I} is preparing a message for check ${A}; no other neighboring check remains, so the message contains only its channel LLR $L_${I}$` });
+    const allowed = R`N(${I})\setminus\{${A}\}`;
+    const visualBBeat = a === 1 && iter === 1;
+    const crossedNbr = R`\{${nbr.map(name => name === A ? R`\htmlClass{gone}{\cancel{${name}}}` : name).join(R`,\ `)}\}`;
+    const steps = first && !visualBBeat ? [{ tex: F.q, tag: "RULE", note: R`Send to $c$; sum $U$ only from the other checks.`, hold: 2800 }] : [];
+    const teachBitTwo = i === 1 && a === 0 && iter === 1;
+    steps.focusIndex = -1;
+    if (teachBitTwo || visualBBeat) {
+      steps.focusIndex = steps.length;
+      steps.push({ tex: visualBBeat ? R`\htmlClass{mBit}{Q${sup}_{${I}\to ${A}}}=?` : R`\htmlClass{mBit}{N(2)=?}`,
+        tag: visualBBeat ? `BIT ${I} → ${A}` : "BIT 2", note: `Start at bit ${I}.`, hold: 2200 });
+    }
+    steps.neighbourIndex = steps.length;
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`,
+      tag: visualBBeat ? `NEIGHBOURS OF BIT ${I}` : (teachBitTwo ? "NEIGHBOURS OF BIT 2" : `NEIGHBOURS OF BIT ${I}`),
+      note: visualBBeat || teachBitTwo ? "Follow the gold graph connections." : R`$N(i)$ lists the connected checks.`,
+      sparkle: visualBBeat ? [] : ["mN"], hold: 2400 });
+    steps.omitIndex = steps.length;
+    steps.push({ tex: visualBBeat
+        ? R`N(${I})=${crossedNbr}\quad\Longrightarrow\quad \htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}`
+        : R`\htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}`,
+      tag: `DROP ${A}`,
+      note: rest.length ? R`${rest.join(" + ")} remains $\Rightarrow$ use $${sum}$ in $Q${sup}_{${I}\to ${A}}$.`
+        : R`Nothing remains $\Rightarrow$ the $U$-sum is $0$.`,
+      keys: ["mN"], sparkle: visualBBeat ? [] : ["mS"], hold: 2400 });
+    steps.useIndex = steps.omitIndex;
+    steps.formIndex = steps.length;
+    steps.push({ tex: rest.length
+        ? R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{${sum}}`
+        : R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{0} = L_${I}`,
+      tag: rest.length ? `KEEP ${rest.join(" + ")}` : `USE L${I}`,
+      note: visualBBeat ? "Watch the selected inputs combine." : R`Build $Q${sup}_{${I}\to ${A}}$, then send it to ${A}.`,
+      sparkle: visualBBeat ? [] : ["hU"] });
     return steps;
+  }
+  function starPoints(cx, cy, outer = 8, inner = 3.2) {
+    const points = [];
+    for (let n = 0; n < 8; n += 1) {
+      const angle = -Math.PI / 2 + n * Math.PI / 4, radius = n % 2 ? inner : outer;
+      points.push(`${cx + Math.cos(angle) * radius},${cy + Math.sin(angle) * radius}`);
+    }
+    return points.join(" ");
+  }
+  function bitFocusCue(G, i) {
+    const group = svgEl(G.nodes, "g", {
+      "data-cue": i === 1 ? "bit-2-focus" : `bit-${i + 1}-focus`, "data-bit": i + 1,
+      role: "img", "aria-label": `Bit ${i + 1} highlighted with sparkles`
+    });
+    svgEl(group, "circle", { cx: PX[i], cy: PY, r: BIT_R + 10, class: "bit-focus-halo" });
+    [[-43, -31], [0, -46], [43, -31], [-44, 31], [44, 31]].forEach(([dx, dy], n) => {
+      svgEl(group, "polygon", {
+        points: starPoints(PX[i] + dx, PY + dy, n % 2 ? 7 : 9), class: "bit-sparkle", "data-spark": n + 1
+      });
+    });
+    return group;
+  }
+  function bitAdjacencyCue(G, i) {
+    const group = svgEl(G.flows, "g", {
+      "data-cue": i === 1 ? "bit-2-adjacency" : `bit-${i + 1}-adjacency`,
+      "data-relation": "adjacency", "data-from-bit": i + 1,
+      role: "img", "aria-label": `Check-node connections of bit ${i + 1}`
+    });
+    const lines = EDGES.map((edge, e) => ({ edge, e })).filter(item => item.edge.i === i).map(({ edge, e }) => {
+      const start = edgePoint(e, atBit(e)), stop = edgePoint(e, AT_CHECK);
+      const line = svgEl(group, "line", {
+        x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "neighbour-arrow",
+        "marker-start": "url(#bp-neighbour-arrow)", "marker-end": "url(#bp-neighbour-arrow)",
+        "data-relation": "adjacency", "data-from-bit": i + 1, "data-check": CHECK[edge.a]
+      });
+      return { line, start, stop };
+    });
+    return { group, lines };
+  }
+  function revealAdjacency(cue, at, ev) {
+    ev.push({ at, dur: 900,
+      init() {
+        cue.group.style.opacity = "0";
+        cue.lines.forEach(({ line, start }) => { line.setAttribute("x2", start[0]); line.setAttribute("y2", start[1]); });
+      },
+      start() { cue.group.style.opacity = ""; },
+      apply(p) {
+        cue.group.style.opacity = String(p);
+        cue.lines.forEach(({ line, start, stop }) => {
+          line.setAttribute("x2", lerp(start[0], stop[0], ease(p)));
+          line.setAttribute("y2", lerp(start[1], stop[1], ease(p)));
+        });
+      },
+      end() {
+        cue.group.style.opacity = "";
+        cue.lines.forEach(({ line, stop }) => { line.setAttribute("x2", stop[0]); line.setAttribute("y2", stop[1]); });
+      } });
+  }
+  function moveTeachingChip(G, node, e, at, dur = 1200) {
+    const from = edgePoint(e, AT_CHECK), to = edgePoint(e, 0.62);
+    return { at, dur,
+      init() { node.style.opacity = "0"; place(node, from); },
+      start() { node.style.opacity = ""; },
+      apply(p) { node.style.opacity = String(Math.min(1, p * 3)); place(node, [lerp(from[0], to[0], ease(p)), lerp(from[1], to[1], ease(p))]); },
+      end() { node.style.opacity = ""; place(node, to); } };
+  }
+  function moveGraphChip(node, from, to, at, dur = 1100) {
+    return { at, dur,
+      init() { node.style.opacity = "0"; place(node, from); },
+      start() { node.style.opacity = ""; },
+      apply(p) { node.style.opacity = String(Math.min(1, p * 3)); place(node, [lerp(from[0], to[0], ease(p)), lerp(from[1], to[1], ease(p))]); },
+      end() { node.style.opacity = ""; place(node, to); } };
+  }
+  function bpCombinationCue(G, e, iter, at, readyAt, ev) {
+    const { i } = EDGES[e], other = e === 1 ? 2 : e === 2 ? 1 : null;
+    const u = iter === 2 ? BP.u1 : BP.u0;
+    const left = [PX[i] - 54, PY - 66], right = [PX[i] + 54, PY - 66], resultAt = edgePoint(e, atBit(e));
+    const lToken = chip(G, below(i), R`L_${i + 1}=${tn(BP.L[i], 3)}`, "combine-input");
+    const rhsSource = other === null ? right : edgePoint(other, 0.62);
+    const rhsSourceText = other === null ? "0" : R`U^{(${iter - 1})}_{${USLOT[other]}}=${tn(u[other], 3)}`;
+    const rhsToken = chip(G, rhsSource, rhsSourceText, "combine-input kept");
+    const plus = chip(G, [PX[i], PY - 66], "+", "sign");
+    const q = iter === 2 ? BP.q2 : BP.q1;
+    const result = chip(G, resultAt, R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}}=${tn(q[e], 3)}`, "combine-result");
+    [lToken, rhsToken, plus, result].forEach(node => { node.dataset.cue = "bp-combine"; node.dataset.bit = String(i + 1); });
+    result.dataset.role = "q-result";
+    const cueKey = `bit${i + 1}`;
+    G.svg.dataset[`${cueKey}CombineAt`] = String(at);
+    G.svg.dataset[`${cueKey}ResultAt`] = String(at + 1900);
+    G.svg.dataset[`${cueKey}SendAt`] = String(readyAt);
+    ev.push(moveGraphChip(lToken, below(i), left, at, 1100));
+    if (other === null) ev.push(show(rhsToken, at + 350, 450));
+    else ev.push(moveGraphChip(rhsToken, rhsSource, right, at, 1100));
+    ev.push(show(plus, at + 350, 450), show(result, at + 1450, 450), blink(result, at + 1900),
+      hide(lToken, at + 1500, 350), hide(rhsToken, at + 1500, 350), hide(plus, at + 1500, 350), hide(result, readyAt, 0));
+    return result;
   }
   // On the graph: circle each check in N(i), cross the omitted preceding U on the
   // recipient edge (not the check or edge itself), then light each U that is summed.
-  function exclusion(G, i, a, iter, ev, tN, tOut, tUse) {
-    const parts = [];
+  function exclusion(G, i, a, iter, ev, timing) {
+    const { focusAt = null, neighbourAt: tN, omitAt: tOut, useAt: tUse, clearAt = null } = timing;
+    const parts = [], teachingParts = [];
+    const destinationAt = focusAt === null ? tN : focusAt;
+    const destination = chip(G, [CX[a] + (a === 0 ? -54 : 54), CY + 2], R`\text{TO ${CHECK[a]}}`, "destination");
+    ev.push(show(destination, destinationAt, 450), blink(destination, destinationAt + 450),
+      blink(() => G.svg.querySelector(`[data-check-node="${CHECK[a]}"]`), destinationAt));
+    parts.push(destination);
+    if (focusAt !== null) {
+      const focus = bitFocusCue(G, i), adjacency = bitAdjacencyCue(G, i);
+      ev.push(show(focus, focusAt, 600), blink(focus, focusAt + 600));
+      revealAdjacency(adjacency, tN, ev);
+      ev.push(hide(focus, tOut, 350), hide(adjacency.group, tOut, 350));
+      const cueKey = `bit${i + 1}`;
+      G.svg.dataset[`${cueKey}FocusAt`] = String(focusAt);
+      G.svg.dataset[`${cueKey}AdjacencyAt`] = String(tN);
+      G.svg.dataset[`${cueKey}OmitAt`] = String(tOut);
+      if (clearAt !== null) G.svg.dataset[`${cueKey}ClearAt`] = String(clearAt);
+    }
     EDGES.forEach((edge, e) => {
       if (edge.i !== i) return;
       const b = edge.a, x0 = CX[b] - 36, y0 = CY - 28;
       const ring = svgEl(G.nodes, "rect", { x: x0, y: y0, width: 72, height: 56, rx: 12, class: "member" });
       ev.push(show(ring, tN, 600), blink(ring, tN + 600));
-      parts.push(ring);
+      teachingParts.push(ring);
       if (b === a) {
-        const omitted = chip(G, edgePoint(e, 0.25), R`\cancel{U^{(${iter - 1})}_{${CHECK[a]}\to ${i + 1}}}`, "excluded");
+        const omitted = chip(G, edgePoint(e, 0.62), R`\text{DROP }\cancel{U^{(${iter - 1})}_{${CHECK[a]}\to ${i + 1}}}`, "excluded");
         omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`;
-        ev.push(show(omitted, tOut, 500), blink(omitted, tOut + 500));
-        parts.push(omitted);
+        ev.push(show(omitted, tOut, 500), blink(omitted, tOut + 500),
+          blink(() => G.svg.querySelector(`[data-check-node="${CHECK[a]}"]`), tOut),
+          { at: tOut, dur: 0, end() { ring.classList.add("recipient"); } });
+        teachingParts.push(omitted);
       } else {
         const used = svgEl(G.flows, "line", { x1: CX[b], y1: CY + 20, x2: PX[i], y2: PY - BIT_R, class: "used" });
-        ev.push(show(used, tUse, 700), blink(ring, tUse));
-        parts.push(used);
+        const kept = chip(G, edgePoint(e, 0.62), R`\text{KEEP }U^{(${iter - 1})}_{${CHECK[b]}\to ${i + 1}}`, "kept");
+        kept.dataset.role = "kept-input";
+        kept.dataset.message = `U^(${iter - 1})_${CHECK[b]}->${i + 1}`;
+        ev.push(grow(used, tUse, 1000), moveTeachingChip(G, kept, e, tUse, 1200),
+          blink(ring, tUse), blink(kept, tUse + 1200),
+          { at: tUse, dur: 0, end() { ring.classList.add("survivor"); } });
+        teachingParts.push(used, kept);
       }
     });
+    if (clearAt !== null) teachingParts.forEach(node => ev.push(hide(node, clearAt, 350)));
     return parts;
   }
   // A floating derivation: TeX steps cross-fade into each other while parts tagged
@@ -1235,6 +1414,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       t += TIME.morph + (k < steps.length - 1 ? holdOf(steps[k]) : 0);
     }
     return { card, done: t, part, lands };
+  }
+  function derivationCueAt(derivationState, stepIndex, initialAt) {
+    if (stepIndex < 0) return null;
+    return Math.max(initialAt, derivationState.lands[stepIndex] - (stepIndex === 0 ? 0 : TIME.morph / 2));
   }
   function hover(G, ev, at, src, note = "", until = null) {
     const card = document.createElement("div");
@@ -1682,11 +1865,18 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       let t = 300;
       edges.forEach((e, n) => {
         const { i } = EDGES[e];
-        const qd = derivation(bg, ev, t, qSteps(i, a, 1, n === 0)), o = n === 0 ? 1 : 0;
-        const marks = exclusion(bg, i, a, 1, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+        const qSpec = qSteps(i, a, 1, n === 0), qd = derivation(bg, ev, t, qSpec);
+        const marks = exclusion(bg, i, a, 1, ev, {
+          focusAt: derivationCueAt(qd, qSpec.focusIndex, t),
+          neighbourAt: derivationCueAt(qd, qSpec.neighbourIndex, t),
+          omitAt: derivationCueAt(qd, qSpec.omitIndex, t),
+          useAt: derivationCueAt(qd, qSpec.useIndex, t),
+          clearAt: qd.lands[qSpec.formIndex]
+        });
         const c = qChain(qd.done + 600, e, 1);
         ev.push(blink(lc[i], c.subs[0]), blink(qd.part("hL"), c.subs[0]));
         if (c.subs.length > 1) ev.push(blink(qd.part("hU"), c.subs[1]));
+        if (k === 4) bpCombinationCue(bg, e, 1, c.t, c.done, ev);
         const m = message(bg, e, "up", qLabel(e, 1), c.done, ev);
         if (n < edges.length - 1) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
         t = m.land + 600;
@@ -1962,8 +2152,14 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         });
         let t = 1200, last = 0;
         [1, 2].forEach((e, j) => {
-          const qd = derivation(bg, ev, t, qSteps(1, EDGES[e].a, 2, j === 0)), o = j === 0 ? 1 : 0;
-          const marks = exclusion(bg, 1, EDGES[e].a, 2, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+          const qSpec = qSteps(1, EDGES[e].a, 2, j === 0), qd = derivation(bg, ev, t, qSpec);
+          const marks = exclusion(bg, 1, EDGES[e].a, 2, ev, {
+            focusAt: derivationCueAt(qd, qSpec.focusIndex, t),
+            neighbourAt: derivationCueAt(qd, qSpec.neighbourIndex, t),
+            omitAt: derivationCueAt(qd, qSpec.omitIndex, t),
+            useAt: derivationCueAt(qd, qSpec.useIndex, t),
+            clearAt: qd.lands[qSpec.formIndex]
+          });
           const c = qChain(qd.done + 600, e, 2);
           ev.push(blink(lc[1], c.subs[0]), blink(qd.part("hL"), c.subs[0]), blink(qd.part("hU"), c.subs[1]));
           const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
@@ -2547,6 +2743,92 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         bBranches.map(node => node.dataset.toBit).sort().join(",") === "2,3",
       "Beat 6 does not show B's non-message derivative-term pairing");
     };
+    const bit2CueMatches = () => {
+      const visible = node => {
+        if (!node || !node.isConnected) return false;
+        for (let currentNode = node; currentNode && currentNode.nodeType === 1; currentNode = currentNode.parentElement) {
+          const style = getComputedStyle(currentNode);
+          if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+        }
+        return true;
+      };
+      const previousBeat = current;
+      goTo(2);
+      const svg = $("bp-graph"), focus = svg.querySelector('[data-cue="bit-2-focus"]');
+      const adjacency = svg.querySelector('[data-cue="bit-2-adjacency"]');
+      const stars = [...svg.querySelectorAll('[data-cue="bit-2-focus"] .bit-sparkle')];
+      const arrows = [...svg.querySelectorAll('[data-cue="bit-2-adjacency"] .neighbour-arrow')];
+      const focusAt = Number(svg.dataset.bit2FocusAt), adjacencyAt = Number(svg.dataset.bit2AdjacencyAt);
+      const omitAt = Number(svg.dataset.bit2OmitAt);
+      check(Number.isFinite(focusAt) && focusAt < adjacencyAt && adjacencyAt < omitAt,
+        "bit-2 teaching cue milestones are missing or out of order");
+      check(stars.length >= 4 && arrows.length === 2 && arrows.map(node => node.dataset.check).sort().join(",") === "A,B" &&
+        arrows.every(node => node.dataset.relation === "adjacency" && node.dataset.fromBit === "2" &&
+          node.hasAttribute("marker-start") && node.hasAttribute("marker-end") &&
+          !node.classList.contains("message") && !node.classList.contains("travelling")),
+      "bit 2 does not have two explicitly non-message adjacency arrows to A and B");
+
+      seek(focusAt + 700);
+      check(visible(focus) && stars.every(visible) && !visible(adjacency) &&
+        [...svg.querySelectorAll('.message[data-from-bit="2"]')].every(node => !visible(node)),
+      "the first click stage did not isolate bit 2 with sparkles before its connections");
+
+      seek(adjacencyAt + 950);
+      const explanation = [...$("bp-hover").querySelectorAll(".hover")].filter(visible).map(visibleText).join(" ");
+      check(visible(focus) && visible(adjacency) && arrows.every(visible) &&
+        explanation.includes("NEIGHBOURS OF BIT 2") && explanation.includes("Follow the gold graph connections") &&
+        visibleText(svg).includes("gold double arrows = connections · blue dashed arrows = BP messages") &&
+        [...svg.querySelectorAll('.message[data-from-bit="2"]')].every(node => !visible(node)),
+      "the second click stage did not connect bit 2 visibly to A and B before its BP message");
+
+      seek(omitAt + 400);
+      check(!visible(focus) && !visible(adjacency),
+        "bit-2 teaching cues did not clear before recipient-message exclusion");
+      goTo(previousBeat);
+    };
+    const beat5BpVisualMatches = () => {
+      const visible = node => {
+        if (!node || !node.isConnected) return false;
+        for (let currentNode = node; currentNode && currentNode.nodeType === 1; currentNode = currentNode.parentElement) {
+          const style = getComputedStyle(currentNode);
+          if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+        }
+        return true;
+      };
+      const previousBeat = current;
+      goTo(4);
+      const svg = $("bp-graph"), time = key => Number(svg.dataset[key]);
+      const ordered = ["bit2FocusAt", "bit2AdjacencyAt", "bit2OmitAt", "bit2ClearAt", "bit2CombineAt", "bit2ResultAt", "bit2SendAt",
+        "bit3FocusAt", "bit3AdjacencyAt", "bit3OmitAt", "bit3ClearAt", "bit3CombineAt", "bit3ResultAt", "bit3SendAt"].map(time);
+      check(ordered.every(Number.isFinite) && ordered.every((value, index) => index === 0 || ordered[index - 1] < value),
+        "Beat 5 BP visual milestones are missing or out of order");
+      const visibleHoverText = () => [...$("bp-hover").querySelectorAll(".hover")].filter(visible).map(visibleText).join(" ");
+
+      seek(time("bit2OmitAt") + TIME.morph / 2);
+      check(visibleHoverText().includes("DROP B") && visibleHoverText().includes("A remains") &&
+        [...document.querySelectorAll("#bp-chips .excluded, #bp-chips .kept")].filter(visible).length === 2,
+      "Beat 5 did not visibly turn N(2) minus B into the one kept A input");
+      seek(time("bit2ResultAt"));
+      const q2Result = document.querySelector('[data-cue="bp-combine"][data-bit="2"][data-role="q-result"]');
+      check(visible(q2Result) && [...document.querySelectorAll("#bp-chips .excluded")].every(node => !visible(node)),
+        "Beat 5 did not combine the selected bit-2 inputs into Q_(2 to B)");
+      seek(time("bit2SendAt") + 800);
+      check(!visible(q2Result) && visible(svg.querySelector('.message[data-from-bit="2"][data-to-check="B"]')) &&
+        [...document.querySelectorAll("#bp-chips .excluded, #bp-chips .kept")].every(node => !visible(node)),
+      "Beat 5 did not clear its teaching overlays before Q_(2 to B) travelled");
+
+      seek(time("bit3OmitAt") + TIME.morph / 2);
+      check(visibleHoverText().includes("DROP B") && visibleHoverText().includes("Nothing remains"),
+        "Beat 5 did not visibly turn N(3) minus B into the empty set");
+      seek(time("bit3ResultAt"));
+      const q3Result = document.querySelector('[data-cue="bp-combine"][data-bit="3"][data-role="q-result"]');
+      check(visible(q3Result), "Beat 5 did not form Q_(3 to B) from L3 and the empty-sum zero");
+      seek(time("bit3SendAt") + 800);
+      check(!visible(q3Result) && visible(svg.querySelector('.message[data-from-bit="3"][data-to-check="B"]')) &&
+        [...document.querySelectorAll("#bp-chips .excluded, #bp-chips .kept")].every(node => !visible(node)),
+      "Beat 5 did not clear its teaching overlays before Q_(3 to B) travelled");
+      goTo(previousBeat);
+    };
     const beat7CausalMatches = () => {
       const shown = node => node && node.isConnected && getComputedStyle(node).opacity !== "0";
       const outcome = id => document.querySelector(`[data-check="${id}"] .outcome`);
@@ -2628,6 +2910,11 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       await wait(1200);
       check(stateSignature() === loadState && clock.t === 0, "animation advanced before a click");
       root.dataset.tourSmokeLoadIdle = "passed";
+
+      bit2CueMatches();
+      root.dataset.tourSmokeBit2Cue = "passed";
+      beat5BpVisualMatches();
+      root.dataset.tourSmokeBeat5BpVisual = "passed";
 
       speed = 1000;
       const playedBeat = current;
@@ -2814,7 +3101,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
           const omittedMessages = omitted.map(node => node.dataset.message).sort().join(",");
           if (omittedMessages !== "U^(0)_A->1,U^(0)_A->2") throw new Error("the exact omitted check-to-variable messages are not marked on their edges");
           const finalOmitted = omitted.find(node => node.dataset.message === "U^(0)_A->2");
-          if (!finalOmitted || getComputedStyle(finalOmitted).opacity === "0") throw new Error("the final omitted check-to-variable message is not visible");
+          if (!finalOmitted || getComputedStyle(finalOmitted).opacity !== "0") throw new Error("the omitted-message teaching card did not clear before the real Q message");
+          const finalQ = $("bp-graph").querySelector('.message[data-from-bit="2"][data-to-check="A"]');
+          if (!finalQ || getComputedStyle(finalQ).opacity === "0") throw new Error("the final Q_(2 to A) message is not visible after the teaching cue clears");
           saveSnapshot("smoke-beat3-bp-explain", "bp-explain");
           saveSnapshot("smoke-beat3-bp-hover", "bp-hover");
         }
