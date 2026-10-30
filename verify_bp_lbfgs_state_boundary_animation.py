@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Any
@@ -29,16 +30,21 @@ KATEX_CSS = (
     'href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" '
     'integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"'
 )
+LBFGS_MEMORY_SCOPE = (
+    "Retained floating-point state only; fixed channel evidence, graph structure, "
+    "and temporary arithmetic are excluded."
+)
 
 
-class AnimationDataParser(HTMLParser):
-    def __init__(self) -> None:
+class ScriptDataParser(HTMLParser):
+    def __init__(self, target_id: str) -> None:
         super().__init__()
+        self.target_id = target_id
         self.in_data = False
         self.parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag == "script" and dict(attrs).get("id") == "animation-data":
+        if tag == "script" and dict(attrs).get("id") == self.target_id:
             self.in_data = True
 
     def handle_endtag(self, tag: str) -> None:
@@ -91,10 +97,18 @@ def sha256(path: Path) -> str:
 
 
 def extract_data(html: str) -> dict[str, Any]:
-    parser = AnimationDataParser()
+    parser = ScriptDataParser("animation-data")
     parser.feed(html)
     if not parser.parts:
         raise AssertionError("missing animation-data JSON")
+    return json.loads("".join(parser.parts))
+
+
+def extract_script_json(html: str, script_id: str) -> Any:
+    parser = ScriptDataParser(script_id)
+    parser.feed(html)
+    if not parser.parts:
+        raise AssertionError(f"missing {script_id} JSON")
     return json.loads("".join(parser.parts))
 
 
@@ -428,21 +442,29 @@ def check_wording_and_structure(html: str) -> None:
         r"U^{(t-1)}_{c'\to i}",
         r"r_c = 1-",
         r"g_{c,i} = -",
-        r"Send to $c$; sum $U$ only from the other checks.",
-        r"N(${I})\setminus\{${A}\}",
-        r"N(${I})=${crossedNbr}\quad\Longrightarrow\quad \htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}",
-        'tag: `DROP ${A}`',
-        "moveTeachingChip",
+        "a positive channel LLR favours bit 1",
+        "ADDRESS → KEEP",
+        r"READ frozen $U^{(0)}$ → COMBINE at the bit → CREATE $Q^{(1)}$ → SEND",
+        r"READ the other incoming $Q^{(1)}$ at A → CREATE $U^{(1)}$ → SEND it to its addressed bit → STORE",
+        r"It is not sent along an edge.",
+        r"KEEP $\mathbf{U}^{(1)}$ across the boundary.",
+        "BP_MEMORY_PHASE",
         "bpCombinationCue",
+        "bpCheckCue",
         "function bpPhaseBadge",
         'node.dataset.cue = "bp-combine"',
         '.chip.stored-input',
         '.chip.read-copy',
         '.bp-phase',
-        'kept.dataset.role = visualReadBeat ? "stored-input" : "kept-input"',
         'rhsToken.dataset.role = other === null ? "empty-sum" : "read-copy"',
         'result.dataset.stage = "new-output"',
-        'G.svg.dataset[`${cueKey}ReadAt`]',
+        'G.svg.dataset[`edge${e}ReadAt`]',
+        'G.svg.dataset[`edge${e}ResultAt`]',
+        'G.svg.dataset[`edge${e}SendAt`]',
+        'G.svg.dataset[`edge${e}StoreAt`]',
+        'result.dataset.direction = "variable-to-check"',
+        'result.dataset.direction = "check-to-variable"',
+        'const visualReadBeat = stationaryRead',
         'if (opts.stop !== false) addStop',
         "frozen U⁽⁰⁾ · read only",
         "All $Q^{(1)}$ read frozen $U^{(0)}$.",
@@ -451,8 +473,6 @@ def check_wording_and_structure(html: str) -> None:
         ".chip.excluded",
         'omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`',
         "Tanner-graph edges stay",
-        "Bit 2 is speaking to check A.",
-        r"Here $U^{(0)}_{B\to 2}=0$",
         ">Play beat</button>",
         ">Next beat →</button>",
         'const label = tour.on ? "Next step"',
@@ -474,7 +494,11 @@ def check_wording_and_structure(html: str) -> None:
         "MEMORY CONSUMPTION",
         "one U per Tanner-graph edge",
         "configured cap",
-        "Retained floating-point state only; fixed channel evidence, graph structure, and temporary arithmetic are excluded.",
+        LBFGS_MEMORY_SCOPE,
+        "Iteration-boundary floating-point values only; this is not peak runtime memory.",
+        'scope: "iteration-boundary"',
+        'boundaryOnly: "true"',
+        "boundaryScalars",
         "const memoryBoxMatches =",
         'root.dataset.tourSmokeMemoryBox = "passed"',
         "gold double arrows = connections · blue dashed arrows = BP messages",
@@ -484,9 +508,9 @@ def check_wording_and_structure(html: str) -> None:
         "tour-guide",
         "it grows as a product moves away from $+1$",
         "the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$",
-        "Carried from Beat 3",
+        "Carried from Beat ${fromBeat}",
         "A is joined to two bits in both panels; the retained state differs",
-        "retained by edge",
+        "kept U slots",
         "retained by bit",
         "temporary this update",
         "dashed = input dependence; solid teal = g-to-bit pairing; neither is message motion",
@@ -587,6 +611,261 @@ def dump_dom(
     return completed.stdout
 
 
+def bp_all_beat_browser_contract(browser: str, data: dict[str, Any]) -> None:
+    """Render every beat in one browser and audit BP through semantic data hooks."""
+    audit_script = r"""
+<script>
+(() => {
+  const api = window.BP_LBFGS_STATE_ANIMATION;
+  const rows = [];
+  const visibleText = node => {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll(".katex-mathml").forEach(item => item.remove());
+    return copy.textContent.replace(/\u200b/g, "").replace(/\s+/g, " ").trim();
+  };
+  const within = (child, parent) => child.left >= parent.left - 1 && child.right <= parent.right + 1 &&
+    child.top >= parent.top - 1 && child.bottom <= parent.bottom + 1;
+  const memoryView = node => {
+    const box = node.getBoundingClientRect();
+    const childrenFit = [...node.children].filter(child => !child.classList.contains("sr-only"))
+      .every(child => within(child.getBoundingClientRect(), box));
+    return {
+      dataset: { ...node.dataset }, text: visibleText(node), title: node.title,
+      comparisonBeat: node.classList.contains("comparison-beat"),
+      overflow: node.scrollWidth > node.clientWidth + 1 || node.scrollHeight > node.clientHeight + 1 || !childrenFit
+    };
+  };
+  for (let beat = 0; beat < api.beats.length; beat += 1) {
+    api.setBeat(beat);
+    const graph = document.getElementById("bp-graph");
+    const state = document.getElementById("bp-state");
+    const phases = [...document.querySelectorAll("#bp-chips .bp-phase")].map(node => ({
+      phase: node.dataset.phase || "", bit: node.dataset.bit || "", edge: node.dataset.edge || "",
+      outputKind: node.dataset.outputKind || "", check: node.dataset.check || "", role: node.dataset.role || ""
+    }));
+    const messages = [...graph.querySelectorAll("line.message")].map(node => ({
+      edge: Number(node.dataset.edge), relation: node.dataset.relation || "",
+      fromBit: node.dataset.fromBit || "", toCheck: node.dataset.toCheck || "",
+      fromCheck: node.dataset.fromCheck || "", toBit: node.dataset.toBit || "",
+      markerEnd: node.hasAttribute("marker-end"), travelling: node.classList.contains("travelling")
+    }));
+    const timing = Object.fromEntries(Object.entries(graph.dataset).filter(([key]) =>
+      /^edge\d(?:Read|Combine|Result|Send|Store)At$/.test(key)));
+    const groups = [...state.querySelectorAll(".tray-group")];
+    const retained = groups.filter(node => node.classList.contains("retained"));
+    const temporary = groups.filter(node => node.classList.contains("temporary"));
+    const fixed = groups.filter(node => node.classList.contains("fixed"));
+    rows.push({
+      beat: beat + 1, phases, messages, timing,
+      baseEdges: graph.querySelectorAll("line.base[data-edge][data-bit][data-check]").length,
+      rogueMessages: graph.querySelectorAll("line.message:not([data-relation='bp-message']), line[data-relation='bp-message']:not(.message)").length,
+      adjacencyMislabelled: graph.querySelectorAll(".neighbour-arrow.message, .neighbour-arrow[data-relation='bp-message']").length,
+      retainedGroups: retained.length, temporaryGroups: temporary.length, fixedGroups: fixed.length,
+      retainedSnapshot: retained[0] ? retained[0].dataset.bpSnapshot || "" : "",
+      retainedUCards: retained.reduce((count, group) => count + group.querySelectorAll("[data-card^='u']").length, 0),
+      temporaryMarked: temporary.every(group => group.dataset.retention === "temporary"),
+      qCardsOutsideTemporary: [...state.querySelectorAll("[data-card^='q']")]
+        .filter(card => !card.closest(".tray-group.temporary")).length,
+      posteriorCardsOutsideTemporary: [...state.querySelectorAll("[data-card^='lam']")]
+        .filter(card => !card.closest(".tray-group.temporary")).length,
+      bpMemory: memoryView(document.getElementById("bp-memory")),
+      lbfgsMemory: memoryView(document.getElementById("lbfgs-memory"))
+    });
+  }
+  const output = document.createElement("script");
+  output.id = "bp-all-beat-contract-audit";
+  output.type = "application/json";
+  output.textContent = JSON.stringify(rows);
+  document.body.appendChild(output);
+  document.documentElement.dataset.bpAllBeatContract = "ready";
+})();
+</script>
+"""
+    source = HTML_PATH.read_text(encoding="utf-8")
+    assert "</body>" in source, "animation HTML has no body terminator for the browser audit"
+    # This semantic audit does not inspect equation rendering. Removing the two
+    # remote assets keeps it deterministic; the main browser smoke still proves
+    # that pinned KaTeX loads and renders without errors.
+    source = re.sub(r'<link[^>]+katex\.min\.css[^>]*>\s*', "", source, flags=re.IGNORECASE)
+    source = re.sub(r'<script[^>]+katex\.min\.js[^>]*></script>\s*', "", source, flags=re.IGNORECASE)
+    instrumented = source.replace("</body>", audit_script + "\n</body>", 1)
+    with tempfile.TemporaryDirectory(prefix="bp-lbfgs-contract-audit-") as directory:
+        audit_path = Path(directory) / HTML_PATH.name
+        audit_path.write_text(instrumented, encoding="utf-8")
+        dom = dump_dom(browser, audit_path.as_uri(), 3000)
+    assert 'data-bp-all-beat-contract="ready"' in dom, "all-beat BP browser contract did not run"
+    rows = extract_script_json(dom, "bp-all-beat-contract-audit")
+    assert isinstance(rows, list) and len(rows) == 10, "all-beat BP audit did not return ten beats"
+    edge_count = len(data["graph"]["edge_order"])
+    dimension = len(data["objective"]["x0"])
+    memory_pairs = int(data["lbfgs"]["memory_pairs"])
+    total_cap_scalars = dimension * (1 + 2 * memory_pairs)
+    assert (edge_count, dimension, memory_pairs, total_cap_scalars) == (4, 3, 10, 63)
+
+    q_routes = {
+        3: {(0, "1", "A"), (1, "2", "A")},
+        4: {(0, "1", "A"), (1, "2", "A")},
+        5: {(2, "2", "B"), (3, "3", "B")},
+        6: {(2, "2", "B"), (3, "3", "B")},
+        9: {(0, "1", "A"), (1, "2", "A"), (2, "2", "B"), (3, "3", "B")},
+        10: {(0, "1", "A"), (1, "2", "A"), (2, "2", "B"), (3, "3", "B")},
+    }
+    u_routes = {
+        4: {(0, "A", "1"), (1, "A", "2")},
+        6: {(2, "B", "2"), (3, "B", "3")},
+    }
+    phase_counts = {
+        1: Counter({"fixed": 3}),
+        2: Counter({"address": 1, "keep": 1}),
+        3: Counter({"read": 2, "combine": 2, "create": 2, "send": 2}),
+        4: Counter({"read": 2, "create": 2, "send": 2, "store": 2}),
+        5: Counter({"read": 2, "combine": 2, "create": 2, "send": 2}),
+        6: Counter({"read": 2, "create": 2, "send": 2, "store": 2}),
+        7: Counter({"read": 1, "combine": 1, "create": 3}),
+        8: Counter({"keep": 1, "recompute": 1}),
+        9: Counter({"read": 4, "combine": 4, "create": 4, "send": 4}),
+        10: Counter({"compare": 1}),
+    }
+    variable_edges = {3: (0, 1), 5: (2, 3), 9: (0, 1, 2, 3)}
+    check_edges = {4: (0, 1), 6: (2, 3)}
+    expected_snapshots = {
+        2: "U0", 3: "U0", 4: "U0", 5: "U0", 6: "partial-U1",
+        7: "U1", 8: "U1", 9: "U1", 10: "U1",
+    }
+    temporary_beats = {4, 6, 7, 8, 9, 10}
+    memory_phases = [
+        "ALLOCATE U⁽⁰⁾ edge slots", "KEEP four U⁽⁰⁾ zeros", "READ U⁽⁰⁾ · Q⁽¹⁾ temporary",
+        "WRITE A's U⁽¹⁾ outputs", "READ U⁽⁰⁾ · Q⁽¹⁾ temporary", "WRITE B's U⁽¹⁾ outputs",
+        "KEEP U⁽¹⁾ · Λ temporary", "CARRY four U⁽¹⁾ values", "READ U⁽¹⁾ · Q⁽²⁾ temporary",
+        "KEEP U⁽¹⁾ · recalculate Q⁽²⁾",
+    ]
+    lbfgs_text: str | None = None
+    for row in rows:
+        beat = int(row["beat"])
+        assert row["baseEdges"] == edge_count, f"Beat {beat}: BP Tanner graph no longer has four fixed edges"
+        assert row["rogueMessages"] == 0 and row["adjacencyMislabelled"] == 0, (
+            f"Beat {beat}: a non-message cue is labelled as BP message motion"
+        )
+        observed_q = {
+            (message["edge"], message["fromBit"], message["toCheck"])
+            for message in row["messages"] if message["fromBit"]
+        }
+        observed_u = {
+            (message["edge"], message["fromCheck"], message["toBit"])
+            for message in row["messages"] if message["fromCheck"]
+        }
+        assert observed_q == q_routes.get(beat, set()), f"Beat {beat}: Q routes changed: {observed_q}"
+        assert observed_u == u_routes.get(beat, set()), f"Beat {beat}: U routes changed: {observed_u}"
+        assert all(message["relation"] == "bp-message" and message["markerEnd"] for message in row["messages"]), (
+            f"Beat {beat}: a directed BP message lacks its semantic relation or arrow"
+        )
+        assert Counter(phase["phase"] for phase in row["phases"]) == phase_counts[beat], (
+            f"Beat {beat}: phase-badge contract changed: {row['phases']}"
+        )
+        if beat == 1:
+            assert {phase["bit"] for phase in row["phases"]} == {"1", "2", "3"} and all(
+                phase["role"] == "channel-evidence" for phase in row["phases"]
+            ), "Beat 1: FIXED badges no longer place one channel LLR at each bit"
+        if beat == 2:
+            assert all(phase["role"] == "edge-memory" for phase in row["phases"]), (
+                "Beat 2: ADDRESS/KEEP badges lost their edge-memory role"
+            )
+        if beat in variable_edges:
+            for edge in variable_edges[beat]:
+                edge_phases = {phase["phase"] for phase in row["phases"] if phase["edge"] == str(edge)}
+                assert edge_phases == {"read", "combine", "create", "send"}, (
+                    f"Beat {beat}, edge {edge}: variable-to-check phases are incomplete"
+                )
+                assert all(
+                    phase["outputKind"] == "q"
+                    for phase in row["phases"] if phase["edge"] == str(edge)
+                ), f"Beat {beat}, edge {edge}: Q phases lost their output kind"
+                timing = row["timing"]
+                times = [float(timing[f"edge{edge}{name}At"]) for name in ("Read", "Combine", "Result", "Send")]
+                assert times == sorted(times) and len(set(times)) == 4, (
+                    f"Beat {beat}, edge {edge}: READ/COMBINE/CREATE/SEND times are not strictly ordered"
+                )
+        if beat in check_edges:
+            for edge in check_edges[beat]:
+                edge_phases = {phase["phase"] for phase in row["phases"] if phase["edge"] == str(edge)}
+                assert edge_phases == {"read", "create", "send", "store"}, (
+                    f"Beat {beat}, edge {edge}: check-to-variable phases are incomplete"
+                )
+                assert all(
+                    phase["outputKind"] == "u"
+                    for phase in row["phases"] if phase["edge"] == str(edge)
+                ), f"Beat {beat}, edge {edge}: U phases lost their output kind"
+                timing = row["timing"]
+                times = [float(timing[f"edge{edge}{name}At"]) for name in ("Read", "Result", "Send", "Store")]
+                assert times == sorted(times) and len(set(times)) == 4, (
+                    f"Beat {beat}, edge {edge}: READ/CREATE/SEND/STORE times are not strictly ordered"
+                )
+        if beat == 7:
+            assert all(phase["outputKind"] == "posterior" for phase in row["phases"]), (
+                "Beat 7: local a-posteriori-LLR phases lost their output kind"
+            )
+            assert {
+                phase["bit"] for phase in row["phases"] if phase["phase"] == "create"
+            } == {"1", "2", "3"}, "Beat 7: CREATE does not cover all three local a-posteriori LLRs"
+            assert not any(phase["phase"] == "send" for phase in row["phases"]), (
+                "Beat 7: the local a-posteriori LLR is incorrectly sent along an edge"
+            )
+        if beat == 8:
+            assert {phase["role"] for phase in row["phases"]} == {"edge-memory", "temporary-values"}, (
+                "Beat 8: KEEP/RECOMPUTE badges no longer separate retained U from recalculated values"
+            )
+        if beat == 10:
+            assert row["phases"][0]["bit"] == "2" and row["phases"][0]["outputKind"] == "q2", (
+                "Beat 10: COMPARE no longer identifies bit 2's two addressed Q values"
+            )
+
+        assert row["fixedGroups"] == (1 if beat == 1 else 0), f"Beat {beat}: fixed-evidence group changed"
+        assert row["retainedGroups"] == (0 if beat == 1 else 1), f"Beat {beat}: retained-U group changed"
+        assert row["temporaryGroups"] == (1 if beat in temporary_beats else 0), (
+            f"Beat {beat}: temporary tray grouping changed"
+        )
+        assert row["temporaryMarked"], f"Beat {beat}: a temporary tray group lacks retention=temporary"
+        assert row["qCardsOutsideTemporary"] == 0 and row["posteriorCardsOutsideTemporary"] == 0, (
+            f"Beat {beat}: a Q or posterior card is presented as retained state"
+        )
+        if beat > 1:
+            assert row["retainedUCards"] == 4 and row["retainedSnapshot"] == expected_snapshots[beat], (
+                f"Beat {beat}: retained U tray does not match its declared frozen/partial/complete snapshot"
+            )
+
+        bp_memory = row["bpMemory"]
+        bp_dataset = bp_memory["dataset"]
+        assert (
+            bp_dataset.get("scope") == "iteration-boundary"
+            and bp_dataset.get("currentBeat") == str(beat)
+            and bp_dataset.get("boundaryOnly") == "true"
+            and int(bp_dataset.get("boundaryScalars", -1)) == edge_count
+            and int(bp_dataset.get("edgeCount", -1)) == edge_count
+            and bp_dataset.get("growth") == "O(|E|)"
+            and bp_dataset.get("phase") == memory_phases[beat - 1]
+        ), f"Beat {beat}: BP boundary-memory metadata changed"
+        assert "4 scalar slots" in bp_memory["text"] and "BOUNDARY ONLY" in bp_memory["text"] and not bp_memory["overflow"], (
+            f"Beat {beat}: BP memory box is clipped or no longer exposes its four-slot boundary count"
+        )
+
+        lbfgs_memory = row["lbfgsMemory"]
+        lbfgs_dataset = lbfgs_memory["dataset"]
+        assert (
+            lbfgs_dataset.get("scope") == "boundary-retained"
+            and lbfgs_dataset.get("comparisonBeat") == "5"
+            and int(lbfgs_dataset.get("beat5Scalars", -1)) == dimension
+            and int(lbfgs_dataset.get("beat5HistoryPairs", -1)) == 0
+            and int(lbfgs_dataset.get("totalCapScalars", -1)) == total_cap_scalars
+            and lbfgs_memory["comparisonBeat"] == (beat == 5)
+            and lbfgs_memory["title"] == LBFGS_MEMORY_SCOPE
+            and not lbfgs_memory["overflow"]
+        ), f"Beat {beat}: L-BFGS Beat-5 memory box changed or is clipped"
+        if lbfgs_text is None:
+            lbfgs_text = lbfgs_memory["text"]
+        else:
+            assert lbfgs_memory["text"] == lbfgs_text, f"Beat {beat}: L-BFGS memory box became beat-dependent"
+
+
 def browser_smoke(data: dict[str, Any]) -> str:
     browser = next(
         (
@@ -598,8 +877,10 @@ def browser_smoke(data: dict[str, Any]) -> str:
     )
     if browser is None:
         return "skipped (no Chrome/Chromium executable)"
+    browser_cache = tempfile.TemporaryDirectory(prefix="bp-lbfgs-browser-cache-")
+    browser_args = (f"--disk-cache-dir={browser_cache.name}", "--renderer-process-limit=2")
     base_url = HTML_PATH.resolve().as_uri()
-    smoke_dom = dump_dom(browser, base_url + "?smoke=1", 2500)
+    smoke_dom = dump_dom(browser, base_url + "?smoke=1", 2500, extra_args=browser_args)
     assert 'data-math="katex"' in smoke_dom, "KaTeX did not load; equations fell back to TeX source"
     assert 'class="katex-error"' not in smoke_dom, "KaTeX reported a TeX error"
     assert 'data-animation-smoke="passed"' in smoke_dom, "browser smoke did not pass"
@@ -609,6 +890,7 @@ def browser_smoke(data: dict[str, Any]) -> str:
         f"one-screen layout clips content at 1910x940: {overflow.group(1) if overflow else 'not measured'}"
     )
     assert "Beat 1 of 10" in smoke_dom, "smoke cycle did not reset to beat 1"
+    bp_all_beat_browser_contract(browser, data)
 
     tour_gates = (
         "controls",
@@ -636,7 +918,10 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "finish",
     )
     for window_size in ("1910,940", "800,700"):
-        tour_dom = dump_dom(browser, base_url + "?tour-smoke=1", 8000, window_size=window_size)
+        tour_dom = dump_dom(
+            browser, base_url + "?tour-smoke=1", 8000,
+            window_size=window_size, extra_args=browser_args,
+        )
         tour_error = re.search(r'data-tour-smoke-error="([^"]*)"', tour_dom)
         assert 'data-tour-smoke="passed"' in tour_dom, (
             f"tutorial interaction smoke failed at {window_size}: "
@@ -652,7 +937,7 @@ def browser_smoke(data: dict[str, Any]) -> str:
         base_url + "?tour-smoke=1",
         8000,
         window_size="800,700",
-        extra_args=("--force-prefers-reduced-motion=reduce",),
+        extra_args=browser_args + ("--force-prefers-reduced-motion",),
     )
     reduced_error = re.search(r'data-tour-smoke-error="([^"]*)"', reduced_dom)
     assert 'data-tour-smoke-motion="reduced"' in reduced_dom, "browser did not enter reduced-motion mode"
@@ -667,11 +952,7 @@ def browser_smoke(data: dict[str, Any]) -> str:
 
     snapshots = extract_element_text(
         smoke_dom,
-        "smoke-beat3-bp-explain",
-        "smoke-beat3-bp-hover",
-        "smoke-beat4-bp-state",
         "smoke-beat4-lbfgs-state",
-        "smoke-beat4-bp-hover",
         "smoke-beat4-lbfgs-hover",
         "smoke-beat7-bp-math",
         "smoke-beat7-lbfgs-math",
@@ -685,21 +966,6 @@ def browser_smoke(data: dict[str, Any]) -> str:
     obj = data["objective"]
     lb = data["lbfgs"]
     assert_in_order(
-        snapshots["smoke-beat3-bp-explain"],
-        ["Bit 2 is speaking to check A.", "check-to-variable message", "leaves out A’s preceding check-to-variable message"],
-        "rendered recipient-exclusion explanation",
-    )
-    assert_in_order(
-        snapshots["smoke-beat3-bp-hover"],
-        ["Q2→A", "KEEP B", "Build Q2→A", "send it to A"],
-        "rendered recipient-exclusion formula note",
-    )
-    assert_in_order(
-        snapshots["smoke-beat4-bp-state"],
-        ["retained by edge", signed_fixed(bp["u1"][0], 3), signed_fixed(bp["u1"][1], 3), "UB→2=0", "UB→3=0"],
-        "rendered Beat-4 BP retained edge state",
-    )
-    assert_in_order(
         snapshots["smoke-beat4-lbfgs-state"],
         [
             "retained by bit",
@@ -708,11 +974,6 @@ def browser_smoke(data: dict[str, Any]) -> str:
             *[signed_fixed(value, 3) for value in obj["g"]["A"]],
         ],
         "rendered Beat-4 retained x and temporary g terms",
-    )
-    assert_in_order(
-        snapshots["smoke-beat4-bp-hover"],
-        ["Two check-to-variable messages", "one along each edge from A", "Both remain in the U slots above"],
-        "rendered Beat-4 BP fan-out conclusion",
     )
     assert_in_order(
         snapshots["smoke-beat4-lbfgs-hover"],
@@ -779,28 +1040,27 @@ def browser_smoke(data: dict[str, Any]) -> str:
         "rendered L-BFGS endpoint in the box",
     )
 
-    # Seek into beat 3. Q_{1->A} is first explained as N(1) \\ A, so its substitution starts later:
-    # at 5600 ms the derivations are morphing, at 19000 ms L_1 is flying into Q_{1->A},
-    # and at 20500 ms the Q_{1->A} label is travelling along its edge.
-    substitution_dom = dump_dom(browser, base_url + "?at=19000#beat=3", 2500)
-    assert 'class="katex flying"' in substitution_dom, "no value is being substituted into an equation at beat 3, 19000 ms"
-    travel_dom = dump_dom(browser, base_url + "?at=20500#beat=3", 2500)
-    assert 'class="chip bp hot travelling' in travel_dom, "no BP message label is travelling along its edge at beat 3, 20500 ms"
-    morph_dom = dump_dom(browser, base_url + "?at=5600#beat=3", 2500)
+    # Preserve two timing checks on the unchanged L-BFGS derivation. BP timing is
+    # checked from edge-specific semantic milestones by bp_all_beat_browser_contract().
+    morph_dom = dump_dom(browser, base_url + "?at=5600#beat=3", 2500, extra_args=browser_args)
     assert 'class="sparkle"' in morph_dom, "the r_A derivation is not sparkling between two steps at beat 3, 5600 ms"
-    cue_dom = dump_dom(browser, base_url + "?at=2700#beat=3", 2500)
+    cue_dom = dump_dom(browser, base_url + "?at=2700#beat=3", 2500, extra_args=browser_args)
     cues = re.findall(r'<i class="next-cue"(?: style="([^"]*)")?>', cue_dom)
     assert any("opacity: 0;" not in (style or "") for style in cues), (
         "no next-expression triangle is showing before the first derivation change at beat 3, 2700 ms"
     )
 
     endpoint_time = 900 + (len(lb["path"]) - 1) * 700
-    before_endpoint = dump_dom(browser, base_url + f"?at={endpoint_time - 500}#beat=10", 2500)
+    before_endpoint = dump_dom(
+        browser, base_url + f"?at={endpoint_time - 500}#beat=10", 2500, extra_args=browser_args,
+    )
     before_tag = re.search(r'<div class="poly-readout" id="poly-readout"[^>]*>', before_endpoint)
     assert before_tag is not None and "opacity: 0" in before_tag.group(0), (
         "beat-10 conclusion appears before the box path reaches its endpoint"
     )
-    after_endpoint = dump_dom(browser, base_url + f"?at={endpoint_time + 800}#beat=10", 2500)
+    after_endpoint = dump_dom(
+        browser, base_url + f"?at={endpoint_time + 800}#beat=10", 2500, extra_args=browser_args,
+    )
     after_tag = re.search(r'<div class="poly-readout" id="poly-readout"[^>]*>', after_endpoint)
     assert after_tag is not None and "opacity: 0" not in after_tag.group(0), (
         "beat-10 conclusion remains hidden after the box path reaches its endpoint"

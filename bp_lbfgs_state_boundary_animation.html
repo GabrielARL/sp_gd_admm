@@ -103,8 +103,10 @@ code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size
 .memory-scope { margin-left: auto; color: var(--muted); font: 7.6px/1 var(--sans); }
 .tray-group { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; padding: 3px 5px; border-radius: 7px; }
 .tray-group.retained { background: rgb(255 255 255 / 78%); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.tray-group.fixed { background: #fffdf8; border: 1px solid #cfc7ba; }
 .tray-group.temporary { background: color-mix(in srgb, var(--soft) 78%, #fff); border: 1px dashed var(--accent); }
 .tray-group.temporary.spent { opacity: .42; filter: saturate(.45); }
+.tray-group.temporary .state-card.spent { opacity: .48; text-decoration: line-through; filter: saturate(.4); }
 .tray-group-label { max-width: 62px; color: var(--muted); font: 800 9px/1.1 var(--sans); letter-spacing: .05em; text-transform: uppercase; }
 .state-card, .scratch-card, .faded-card { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 9px; border-radius: 6px; font: 15px/1.2 var(--serif); }
 .state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.05em; }
@@ -614,16 +616,28 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     { subtitle: "Representation, addressing, retention, and next-state use" }
   ];
   const BP_EXPLAIN = [
-    "The fixed LLR vector is expressed with positive values favouring bit 1.",
-    "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
-    R`Bit 2 is speaking to check A. It combines its channel LLR $L_2$ with the check-to-variable message from its other neighboring check, B, and leaves out A’s preceding check-to-variable message. Here $U^{(0)}_{B\to 2}=0$, so $Q^{(1)}_{2\to A}=L_2=${tn(BP.L[1])}$.`,
-    "Check A sends one check-to-variable message along each of its two edges. The two results remain in their separate U slots above.",
+    "FIXED: a positive channel LLR favours bit 1. Place each value at its bit; no Tanner-graph message moves.",
+    "ADDRESS → KEEP: initialize four U slots, one for each check-to-bit edge.",
+    R`READ frozen $U^{(0)}$ → COMBINE at the bit → CREATE $Q^{(1)}$ → SEND only the new variable-to-check message to A.`,
+    R`READ the other incoming $Q^{(1)}$ at A → CREATE $U^{(1)}$ → SEND it to its addressed bit → STORE it in that edge slot.`,
     R`All $Q^{(1)}$ read frozen $U^{(0)}$. READ a copy → COMBINE at the bit → CREATE new $Q$ → SEND $Q$. Stored $U$ stays put.`,
-    R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
-    "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
-    R`The solid $U$ cards cross the boundary. $Q$ and the a-posteriori LLR can be recalculated from the fixed $\mathbf{L}$ and retained $U$ values.`,
-    "Bit 2 now supplies a positive $Q$ to A and a negative $Q$ to B because each calculation excludes the message from its recipient check.",
-    "BP preserves which check supplied the preceding information and uses that address when calculating the next $Q$."
+    R`READ the other incoming $Q^{(1)}$ at B → CREATE $U^{(1)}$ → SEND → STORE. The four $U^{(1)}$ edge slots are then complete.`,
+    R`READ $L_i$ and every incoming $U^{(1)}_{c\to i}$ → COMBINE locally → CREATE the a-posteriori LLR. It is not sent along an edge.`,
+    R`KEEP $\mathbf{U}^{(1)}$ across the boundary. $Q$ and the a-posteriori LLR are recalculated when needed.`,
+    R`READ $\mathbf{U}^{(1)}$ → COMBINE per recipient → CREATE $Q^{(2)}$ → SEND. Bit 2 creates different values for A and B.`,
+    R`COMPARE the two addressed $Q^{(2)}$ values. The $U^{(1)}$ values remain separated by edge.`
+  ];
+  const BP_MEMORY_PHASE = [
+    "ALLOCATE U⁽⁰⁾ edge slots",
+    "KEEP four U⁽⁰⁾ zeros",
+    "READ U⁽⁰⁾ · Q⁽¹⁾ temporary",
+    "WRITE A's U⁽¹⁾ outputs",
+    "READ U⁽⁰⁾ · Q⁽¹⁾ temporary",
+    "WRITE B's U⁽¹⁾ outputs",
+    "KEEP U⁽¹⁾ · Λ temporary",
+    "CARRY four U⁽¹⁾ values",
+    "READ U⁽¹⁾ · Q⁽²⁾ temporary",
+    "KEEP U⁽¹⁾ · recalculate Q⁽²⁾"
   ];
   const LBFGS_EXPLAIN = [
     R`The objective function $J$ has two terms, introduced one at a time above the graph. $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ starts from the channel evidence.`,
@@ -707,22 +721,24 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const memoryPairs = LB.memory_pairs;
     const historyCapScalars = 2 * dimension * memoryPairs;
     const totalCapScalars = dimension + historyCapScalars;
-    const scope = "Retained floating-point state only; fixed channel evidence, graph structure, and temporary arithmetic are excluded.";
+    const bpScope = "Iteration-boundary floating-point values only; this is not peak runtime memory. Fixed channel evidence, graph structure, Q, posterior values, read copies, and temporary arithmetic are excluded.";
+    const lbfgsScope = "Retained floating-point state only; fixed channel evidence, graph structure, and temporary arithmetic are excluded.";
     const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory");
 
     Object.assign(bpMemory.dataset, {
-      scope: "boundary-retained", comparisonBeat: "5", retainedScalars: String(edgeCount),
-      edgeCount: String(edgeCount), growth: "O(|E|)"
+      scope: "iteration-boundary", currentBeat: String(beatIndex + 1), boundaryOnly: "true",
+      boundaryScalars: String(edgeCount), retainedScalars: String(edgeCount), edgeCount: String(edgeCount), growth: "O(|E|)",
+      phase: BP_MEMORY_PHASE[beatIndex]
     });
-    bpMemory.title = scope;
-    bpMemory.setAttribute("aria-label", `BP memory consumption at the Beat 5 boundary: ${edgeCount} retained scalar slots, one U value per Tanner-graph edge.`);
+    bpMemory.title = bpScope;
+    bpMemory.setAttribute("aria-label", `BP memory consumption at Beat ${beatIndex + 1}: ${edgeCount} iteration-boundary scalar slots, one U value per Tanner-graph edge. This is not peak runtime memory.`);
     bpMemory.innerHTML = `
-      <span class="memory-head"><span class="memory-kicker">MEMORY CONSUMPTION</span><span class="memory-boundary">BEAT 5</span></span>
+      <span class="memory-head"><span class="memory-kicker">MEMORY CONSUMPTION</span><span class="memory-boundary">BEAT ${beatIndex + 1} · BOUNDARY ONLY</span></span>
       <span class="memory-primary"><strong>${edgeCount}</strong> <span class="memory-unit">scalar slots</span></span>
-      <span class="memory-detail">U: one / Tanner edge</span>
+      <span class="memory-detail">${esc(BP_MEMORY_PHASE[beatIndex])}</span>
       <span class="memory-growth">|E| · O(|E|)</span>
-      <span class="memory-scope">excludes fixed L / graph / scratch</span>
-      <span class="sr-only">one U per Tanner-graph edge. ${scope}</span>`;
+      <span class="memory-scope">one U / edge · excludes L / Q / Λ / scratch</span>
+      <span class="sr-only">one U per Tanner-graph edge. ${bpScope}</span>`;
 
     Object.assign(lbfgsMemory.dataset, {
       scope: "boundary-retained", comparisonBeat: "5", beat5Scalars: String(dimension),
@@ -730,7 +746,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       totalCapScalars: String(totalCapScalars), dimension: String(dimension),
       memoryPairs: String(memoryPairs), growth: "O(nm)", fixedCapGrowth: "O(n)"
     });
-    lbfgsMemory.title = scope;
+    lbfgsMemory.title = lbfgsScope;
     lbfgsMemory.setAttribute("aria-label", `L-BFGS memory consumption at the Beat 5 boundary: ${dimension} retained scalar slots for x; ${totalCapScalars} scalar slots at the configured history cap.`);
     lbfgsMemory.innerHTML = `
       <span class="memory-head"><span class="memory-kicker">MEMORY CONSUMPTION</span><span class="memory-boundary">BEAT 5</span></span>
@@ -738,9 +754,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       <span class="memory-detail">x only · history 0 / ${memoryPairs}</span>
       <span class="memory-growth">O(nm); fixed m = ${memoryPairs} ⇒ O(n)</span>
       <span class="memory-scope">excludes fixed L / graph / scratch</span>
-      <span class="sr-only">${totalCapScalars} configured cap. history 0 / ${memoryPairs} pairs. ${scope}</span>`;
+      <span class="sr-only">${totalCapScalars} configured cap. history 0 / ${memoryPairs} pairs. ${lbfgsScope}</span>`;
 
-    [bpMemory, lbfgsMemory].forEach(node => node.classList.toggle("comparison-beat", beatIndex === 4));
+    bpMemory.classList.add("comparison-beat");
+    lbfgsMemory.classList.toggle("comparison-beat", beatIndex === 4);
   }
 
   // ---------- beat clock ----------
@@ -980,8 +997,13 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const svg = $(`${method}-graph`), layer = $(`${method}-chips`);
     svg.replaceChildren();
     layer.replaceChildren();
-    ["bit2FocusAt", "bit2AdjacencyAt", "bit2OmitAt", "bit2ClearAt", "bit2ReadAt", "bit2CombineAt", "bit2ResultAt", "bit2SendAt",
-      "bit3FocusAt", "bit3AdjacencyAt", "bit3OmitAt", "bit3ClearAt", "bit3ReadAt", "bit3CombineAt", "bit3ResultAt", "bit3SendAt"]
+    ["bit1FocusAt", "bit1AdjacencyAt", "bit1OmitAt", "bit1ClearAt", "bit1ReadAt", "bit1CombineAt", "bit1ResultAt", "bit1SendAt",
+      "bit2FocusAt", "bit2AdjacencyAt", "bit2OmitAt", "bit2ClearAt", "bit2ReadAt", "bit2CombineAt", "bit2ResultAt", "bit2SendAt",
+      "bit3FocusAt", "bit3AdjacencyAt", "bit3OmitAt", "bit3ClearAt", "bit3ReadAt", "bit3CombineAt", "bit3ResultAt", "bit3SendAt",
+      "edge0ReadAt", "edge0CombineAt", "edge0ResultAt", "edge0SendAt", "edge0StoreAt",
+      "edge1ReadAt", "edge1CombineAt", "edge1ResultAt", "edge1SendAt", "edge1StoreAt",
+      "edge2ReadAt", "edge2CombineAt", "edge2ResultAt", "edge2SendAt", "edge2StoreAt",
+      "edge3ReadAt", "edge3CombineAt", "edge3ResultAt", "edge3SendAt", "edge3StoreAt"]
       .forEach(key => delete svg.dataset[key]);
     addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
     if (method === "bp") addMarker(svg, "#b85f00", "bp-neighbour-arrow");
@@ -1026,11 +1048,11 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     G.layer.appendChild(node);
     return node;
   }
-  function handoffCue(G) {
+  function handoffCue(G, fromBeat = 3) {
     const node = document.createElement("span");
     node.className = "handoff-cue";
     node.dataset.handoff = `${G.method}-cue`;
-    node.textContent = "Carried from Beat 3";
+    node.textContent = `Carried from Beat ${fromBeat}`;
     G.layer.appendChild(node);
     return node;
   }
@@ -1188,49 +1210,47 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   };
   // N(i) \ {c}, step by step: the checks joined to bit i, minus recipient c, then the sum that is left.
   const CHECK = ["A", "B"];
-  function qSteps(i, a, iter, first) {
+  function qSteps(i, a, iter, first, { visual = false } = {}) {
     const I = i + 1, A = CHECK[a], sup = iter === 2 ? "^{(2)}" : "", uSup = `^{(${iter - 1})}`;
     const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
     const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
     const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
     const allowed = R`N(${I})\setminus\{${A}\}`;
-    const visualBBeat = a === 1 && iter === 1;
     const crossedNbr = R`\{${nbr.map(name => name === A ? R`\htmlClass{gone}{\cancel{${name}}}` : name).join(R`,\ `)}\}`;
-    const steps = first && !visualBBeat ? [{ tex: F.q, tag: "RULE", note: R`Send to $c$; sum $U$ only from the other checks.`, hold: 2800 }] : [];
-    const teachBitTwo = i === 1 && a === 0 && iter === 1;
+    const steps = first && !visual ? [{ tex: F.q, tag: "RULE", note: R`Send to $c$; sum $U$ only from the other checks.`, hold: 2800 }] : [];
     steps.focusIndex = -1;
-    if (teachBitTwo || visualBBeat) {
+    if (visual) {
       steps.focusIndex = steps.length;
-      steps.push({ tex: visualBBeat ? R`\htmlClass{mBit}{Q${sup}_{${I}\to ${A}}}=?` : R`\htmlClass{mBit}{N(2)=?}`,
-        tag: visualBBeat ? `BIT ${I} → ${A}` : "BIT 2", note: `Start at bit ${I}.`, hold: 2200 });
+      steps.push({ tex: R`\htmlClass{mBit}{Q${sup}_{${I}\to ${A}}}=?`,
+        tag: `BIT ${I} → ${A}`, note: `Start at bit ${I}.`, hold: 2200 });
     }
     steps.neighbourIndex = steps.length;
     steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`,
-      tag: visualBBeat ? `NEIGHBOURS OF BIT ${I}` : (teachBitTwo ? "NEIGHBOURS OF BIT 2" : `NEIGHBOURS OF BIT ${I}`),
-      note: visualBBeat || teachBitTwo ? "Follow the gold graph connections." : R`$N(i)$ lists the connected checks.`,
-      sparkle: visualBBeat ? [] : ["mN"], hold: 2400 });
+      tag: `NEIGHBOURS OF BIT ${I}`,
+      note: visual ? "Follow the gold graph connections." : R`$N(i)$ lists the connected checks.`,
+      sparkle: visual ? [] : ["mN"], hold: 2400 });
     steps.omitIndex = steps.length;
-    steps.push({ tex: visualBBeat
+    steps.push({ tex: visual
         ? R`N(${I})=${crossedNbr}\quad\Longrightarrow\quad \htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}`
         : R`\htmlClass{mN}{${allowed}}=\htmlClass{mS}{${set(rest)}}`,
       tag: `DROP ${A}`,
       note: rest.length ? R`${rest.join(" + ")} remains $\Rightarrow$ use $${sum}$ in $Q${sup}_{${I}\to ${A}}$.`
         : R`Nothing remains $\Rightarrow$ the $U$-sum is $0$.`,
-      keys: ["mN"], sparkle: visualBBeat ? [] : ["mS"], hold: 2400 });
+      keys: ["mN"], sparkle: visual ? [] : ["mS"], hold: 2400 });
     steps.useIndex = steps.omitIndex;
     steps.formIndex = steps.length;
-    steps.push({ tex: visualBBeat
+    steps.push({ tex: visual
         ? (rest.length
           ? R`\underbrace{\htmlClass{hL}{L_${I}}}_{\text{LOCAL LLR}} + \underbrace{\htmlClass{hU}{${sum}}}_{\text{STORED INPUT}} = \underbrace{Q${sup}_{${I}\to ${A}}}_{\text{NEW OUTPUT}}`
           : R`\underbrace{\htmlClass{hL}{L_${I}}}_{\text{LOCAL LLR}} + \underbrace{\htmlClass{hU}{0}}_{\text{NO OTHER INPUT}} = \underbrace{Q${sup}_{${I}\to ${A}}}_{\text{NEW OUTPUT}}`)
         : (rest.length
           ? R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{${sum}}`
           : R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{0} = L_${I}`),
-      tag: visualBBeat ? "ROLES STAY DISTINCT" : (rest.length ? `KEEP ${rest.join(" + ")}` : `USE L${I}`),
-      note: visualBBeat
+      tag: visual ? "ROLES STAY DISTINCT" : (rest.length ? `KEEP ${rest.join(" + ")}` : `USE L${I}`),
+      note: visual
         ? (rest.length ? "Read a copy; the stored U stays put." : "No other-check U remains; use 0.")
         : R`Build $Q${sup}_{${I}\to ${A}}$, then send it to ${A}.`,
-      sparkle: visualBBeat ? [] : ["hU"] });
+      sparkle: visual ? [] : ["hU"] });
     return steps;
   }
   function starPoints(cx, cy, outer = 8, inner = 3.2) {
@@ -1305,15 +1325,18 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       apply(p) { node.style.opacity = String(Math.min(1, p * 3)); place(node, [lerp(from[0], to[0], ease(p)), lerp(from[1], to[1], ease(p))]); },
       end() { node.style.opacity = ""; place(node, to); } };
   }
-  function bpPhaseBadge(G, i, phase, detail) {
+  function bpPhaseBadgeAt(G, xy, phase, detail, attrs = {}) {
     const node = document.createElement("span");
     node.className = `bp-phase phase-${phase.toLowerCase()}`;
     node.dataset.phase = phase.toLowerCase();
-    node.dataset.bit = String(i + 1);
+    Object.entries(attrs).forEach(([key, value]) => { node.dataset[key] = String(value); });
     node.innerHTML = `<strong>${esc(phase)}</strong><span>${esc(detail)}</span>`;
-    place(node, [PX[i], PY - 118], G.w, G.h);
+    place(node, xy, G.w, G.h);
     G.layer.appendChild(node);
     return node;
+  }
+  function bpPhaseBadge(G, i, phase, detail, attrs = {}) {
+    return bpPhaseBadgeAt(G, [PX[i], PY - 118], phase, detail, { bit: i + 1, ...attrs });
   }
   function bpCombinationCue(G, e, iter, calc, ev, storedInput = null, storedLine = null) {
     const { i } = EDGES[e], other = e === 1 ? 2 : e === 2 ? 1 : null;
@@ -1338,15 +1361,20 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     result.dataset.stage = "new-output";
     result.dataset.direction = "variable-to-check";
     result.dataset.caption = "NEW OUTPUT";
-    const readBadge = bpPhaseBadge(G, i, "READ", other === null ? "no other-check U" : `previous U from ${CHECK[EDGES[other].a]}`);
-    const combineBadge = bpPhaseBadge(G, i, "COMBINE", `at bit ${i + 1}`);
-    const createBadge = bpPhaseBadge(G, i, "CREATE", `new Q from bit ${i + 1}`);
-    const sendBadge = bpPhaseBadge(G, i, "SEND", `only Q to ${CHECK[EDGES[e].a]}`);
+    const badgeAttrs = { edge: e, outputKind: "q" };
+    const readBadge = bpPhaseBadge(G, i, "READ", other === null ? "no other-check U" : `previous U from ${CHECK[EDGES[other].a]}`, badgeAttrs);
+    const combineBadge = bpPhaseBadge(G, i, "COMBINE", `at bit ${i + 1}`, badgeAttrs);
+    const createBadge = bpPhaseBadge(G, i, "CREATE", `new Q from bit ${i + 1}`, badgeAttrs);
+    const sendBadge = bpPhaseBadge(G, i, "SEND", `only Q to ${CHECK[EDGES[e].a]}`, badgeAttrs);
     const cueKey = `bit${i + 1}`;
     G.svg.dataset[`${cueKey}ReadAt`] = String(readAt);
     G.svg.dataset[`${cueKey}CombineAt`] = String(combineAt);
     G.svg.dataset[`${cueKey}ResultAt`] = String(resultAt);
     G.svg.dataset[`${cueKey}SendAt`] = String(sendAt);
+    G.svg.dataset[`edge${e}ReadAt`] = String(readAt);
+    G.svg.dataset[`edge${e}CombineAt`] = String(combineAt);
+    G.svg.dataset[`edge${e}ResultAt`] = String(resultAt);
+    G.svg.dataset[`edge${e}SendAt`] = String(sendAt);
     ev.push(show(readBadge, readAt, 350), hide(readBadge, combineAt, 250),
       moveGraphChip(lToken, below(i), left, inputAt, 1000));
     if (other === null) ev.push(show(rhsToken, inputAt, 450));
@@ -1367,12 +1395,46 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     addStop("bp", resultAt, sendAt - 100, createBadge, `CREATE Q from bit ${i + 1} as a separate variable-to-check message`);
     return { result, readAt, combineAt, resultAt, sendAt, clearAt };
   }
+  function bpCheckCue(G, e, iter, calc, ev, sourceMessage = null) {
+    const source = [1, 0, 3, 2][e], { a, i } = EDGES[e], sourceBit = EDGES[source].i;
+    const readAt = calc.t, createAt = Math.max(calc.done, readAt + 1400), sendAt = createAt + 1300;
+    const storeAt = sendAt + TIME.travel, clearAt = storeAt + 700;
+    const sourcePoint = edgePoint(source, 0.62), readPoint = [CX[a] + (e % 2 === 0 ? -70 : 70), CY + 58];
+    const readCopy = chip(G, sourcePoint, R`Q^{(${iter})}_{${QSLOT[source]}}=${tn(BP.q1[source], 3)}`, "read-copy");
+    readCopy.dataset.role = "read-copy";
+    readCopy.dataset.caption = "READ OTHER Q";
+    readCopy.dataset.edge = String(source);
+    const result = chip(G, edgePoint(e, AT_CHECK), R`U^{(${iter})}_{${USLOT[e]}}=${tn(BP.u1[e], 3)}`, "combine-result");
+    result.dataset.role = "u-result";
+    result.dataset.stage = "new-output";
+    result.dataset.direction = "check-to-variable";
+    result.dataset.caption = "NEW OUTPUT";
+    result.dataset.edge = String(e);
+    const attrs = { edge: e, outputKind: "u", check: CHECK[a] };
+    const readBadge = bpPhaseBadgeAt(G, [CX[a], CY + 92], "READ", `Q from bit ${sourceBit + 1}`, attrs);
+    const createBadge = bpPhaseBadgeAt(G, [CX[a], CY + 92], "CREATE", `new U for bit ${i + 1}`, attrs);
+    const sendBadge = bpPhaseBadgeAt(G, [CX[a], CY + 92], "SEND", `only U to bit ${i + 1}`, attrs);
+    const storeBadge = bpPhaseBadge(G, i, "STORE", `in ${CHECK[a]}→${i + 1} slot`, attrs);
+    G.svg.dataset[`edge${e}ReadAt`] = String(readAt);
+    G.svg.dataset[`edge${e}ResultAt`] = String(createAt);
+    G.svg.dataset[`edge${e}SendAt`] = String(sendAt);
+    G.svg.dataset[`edge${e}StoreAt`] = String(storeAt);
+    ev.push(show(readBadge, readAt, 300), moveGraphChip(readCopy, sourcePoint, readPoint, readAt + 350, 900),
+      hide(readBadge, createAt, 250), show(createBadge, createAt, 300), show(result, createAt, 400), blink(result, createAt + 350),
+      hide(readCopy, createAt + 250, 350), hide(createBadge, sendAt, 250), hide(result, sendAt, 0),
+      show(sendBadge, sendAt, 300), hide(sendBadge, storeAt, 250), show(storeBadge, storeAt, 300), hide(storeBadge, clearAt, 300));
+    if (sourceMessage) ev.push(blink(sourceMessage, readAt));
+    addStop("bp", readAt, createAt - 100, readBadge, `READ the other incoming Q at check ${CHECK[a]}`);
+    addStop("bp", createAt, sendAt - 100, createBadge, `CREATE U for bit ${i + 1}`);
+    addStop("bp", storeAt, clearAt, storeBadge, `STORE U in the ${CHECK[a]} to bit ${i + 1} edge slot`);
+    return { source, readAt, createAt, sendAt, storeAt, clearAt, result };
+  }
   // On the graph: circle each check in N(i), cross the omitted preceding U on the
   // recipient edge (not the check or edge itself), then light each U that is summed.
   function exclusion(G, i, a, iter, ev, timing) {
-    const { focusAt = null, neighbourAt: tN, omitAt: tOut, useAt: tUse, clearAt = null } = timing;
+    const { focusAt = null, neighbourAt: tN, omitAt: tOut, useAt: tUse, clearAt = null, stationaryRead = false } = timing;
     const parts = [], teachingParts = [];
-    const visualReadBeat = focusAt !== null && a === 1 && iter === 1;
+    const visualReadBeat = stationaryRead;
     const destinationAt = focusAt === null ? tN : focusAt;
     const destination = chip(G, [CX[a] + (a === 0 ? -54 : 54), CY + 2], R`\text{TO ${CHECK[a]}}`, "destination");
     ev.push(show(destination, destinationAt, 450), blink(destination, destinationAt + 450),
@@ -1970,10 +2032,14 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
     if (k === 0) {
       const lc = lChips();
-      bpTray = BP.L.map((v, i) => card(R`L_${i + 1} = ${tn(v, 3)}`, "state-card fixed-card", `L${i}`)).join("");
+      bpTray = trayGroup("fixed channel evidence", BP.L.map((v, i) =>
+        card(R`L_${i + 1} = ${tn(v, 3)}`, "state-card fixed-card", `L${i}`)).join(""), "fixed", { "bp-role": "fixed-evidence" });
       const c = chain(B, 300, R`\mathbf{L}`, vecParts(["L_1", "L_2", "L_3"]), vecParts(BP.L.map(v => tn(v))), null);
-      lc.forEach((node, i) => ev.push(show(node, c.lands[i], 450), blink(node, c.lands[i]),
-        show(bpCard(`L${i}`), c.lands[i], 450), blink(bpCard(`L${i}`), c.lands[i])));
+      lc.forEach((node, i) => {
+        const badge = bpPhaseBadge(bg, i, "FIXED", `place L${i + 1} at bit ${i + 1}`, { role: "channel-evidence" });
+        ev.push(show(badge, c.lands[i], 300), show(node, c.lands[i], 450), blink(node, c.lands[i]),
+          show(bpCard(`L${i}`), c.lands[i], 450), blink(bpCard(`L${i}`), c.lands[i]), hide(badge, c.lands[i] + 1300, 300));
+      });
       hover(bg, ev, c.next, F.q);
 
       const xc = xChips(OBJ.x0);
@@ -1987,11 +2053,14 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       sync.x0 = g2.done; sync.readout = g2.done;
     } else if (k === 1) {
       lChips();
-      bpTray = trayU(1);
+      bpTray = trayGroup("one address per Tanner edge", trayU(1), "retained", { "bp-snapshot": "U0" });
       const uc = uChips(BP.u0);
       const c = chain(B, 300, R`\mathbf{U}^{(0)}`, vecParts(USLOT.map(s => R`U_{${s}}`)), vecParts(BP.u0.map(v => tn(v))), null);
       uc.forEach((node, e) => ev.push(show(node, c.lands[e], 450), blink(node, c.lands[e]), blink(bpCard(`u${e}`), c.lands[e])));
-      prose(B, c.next, "four slots are indexed by check and bit");
+      const addressBadge = bpPhaseBadgeAt(bg, [310, CY + 76], "ADDRESS", "one U slot per edge", { role: "edge-memory" });
+      const keepBadge = bpPhaseBadgeAt(bg, [310, CY + 76], "KEEP", "four addressed zeros", { role: "edge-memory" });
+      ev.push(show(addressBadge, 300, 300), hide(addressBadge, c.done, 250), show(keepBadge, c.done, 300), hide(keepBadge, c.next + 900, 300));
+      prose(B, c.next, "four slots are indexed by check and bit; no message moves in this beat");
 
       const xc = xChips(OBJ.x0);
       lbfgsTray = trayX0();
@@ -2002,25 +2071,23 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     } else if (k === 2 || k === 4) {
       const a = k === 2 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
       const lc = lChips();
-      bpTray = k === 4
-        ? trayGroup("frozen U⁽⁰⁾ · read only", frozenU0Tray(), "retained", { "bp-snapshot": "U0" })
-        : trayU(k);
+      bpTray = trayGroup("frozen U⁽⁰⁾ · read only", frozenU0Tray(), "retained", { "bp-snapshot": "U0" });
       let t = 300;
       edges.forEach((e, n) => {
         const { i } = EDGES[e];
-        const qSpec = qSteps(i, a, 1, n === 0), qd = derivation(bg, ev, t, qSpec);
-        const c = qChain(qd.done + 600, e, 1, k === 4 ? { stop: false } : {});
+        const qSpec = qSteps(i, a, 1, n === 0, { visual: true }), qd = derivation(bg, ev, t, qSpec);
+        const c = qChain(qd.done + 600, e, 1, { stop: false });
         const marks = exclusion(bg, i, a, 1, ev, {
           focusAt: derivationCueAt(qd, qSpec.focusIndex, t),
           neighbourAt: derivationCueAt(qd, qSpec.neighbourIndex, t),
           omitAt: derivationCueAt(qd, qSpec.omitIndex, t),
           useAt: derivationCueAt(qd, qSpec.useIndex, t),
-          clearAt: qd.lands[qSpec.formIndex]
+          clearAt: qd.lands[qSpec.formIndex], stationaryRead: true
         });
         ev.push(blink(lc[i], c.subs[0]), blink(qd.part("hL"), c.subs[0]));
         if (c.subs.length > 1) ev.push(blink(qd.part("hU"), c.subs[1]));
-        const cue = k === 4 ? bpCombinationCue(bg, e, 1, c, ev, marks.storedInput, marks.storedLine) : null;
-        const m = message(bg, e, "up", qLabel(e, 1), cue ? cue.sendAt : c.done, ev);
+        const cue = bpCombinationCue(bg, e, 1, c, ev, marks.storedInput, marks.storedLine);
+        const m = message(bg, e, "up", qLabel(e, 1), cue.sendAt, ev);
         if (n < edges.length - 1) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
         t = m.land + 600;
       });
@@ -2042,40 +2109,39 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       sync.edges = rd.done;
     } else if (k === 3 || k === 5) {
       const a = k === 3 ? 0 : 1, edges = a === 0 ? [0, 1] : [2, 3];
-      const handoff = k === 3 ? { q: [], qLines: [], reads: [], guides: [], cues: [] } : null;
+      const handoff = k === 3 ? { reads: [], guides: [], cues: [] } : null;
+      const bpHandoff = { q: [], qLines: [], cue: handoffCue(bg, k === 3 ? 3 : 5) };
+      edges.forEach(e => {
+        const q = message(bg, e, "up", qLabel(e, 1), 0, null);
+        q.line.dataset.handoff = "bp-q";
+        q.label.dataset.handoff = "bp-q";
+        q.line.dataset.edge = String(e);
+        q.label.dataset.edge = String(e);
+        q.label.dataset.value = String(BP.q1[e]);
+        bpHandoff.q[e] = q;
+      });
       if (handoff) {
-        handoff.cues.push(handoffCue(bg));
-        edges.forEach(e => {
-          const q = message(bg, e, "up", qLabel(e, 1), 0, null);
-          q.line.dataset.handoff = "bp-q";
-          q.label.dataset.handoff = "bp-q";
-          q.line.dataset.edge = String(e);
-          q.label.dataset.edge = String(e);
-          q.label.dataset.value = String(BP.q1[e]);
-          handoff.q[e] = q;
-        });
-        handoff.qLines[0] = handoffFormula(B,
+        bpHandoff.qLines[0] = handoffFormula(B,
           R`Q_{1\to A} = L_1 = ${tn(BP.q1[0])}`, "beat3-bp-q1");
-        handoff.qLines[1] = handoffFormula(B,
+        bpHandoff.qLines[1] = handoffFormula(B,
           R`Q_{2\to A} = L_2 + U^{(0)}_{B\to 2} = ${tp(BP.L[1])} + ${tn(BP.u0[2])} = ${tn(BP.q1[1])}`,
           "beat3-bp-q2");
       }
       lChips();
-      bpTray = handoff ? trayGroup("retained by edge", trayU(k - 1), "retained") : trayU(k - 1);
+      bpTray = trayGroup("kept U slots", trayU(k - 1), "retained", { "bp-snapshot": k === 3 ? "U0" : "partial-U1" }) +
+        trayGroup("carried Q inputs", edges.map(e => card(qLabel(e, 1), "state-card q-card", `qin${e}`)).join(""),
+          "temporary", { retention: "temporary", "from-beat": k === 3 ? "3" : "5" });
       const ah = hover(bg, ev, 300, "", NOTES.agree);
-      if (handoff) {
-        ev.push(hide(handoff.cues[0], 300, 400), blink(handoff.q[0].label, 300), blink(handoff.q[1].label, 300));
-      }
+      ev.push(hide(bpHandoff.cue, 300, 400));
+      edges.forEach(e => ev.push(blink(bpHandoff.q[e].label, 300), blink(bpCard(`qin${e}`), 300)));
       let t = 300;
       edges.forEach((e, n) => {
         const c = uChain(t, e);
         ev.push(blink(ah.card, c.subs[0]));
-        if (handoff) {
-          const source = [1, 0, 3, 2][e];
-          ev.push(blink(handoff.qLines[source], c.subs[0]));
-          if (handoff.q[source]) ev.push(blink(handoff.q[source].label, c.subs[0]));
-        }
-        const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
+        const source = [1, 0, 3, 2][e];
+        if (bpHandoff.qLines[source]) ev.push(blink(bpHandoff.qLines[source], c.subs[0]));
+        const cue = bpCheckCue(bg, e, 1, c, ev, bpHandoff.q[source] && bpHandoff.q[source].label);
+        const m = message(bg, e, "down", uLabel(e, BP.u1[e]), cue.sendAt, ev);
         if (handoff) {
           m.line.dataset.beat4Output = `u${e}`;
           m.label.dataset.beat4Output = `u${e}`;
@@ -2083,17 +2149,25 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
           m.line.dataset.edge = String(e);
           m.line.dataset.from = "A";
           m.line.dataset.toBit = String(EDGES[e].i + 1);
-          if (n === 0) handoff.q.filter(Boolean).forEach(q => ev.push(hide(q.line, c.done, 500), hide(q.label, c.done, 500)));
         }
-        ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
-        t = c.next;
+        ev.push(hide(bpHandoff.q[source].line, cue.createAt, 450), hide(bpHandoff.q[source].label, cue.createAt, 450),
+          { at: cue.createAt, dur: 0, end() { const node = nodeOf(bpCard(`qin${source}`)); if (node) node.classList.add("spent"); } },
+          swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
+        if (n === edges.length - 1) ev.push({ at: m.land, dur: 0, end() {
+          const group = $("bp-state").querySelector('.tray-group.temporary[data-retention="temporary"]');
+          if (!group) return;
+          group.classList.add("spent");
+          const label = group.querySelector(".tray-group-label");
+          if (label) label.textContent = "used Q inputs · not kept";
+        } });
+        t = m.land + 700;
       });
 
       const xc = xChips(OBJ.x0);
       lbfgsTray = retainedX0() + termShelf("A") + (k === 5 ? termShelf("B") : "");
       const rc = rChip(a);
       if (handoff) {
-        handoff.cues.push(handoffCue(gg));
+        handoff.cues.push(handoffCue(gg, 3));
         rc.dataset.handoff = "lbfgs-r";
         rc.dataset.value = String(OBJ.residual.A);
         edges.forEach((e, j) => {
@@ -2112,7 +2186,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
           R`r_A = 1 - x_1x_2 = 1 - (${tn(OBJ.x0[0], 6, false)})(${tn(OBJ.x0[1], 6, false)}) = ${tn(OBJ.residual.A, 6, false)}`,
           "beat3-lbfgs-r");
         handoffProse(G, "A reads the frozen $x_1$ and $x_2$", "beat3-lbfgs-read");
-        ev.push(hide(handoff.cues[1], 300, 400), blink(rc, 300));
+        ev.push(hide(handoff.cues[0], 300, 400), blink(rc, 300));
       }
       const lbfgs = derivation(gg, ev, 300, a === 0 ? G_A : G_B);
       t = lbfgs.done + 600;
@@ -2159,7 +2233,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       }
     } else if (k === 6) {
       const lc = lChips();
-      bpTray = trayU(5);
+      bpTray = trayGroup("kept U⁽¹⁾ by edge", trayU(5), "retained", { "bp-snapshot": "U1" }) +
+        trayGroup("local · not sent", BP.posterior1.map((v, i) =>
+          card(R`\Lambda^{(1)}_${i + 1}=${tn(v, 3)}`, "state-card q-card", `lam${i}`)).join(""),
+          "temporary", { retention: "temporary", "output-kind": "posterior" });
       const uc = uChips(BP.u1);
       const lh = hover(bg, ev, 300, F.lam);
       const c = chain(B, 900, R`\Lambda^{(1)}_2`,
@@ -2168,9 +2245,18 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       ev.push(blink(lc[1], c.subs[0]), blink(uc[1], c.subs[1]), blink(uc[2], c.subs[2]));
       ev.push(blink(lh.part("hL"), c.subs[0]), blink(lh.part("hU"), c.subs[1]), blink(lh.part("hU"), c.subs[2]));
       const lam = BP.posterior1.map((v, i) => chip(bg, below(i, 1), R`\Lambda^{(1)}_${i + 1} = ${tn(v, 3)}`, "value"));
-      ev.push(show(lam[1], c.done, 450), blink(lam[1], c.done));
+      const readBadge = bpPhaseBadge(bg, 1, "READ", "L₂ and both incoming U", { outputKind: "posterior" });
+      const combineBadge = bpPhaseBadge(bg, 1, "COMBINE", "locally at bit 2", { outputKind: "posterior" });
+      const createBadge = bpPhaseBadge(bg, 1, "CREATE", "Λ₂ stays local", { outputKind: "posterior" });
+      ev.push(show(readBadge, c.t, 300), hide(readBadge, c.subs[1], 250), show(combineBadge, c.subs[1], 300),
+        hide(combineBadge, c.done, 250), show(createBadge, c.done, 300), hide(createBadge, c.next, 300),
+        show(lam[1], c.done, 450), blink(lam[1], c.done), show(bpCard("lam1"), c.done, 450), blink(bpCard("lam1"), c.done));
       const vec = chain(B, c.next, R`\boldsymbol{\Lambda}^{(1)}`, null, null, vecParts(BP.posterior1.map(v => tn(v))));
-      [0, 2].forEach(i => ev.push(show(lam[i], vec.comps[i], 450), blink(lam[i], vec.comps[i])));
+      [0, 2].forEach(i => {
+        const badge = bpPhaseBadge(bg, i, "CREATE", `Λ${i + 1} stays local`, { outputKind: "posterior" });
+        ev.push(show(badge, vec.comps[i], 300), hide(badge, vec.comps[i] + 1300, 300),
+          show(lam[i], vec.comps[i], 450), blink(lam[i], vec.comps[i]), show(bpCard(`lam${i}`), vec.comps[i], 450), blink(bpCard(`lam${i}`), vec.comps[i]));
+      });
       ev.push(blink(lam[1], vec.comps[1]));
 
       const xc = xChips(OBJ.x0);
@@ -2256,17 +2342,22 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       sync.step = up.done; sync.moveDone = up.done + 1600; sync.readout = up.done;
     } else if (k === 7) {
       lChips();
-      bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
+      bpTray = trayGroup("kept across boundary", trayU(5), "retained", { "bp-snapshot": "U1", boundary: "iteration" }) +
+        trayGroup("not carried", `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recalculated`)}</span></span>`,
+          "temporary spent", { retention: "temporary", action: "recalculate" });
       const uc = uChips(BP.u1);
       hover(bg, ev, 300, "", NOTES.boundary);
       const c = chain(B, 300, R`\mathbf{U}^{(1)}`, null, null, vecParts(BP.u1.map(v => tn(v))));
+      const keepBadge = bpPhaseBadgeAt(bg, [310, CY + 78], "KEEP", "four U values cross the boundary", { role: "edge-memory" });
+      const recomputeBadge = bpPhaseBadgeAt(bg, [310, CY + 78], "RECOMPUTE", "Q and Λ only when needed", { role: "temporary-values" });
+      ev.push(show(keepBadge, c.t, 300), hide(keepBadge, c.next, 250));
       uc.forEach((node, e) => {
         const p = edgePoint(e, SLOT_T[e]);
         ev.push(show(tickMark(bg, p[0], p[1] - 25), c.comps[e], 450), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
       });
       const p1 = prose(B, c.next, R`next variable phase reads $\mathbf{L}$ and $\mathbf{U}^{(1)}$`);
       const p2 = prose(B, p1.next, R`$Q^{(2)}$ is then recomputed for each recipient check`);
-      ev.push(show(bpCard("faded"), p2.done, 600));
+      ev.push(show(recomputeBadge, p1.done, 300), show(bpCard("faded"), p2.done, 600), hide(recomputeBadge, p2.next, 300));
 
       const xc = xChips(LB.x1);
       lbfgsTray = trayX1() + pairCard() + `<span class="faded-card" data-card="faded"><span>${mixed(R`$r$, $g$, $\nabla J$ and $\mathbf{d}$ are recomputed`)}</span></span>`;
@@ -2282,46 +2373,62 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     } else {
       const animate = k === 8;
       const lc = lChips();
-      bpTray = BP.q2.map((v, e) => card(qLabel(e, 2), "state-card q-card", `q${e}`)).join("");
+      bpTray = trayGroup("kept U⁽¹⁾ by edge", trayU(5), "retained", { "bp-snapshot": "U1" }) +
+        trayGroup(animate ? "new Q⁽²⁾ outputs" : "carried Q⁽²⁾ outputs",
+          BP.q2.map((v, e) => card(qLabel(e, 2), "state-card q-card", `q${e}`)).join(""),
+          "temporary", { retention: "temporary", "output-kind": "q2" });
       const xc = xChips(LB.x1);
       lbfgsTray = trayX1() + pairCard();
       [1, 2].forEach(e => { const line = guide(gg, e); if (animate) ev.push(show(line, 300)); });
       if (!animate) hover(bg, ev, 300, F.q);
       const gh = hover(gg, ev, 300, animate ? F.r : jGeneral());
       if (animate) {
-        [0, 3].forEach(e => {
-          const m = message(bg, e, "up", qLabel(e, 2), 300, ev, "", SLOT_T[e]);
+        let t = 300, last = 0;
+        [0, 1, 2, 3].forEach(e => {
+          const innerBit = e === 1 || e === 2;
+          let qd = null, marks = [];
+          if (innerBit) {
+            const qSpec = qSteps(1, EDGES[e].a, 2, e === 1, { visual: true });
+            qd = derivation(bg, ev, t, qSpec);
+            marks = exclusion(bg, 1, EDGES[e].a, 2, ev, {
+              focusAt: derivationCueAt(qd, qSpec.focusIndex, t),
+              neighbourAt: derivationCueAt(qd, qSpec.neighbourIndex, t),
+              omitAt: derivationCueAt(qd, qSpec.omitIndex, t),
+              useAt: derivationCueAt(qd, qSpec.useIndex, t),
+              clearAt: qd.lands[qSpec.formIndex], stationaryRead: true
+            });
+          }
+          const c = qd ? qChain(qd.done + 600, e, 2, { stop: false }) :
+            { t, subs: [t + 700], done: t + 1700 };
+          ev.push(blink(lc[EDGES[e].i], c.subs[0]));
+          if (qd) {
+            ev.push(blink(qd.part("hL"), c.subs[0]));
+            if (c.subs.length > 1) ev.push(blink(qd.part("hU"), c.subs[1]));
+          }
+          const cue = bpCombinationCue(bg, e, 2, c, ev, marks.storedInput, marks.storedLine);
+          const m = message(bg, e, "up", qLabel(e, 2), cue.sendAt, ev, innerBit ? "hot" : "", SLOT_T[e]);
+          if (qd) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
           ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
-        });
-        let t = 1200, last = 0;
-        [1, 2].forEach((e, j) => {
-          const qSpec = qSteps(1, EDGES[e].a, 2, j === 0), qd = derivation(bg, ev, t, qSpec);
-          const marks = exclusion(bg, 1, EDGES[e].a, 2, ev, {
-            focusAt: derivationCueAt(qd, qSpec.focusIndex, t),
-            neighbourAt: derivationCueAt(qd, qSpec.neighbourIndex, t),
-            omitAt: derivationCueAt(qd, qSpec.omitIndex, t),
-            useAt: derivationCueAt(qd, qSpec.useIndex, t),
-            clearAt: qd.lands[qSpec.formIndex]
-          });
-          const c = qChain(qd.done + 600, e, 2);
-          ev.push(blink(lc[1], c.subs[0]), blink(qd.part("hL"), c.subs[0]), blink(qd.part("hU"), c.subs[1]));
-          const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
-          if (j === 0) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
-          ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
-          const r = chain(G, c.done - TIME.sub, R`\text{${j === 0 ? "A" : "B"} reads } x^{(1)}_2`, null, null, tn(LB.x1[1]));
-          const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`);
-          ev.push(show(read, r.done, 450), blink(read, r.done), blink(xc[1], r.done), blink(gh.part("hP"), r.done));
-          t = m.land + 600; last = m.land;
+          if (innerBit) {
+            const r = chain(G, Math.max(300, c.done - TIME.sub), R`\text{${e === 1 ? "A" : "B"} reads } x^{(1)}_2`, null, null, tn(LB.x1[1]));
+            const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`);
+            ev.push(show(read, r.done, 450), blink(read, r.done), blink(xc[1], r.done), blink(gh.part("hP"), r.done));
+          }
+          t = m.land + 600;
+          last = m.land;
         });
         const ne = chip(bg, [310, CY + 16], R`\neq`, "sign"), eq = chip(gg, [310, CY + 16], "=", "sign");
         ev.push(show(ne, last + 300, 500), blink(ne, last + 300), show(eq, last + 300, 500), blink(eq, last + 300));
         prose(G, last + 1200, R`$\mathbf{d}^{(1)}$ will use $\nabla J(\mathbf{x}^{(1)})$, $\mathbf{s}^{(0)}$, and $\mathbf{y}^{(0)}$`);
-        sync.start = 1200;
+        sync.start = 300;
       } else {
+        const carryCue = handoffCue(bg, 9);
         [0, 1, 2, 3].forEach(e => message(bg, e, "up", qLabel(e, 2), 0, null, e === 1 || e === 2 ? "hot" : "", SLOT_T[e]));
         [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`));
         chip(bg, [310, CY + 16], R`\neq`, "sign");
         chip(gg, [310, CY + 16], "=", "sign");
+        const compareBadge = bpPhaseBadge(bg, 1, "COMPARE", "same bit · two recipients", { outputKind: "q2" });
+        ev.push(hide(carryCue, 300, 400), show(compareBadge, 300, 300), hide(compareBadge, 1900, 300));
         const p1 = prose(B, 300, R`$Q_{i\to c}$ excludes the preceding $U$ from recipient $c$`);
         prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
         const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{c\in N(i)} g_{c,i} - \tfrac{w_{\mathrm{ch}}}{2}\ell_i`);
@@ -2333,8 +2440,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     $("bp-state").innerHTML = bpTray;
     $("lbfgs-state").innerHTML = lbfgsTray;
     renderMemoryBoxes(k);
-    $("bp-state").classList.toggle("parallel", k === 3);
-    $("bp-state").dataset.label = k === 3 ? "ITERATION BOUNDARY" : "STATE TRAY";
+    $("bp-state").classList.toggle("parallel", k >= 2);
+    $("bp-state").dataset.label = k === 0 ? "FIXED EVIDENCE" :
+      (k === 1 ? "EDGE MEMORY" : (k === 7 ? "ITERATION BOUNDARY" : "KEPT / TEMPORARY"));
     const lbfgsState = $("lbfgs-state");
     lbfgsState.classList.toggle("parallel", k >= 3 && k <= 6);
     lbfgsState.dataset.label = k >= 3 && k <= 5 ? "FROZEN x / UPDATE WORK" : (k === 6 ? "UPDATE WORKSPACE" : "STATE TRAY");
@@ -2996,23 +3104,78 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       "Beat 5 did not send only Q_(3 to B) after using the empty-sum zero");
       goTo(previousBeat);
     };
+    const bpAllBeatsVisualMatch = () => {
+      const previousBeat = current;
+      const phasesByBeat = [
+        ["fixed"], ["address", "keep"], ["read", "combine", "create", "send"],
+        ["read", "create", "send", "store"], ["read", "combine", "create", "send"],
+        ["read", "create", "send", "store"], ["read", "combine", "create"],
+        ["keep", "recompute"], ["read", "combine", "create", "send"], ["compare"]
+      ];
+      const qEdgesByBeat = { 2: [0, 1], 4: [2, 3], 8: [0, 1, 2, 3] };
+      const uEdgesByBeat = { 3: [0, 1], 5: [2, 3] };
+      for (let beat = 0; beat < BEATS.length; beat += 1) {
+        goTo(beat);
+        const svg = $("bp-graph"), state = $("bp-state");
+        const phases = new Set([...$("bp-chips").querySelectorAll("[data-phase]")].map(node => node.dataset.phase));
+        check(phasesByBeat[beat].every(phase => phases.has(phase)),
+          `Beat ${beat + 1} is missing its BP visual action phases`);
+        check([...svg.querySelectorAll(".message")].every(node => node.dataset.relation === "bp-message" && node.hasAttribute("marker-end")),
+          `Beat ${beat + 1} contains Tanner-edge motion that is not an addressed BP message`);
+        if (beat === 0) check(state.querySelector('[data-tray-group="fixed"]') && !svg.querySelector(".message"),
+          "Beat 1 does not separate fixed evidence from Tanner-edge messages");
+        if (beat >= 1) check(state.querySelector('[data-tray-group="retained"]'),
+          `Beat ${beat + 1} does not show its kept U edge slots`);
+        if ([3, 5, 6, 7, 8, 9].includes(beat)) check(state.querySelector('.tray-group.temporary'),
+          `Beat ${beat + 1} does not separate temporary BP values from kept U slots`);
+        (qEdgesByBeat[beat] || []).forEach(edge => {
+          const read = Number(svg.dataset[`edge${edge}ReadAt`]), combine = Number(svg.dataset[`edge${edge}CombineAt`]);
+          const result = Number(svg.dataset[`edge${edge}ResultAt`]), send = Number(svg.dataset[`edge${edge}SendAt`]);
+          check([read, combine, result, send].every(Number.isFinite) && read < combine && combine < result && result < send,
+            `Beat ${beat + 1}, edge ${edge} does not preserve READ → COMBINE → CREATE → SEND`);
+        });
+        (uEdgesByBeat[beat] || []).forEach(edge => {
+          const read = Number(svg.dataset[`edge${edge}ReadAt`]), result = Number(svg.dataset[`edge${edge}ResultAt`]);
+          const send = Number(svg.dataset[`edge${edge}SendAt`]), store = Number(svg.dataset[`edge${edge}StoreAt`]);
+          check([read, result, send, store].every(Number.isFinite) && read < result && result < send && send < store,
+            `Beat ${beat + 1}, edge ${edge} does not preserve READ → CREATE → SEND → STORE`);
+        });
+      }
+      goTo(previousBeat);
+    };
     const memoryBoxMatches = () => {
       const previousBeat = current;
-      goTo(4);
-      const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory");
       const edgeCount = DATA.graph.edge_order.length;
       const dimension = OBJ.x0.length;
       const memoryPairs = LB.memory_pairs;
       const historyCapScalars = 2 * dimension * memoryPairs;
       const totalCapScalars = dimension + historyCapScalars;
-      const bpText = visibleText(bpMemory), lbfgsText = visibleText(lbfgsMemory);
-      check(bpMemory && lbfgsMemory && !bpMemory.closest(".state-tray") && !lbfgsMemory.closest(".state-tray") &&
-        bpMemory.parentElement.classList.contains("state-memory-row") && lbfgsMemory.parentElement.classList.contains("state-memory-row"),
-      "memory-consumption boxes are not separate from the state trays");
-      check(edgeCount === 4 && Number(bpMemory.dataset.retainedScalars) === edgeCount &&
-        Number(bpMemory.dataset.edgeCount) === edgeCount && bpMemory.dataset.growth === "O(|E|)" &&
-        bpText.includes("4 scalar slots") && bpText.includes("one U per Tanner-graph edge"),
-      "BP memory box does not derive its four retained U slots from the graph edges");
+      for (let beat = 0; beat < BEATS.length; beat += 1) {
+        goTo(beat);
+        const bpMemory = $("bp-memory"), lbfgsMemory = $("lbfgs-memory"), bpText = visibleText(bpMemory);
+        check(bpMemory && lbfgsMemory && !bpMemory.closest(".state-tray") && !lbfgsMemory.closest(".state-tray") &&
+          bpMemory.parentElement.classList.contains("state-memory-row") && lbfgsMemory.parentElement.classList.contains("state-memory-row"),
+        `memory-consumption boxes are not separate from the state trays in Beat ${beat + 1}`);
+        check(edgeCount === 4 && Number(bpMemory.dataset.boundaryScalars) === edgeCount &&
+          Number(bpMemory.dataset.edgeCount) === edgeCount && bpMemory.dataset.growth === "O(|E|)" &&
+          bpMemory.dataset.boundaryOnly === "true" && bpMemory.dataset.currentBeat === String(beat + 1) &&
+          bpMemory.dataset.phase === BP_MEMORY_PHASE[beat] && bpText.includes("4 scalar slots") &&
+          bpText.includes(BP_MEMORY_PHASE[beat]) && bpText.includes("one U per Tanner-graph edge") &&
+          bpMemory.classList.contains("comparison-beat"),
+        `BP memory box does not show the invariant four-edge boundary account in Beat ${beat + 1}`);
+        check(bpMemory.scrollWidth <= bpMemory.clientWidth + 1 && bpMemory.scrollHeight <= bpMemory.clientHeight + 1,
+          `BP memory box clips its Beat ${beat + 1} phase`);
+        for (const row of document.querySelectorAll(".state-memory-row")) {
+          const tray = row.querySelector(".state-tray"), memory = row.querySelector(".memory-box");
+          const a = tray.getBoundingClientRect(), b = memory.getBoundingClientRect(), r = row.getBoundingClientRect();
+          check(a.bottom <= b.top + 1 && a.left >= r.left - 1 && a.right <= r.right + 1 &&
+            b.left >= r.left - 1 && b.right <= r.right + 1 &&
+            a.top >= r.top - 1 && a.bottom <= r.bottom + 1 && b.top >= r.top - 1 && b.bottom <= r.bottom + 1,
+          `a memory-consumption box overlaps its state tray or leaves its row in Beat ${beat + 1}`);
+        }
+      }
+      goTo(4);
+      const lbfgsMemory = $("lbfgs-memory"), lbfgsText = visibleText(lbfgsMemory);
       check(dimension === 3 && memoryPairs === 10 && Number(lbfgsMemory.dataset.beat5Scalars) === dimension &&
         Number(lbfgsMemory.dataset.beat5HistoryPairs) === 0 &&
         Number(lbfgsMemory.dataset.historyCapScalars) === historyCapScalars &&
@@ -3021,18 +3184,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         lbfgsText.includes("3 scalar slots") && lbfgsText.includes("history 0 / 10 pairs") &&
         lbfgsText.includes("63 configured cap"),
       "L-BFGS memory box does not separate Beat-5 state from its configured history cap");
-      check(bpMemory.classList.contains("comparison-beat") && lbfgsMemory.classList.contains("comparison-beat") &&
-        bpText.includes("excludes fixed L / graph / scratch") &&
-        lbfgsText.includes("excludes fixed L / graph / scratch"),
-      "Beat 5 memory boxes do not identify their common accounting scope");
-      for (const row of document.querySelectorAll(".state-memory-row")) {
-        const tray = row.querySelector(".state-tray"), memory = row.querySelector(".memory-box");
-        const a = tray.getBoundingClientRect(), b = memory.getBoundingClientRect(), r = row.getBoundingClientRect();
-        check(a.bottom <= b.top + 1 && a.left >= r.left - 1 && a.right <= r.right + 1 &&
-          b.left >= r.left - 1 && b.right <= r.right + 1 &&
-          a.top >= r.top - 1 && a.bottom <= r.bottom + 1 && b.top >= r.top - 1 && b.bottom <= r.bottom + 1,
-        "a memory-consumption box overlaps its state tray or leaves its row");
-      }
+      check(lbfgsMemory.classList.contains("comparison-beat") && lbfgsText.includes("excludes fixed L / graph / scratch"),
+        "Beat 5 L-BFGS memory box changed its accounting scope");
       goTo(previousBeat);
     };
     const beat7CausalMatches = () => {
@@ -3121,6 +3274,8 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       root.dataset.tourSmokeBit2Cue = "passed";
       beat5BpVisualMatches();
       root.dataset.tourSmokeBeat5BpVisual = "passed";
+      bpAllBeatsVisualMatch();
+      root.dataset.tourSmokeBpAllBeats = "passed";
       memoryBoxMatches();
       root.dataset.tourSmokeMemoryBox = "passed";
 
