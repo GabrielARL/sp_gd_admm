@@ -245,7 +245,7 @@ def check_source_and_math(data: dict[str, Any]) -> int:
 
 
 def objective(obj: dict[str, Any], x: list[float]) -> float:
-    """J(x) = -(w_ch / 2) sum_i ell_i x_i + w_par sum_a (1 - prod_{j in a} x_j)^2."""
+    """J(x) = -(w_ch / 2) sum_i ell_i x_i + w_par sum_c (1 - prod_{j in c} x_j)^2."""
     ell, w = obj["ell"], obj["weights"]
     channel = -(w["channel"] / 2.0) * sum(e * v for e, v in zip(ell, x))
     parity = w["parity"] * ((1.0 - x[0] * x[1]) ** 2 + (1.0 - x[1] * x[2]) ** 2)
@@ -415,8 +415,15 @@ def check_wording_and_structure(html: str) -> None:
         '"Expand the square"',
         '"Drop constants"',
         "Form the two variable-to-check messages addressed to A",
+        r"Q^{(t)}_{i\to c}",
+        r"\sum_{c'\in N(i)\setminus\{c\}}",
+        r"U^{(t-1)}_{c'\to i}",
+        r"r_c = 1-",
+        r"g_{c,i} = -",
+        r"$c$ is the recipient check; $c'$ runs over the other neighbouring checks",
+        r"N(${I})\setminus\{${A}\}",
         r"Omit $U${uSup}_{${A}\to ${I}}$ only from the sum",
-        r"$N(i)\setminus a$ changes only this sum’s index set.",
+        r"$N(i)\setminus\{c\}$ changes only this sum’s index set.",
         r"is still sent along the bit-${I}–check ${A} edge",
         "bit ${I} is preparing a message for check ${A}",
         ".chip.excluded",
@@ -474,6 +481,12 @@ def check_wording_and_structure(html: str) -> None:
         "function advance()",
         "Show ${labels.length} synchronized actions",
         "beckon 1.6s",
+        r"Q^{(t)}_{i\to a}",
+        r"\sum_{b\in N(i)\setminus a}",
+        r"$N(i)\setminus a$ changes only this sum’s index set.",
+        r"Q_{i\to a}",
+        r"g_{a,i}",
+        r"r_a = 1-",
     ):
         assert stale not in html, f"stale wording or automatic-advance behavior remains: {stale!r}"
     assert html.count('class="lane ') == 2, "expected exactly two method lanes"

@@ -972,10 +972,10 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
 
   // A general formula floats above the graph while it is in use; its terms blink as values are substituted.
   const F = {
-    q: R`Q^{(t)}_{i\to a} = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{b\in N(i)\setminus a} U^{(t-1)}_{b\to i}}`,
-    lam: R`\Lambda^{(t)}_i = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{a\in N(i)} U^{(t)}_{a\to i}}`,
-    r: R`r_a = 1-\htmlClass{hP}{\prod_{j\in a}x_j}`,
-    g: R`g_{a,i} = -\htmlClass{hW}{2w_{\mathrm{par}}}\,\htmlClass{hR}{r_a}\htmlClass{hP}{\prod_{j\in a,\,j\neq i}x_j}`
+    q: R`Q^{(t)}_{i\to c} = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{c'\in N(i)\setminus\{c\}} U^{(t-1)}_{c'\to i}}`,
+    lam: R`\Lambda^{(t)}_i = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{c\in N(i)} U^{(t)}_{c\to i}}`,
+    r: R`r_c = 1-\htmlClass{hP}{\prod_{j\in c}x_j}`,
+    g: R`g_{c,i} = -\htmlClass{hW}{2w_{\mathrm{par}}}\,\htmlClass{hR}{r_c}\htmlClass{hP}{\prod_{j\in c,\,j\neq i}x_j}`
   };
   // ---------- derivations of the L-BFGS gradient terms from the objective function ----------
   // A term id is wrapped in a style: "dim", "hl" (highlighted) or "gone" (crossed out: its derivative is 0).
@@ -985,7 +985,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   }
   function jGeneral(mark = {}) {
     const ch = styled(R`-\frac{w_{\mathrm{ch}}}{2}\sum_i \ell_i x_i`, mark.c);
-    const par = styled(R`w_{\mathrm{par}}\sum_a\Bigl(1-\prod_{j\in a}x_j\Bigr)^2`, mark.p);
+    const par = styled(R`w_{\mathrm{par}}\sum_c\Bigl(1-\prod_{j\in c}x_j\Bigr)^2`, mark.p);
     return R`J(\mathbf{x}) = \htmlClass{hC}{${ch}} + \htmlClass{hPar}{${par}}`;
   }
   // J written out for checks A = {1, 2} and B = {2, 3}, with w_ch = 1 and w_par = 2.
@@ -1001,7 +1001,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
   const J_INTRO = [
     { tex: jGeneral(), tag: "Objective function", note: R`L-BFGS changes $\mathbf{x}$ to make $J(\mathbf{x})$ smaller; $J$ adds two terms` },
     { tex: jGeneral({ c: "hl", p: "dim" }), tag: "Term 1 · channel", note: R`smaller when each $x_i$ has the sign of $\ell_i$, so it follows the channel evidence`, sparkle: ["hC"] },
-    { tex: jGeneral({ c: "dim", p: "hl" }), tag: "Term 2 · parity", note: R`$0$ when every check product $\prod_{j\in a}x_j$ equals $+1$; it grows as a product moves away from $+1$`, sparkle: ["hPar"] },
+    { tex: jGeneral({ c: "dim", p: "hl" }), tag: "Term 2 · parity", note: R`$0$ when every check product $\prod_{j\in c}x_j$ equals $+1$; it grows as a product moves away from $+1$`, sparkle: ["hPar"] },
     { tex: jGeneral(), tag: "Weights", note: R`this page intentionally omits the anchor's factor $1/n$, so $J$ is scaled by $n=3$; its minimizers are preserved, but the displayed fixed-rule L-BFGS path is recomputed for this scaled $J$` }
   ];
   // Where the channel term comes from: the negative log-likelihood for discrete BPSK symbols, followed by the stated relaxation.
@@ -1044,7 +1044,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       note: R`$x_2$ is fixed, so $\partial_{x_1}(1-x_1x_2) = -x_2$; the bracket $1-x_1x_2$ is $r_A$`, keys: ["mU", "mI"], sparkle: ["mU", "mI"], hold: 5200 },
     { tex: R`\htmlClass{mG}{g_{A,1} = -4\,r_A\,x_2},\qquad \htmlClass{mG2}{g_{A,2} = -4\,r_A\,x_1}`, tag: "Result",
       note: R`check $A$’s part of $\partial J/\partial x_1$; the same steps with respect to $x_2$ give $g_{A,2}$`, sparkle: ["mG", "mG2"] },
-    { tex: F.g, tag: "General form", note: R`for any check $a$ and bit $i$ in it; here $2w_{\mathrm{par}} = 4$` }
+    { tex: F.g, tag: "General form", note: R`for any check $c$ and bit $i$ in it; here $2w_{\mathrm{par}} = 4$` }
   ];
   const G_B = [
     { tex: R`\frac{\partial}{\partial x_3}\,2\bigl[\htmlClass{pA}{(1-x_1x_2)^2} + \htmlClass{pB}{(1-x_2x_3)^2}\bigr]`, tag: R`With respect to $x_3$`, note: R`the parity term of $J$; $x_1$ and $x_2$ are held fixed` },
@@ -1063,22 +1063,22 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       note: R`two check terms and one channel term meet at bit 2, with $w_{\mathrm{ch}}=1$`, keys: ["hPar", "hC"] }
   ];
   const NOTES = {
-    agree: R`Each check here joins two bits and requires them to agree; therefore $U_{a\to i}$ is the other incoming $Q$.`,
+    agree: R`Each check here joins two bits and requires them to agree; therefore $U_{c\to i}$ is the other incoming $Q$.`,
     boundary: R`This page places the iteration boundary after the check calculation, so the four $U$ values feed the next variable calculation.`,
     recompute: R`L-BFGS keeps $\mathbf{x}^{(1)}$ and the pair $(\mathbf{s}^{(0)},\mathbf{y}^{(0)})$; the check terms $r$ and $g$ are recomputed from $\mathbf{x}^{(1)}$.`
   };
-  // N(i) \ a, step by step: the checks joined to bit i, minus the recipient a, then the sum that is left.
+  // N(i) \ {c}, step by step: the checks joined to bit i, minus recipient c, then the sum that is left.
   const CHECK = ["A", "B"];
   function qSteps(i, a, iter, first) {
     const I = i + 1, A = CHECK[a], sup = iter === 2 ? "^{(2)}" : "", uSup = `^{(${iter - 1})}`;
     const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
     const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
     const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
-    const steps = first ? [{ tex: F.q, tag: "Show the BP variable-update rule", note: R`the message bit $i$ sends to check $a$; the sum runs over $b\in N(i)\setminus a$`, hold: 3600 }] : [];
+    const steps = first ? [{ tex: F.q, tag: "Show the BP variable-update rule", note: R`$c$ is the recipient check; $c'$ runs over the other neighbouring checks in $N(i)\setminus\{c\}$. In this graph, $c$ is $A$ or $B$`, hold: 3600 }] : [];
     steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: `List bit ${I}'s neighbouring checks`, note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
-    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ only from the sum`,
-      note: R`$N(i)\setminus a$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
-    steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{b\in ${set(rest)}} U${uSup}_{b\to ${I}}} = L_${I} + ${sum}`,
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus\{${A}\}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ only from the sum`,
+      note: R`$N(i)\setminus\{c\}$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
+    steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{c'\in ${set(rest)}} U${uSup}_{c'\to ${I}}} = L_${I} + ${sum}`,
       tag: rest.length ? R`Form $Q${sup}_{${I}\to ${A}}$ from the remaining terms` : R`Use $L_${I}$ because the sum is empty`,
       note: rest.length ? R`bit ${I} is preparing a message for check ${A}: use the channel LLR $L_${I}$ and the check-to-variable message $${sum}$ from check ${rest.join(", ")}; leave out check ${A}’s preceding check-to-variable message`
         : R`bit ${I} is preparing a message for check ${A}; no other neighboring check remains, so the message contains only its channel LLR $L_${I}$` });
@@ -1614,7 +1614,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
     const xChips = values => values.map((v, i) => chip(gg, below(i), R`x_${i + 1} = ${tn(v, 3)}`, "value"));
     const uChips = values => values.map((v, e) => chip(bg, edgePoint(e, SLOT_T[e]), uLabel(e, v)));
     const qLabel = (e, iter) => R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}} = ${tn((iter === 2 ? BP.q2 : BP.q1)[e], 3)}`;
-    // Q_{i→a} = L_i + U_{b→i} from the bit's other check (edges 1 and 2 share bit 2).
+    // Q_{i→c} = L_i + U_{c'→i} from the bit's other check (edges 1 and 2 share bit 2).
     const qChain = (t, e, iter) => {
       const { i } = EDGES[e];
       const other = e === 1 ? 2 : e === 2 ? 1 : null;
@@ -1624,7 +1624,7 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
       return chain(B, t, lhs, [M(`L_${i + 1}`), " + ", M(R`U^{(${iter - 1})}_{${USLOT[other]}}`)],
         [M(tp(BP.L[i])), " + ", M(tp(u[other]))], tn(q[e]));
     };
-    // U_{a→i} = Q_{j→a}: each two-bit check returns the other incoming message.
+    // U_{c→i} = Q_{j→c}: each two-bit check returns the other incoming message.
     const uChain = (t, e) => {
       const from = [1, 0, 3, 2][e];
       return chain(B, t, R`U^{(1)}_{${USLOT[e]}}`, [M(R`Q^{(1)}_{${QSLOT[from]}}`)], [M(tn(BP.q1[from]))], null);
@@ -1983,9 +1983,9 @@ html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
         [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2 = ${tn(LB.x1[1], 3)}`));
         chip(bg, [310, CY + 16], R`\neq`, "sign");
         chip(gg, [310, CY + 16], "=", "sign");
-        const p1 = prose(B, 300, R`$Q_{i\to a}$ excludes the preceding $U$ from recipient $a$`);
+        const p1 = prose(B, 300, R`$Q_{i\to c}$ excludes the preceding $U$ from recipient $c$`);
         prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
-        const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{a\in N(i)} g_{a,i} - \tfrac{w_{\mathrm{ch}}}{2}\ell_i`);
+        const f = formula(G, 300, R`\frac{\partial J}{\partial x_i} = \sum_{c\in N(i)} g_{c,i} - \tfrac{w_{\mathrm{ch}}}{2}\ell_i`);
         prose(G, f.next, R`L-BFGS turns $\nabla J$ and earlier $\mathbf{s},\mathbf{y}$ values into one direction for one $\mathbf{x}$`);
         sync.start = 900;
       }
