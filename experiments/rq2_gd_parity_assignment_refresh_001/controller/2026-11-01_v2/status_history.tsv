@@ -1,0 +1,11 @@
+utc	state	phase	exit_code	detail
+2026-10-31T21:34:42Z	starting	startup	-1	new non-resumable attempt acquired
+2026-10-31T21:34:42Z	validating	v3_inactive	-1	poll=1 ActiveState=inactive SubState=dead MainPID=0
+2026-10-31T21:34:42Z	validating	terminal_evidence	-1	verified 6 required terminal files
+2026-10-31T21:34:42Z	validating	v3_result_validation	-1	starting hash-pinned v3 result gate
+2026-10-31T21:34:43Z	validating	v3_result_validation	0	completed with exit code 0; log=/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/controller/2026-11-01_v2/logs/v3_result_validation.log
+2026-10-31T21:34:43Z	validating	result_evidence	0	bound completion, manifest, science, aggregate, and checksum manifest
+2026-10-31T21:34:43Z	selected	selection_rule	0	registered parity-calculation branch-selection rule passed
+2026-10-31T21:34:43Z	validating	successor_trust	0	verified 5 pinned successor files
+2026-10-31T21:34:43Z	running	pipeline	-1	starting configured pipeline command
+2026-10-31T21:36:50Z	failed	pipeline	2	pipeline exited 2; see /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/controller/2026-11-01_v2/logs/pipeline.log
