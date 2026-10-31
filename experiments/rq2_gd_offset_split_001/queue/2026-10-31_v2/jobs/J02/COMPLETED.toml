@@ -1,0 +1,7 @@
+detail = "Four-arm 24-case v2 anchor provenance rebind"
+exit_code = 0
+job_id = "J02"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V2"
+recorded_utc = "2026-10-31T09:44:35Z"
+schema_version = "rq2-gd-offset-split-001/queue-job-v2"
+state = "complete"

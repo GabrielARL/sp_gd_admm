@@ -1,0 +1,8 @@
+experiment_id = "RQ2-GD-OFFSET-NULL-001"
+frames_completed = 24
+frames_total = 24
+pass = "artifact_write"
+schema_version = "rq2-gd-offset-null-001/progress-v1"
+stage = "anchor"
+status = "complete_valid"
+updated_utc = "2026-10-31T05:43:21.172"

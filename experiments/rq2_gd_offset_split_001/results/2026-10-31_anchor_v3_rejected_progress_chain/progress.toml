@@ -1,0 +1,20 @@
+arms_completed_current_frame = 0
+arms_total = 4
+current_frame = 20010
+error = ""
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+frames_completed = 9
+frames_total = 24
+last_completed_frame = 20009
+pass = "primary"
+phase = "frame_loop"
+phase_started_utc = "2026-10-31T12:37:57.323"
+previous_phase = "pass_preamble"
+previous_phase_elapsed_seconds = 48.531504101
+process_id = 655754
+schema_version = "rq2-gd-offset-split-001/progress-v1"
+stage = "anchor"
+started_utc = "2026-10-31T12:37:06.831"
+status = "running"
+updated_utc = "2026-10-31T12:44:01.694"
+

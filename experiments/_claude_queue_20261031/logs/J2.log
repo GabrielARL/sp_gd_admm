@@ -1,0 +1,5 @@
+anchor status: complete_valid
+  control: transmitted-word 15/24  parity-valid 15/24
+  reference: transmitted-word 22/24  parity-valid 22/24
+  permuted: transmitted-word 10/24  parity-valid 10/24
+  frozen: transmitted-word 22/24  parity-valid 22/24

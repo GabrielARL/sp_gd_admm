@@ -1,0 +1,23 @@
+attempt_id = "R5-AWGN-ISOLATION-R050-001"
+completed_utc = "2026-10-13T00:52:26.476"
+schema_version = 1
+status = "complete"
+
+[checks]
+bp_and_jade_exactly_equal_every_frame = true
+coral_decoder_calls = 0
+coral_pseudogradient_calls = 0
+expected_row_count = 9600
+paired_llr_hashes = true
+row_count = 9600
+scalar_objective_strictly_descended = true
+scalar_state_box_feasible = true
+
+[output_sha256]
+"aggregate.csv" = "42746ee738c00c96b7e1bcf572b3b1c8a03f1cb138e61aefa50db42789d34c38"
+"ber_vs_snr.pdf" = "f4f4b2307f05e4dcd65b04618f236a8c220e98390dde37c5766bd7fbaa754c3e"
+"ber_vs_snr.png" = "4b7954bf1a2f398a150b385e7cc15a22c69403fac02121601096b2cab9b8e83f"
+"frames.csv" = "c035c34b0d49e12129d6f828b8eaa2ce240e681e16ef9f37741ec5d236587d3a"
+"manifest.toml" = "7623472b457792fc36944d30947587a1ed9b43f99815591baced9b0e7d13d2be"
+"parity_valid_rate.pdf" = "f18376c2b2f3059974934e439580395d81a72e3e2dfea787b66fe3ebd4ee3909"
+"parity_valid_rate.png" = "5c5ab907927d321e7227bb5ab5013f42dcf40f75adee23776cb5f493db2ec64b"

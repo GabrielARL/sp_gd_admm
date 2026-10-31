@@ -1,0 +1,7 @@
+experiment_id = "RQ2-NATIVE-GAP-001"
+frames_completed = 200
+frames_total = 200
+pass = "artifact_write"
+stage = "six"
+status = "complete_valid"
+updated_utc = "2026-10-31T06:10:35.056"

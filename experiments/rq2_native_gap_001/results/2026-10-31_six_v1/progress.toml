@@ -1,0 +1,4 @@
+error = "FieldError: type NamedTuple has no field `arm`, available fields: `frame`, `physical_esn0_db`, `method`, `noise_seed`, `coded_bit_errors`, `information_bit_errors`, `transmitted_word_equal`, `information_word_equal`, `parity_valid`, `wrong_valid_word`, `syndrome_weight`, `iterations`, `hard_word_sha256`, `received_sha256`, `clipped_llr_sha256`"
+stage = "six"
+status = "failed"
+updated_utc = "2026-10-31T05:53:42.088"

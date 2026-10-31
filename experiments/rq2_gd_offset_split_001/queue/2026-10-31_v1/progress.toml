@@ -1,0 +1,13 @@
+current_job = "J04"
+current_job_state = "failed"
+detail = "queue stopped after a failed job"
+exit_code = 124
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+jobs_completed = 3
+jobs_total = 5
+process_id = 580949
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V1"
+schema_version = "rq2-gd-offset-split-001/queue-progress-v1"
+started_utc = "2026-10-31T02:32:28Z"
+state = "failed"
+updated_utc = "2026-10-31T07:57:56Z"

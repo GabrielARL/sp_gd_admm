@@ -1,0 +1,65 @@
+base_scientific_sha256 = "e1e3250d714cbdca322af93f74201b529eaacb45eeec765aaefe2f4b6ccd8d96"
+command = "julia --project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/rq2_native_gap_001.jl second --freeze /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/freeze/2026-10-31_v2 --profile-result /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/results/2026-10-31_profile_v2 --output /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/results/2026-10-31_second_v2"
+created_utc = "2026-10-31T06:44:57.183"
+experiment_id = "RQ2-NATIVE-GAP-001"
+freeze = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/freeze/2026-10-31_v2"
+freeze_manifest_sha256 = "2678f5a49e105adb9301775ffa15b5ccc9682fb6fb83a16ed028f2ffec73bda6"
+schema_version = "rq2-native-gap-001/manifest-v1"
+stage = "second"
+stored_scientific_sha256 = "28d42705bbf29d872cf0af5542ea559de57686f462c25c9adbecb4039f2d992e"
+
+[environment]
+blas_threads = 1
+cpu = "haswell"
+jade_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_root = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+julia_threads = 1
+julia_version = "1.12.6"
+sp_branch = "claude/rq2-controls-20261031"
+sp_head = "ebb14f39218ca945e403007a840c462c702d2db9"
+
+[[sources]]
+archived_relative_path = "source/config.toml"
+label = "config.toml"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/config.toml"
+sha256 = "7730e668a4dc48bbf8afb8a5ed1ba365ae4b4bfb7f5306be86a795eb203286b9"
+[[sources]]
+archived_relative_path = "source/experiment_card.md"
+label = "experiment_card.md"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/experiment_card.md"
+sha256 = "fb57c40fafa17423382086d0fda8e29cd7ccb9f94c6ac1bc941c597fab25ac4d"
+[[sources]]
+archived_relative_path = "source/retained/rq2_gd_offset_split_001.jl"
+label = "retained/rq2_gd_offset_split_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+sha256 = "70cf7cf14c3d1184f8ecb65d1689da6cfdae1eb9272b3227055a434af1585860"
+[[sources]]
+archived_relative_path = "source/retained/rq2_gd_state_use_001.jl"
+label = "retained/rq2_gd_state_use_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+[[sources]]
+archived_relative_path = "source/retained/split_anchor_frames.csv"
+label = "retained/split_anchor_frames.csv"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v1/frames.csv"
+sha256 = "a164f33f6b789ff5db187088afac02839ad4904970b7969494a2d29546e8b327"
+[[sources]]
+archived_relative_path = "source/retained/split_config.toml"
+label = "retained/split_config.toml"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_offset_split_001/config.toml"
+sha256 = "d5f55d93a4ff20bd680082f80f24169d5a3f80d4fe6facb5dea76c8fe38e39a9"
+[[sources]]
+archived_relative_path = "source/retained/split_input_freeze.csv"
+label = "retained/split_input_freeze.csv"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v1/input_freeze.csv"
+sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+[[sources]]
+archived_relative_path = "source/rq2_native_gap_001.jl"
+label = "rq2_native_gap_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/rq2_native_gap_001.jl"
+sha256 = "5ce7ba12efe06b4e9a4d5b31401064128b5b95e12fe38a990e24bf228a368ec8"
+[[sources]]
+archived_relative_path = "source/test_rq2_native_gap_001.jl"
+label = "test_rq2_native_gap_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_native_gap_001/test_rq2_native_gap_001.jl"
+sha256 = "a31d6b6661c235e16cf68a5a8ac97ce5e9e4e7b34ebbe834b65a801bfc07070a"

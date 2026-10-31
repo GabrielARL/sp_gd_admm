@@ -1,0 +1,71 @@
+Running held-out set with wall budget 18000 seconds
+TERM after 17880 seconds; KILL no later than the registered 18000-second wall budget
+
+[583567] signal 15: Terminated
+in expression starting at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:2179
+gc_sweep_page at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:912
+gc_sweep_pool_page at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:983 [inlined]
+gc_sweep_pool_parallel at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:1275
+gc_sweep_pool at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:1394 [inlined]
+_jl_gc_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3187
+ijl_gc_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:3475
+maybe_collect at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:351 [inlined]
+jl_gc_small_alloc_inner at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:727 [inlined]
+ijl_gc_small_alloc at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/gc-stock.c:776
+#32 at ./none (unknown line)
+MappingRF at ./reduce.jl:92 [inlined]
+_foldl_impl at ./reduce.jl:54
+foldl_impl at ./reduce.jl:40 [inlined]
+mapfoldl_impl at ./reduce.jl:36 [inlined]
+#mapfoldl#270 at ./reduce.jl:167 [inlined]
+mapfoldl at ./reduce.jl:167 [inlined]
+#mapreduce#274 at ./reduce.jl:299 [inlined]
+mapreduce at ./reduce.jl:299 [inlined]
+#sum#277 at ./reduce.jl:524 [inlined]
+sum at ./reduce.jl:524 [inlined]
+#sum#278 at ./reduce.jl:553 [inlined]
+sum at ./reduce.jl:553 [inlined]
+#bounded_mean_projection#30 at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl:583
+bounded_mean_projection at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl:564 [inlined]
+#construct_offsets!#65 at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl:718
+construct_offsets! at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl:687 [inlined]
+#solve_variant#14 at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:609
+solve_variant at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:371
+unknown function (ip: 0x714dc57d40c9) at (unknown file)
+#calculate_science#45 at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:1538
+calculate_science at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:1414 [inlined]
+#run_stage#92 at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:2062
+run_stage at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:2033 [inlined]
+main at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:2158
+main at /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl:2121
+unknown function (ip: 0x714dc57500bf) at (unknown file)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+jl_f_invokelatest at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/builtins.c:881
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+do_call at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:123
+eval_value at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:243
+eval_stmt_value at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:194 [inlined]
+eval_body at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:707
+jl_interpret_toplevel_thunk at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/interpreter.c:898
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1035
+jl_eval_module_expr at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:197 [inlined]
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:814
+jl_toplevel_eval_flex at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:975
+ijl_toplevel_eval at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1047
+ijl_toplevel_eval_in at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/toplevel.c:1092
+eval at ./boot.jl:489
+include_string at ./loading.jl:2874
+_include at ./loading.jl:2934
+include at ./Base.jl:306
+exec_options at ./client.jl:317
+_start at ./client.jl:550
+jfptr__start_63319.1 at /home/gabiel/.julia/juliaup/julia-1.12.6+0.x64.linux.gnu/lib/julia/sys.so (unknown line)
+jl_apply at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/julia.h:2391 [inlined]
+true_main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:971
+jl_repl_entrypoint at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/src/jlapi.c:1139
+main at /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/cli/loader_exe.c:58
+unknown function (ip: 0x714dc6c29d8f) at /lib/x86_64-linux-gnu/libc.so.6
+__libc_start_main at /lib/x86_64-linux-gnu/libc.so.6 (unknown line)
+unknown function (ip: 0x4010b8) at /workspace/srcdir/glibc-2.17/csu/../sysdeps/x86_64/start.S
+unknown function (ip: (nil)) at (unknown file)
+Allocations: 210954672931 (Pool: 210953053257; Big: 1619674); GC: 112061

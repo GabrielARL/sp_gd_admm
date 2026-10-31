@@ -1,0 +1,88 @@
+schema_version = "rq1-gd-state-use-001/v1"
+experiment_id = "RQ1-GD-STATE-USE-001"
+identifier_status = "provisional internal experiment ID"
+research_question = "RQ1"
+classification = "controlled two-update ablation study of retaining and using check-specific values"
+
+[scope]
+admm_included = false
+awgn_run = false
+performance_claim = false
+updates_per_case = 2
+
+[cases.tree]
+case_id = "tree_anchor"
+checks = [[1, 2], [2, 3]]
+edge_order = ["b0-c0", "b1-c0", "b1-c1", "b2-c1"]
+execution_gate = "always"
+
+[cases.cycle]
+case_id = "cycle_confirmation"
+checks = [[1, 2], [2, 3], [1, 3]]
+edge_order = ["b0-c0", "b1-c0", "b1-c1", "b2-c1", "b0-c2", "b2-c2"]
+execution_gate = "tree_validation_passed"
+
+[channel_evidence]
+convention = "L_i = log(P(bit_i=1|y_i)/P(bit_i=0|y_i)); positive favors bit 1"
+expressions = ["-log(9)", "log(3/2)", "log(2)"]
+values_bit1_positive = [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453]
+native_coordinate = "ell = -L; positive ell favors bit 0"
+initialization = "x_i^(0) = tanh(ell_i/2)"
+
+[projected_gradient]
+parity_weight = 2.0
+binary_weight = 0.2
+initial_step = 0.2
+maximum_backtracks = 16
+box_lower = -1.0
+box_upper = 1.0
+preconditioner = "native_curvature_bound"
+line_search = "first_strict_decrease"
+projection = "componentwise_box"
+hard_decision = "bit_i = 1 iff x_i < 0"
+
+[intervention]
+leave_one_check_scaling = "degree(i)/(degree(i)-1)"
+degree_one_rule = "G_tilde_(i,c) = G_i"
+delta_definition = "local_raw_(c,i) - native_raw_i"
+retention_levels = ["collapsed", "retained"]
+use_levels = ["ignored", "used"]
+cell_order = ["collapsed__ignored", "retained__ignored", "collapsed__consumed", "retained__consumed"]
+active_cell = "retained__consumed"
+controls = ["collapsed__ignored", "retained__ignored", "collapsed__consumed"]
+active_objective_rule = "hold delta_effective fixed while calculating partial derivatives of the objective function and during the backtracking line search with strict-decrease acceptance"
+
+[validation]
+absolute_tolerance = 1.0e-12
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 2.0e-8
+strict_interior_margin = 0.0
+zero_sum_tolerance = 1.0e-12
+native_composition_tolerance = 2.0e-12
+require_exact_control_paths = true
+require_tree_before_cycle = true
+require_inactive_first_projection = true
+require_initial_check_readings_in_box = true
+
+[sources]
+sp_repo = "/home/gabiel/Documents/GitHub/sp_gd_admm"
+jade_repo = "/home/gabiel/Documents/GitHub/JadeJcade"
+endpoint_config = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_endpoint_001/config.toml"
+endpoint_config_sha256 = "170f9049f8b647150fc59a3cc117199f22f5e0f3d9fc70ad0082ce31d988f3b9"
+endpoint_card = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_endpoint_001/experiment_card.md"
+endpoint_card_sha256 = "7473d461daa382f3080097743f3e10f1156d6ff67a794746ad96909bbd9f81e9"
+endpoint_runner = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_endpoint_001/rq1_endpoint_001.jl"
+endpoint_runner_sha256 = "b16af207f16f8c5175fb747edfc685b73f40bf72348cd18481f9e1f0f7bd4b1e"
+endpoint_test = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_endpoint_001/test_rq1_endpoint_001.jl"
+endpoint_test_sha256 = "7fefce14de8cbc28c77bb564dfda8c20eb6cbe07c926548ba5e82d0aa48630b8"
+current_native_runner = "/home/gabiel/Documents/GitHub/JadeJcade/experiments/jade_awgn/run_three_receivers.jl"
+current_native_runner_sha256 = "cbe5d5635dc3d000f44b8752fc7351520f09eb5ad9e644a4b7dc93acd749a07b"
+archived_native_runner = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-0to2-step0p5-20261012/source/run_three_receivers.jl"
+archived_native_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+archived_commit = "f44641e48fb9ade33c8c17598dd3f65b77f6205c"
+archived_attempt = "R5-AWGN-ISOLATION-R050-001"
+
+[provenance]
+science_schema = "rq1-gd-state-use-001/science-v1"
+manifest_schema = "rq1-gd-state-use-001/manifest-v1"
+scientific_hash_scope = "canonical science JSON; runtime and provenance excluded"

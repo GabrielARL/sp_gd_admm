@@ -1,0 +1,5 @@
+heldout status: complete_valid
+  control: transmitted-word 107/200  parity-valid 107/200
+  reference: transmitted-word 163/200  parity-valid 163/200
+  permuted: transmitted-word 73/200  parity-valid 73/200
+  frozen: transmitted-word 165/200  parity-valid 165/200

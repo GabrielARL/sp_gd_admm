@@ -1,0 +1,58 @@
+bp_saturated_on_grid = true
+selected_second_esn0_db = 1.5
+
+[profile."1.5"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."2.0"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."2.5"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."3.0"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."3.5"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."4.0"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 0
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 0
+
+[profile."5.0"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 1
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 1
+
+[profile."6.0"]
+bp_exact_sum_product = 24
+frames = 24
+gd_native_projected = 15
+parity_valid_bp_exact_sum_product = 24
+parity_valid_gd_native_projected = 15

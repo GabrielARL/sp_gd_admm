@@ -1,0 +1,6 @@
+job = "J6"
+title = "final verification and summary"
+started_utc = "2026-10-31T09:18:18Z"
+failed_utc = "2026-10-31T09:19:30Z"
+exit_code = 1
+failure_class = "gate_failure"

@@ -1,0 +1,10 @@
+anchor_expansion_authorized = true
+completed_utc = "2026-10-31T02:59:53.506"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+manifest_sha256 = "be60eaf224870bf8b8e93c2072afce861b3984c9b6ad7e0001b394e8e2c69895"
+schema_version = "rq2-gd-offset-split-001/completion-v1"
+science_sha256 = "2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46"
+stage = "anchor"
+status = "complete_valid"

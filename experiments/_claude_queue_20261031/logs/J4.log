@@ -1,0 +1,22 @@
+Test Summary:      | Pass  Total   Time
+RQ2-NATIVE-GAP-001 |   20     20  25.1s
+experiment: RQ2-NATIVE-GAP-001
+graph SHA-256: 94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d
+bp iterations: 80
+frozen input rows: 1792
+six status: complete_valid
+  bp_exact_sum_product: transmitted-word 200  parity-valid 200  of 200
+  gd_native_projected: transmitted-word 107  parity-valid 107  of 200
+profile status: complete_valid
+selected second Es/N0: 1.5 dB (bp saturated on grid: true)
+  1.5 dB: bp 24  gd 0  of 24
+  2.0 dB: bp 24  gd 0  of 24
+  2.5 dB: bp 24  gd 0  of 24
+  3.0 dB: bp 24  gd 0  of 24
+  3.5 dB: bp 24  gd 0  of 24
+  4.0 dB: bp 24  gd 0  of 24
+  5.0 dB: bp 24  gd 1  of 24
+  6.0 dB: bp 24  gd 15  of 24
+second status: complete_valid
+  bp_exact_sum_product: transmitted-word 200  parity-valid 200  of 200
+  gd_native_projected: transmitted-word 0  parity-valid 0  of 200

@@ -1,0 +1,10 @@
+anchor_expansion_authorized = true
+completed_utc = "2026-10-30T17:56:02.468"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-GD-STATE-USE-001"
+manifest_sha256 = "4b0ddc0639705ea583e4acac954f2d45a2b2b6fe35242b0f1b3d7d4650c8d296"
+schema_version = "rq2-gd-state-use-001/completion-v1"
+science_sha256 = "beb8517b8bb95c2d988728641942806d8292904a6fe186963029237fcf9e6bfa"
+stage = "anchor"
+status = "complete_valid"

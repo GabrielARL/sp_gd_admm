@@ -1,0 +1,122 @@
+schema_version = "rq2-gd-offset-null-001/v1"
+experiment_id = "RQ2-GD-OFFSET-NULL-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "four-arm null-structure control of the retained-offset intervention on the frozen cases of RQ2-GD-OFFSET-SPLIT-001"
+
+[scope]
+admm_included = false
+bp_arm_included = false
+snr_sweep = false
+native_bp_vs_projected_gd_attribution = false
+all_arms_are_constructed_projected_gradient_variants = true
+runs_concurrently_with_split_queue = true
+
+[protocol]
+inherited_from = "RQ2-GD-OFFSET-SPLIT-001 config.toml: code, channel, projected_gradient, offset_construction, timing threads, validation tolerances, sources"
+split_config_sha256 = "d5f55d93a4ff20bd680082f80f24169d5a3f80d4fe6facb5dea76c8fe38e39a9"
+split_runner_sha256 = "70cf7cf14c3d1184f8ecb65d1689da6cfdae1eb9272b3227055a434af1585860"
+legacy_runner_sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+split_freeze_input_table = "/home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031/experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v1/input_freeze.csv"
+split_freeze_input_table_sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+regenerated_input_table_must_equal_split_freeze = true
+
+[arms]
+order = ["control", "reference", "permuted", "frozen"]
+control = "retained split kernel, objective0__bounds0: offsets built and stored, never read"
+reference = "retained split kernel, objective1__bounds1: offsets read in the parity term and in the projection interval"
+permuted = "copied kernel in objective1__bounds1 mode; after every refresh each bit's offsets are reassigned among that bit's checks by a random derangement"
+frozen = "copied kernel in objective1__bounds1 mode; the offsets constructed after the first accepted update are never refreshed"
+permutation_seed_base = 20261101
+permutation_seed_rule = "base plus frame index; one MersenneTwister per arm run, advanced in bit order at every refresh"
+permutation_rule = "degree 1 unchanged; degree 2 swapped; degree 3 one of the two cyclic shifts; higher degree a uniform derangement by rejection"
+permutation_preserves = ["per-bit multiset of offsets", "per-bit zero sum", "projection interval", "box membership of every reading"]
+permutation_changes = "which check reads which offset"
+frozen_rule = "construct once after the first accepted update; skip construction at every later accepted update; delta is copied forward unchanged"
+first_possible_divergence_update_permuted = 2
+first_possible_divergence_update_frozen = 3
+
+[anchor]
+frame_first = 20001
+frame_last = 20024
+expected_count = 24
+development_only = true
+freeze_before_any_endpoint = true
+require_all_correctness_gates = true
+outcome_direction_is_not_an_expansion_gate = true
+
+[heldout]
+frame_first = 30001
+frame_last = 30200
+expected_count = 200
+same_cases_as = "RQ2-GD-OFFSET-SPLIT-001 held-out set"
+enabled_only_after_correctness_gate = true
+outcome_direction_gate = false
+
+[endpoints]
+primary = ["transmitted_word_equal", "parity_valid"]
+supporting = ["information_word_equal", "coded_bit_errors", "information_bit_errors", "syndrome_weight", "wrong_valid_word_count", "offset_refreshes", "permutation_moved_edges"]
+
+[contrasts]
+primary = ["reference_vs_permuted", "reference_vs_frozen"]
+descriptive = ["reference_vs_control", "permuted_vs_control", "frozen_vs_control"]
+retain_all_signs = true
+
+[inference]
+pairwise_method = "two-sided exact McNemar test and Newcombe method 10 paired-risk-difference interval"
+pairwise_contrasts_per_endpoint = 5
+endpoint_count = 2
+holm_family_size = 10
+familywise_alpha = 0.05
+pairwise_interval_confidence_level = 0.995
+holm_correction = true
+
+[work_budget]
+arms_per_case = 4
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+maximum_update_attempts_per_arm = 30
+anchor_cases = 24
+heldout_cases = 200
+anchor_kernel_equivalence_runs = 24
+synthetic_warmups_per_arm = 1
+timed_executions_per_arm_case = 1
+anchor_wall_budget_seconds = 7200
+heldout_wall_budget_seconds = 36000
+parameter_sweep_allowed = false
+snr_sweep_allowed = false
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+extra_cases_allowed = false
+
+[timing]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+process_priority = "nice 19, idle I/O class"
+concurrent_load = "RQ2-GD-OFFSET-SPLIT-001's queue runs on the same machine; a watchdog pauses this process whenever that queue's frame interval degrades"
+runtime_is_diagnostic_only = true
+runtime_contaminated_by_concurrent_load = true
+allocation_is_diagnostic_only = true
+
+[validation]
+require_copied_kernel_equals_retained_kernel_on_anchor = true
+require_all_arms_equal_through_update_1 = true
+require_permuted_multiset_equal_after_update_1 = true
+require_permuted_every_edge_moved = true
+require_frozen_equals_reference_through_update_2 = true
+require_frozen_single_refresh = true
+require_readings_in_box_all_arms = true
+require_independent_hard_decision_and_syndrome = true
+require_deterministic_replay = true
+refuse_overwrite = true
+
+[provenance]
+freeze_schema = "rq2-gd-offset-null-001/freeze-v1"
+science_schema = "rq2-gd-offset-null-001/science-v1"
+manifest_schema = "rq2-gd-offset-null-001/manifest-v1"
+completion_schema = "rq2-gd-offset-null-001/completion-v1"
+progress_schema = "rq2-gd-offset-null-001/progress-v1"
+archive_loaded_sources = true
+scientific_hash_scope = "canonical scientific state and gates; runtime, progress timestamps, and provenance excluded"

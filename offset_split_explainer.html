@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Offset Split</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one deck row — animated stage on the left, the storyteller's text on the right, controls underneath; stacks to one column at phone width. Self-contained: no external fonts or scripts, so the file also works offline. */
+:root{
+  --paper:#f5f3ec; --ink:#1c1f27; --soft:#5d6271; --line:#d8d3c6; --panel:#fffdf8;
+  --bp:#6b4fa7; --gd:#22796b;
+  --ctl:#2f6d8e; --act:#c4572a; --oonly:#cf8f1f; --ponly:#7183a8;
+  --ok:#2f8a5a; --warn:#b07a12;
+  --serif:Georgia,'Times New Roman',Times,serif;
+  --ui:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161b; --ink:#ebe7dc; --soft:#a5aab6; --line:#2e323b; --panel:#1b1e25;
+    --bp:#ac92e2; --gd:#52b6a4; --ctl:#74aacb; --act:#ea8a5c; --oonly:#e7b24a; --ponly:#9fb0d2;
+    --ok:#5fc08a; --warn:#d9a53a; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14161b; --ink:#ebe7dc; --soft:#a5aab6; --line:#2e323b; --panel:#1b1e25;
+  --bp:#ac92e2; --gd:#52b6a4; --ctl:#74aacb; --act:#ea8a5c; --oonly:#e7b24a; --ponly:#9fb0d2;
+  --ok:#5fc08a; --warn:#d9a53a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.5}
+.wrap{max-width:1240px;margin:0 auto;padding-block:20px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;border-bottom:1px solid var(--line);padding-bottom:10px}
+header h1{font-family:var(--serif);font-weight:500;font-size:1.6rem;margin:0;letter-spacing:-.01em;text-wrap:balance}
+header .sub{font-family:var(--ui);font-size:.8rem;color:var(--soft);letter-spacing:.04em;text-transform:uppercase}
+header .count{margin-left:auto;font-family:var(--ui);font-size:.85rem;color:var(--soft);font-variant-numeric:tabular-nums}
+main{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;margin-top:18px;align-items:start}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.stage{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.stage svg{display:block;width:100%;height:auto;max-width:100%;aspect-ratio:16/9}
+aside{min-width:0}
+aside h2{font-family:var(--serif);font-weight:500;font-size:1.35rem;margin:0 0 10px;line-height:1.25;text-wrap:balance}
+aside p{margin:0 0 12px;max-width:62ch}
+aside .eyebrow{font-family:var(--ui);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);margin-bottom:6px}
+aside em{font-style:italic}
+aside .num{font-family:var(--ui);font-variant-numeric:tabular-nums}
+aside .tag{display:inline-block;font-family:var(--ui);font-size:.72rem;letter-spacing:.04em;padding:1px 7px;border-radius:3px;border:1px solid var(--line);color:var(--soft);vertical-align:middle}
+aside p.take{border-left:3px solid var(--act);padding-left:12px;font-family:var(--ui);font-size:.92rem;line-height:1.45;margin-top:16px}
+aside p.take b{font-weight:600;color:var(--act);letter-spacing:.04em;font-size:.72rem;text-transform:uppercase;display:block;margin-bottom:2px}
+nav{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+button{font-family:var(--ui);font-size:.9rem;font-weight:500;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 16px;cursor:pointer}
+button:hover{border-color:var(--soft)}
+button:focus-visible{outline:2px solid var(--act);outline-offset:2px}
+button[disabled]{opacity:.4;cursor:default}
+button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dots{display:flex;gap:6px;flex-wrap:wrap}
+.dots button{width:12px;height:12px;padding:0;border-radius:50%;border:1px solid var(--soft);background:transparent}
+.dots button[aria-current="true"]{background:var(--act);border-color:var(--act)}
+.hint{margin-left:auto;font-family:var(--ui);font-size:.75rem;color:var(--soft)}
+.chapters{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-family:var(--ui);font-size:.75rem;color:var(--soft)}
+.chapters button{font-size:.75rem;padding:3px 9px;border-radius:12px}
+.chapters button[aria-current="true"]{border-color:var(--act);color:var(--act)}
+.src{margin-top:22px;border-top:1px solid var(--line);padding-top:10px;font-family:var(--ui);font-size:.75rem;color:var(--soft);line-height:1.5}
+.src code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.72rem}
+
+/* SVG vocabulary */
+svg text{font-family:var(--ui);font-size:17px;fill:var(--ink)}
+svg text.m{font-family:var(--serif);font-style:italic;font-size:20px}
+svg text.mr{font-family:var(--serif);font-size:20px}
+svg text.cap{font-size:15px;fill:var(--soft)}
+svg text.ttl{font-size:16px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+svg text.big{font-size:34px;font-weight:600}
+svg text.mid{text-anchor:middle}
+svg text.end{text-anchor:end}
+svg text.white{fill:var(--paper)}
+svg .sub{font-size:70%}
+svg .sup{font-size:70%}
+svg .edge{stroke:var(--ink);stroke-width:1.6;fill:none;opacity:.55}
+svg .thin{stroke:var(--line);stroke-width:1.2;fill:none}
+svg .axis{stroke:var(--ink);stroke-width:1.4;fill:none}
+svg .bitfill{fill:var(--panel);stroke:var(--ink);stroke-width:1.8}
+svg .chkfill{fill:var(--ink);stroke:none}
+svg .box{fill:var(--panel);stroke:var(--line);stroke-width:1.2}
+svg .f-bp{fill:var(--bp)} svg .s-bp{stroke:var(--bp)}
+svg .f-gd{fill:var(--gd)} svg .s-gd{stroke:var(--gd)}
+svg .f-ctl{fill:var(--ctl)} svg .s-ctl{stroke:var(--ctl)}
+svg .f-act{fill:var(--act)} svg .s-act{stroke:var(--act)}
+svg .f-oonly{fill:var(--oonly)} svg .s-oonly{stroke:var(--oonly)}
+svg .f-ponly{fill:var(--ponly)} svg .s-ponly{stroke:var(--ponly)}
+svg .f-ok{fill:var(--ok)} svg .s-ok{stroke:var(--ok)} svg .f-warn{fill:var(--warn)} svg .s-warn{stroke:var(--warn)} svg .f-soft{fill:var(--soft)} svg .f-ink{fill:var(--ink)} svg .f-line{fill:var(--line)}
+svg .s-soft{stroke:var(--soft)} svg .s-ink{stroke:var(--ink)}
+svg .dim{opacity:.35}
+
+/* motion: every piece has a resting state; delays come from --d */
+.fi{opacity:0;animation:fi .6s ease-out forwards;animation-delay:var(--d,0s)}
+@keyframes fi{to{opacity:1}}
+.pop{opacity:0;transform-box:fill-box;transform-origin:center;animation:pop .55s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+.draw{stroke-dasharray:900;stroke-dashoffset:900;animation:draw .9s ease-out forwards;animation-delay:var(--d,0s)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.bar{transform-box:fill-box;transform-origin:left center;transform:scaleX(0);animation:bar .9s ease-out forwards;animation-delay:var(--d,0s)}
+@keyframes bar{to{transform:scaleX(1)}}
+.vbar{transform-box:fill-box;transform-origin:center bottom;transform:scaleY(0);animation:vbar .9s ease-out forwards;animation-delay:var(--d,0s)}
+@keyframes vbar{to{transform:scaleY(1)}}
+.fo{animation:fo .6s ease-in forwards;animation-delay:var(--d,0s)}
+@keyframes fo{to{opacity:0}}
+.fly{animation:fly 1.3s ease-in-out forwards;animation-delay:var(--d,0s)}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy))}}
+.slide{animation:slide 1s ease-in-out forwards;animation-delay:var(--d,0s)}
+@keyframes slide{to{transform:translate(var(--dx),0)}}
+.shrink{transform-box:fill-box;transform-origin:center;animation:shrink 1.2s ease-in-out forwards;animation-delay:var(--d,0s)}
+@keyframes shrink{to{transform:translate(var(--dx),0) scaleX(var(--sx))}}
+.pulse{animation:pulse 1.6s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+.fi.late{animation-duration:.4s}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important}
+}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>The Offset Split</h1>
+    <span class="sub">BP versus projected GD · what the study asks, what it found, and the 31 October run snapshot</span>
+    <span class="count" id="count"></span>
+  </header>
+  <main>
+    <div class="stage" id="stage" aria-live="polite"></div>
+    <aside id="aside"></aside>
+  </main>
+  <nav>
+    <button id="back">← Back</button>
+    <div class="dots" id="dots" role="tablist"></div>
+    <button id="replay" title="Play this beat's motion again">Replay</button>
+    <button id="next" class="primary">Next →</button>
+    <span class="hint">← → or space to move</span>
+  </nav>
+  <div class="chapters" id="chapters"></div>
+  <div class="src" id="src"></div>
+</div>
+
+<script>
+// ---------- small SVG helpers ----------
+// m("x_i + δ_(a,i)^2") → tspans for sub/superscripts
+function m(s){
+  const re=/_\(([^)]*)\)|_(\S)|\^\(([^)]*)\)|\^(\S)/g;
+  let out='',last=0,mt,ret=0;
+  while((mt=re.exec(s))){
+    const pre=s.slice(last,mt.index);
+    if(pre) out+= ret? `<tspan dy="${ret}">${pre}</tspan>`:pre;
+    ret=0;
+    if(mt[1]!==undefined||mt[2]!==undefined){out+=`<tspan class="sub" dy="5">${mt[1]!==undefined?mt[1]:mt[2]}</tspan>`;ret=-5;}
+    else{out+=`<tspan class="sup" dy="-8">${mt[3]!==undefined?mt[3]:mt[4]}</tspan>`;ret=8;}
+    last=re.lastIndex;
+  }
+  const rest=s.slice(last);
+  if(rest) out+= ret? `<tspan dy="${ret}">${rest}</tspan>`:rest;
+  return out;
+}
+const T=(x,y,s,cls='',d=0,extra='')=>`<text x="${x}" y="${y}" class="fi ${cls}" style="--d:${d}s" ${extra}>${m(s)}</text>`;
+// TR: raw text, no sub/superscript parsing (for names with underscores)
+const TR=(x,y,s,cls='',d=0,extra='')=>`<text x="${x}" y="${y}" class="fi ${cls}" style="--d:${d}s" ${extra}>${s}</text>`;
+const bit=(x,y,label,d=0,cls='')=>`<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="24" class="bitfill ${cls}"/><text x="${x}" y="${y+7}" class="m mid">${m(label)}</text></g>`;
+const chk=(x,y,label,d=0)=>`<g class="pop" style="--d:${d}s"><rect x="${x-21}" y="${y-21}" width="42" height="42" rx="3" class="chkfill"/><text x="${x}" y="${y+7}" class="m mid white">${m(label)}</text></g>`;
+const edge=(x1,y1,x2,y2,d=0,cls='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="edge draw ${cls}" style="--d:${d}s"/>`;
+const rect=(x,y,w,h,cls,d=0,anim='fi',rx=3)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${anim} ${cls}" style="--d:${d}s"/>`;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const bold=d=>`style="font-weight:600;--d:${d}s"`;
+const tick=(x1,y1,x2,y2,d=0)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="axis fi" style="--d:${d}s"/>`;
+const dashed=(x1,y1,x2,y2,cls,d=0)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="thin fi ${cls}" style="--d:${d}s;stroke-dasharray:5 5;stroke-width:2"/>`;
+const status=(x,y,st,d)=>{
+  if(st==='done') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-ok"/><path d="M${x-8} ${y} l6 6 l11 -12" stroke="var(--paper)" stroke-width="2.6" fill="none"/></g>`;
+  if(st==='recorded') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-soft"/><text x="${x}" y="${y+5}" class="mid white" style="font-size:13px">½</text></g>`;
+  if(st==='waiting') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="box s-soft" style="stroke-width:2"/></g>`;
+  return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-act pulse"/><text x="${x}" y="${y+5}" class="mid white" style="font-size:12px">●</text></g>`;
+};
+// wrap a sentence into lines of at most n characters
+function wrap(s,n){const out=[];let line='';s.split(' ').forEach(w=>{if(line&&(line+' '+w).length>n){out.push(line);line=w;}else line=line?line+' '+w:w;});if(line)out.push(line);return out;}
+
+// a bit at (bx,by) joined to three checks
+function star(bx,by,checks,d0,labels){
+  let s='';
+  checks.forEach((c,k)=>{s+=edge(bx,by,c[0],c[1],d0+0.1*k);});
+  checks.forEach((c,k)=>{s+=chk(c[0],c[1],labels[k],d0+0.3+0.1*k);});
+  return s;
+}
+
+// ---------- beats ----------
+const BEATS=[];
+const take=(s)=>`<p class="take"><b>Takeaway</b>${s}</p>`;
+
+// 0 — same code, same noise, two decoders
+BEATS.push({
+  title:'Same code, same noise, two decoders',
+  eyebrow:'Chapter 1 · The study',
+  chapter:'The study',
+  svg(){
+    const bits=[0,1,2,3,4,5].map(k=>[160+128*k,400]);
+    const chks=[[288,140],[480,140],[672,140]];
+    const E=[[0,0],[0,1],[0,2],[0,3],[1,1],[1,2],[1,4],[1,5],[2,0],[2,3],[2,4],[2,5]];
+    let s='';
+    E.forEach(([c,b],k)=>{s+=edge(chks[c][0],chks[c][1],bits[b][0],bits[b][1],0.2+0.08*k);});
+    bits.forEach((p,k)=>{s+=bit(p[0],p[1],`x_${k+1}`,0.1*k);});
+    chks.forEach((p,k)=>{s+=chk(p[0],p[1],['A','B','C'][k],1.2+0.1*k);});
+    s+=T(480,60,'one parity-check graph, one noisy received signal, one vector of channel LLRs','cap mid',1.6);
+    s+=rect(120,460,320,54,'box',2.2,'pop');
+    s+=T(280,482,'Belief propagation','ttl mid f-bp',2.3);
+    s+=T(280,504,'recovers the transmitted word','cap mid',2.3);
+    s+=rect(520,460,320,54,'box',2.6,'pop');
+    s+=T(680,482,'Projected gradient descent','ttl mid f-gd',2.7);
+    s+=T(680,504,'often stops short of it','cap mid',2.7);
+    return s;
+  },
+  html:`<p>A rate-½ LDPC code with <span class="num">10,200</span> coded bits is sent over an AWGN channel at 6 dB. Two decoders read the same channel LLRs on the same parity-check graph. Belief propagation (BP) recovers the transmitted word. Projected gradient descent (GD) often stops short.</p>
+<p>The <em>sp_gd_admm</em> study asks why. It does not rank the two methods. It changes one mechanism at a time, on frozen cases, and watches whether the decoded word changes.</p>
+<p>This deck has seven chapters: the vocabulary, the two mechanisms, the first experiment, the offset-use split, the machinery behind its execution failure and restart, two controls run beside it, and where the whole chain stood at the dated snapshot.</p>`+take('Same input, two decoders, one question: which mechanism makes the difference.')
+});
+
+// 1 — the words used here
+BEATS.push({
+  title:'The words used on every slide',
+  eyebrow:'Chapter 1 · Vocabulary',
+  svg(){
+    let s='';
+    const C=[[110,120],[240,120],[370,120]], bl=[240,330];
+    s+=star(bl[0],bl[1],C,0.1,['A','B','C']);
+    s+=bit(bl[0],bl[1],'x_i',0,'s-gd');
+    const ex=lerp(bl[0],C[2][0],.5), ey=lerp(bl[1],C[2][1],.5);
+    s+=T(ex+12,ey+4,'δ_(C,i)','m f-act',1.2);
+    s+=T(ex-70,lerp(bl[1],C[0][1],.5)+4,'edge','cap',1.0);
+    const X=v=>bl[0]+120*v, Y=440;
+    s+=tick(X(-1),Y,X(1),Y,0.6);
+    [-1,1].forEach(v=>{s+=tick(X(v),Y-6,X(v),Y+6,0.6);});
+    s+=T(X(-1),Y+26,'−1','cap mid',0.6); s+=T(X(1),Y+26,'1','cap mid',0.6);
+    s+=`<circle cx="${X(0.42)}" cy="${Y}" r="7" class="pop f-gd" style="--d:0.8s"/>`;
+    s+=T(X(0.42),Y-14,'x_i','m mid f-gd',0.8);
+    s+=T(bl[0],Y+54,'the projection interval, [−1, 1] unless an arm changes it','cap mid',0.9);
+    const defs=[
+      ['bit','holds one value x_i between −1 and 1; its sign is the hard decision',[bl[0]+26,bl[1]-6]],
+      ['check','a parity rule over the bits joined to it; A, B and C here',[C[2][0]+22,C[2][1]]],
+      ['edge','one check–bit pair; the constructed offset δ_(c,i) lives on it',null],
+      ['parity term','the part of GD’s objective that pulls bits toward satisfying each check',null],
+      ['update','one GD step accepted by a line search; at most 30 per case',null],
+      ['projection','after each step, x_i is pushed back into its interval',[X(1)+6,Y]],
+      ['case','one received signal on the fixed graph; 24 anchor cases, 200 held-out cases',null],
+    ];
+    defs.forEach((d,k)=>{const y=62+k*66, dd=0.4+0.25*k;
+      s+=T(520,y,d[0],'ttl f-ink',dd,'style="font-size:14px;--d:'+dd+'s"');
+      wrap(d[1],50).forEach((ln,i)=>{s+=T(520,y+22+19*i,ln,'cap',dd+0.05);});
+      if(d[2]) s+=`<line x1="508" y1="${y-5}" x2="${d[2][0]}" y2="${d[2][1]}" class="thin draw s-soft" style="--d:${dd+0.2}s;stroke-dasharray:4 4"/>`;
+    });
+    return s;
+  },
+  html:`<p>Every slide uses the same small vocabulary. A <strong>bit</strong> holds one value <em>x<sub>i</sub></em> between −1 and 1; its sign is the hard decision. A <strong>check</strong> is a parity rule over the bits joined to it. An <strong>edge</strong> is one check–bit pair, and the constructed <strong>offset</strong> <em>δ<sub>c,i</sub></em> lives on an edge: one number per check per bit.</p>
+<p>Projected GD moves all the bits at once. Its <strong>parity term</strong> pulls them toward satisfying every check. An <strong>update</strong> is one step accepted by a line search, at most <span class="num">30</span> per case. After each step the <strong>projection</strong> pushes every value back into an interval, [−1, 1] unless an arm changes it.</p>
+<p>A <strong>case</strong> is one received signal on the fixed graph. Each experiment develops and gates itself on <span class="num">24</span> anchor cases, then runs its registered inference on <span class="num">200</span> held-out cases.</p>`+take('Bits hold values, checks impose parity, offsets live on edges. Everything else is built from these.')
+});
+
+// 2 — what each decoder keeps
+BEATS.push({
+  title:'What each decoder keeps between iterations',
+  eyebrow:'Chapter 2 · Two mechanisms',
+  chapter:'Two mechanisms',
+  svg(){
+    let s='';
+    s+=T(240,40,'Belief propagation','ttl mid f-bp',0);
+    s+=T(720,40,'Projected gradient descent','ttl mid f-gd',0);
+    s+=`<line x1="480" y1="20" x2="480" y2="520" class="thin"/>`;
+    const L=[[110,130],[240,130],[370,130]], bl=[240,400];
+    s+=star(bl[0],bl[1],L,0.2,['A','B','C']);
+    s+=bit(bl[0],bl[1],'i',0.1);
+    L.forEach((c,k)=>{const x=lerp(c[0],bl[0],.14),y=lerp(c[1],bl[1],.14);
+      s+=T(x+(k===0?-56:k===2?14:-50),y+(k===1?-6:4),`U_${['A','B','C'][k]}`,'m f-bp',0.9+0.1*k);});
+    const Q=['ℓ_i + U_B + U_C','ℓ_i + U_A + U_C','ℓ_i + U_A + U_B'], reach=[.55,.40,.55];
+    L.forEach((c,k)=>{const ex=lerp(bl[0],c[0],reach[k])-bl[0],ey=lerp(bl[1],c[1],reach[k])-bl[1];
+      s+=`<g class="fly" style="--d:${1.6+0.25*k}s;--dx:${ex}px;--dy:${ey}px"><rect x="${bl[0]-62}" y="${bl[1]-56}" width="124" height="26" rx="3" class="pop f-bp" style="--d:${1.4+0.25*k}s"/><text x="${bl[0]}" y="${bl[1]-38}" class="pop m mid white" style="--d:${1.4+0.25*k}s;font-size:16px">${m(Q[k])}</text></g>`;});
+    s+=T(240,470,'message to A leaves A out, and so on','cap mid',3.1);
+    s+=T(240,498,'kept for the next iteration: U_A, U_B, U_C — three values at this bit','cap mid',3.5);
+    const R=[[590,130],[720,130],[850,130]], gl=[720,400];
+    s+=star(gl[0],gl[1],R,0.2,['A','B','C']);
+    s+=bit(gl[0],gl[1],'x_i',0.1,'s-gd');
+    s+=T(720,445,'x_i = 0.42','m mid f-gd',0.9);
+    R.forEach((c,k)=>{const x=lerp(c[0],gl[0],.5),y=lerp(c[1],gl[1],.5);
+      s+=`<g class="fo" style="--d:3.6s"><text x="${x+(k===0?-78:k===2?16:-30)}" y="${y+(k===1?-8:4)}" class="fi m f-gd" style="--d:${1.6+0.25*k}s;font-size:17px">${m('∂ from '+['A','B','C'][k])}</text></g>`;});
+    s+=`<g class="fo" style="--d:3.6s">${T(720,490,'sum the terms → step → project into [−1, 1]','cap mid',2.6)}</g>`;
+    s+=`<g class="fi" style="--d:3.3s"><rect x="672" y="428" width="96" height="26" class="f-line" rx="3"/><text x="720" y="447" class="m mid f-gd">${m('x_i = 0.51')}</text></g>`;
+    s+=T(720,498,'kept for the next update: x_i — one value at this bit','cap mid',4.1);
+    return s;
+  },
+  html:`<p>BP works on the edges. Bit <em>i</em> sends a different message to each of its checks: the message to check A is the channel LLR plus the incoming messages from B and C, with A's own message left out. When a message-passing iteration ends, the check-to-variable messages stay for the next one. A bit of degree three carries three values.</p>
+<p>Projected GD works on the bits. Bit <em>i</em> holds one number <em>x<sub>i</sub></em> in [−1, 1]. Each check contributes a partial-derivative term at that bit; the terms are summed, a step is taken, the result is projected back into [−1, 1], and the terms are gone. One value survives.</p>`+take('First candidate for the difference: BP carries check-specific state from one iteration to the next; GD carries none.')
+});
+
+// 3 — two questions in order
+BEATS.push({
+  title:'Two questions, asked in order',
+  eyebrow:'Chapter 2 · Route map',
+  svg(){
+    const rows=[
+      ['Lock the BP and GD fingerprints','state, parity action, schedule, every parameter','done'],
+      ['Locate the first native divergence','descriptive trace only','done'],
+      ['One-mechanism RQ1 controls','tie BP’s check-specific state; BP map vs gradient step','done'],
+      ['Reproduce both native endpoints','and list the gaps that remain','done'],
+      ['RQ1 decision','check-specific state and the update operator are validated candidates; the native cause stays open','recorded'],
+      ['RQ2: preregistered AWGN variants','STATE-USE-001 done · OFFSET-SPLIT-001 active at the dated snapshot · null control and native gap done','recorded'],
+    ];
+    let s='';
+    const rowY=k=>52+k*76+(k>=4?24:0);
+    rows.forEach((r,k)=>{const y=rowY(k),d=0.25*k;
+      s+=rect(70,y,820,56,'box',d,'fi');
+      if(k<rows.length-1) s+=`<line x1="480" y1="${y+56}" x2="480" y2="${rowY(k+1)}" class="axis fi" style="--d:${d+0.15}s"/>`;
+      s+=T(96,y+24,r[0],'',d+0.1,bold(d+0.1));
+      s+=T(96,y+45,r[1],'cap',d+0.15);
+      s+=status(850,y+28,r[2],d+0.3);
+    });
+    s+=T(70,30,'RQ1 — mechanism identification','ttl',0);
+    s+=T(70,rowY(4)-10,'RQ2 — performance consequence','ttl',1.3);
+    return s;
+  },
+  html:`<p><strong>RQ1</strong> asks which operational difference first makes the BP and GD trajectories part when the parity-check graph and the channel LLRs are fixed. <strong>RQ2</strong> asks whether adding or removing that difference in a controlled variant changes two outcomes on locked AWGN cases: does the hard-decision estimate satisfy every parity check, and does it equal the transmitted word.</p>
+<p>Every RQ1 control changes one mechanism. Every RQ2 run is preregistered, frozen before it executes, and judged on a fixed budget of <span class="num">30</span> updates.</p>
+<p>A plain BP-versus-GD scoreboard can locate a difference but cannot name its cause, because the two methods differ in state, parity action, objective and update rule all at once.</p>`+take('RQ1 is answered. RQ2 is one held-out run from its registered conclusion.')
+});
+
+// 4 — RQ1: BP needs its check-specific state
+BEATS.push({
+  title:'RQ1: BP needs its check-specific state',
+  eyebrow:'Chapter 2 · Control already run',
+  svg(){
+    let s='';
+    const L=[[110,130],[240,130],[370,130]], bl=[240,400];
+    s+=star(bl[0],bl[1],L,0.1,['A','B','C']);
+    s+=bit(bl[0],bl[1],'i',0);
+    const vals=['+1.9','+0.4','+2.6'];
+    L.forEach((c,k)=>{const x=lerp(bl[0],c[0],.55),y=lerp(bl[1],c[1],.55);
+      s+=`<g class="fo" style="--d:2.2s">${T(x+(k===0?-62:k===2?14:-20),y+(k===1?-8:4),vals[k],'m f-bp',0.8+0.15*k)}</g>`;
+      s+=T(x+(k===0?-62:k===2?14:-24),y+(k===1?-8:4),'+1.63','m f-soft',2.6+0.1*k);});
+    s+=`<g class="fo" style="--d:2.2s">${T(240,470,'three different outgoing messages','cap mid',1.3)}</g>`;
+    s+=T(240,470,'tied: all three replaced by their average','cap mid',2.8);
+    s+=T(240,498,'the mean is kept; only the check-specific part is removed','cap mid',3.2);
+    s+=`<line x1="480" y1="20" x2="480" y2="520" class="thin"/>`;
+    s+=T(540,110,'200 locked AWGN cases · transmitted word recovered','cap',0.5);
+    s+=T(540,170,'full BP','',0.8);
+    s+=rect(540,185,320,34,'f-bp',1.0,'bar',2);
+    s+=T(870,210,'200 / 200','m',1.9,'style="font-style:normal;--d:1.9s"');
+    s+=T(540,290,'BP with tied messages','',3.4);
+    s+=rect(540,305,2,34,'f-soft',3.6,'bar',1);
+    s+=T(556,330,'0 / 200','m',3.9,'style="font-style:normal;--d:3.9s"');
+    s+=T(540,420,'The check-specific part of BP’s state is load-bearing.','',4.4,bold(4.4));
+    s+=T(540,448,'So: give GD check-specific state it can use, and see.','cap',4.8);
+    return s;
+  },
+  html:`<p>The first control took BP's three outgoing messages at each bit and replaced them with their average, keeping the mean and removing only the check-specific part. BP's trajectory changed at once.</p>
+<p>On <span class="num">200</span> locked AWGN cases, full BP recovered the transmitted word <span class="num">200</span> times out of <span class="num">200</span>; the averaged version recovered none. The check-specific part of BP's state is load-bearing for BP.</p>
+<p>That raised the mirror question. If projected GD were given check-specific state it could use in its next update, would it decode better?</p>`+take('Remove the check-specific part of BP’s state and BP fails on every case. The mirror question for GD follows.')
+});
+
+// 5 — building an offset for every edge
+BEATS.push({
+  title:'Building an offset for every edge',
+  eyebrow:'Chapter 3 · The constructed state',
+  chapter:'The first experiment',
+  svg(){
+    let s='';
+    const C=[[330,80],[480,80],[630,80]], bl=[480,250];
+    s+=star(bl[0],bl[1],C,0.1,['A','B','C']);
+    s+=bit(bl[0],bl[1],'x_i',0,'s-gd');
+    const X=v=>480+330*v, Y=430;
+    s+=tick(X(-1),Y,X(1),Y,0.2);
+    [-1,-0.5,0,0.5,1].forEach(v=>{s+=tick(X(v),Y-6,X(v),Y+6,0.2);s+=T(X(v),Y+28,String(v).replace('-','−'),'cap mid',0.3);});
+    s+=`<circle cx="${X(0.30)}" cy="${Y}" r="7" class="pop f-soft" style="--d:0.6s"/>`;
+    s+=T(X(0.30),Y-16,'before','cap mid',0.6);
+    s+=`<line x1="${X(0.30)}" y1="${Y-40}" x2="${X(0.42)}" y2="${Y-40}" class="axis draw s-gd" style="--d:1.0s" marker-end="url(#arr)"/>`;
+    s+=`<circle cx="${X(0.42)}" cy="${Y}" r="8" class="pop f-gd" style="--d:1.4s"/>`;
+    s+=T(X(0.42)+14,Y-16,'x_i = 0.42','m f-gd',1.5);
+    const q=[0.05,0.60,0.85], z=[-0.03,0.52,0.77], dlt=['−0.45','+0.10','+0.35'], nm=['A','B','C'];
+    q.forEach((v,k)=>{
+      const dx=(z[k]-v)*330;
+      s+=`<g class="slide" style="--d:3.4s;--dx:${dx}px"><circle cx="${X(v)}" cy="${Y}" r="6" class="pop box s-ink" style="--d:${2.0+0.2*k}s"/>${T(X(v),Y-52,'q_'+nm[k],'m mid',2.1+0.2*k)}</g>`;
+    });
+    s+=`<g class="fo" style="--d:3.2s">${T(480,505,'readings without each check’s own pull, the other two stretched by 3⁄2','cap mid',2.6)}</g>`;
+    s+=T(480,505,'recentred so the three average x_i, and kept inside [−1, 1]','cap mid',3.6);
+    z.forEach((v,k)=>{const y0=Y-78-18*k;
+      s+=`<line x1="${X(0.42)}" y1="${y0}" x2="${X(v)}" y2="${y0}" class="draw s-act" style="--d:${4.6+0.2*k}s;stroke-width:4;stroke-linecap:round"/>`;
+      s+=T(v<0.42?X(v)-10:X(v)+10,y0+5,'δ_'+nm[k]+' = '+dlt[k],'m f-act '+(v<0.42?'end':''),4.9+0.2*k);
+      const ex=lerp(bl[0],C[k][0],.55),ey=lerp(bl[1],C[k][1],.55);
+      s+=T(ex+(k===0?-96:k===2?14:-36),ey+(k===1?-8:4),'x_i + δ_'+nm[k],'m f-act',5.4+0.15*k);
+    });
+    s+=T(760,250,'δ_A + δ_B + δ_C = 0','m',5.9);
+    return `<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--gd)"/></marker></defs>`+s;
+  },
+  html:`<p>After each accepted GD update, every check gets its own reading of bit <em>i</em>. The reading for check A is where the bit would have landed had A's own pull been left out, with the pulls from B and C stretched by 3⁄2 to fill the gap. The three readings are then recentred so they average the bit's actual value, and clamped if needed so they stay inside [−1, 1].</p>
+<p>The gap between a reading and the bit's value is the offset <em>δ<sub>A,i</sub></em>. Over a bit's three checks the offsets sum to zero, and <em>x<sub>i</sub> + δ<sub>c,i</sub></em> always lies in the box.</p>
+<p>These offsets are not BP messages. They come from partial derivatives of GD's own objective, after the step, and every arm in the experiments builds them in exactly the same way.</p>`+take('One number per edge, built from GD’s own derivatives: check-specific state that GD could carry.')
+});
+
+// 6 — keep it, or keep it and read it
+BEATS.push({
+  title:'Keep it, or keep it and read it',
+  eyebrow:'Chapter 3 · RQ2-GD-STATE-USE-001',
+  svg(){
+    let s='';
+    s+=T(240,40,'Control','ttl mid f-ctl',0);
+    s+=T(720,40,'Active','ttl mid f-act',0);
+    s+=`<line x1="480" y1="20" x2="480" y2="520" class="thin"/>`;
+    const nm=['A','B','C'], dl=['−0.45','+0.10','+0.35'], rd=['−0.03','0.52','0.77'];
+    [[240,'ctl'],[720,'act']].forEach(([cx,arm])=>{
+      const C=[[cx-130,120],[cx,120],[cx+130,120]], bl=[cx,330];
+      s+=star(bl[0],bl[1],C,0.1,nm);
+      s+=bit(bl[0],bl[1],'x_i',0,'s-'+arm);
+      C.forEach((c,k)=>{const x=lerp(bl[0],c[0],.3),y=lerp(bl[1],c[1],.3);
+        s+=`<g class="fi" style="--d:${0.9+0.1*k}s"><rect x="${x+(k===0?-86:k===2?10:-36)}" y="${y-13}" width="76" height="22" rx="3" class="box"/><text x="${x+(k===0?-48:k===2?48:2)}" y="${y+4}" class="m mid ${arm==='ctl'?'f-soft':'f-ink'}" style="font-size:15px">${m('δ_'+nm[k]+' '+dl[k])}</text></g>`;});
+      C.forEach((c,k)=>{const x=lerp(bl[0],c[0],.6),y=lerp(bl[1],c[1],.6);
+        const lab=arm==='ctl'?'0.42':rd[k];
+        s+=T(x+(k===0?-34:k===2?34:30),y+5,lab,'m mid f-'+arm,2.0+0.2*k,'style="font-size:17px;--d:'+(2.0+0.2*k)+'s"');});
+      if(arm==='ctl') s+=T(cx,395,'reads x_i on every edge; offsets stored, never read','cap mid',1.5);
+      else s+=T(cx,395,'reads x_i + δ_c on each edge; interval set by δ','cap mid',1.5);
+      const X=v=>cx+170*v, Y=470;
+      s+=tick(X(-1),Y,X(1),Y,0.4);
+      s+=T(X(-1),Y+24,'−1','cap mid',0.4);s+=T(X(1),Y+24,'1','cap mid',0.4);
+      if(arm==='ctl'){
+        s+=`<rect x="${X(-1)}" y="${Y-9}" width="${340}" height="18" rx="2" class="fi f-ctl" style="--d:3.0s"/>`;
+        s+=T(cx,Y-20,'projects into [−1, 1]','cap mid',3.2);
+      }else{
+        const lo=-0.55,hi=0.65, w0=340, w1=(hi-lo)*170, dx=((lo+hi)/2)*170;
+        s+=`<rect x="${X(-1)}" y="${Y-9}" width="${w0}" height="18" rx="2" class="shrink f-act" style="--d:3.0s;--dx:${dx}px;--sx:${w1/w0}"/>`;
+        s+=T(cx,Y-20,'projects into [−0.55, 0.65] so every reading stays in the box','cap mid',3.6);
+        s+=T(X(lo),Y+46,'max_c(−1 − δ_c)','m mid f-act',4.2,'style="font-size:15px;--d:4.2s"');
+        s+=T(X(hi),Y+46,'min_c(1 − δ_c)','m mid f-act',4.2,'style="font-size:15px;--d:4.2s"');
+      }
+    });
+    return s;
+  },
+  html:`<p>Two GD variants run on every case. Both build the offsets after every accepted update and both store all <span class="num">30,600</span> of them, one per edge.</p>
+<p>The control never reads them. Its parity term sees <em>x<sub>i</sub></em> and its projection uses [−1, 1].</p>
+<p>The active arm reads them in two places. Its parity term sees <em>x<sub>i</sub> + δ<sub>c,i</sub></em> for each check <em>c</em>, and its projection interval shrinks so that every such reading stays inside [−1, 1].</p>
+<p>Everything else is the same on both sides: the graph, the received samples, the channel LLRs, the initialization <em>x<sub>i</sub> = tanh(ℓ<sub>i</sub>/2)</em>, the objective weights, the preconditioner, the line search, the 30-update budget and the hard-decision rule.</p>`+take('Both arms build and store the offsets. Only the active arm reads them.')
+});
+
+// 7 — where the two arms part
+BEATS.push({
+  title:'Where the two arms part',
+  eyebrow:'Chapter 3 · Timing of the effect',
+  svg(){
+    let s='';
+    const X=u=>120+105*u, Y0=380, H=v=>Y0-v*220;
+    s+=tick(X(0),Y0,X(7)+20,Y0);
+    for(let u=0;u<=6;u++){s+=tick(X(u),Y0-5,X(u),Y0+5);s+=T(X(u),Y0+28,String(u),'cap mid',0.1);}
+    s+=T(X(7)+10,Y0+28,'… 30','cap mid',0.1);
+    s+=T(X(3.5),Y0+56,'accepted update','cap mid',0.2);
+    const ctl=[0,0.18,0.30,0.38,0.44,0.48,0.51], act=[0,0.18,0.30,0.50,0.66,0.78,0.86];
+    const path=a=>a.map((v,u)=>`${u?'L':'M'}${X(u)} ${H(v)}`).join(' ');
+    s+=`<path d="${path(ctl)}" class="draw s-ctl" style="--d:0.6s;stroke-width:3.5;fill:none;animation-duration:2.4s"/>`;
+    s+=`<path d="${path(act)}" class="draw s-act" style="--d:0.6s;stroke-width:3.5;fill:none;animation-duration:2.4s;stroke-dasharray:900;"/>`;
+    s+=T(X(6)+14,H(ctl[6])+6,'control','f-ctl',3.0);
+    s+=T(X(6)+14,H(act[6])+6,'active','f-act',3.0);
+    s+=T(X(0)+6,192,'how far the state has moved','cap',0.3);
+    s+=`<line x1="${X(2)}" y1="${H(0.95)}" x2="${X(2)}" y2="${Y0}" class="thin draw s-act" style="--d:1.6s;stroke-dasharray:6 6"/>`;
+    s+=rect(X(0)-10,60,200,74,'box',1.0,'fi');
+    s+=T(X(0)+2,84,'updates 0 – 1','',1.1,bold(1.1));
+    s+=T(X(0)+2,106,'identical in all 200 pairs:','cap',1.2);
+    s+=T(X(0)+2,124,'x, partial derivatives, step, δ','cap',1.2);
+    s+=rect(X(2)-10,60,270,96,'box',1.8,'fi');
+    s+=T(X(2)+2,84,'update 2 — first read of δ','f-act',1.9,bold(1.9));
+    s+=T(X(2)+2,106,'both enter with the same x and δ;','cap',2.0);
+    s+=T(X(2)+2,124,'the active arm reads δ, the control does not;','cap',2.0);
+    s+=T(X(2)+2,142,'∂ and accepted x differ in 200 / 200 pairs','cap',2.0);
+    s+=rect(X(4.9)-10,60,220,74,'box',2.8,'fi');
+    s+=T(X(4.9)+2,84,'updates 3 – 30','',2.9,bold(2.9));
+    s+=T(X(4.9)+2,106,'x and the refreshed δ','cap',3.0);
+    s+=T(X(4.9)+2,124,'both differ in every pair','cap',3.0);
+    s+=T(480,480,'Storing the offsets changes nothing. Reading them changes everything after.','mid',3.6,bold(3.6));
+    return s;
+  },
+  html:`<p>Through update 1 the two arms agree to the last bit: same <em>x</em>, same partial derivatives, same accepted step, same offsets. They enter update 2 holding equal <em>x</em> and equal <em>δ</em>.</p>
+<p>There the active arm reads <em>δ</em> and the control does not. In all <span class="num">200</span> cases the partial-derivative vectors and the accepted states differ from that update onward, and from update 3 the refreshed offsets differ too.</p>
+<p>The divergence begins when the offsets are read, not while the equal state is merely retained. Each arm retains <span class="num">10,200</span> scalar values and <span class="num">30,600</span> check-specific offsets: <span class="num">40,800</span> persistent values in total.</p>`+take('The two arms part at update 2, the first update in which the offsets are read.')
+});
+
+// 8 — the held-out result
+BEATS.push({
+  title:'The held-out result: 172 against 113',
+  eyebrow:'Chapter 3 · 200 frozen cases at 6 dB',
+  svg(){
+    let s='';
+    const both=113,aonly=59;
+    for(let k=0;k<200;k++){
+      const col=k%20,row=Math.floor(k/20), x=60+col*27,y=70+row*27, d=0.01*k+0.3;
+      let cls='f-ink';
+      if(k>=both&&k<both+aonly) cls='f-act';
+      if(k>=both+aonly) cls='box s-soft';
+      s+=`<circle cx="${x}" cy="${y}" r="9" class="pop ${cls}" style="--d:${d}s"/>`;
+    }
+    s+=T(60,40,'one dot per paired case — the same received signal decoded by both arms','cap',0);
+    const lx=640;
+    [['f-ink','both recovered the word','113','',1.5],['f-act','only the active arm','59','f-act',2.0],['f-ctl','only the control','0','f-ctl',2.5],['box s-soft','neither','28','',3.0]].forEach((e,k)=>{const y=84+k*84;
+      s+=`<circle cx="${lx}" cy="${y}" r="9" class="pop ${e[0]}" style="--d:${e[4]}s"/>`;s+=T(lx+22,y+6,e[1],e[3],e[4]);s+=T(lx+22,y+42,e[2],'big '+e[3],e[4]+0.3);});
+    const X=v=>60+900*v, Y=440;
+    s+=tick(X(0),Y,X(0.5),Y,3.6);
+    [0,0.1,0.2,0.3,0.4,0.5].forEach(v=>{s+=tick(X(v),Y-5,X(v),Y+5,3.6);s+=T(X(v),Y+26,v.toFixed(1),'cap mid',3.6);});
+    s+=`<line x1="${X(0.2206)}" y1="${Y}" x2="${X(0.3668)}" y2="${Y}" class="draw s-act" style="--d:3.9s;stroke-width:8;stroke-linecap:round"/>`;
+    s+=`<circle cx="${X(0.295)}" cy="${Y}" r="8" class="pop f-act" style="--d:4.4s"/>`;
+    s+=T(X(0.295),Y-20,'active − control = 0.295 · 97.5% interval [0.221, 0.367]','mid',4.5);
+    s+=T(480,Y+56,'paired difference in the share of cases whose hard-decision estimate equals the transmitted word','cap mid',4.6);
+    return s;
+  },
+  html:`<p>On <span class="num">200</span> frozen 6 dB cases, the active arm recovered the transmitted word <span class="num">172</span> times and the control <span class="num">113</span>. In <span class="num">59</span> cases only the active arm succeeded; in no case did only the control succeed. Parity validity gave the same counts, and neither arm ever produced a wrong word that passed every check.</p>
+<p>Two scientific passes gave the same SHA-256, all <span class="num">15</span> correctness gates passed, and the paired difference of <span class="num">0.295</span> has a 97.5% interval from <span class="num">0.221</span> to <span class="num">0.367</span>.</p>
+<p>Reading the retained offsets in the next update causes better recovery for this constructed GD variant on this locked sample. The active arm also took about ten times longer per case, a cost of this construction and not an asymptotic statement.</p>`+take('Reading the offsets causes better recovery on this sample. Why, and through which of its two changes, is the next question.')
+});
+
+// 9 — one switch or two
+BEATS.push({
+  title:'One switch, or two?',
+  eyebrow:'Chapter 4 · The open gap',
+  chapter:'The offset-use split',
+  svg(){
+    let s='';
+    const hot=`<tspan class="f-act pulse" style="--d:1.2s;font-weight:600">${m('δ_(c,i)')}</tspan>`;
+    s+=T(60,70,'The active arm’s objective, with the offsets fixed during the update','cap',0);
+    s+=`<text x="60" y="140" class="fi m" style="--d:0.3s;font-size:26px">${m('F_δ(x) = −ℓ^⊤x ⁄ 2n  +  (μ_p ⁄ n) Σ_c ( 1 − Π_(i∈c) ( x_i + ')}${hot}${m(' ) )^2  +  (μ_b ⁄ n) Σ_i (1 − x_i^2)^2')}</text>`;
+    s+=T(480,190,'switch O','ttl mid f-act',1.4);
+    s+=T(480,214,'the parity term reads the shifted values x_i + δ_(c,i)','cap mid',1.5);
+    s+=T(60,300,'The active arm’s projection interval for bit i','cap',2.0);
+    s+=`<text x="60" y="370" class="fi m" style="--d:2.3s;font-size:26px">${m('max_c ( −1 − ')}${hot}${m(' )  ≤  x_i  ≤  min_c ( 1 − ')}${hot}${m(' )')}</text>`;
+    s+=T(480,418,'switch P','ttl mid f-act',3.2);
+    s+=T(480,442,'the projection interval is set by the same offsets','cap mid',3.3);
+    s+=T(480,505,'Both switches were flipped together. Which one did the work?','mid',3.9,bold(3.9));
+    return s;
+  },
+  html:`<p>The active arm changed two things at once. Its parity term read shifted values <em>x<sub>i</sub> + δ<sub>c,i</sub></em>, and its projection interval shrank to keep those values inside the box.</p>
+<p>The result says the pair of changes causes the gain. It cannot say which of the two did the work, or whether both are needed. The offset-use split was launched to close that gap.</p>
+<p>The terminal experiment record establishes a narrow algorithmic causal chain: reading the offsets changes the partial-derivative vector, the accepted <em>x</em>, and the decoded word. It does not establish the full causal story of native BP against native GD.</p>`+take('Two switches moved together. The split experiment moves them one at a time.')
+});
+
+// 10 — the 2x2 split
+BEATS.push({
+  title:'The 2 × 2 split: four arms on every case',
+  eyebrow:'Chapter 4 · RQ2-GD-OFFSET-SPLIT-001',
+  svg(){
+    let s='';
+    const x0=250,y0=120,w=300,h=165;
+    s+=T(x0+w,70,'P — the projection interval comes from the offsets','ttl mid',0);
+    s+=T(x0+w/2,100,'no','mid',0.1);s+=T(x0+w*1.5,100,'yes','mid',0.1);
+    s+=`<text x="40" y="${y0+h}" class="fi ttl" style="--d:0s" transform="rotate(-90 40 ${y0+h})" text-anchor="middle">O — the parity term reads the offsets</text>`;
+    s+=T(90,y0+h/2+6,'no','mid',0.1);s+=T(90,y0+h*1.5+6,'yes','mid',0.1);
+    const cells=[
+      {x:x0,y:y0,id:'objective0__bounds0',name:'native control',note:'the earlier control arm',cls:'ctl',d:0.4,isnew:false},
+      {x:x0+w,y:y0,id:'objective0__bounds1',name:'interval only',note:'new counterfactual',cls:'ponly',d:1.6,isnew:true},
+      {x:x0,y:y0+h,id:'objective1__bounds0',name:'parity term only',note:'new counterfactual · shifted readings may leave the box · recorded, never clipped',cls:'oonly',d:2.2,isnew:true},
+      {x:x0+w,y:y0+h,id:'objective1__bounds1',name:'both',note:'the earlier active arm',cls:'act',d:0.8,isnew:false},
+    ];
+    cells.forEach(c=>{
+      s+=rect(c.x+6,c.y+6,w-12,h-12,'box',c.d,'pop',6);
+      s+=rect(c.x+6,c.y+6,10,h-12,'f-'+c.cls,c.d+0.1,'fi',3);
+      s+=T(c.x+32,c.y+42,c.name,'f-'+c.cls,c.d+0.15,'style="font-weight:600;font-size:21px;--d:'+(c.d+0.15)+'s"');
+      s+=`<text x="${c.x+32}" y="${c.y+70}" class="fi cap" style="--d:${c.d+0.2}s;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px">${c.id}</text>`;
+      c.note.split(' · ').forEach((ln,k)=>s+=T(c.x+32,c.y+100+22*k,ln,'cap',c.d+0.25));
+      if(c.isnew) s+=`<g class="pop" style="--d:${c.d+0.5}s"><rect x="${c.x+w-70}" y="${c.y+18}" width="52" height="22" rx="11" class="f-act"/><text x="${c.x+w-44}" y="${c.y+34}" class="mid white" style="font-size:12px;font-weight:600;letter-spacing:.06em">NEW</text></g>`;
+    });
+    s+=T(x0+w,490,'Same graph, received samples, channel LLRs, initialization, weights, line search and 30-update budget in all four arms.','cap mid',3.0);
+    s+=T(x0+w,514,'All four are bit-for-bit equal through update 1 and enter update 2 with equal x and δ.','cap mid',3.2);
+    return s;
+  },
+  html:`<p>Four GD arms run on every case. Factor <strong>O</strong> says whether the parity term reads the offsets; factor <strong>P</strong> says whether the projection uses the offset-induced interval. The corners <span class="tag">O=0, P=0</span> and <span class="tag">O=1, P=1</span> are the earlier control and active arms; the two new arms switch one factor each.</p>
+<p>The arm with O=1 and P=0 reads shifted values but projects into the plain [−1, 1], so a shifted reading can step outside the box. That arm records every such overshoot and never clips it, so nothing beyond the one factor changes.</p>
+<p>Five contrasts are registered in advance: each single switch against the control, each switch given the other, and their interaction. Eight paired tests share one Holm correction at 0.05. All five contrasts are kept whatever their sign.</p>`+take('Four arms, one factor each, five registered contrasts: the design that can say which switch did the work.')
+});
+
+// 11 — what the anchor shows
+BEATS.push({
+  title:'What the 24-case anchor already shows',
+  eyebrow:'Chapter 4 · Development run, no statistical tests',
+  svg(){
+    let s='';
+    const arms=[['native control',15,'ctl'],['parity term only',23,'oonly'],['interval only',14,'ponly'],['both',22,'act']];
+    const X=k=>120+k*170, Y0=400, H=v=>v/24*280;
+    s+=tick(80,Y0,700,Y0);
+    [0,12,24].forEach(v=>{s+=tick(76,Y0-H(v),84,Y0-H(v));s+=T(66,Y0-H(v)+6,String(v),'cap end',0.1);});
+    s+=T(40,70,'transmitted word recovered, out of 24','cap',0);
+    arms.forEach((a,k)=>{const d=0.4+0.4*k;
+      s+=rect(X(k)-50,Y0-H(a[1]),100,H(a[1]),'f-'+a[2],d,'vbar',3);
+      s+=T(X(k),Y0-H(a[1])-14,String(a[1]),'big mid f-'+a[2],d+0.6);
+      s+=T(X(k),Y0+30,a[0],'mid',d+0.2);
+    });
+    s+=T(X(1),Y0+62,'O = 1','cap mid',2.2);s+=T(X(3),Y0+62,'O = 1','cap mid',2.2);
+    s+=T(X(2),Y0+62,'P = 1','cap mid',2.2);s+=T(X(3),Y0+84,'P = 1','cap mid',2.2);
+    s+=rect(700,130,250,190,'box',2.6,'fi',6);
+    s+=T(716,158,'parity-term-only arm,','cap',2.7,'style="font-size:14px;--d:2.7s"');
+    s+=T(716,177,'readings outside [−1, 1]:','cap',2.7,'style="font-size:14px;--d:2.7s"');
+    s+=T(716,208,'during the run: all 24 cases,','',2.8,'style="font-size:14px;--d:2.8s"');
+    s+=T(716,227,'at most 0.058 beyond the edge','',2.8,'style="font-size:14px;--d:2.8s"');
+    s+=T(716,258,'at the final state: none','',2.9,'style="font-size:14px;--d:2.9s"');
+    s+=T(716,296,'two runs on 31 October, same hash','cap f-ok',3.0,'style="font-size:14px;font-weight:600;--d:3.0s"');
+    s+=T(480,500,'The gain follows the parity term. The interval alone adds nothing and lost one case.','mid',3.4,bold(3.4));
+    return s;
+  },
+  html:`<p>The anchor is a development run, judged without statistical tests. Recovery of the transmitted word out of <span class="num">24</span>: native control <span class="num">15</span>; parity term reads <em>δ</em> only, <span class="num">23</span>; interval only, <span class="num">14</span>; both, <span class="num">22</span>. No case was recovered by the control and missed by the parity-term-only arm.</p>
+<p>The parity-term-only arm had shifted readings outside [−1, 1] during every case, by at most <span class="num">0.058</span>, and none at its final state. The card asks for this to be reported beside its outcome.</p>
+<p>The anchor ran twice on 31 October 2026, at 10:34 and again at 17:20 after the first held-out attempt failed, and both runs produced the same science hash. It is not pooled with the held-out result; it only authorizes it.</p>`+take('If the 200 cases repeat this pattern, the registered reading is: the parity term carries the gain, the interval does not.')
+});
+
+// 12 — how every run is made
+BEATS.push({
+  title:'How every run is made',
+  eyebrow:'Chapter 5 · The machinery',
+  chapter:'The machinery and the failure',
+  svg(){
+    let s='';
+    const boxes=[['Freeze','inputs and source','hashed first'],['Anchor','24 cases, 4 arms','development run'],['Gate','correctness, replay','and checksums'],['Held-out','200 cases, 4 arms','the registered run'],['Contrasts','five, one Holm','family at 0.05']];
+    boxes.forEach((b,k)=>{const x=40+k*184, d=0.2*k;
+      s+=rect(x,40,164,96,'box',d,'pop',6);
+      s+=rect(x,40,164,8,k===3?'f-act':'f-ok',d+0.1,'fi',2);
+      s+=T(x+14,76,b[0],'',d+0.15,'style="font-weight:600;font-size:21px;--d:'+(d+0.15)+'s"');
+      s+=T(x+14,100,b[1],'cap',d+0.2);
+      s+=T(x+14,120,b[2],'cap',d+0.2);
+      if(k<4) s+=`<path d="M${x+164} 88 l20 0" class="axis fi" style="--d:${d+0.3}s" marker-end="url(#arr3)"/>`;
+    });
+    s+=T(40,186,'Inside the anchor and the held-out stage','ttl',1.2);
+    const bx=200, bw=540;
+    s+=T(40,230,'primary pass','',1.4);
+    s+=rect(bx,212,bw,26,'f-act',1.5,'bar',3);
+    s+=rect(bx+bw+4,212,156,26,'f-warn',2.4,'bar',3);
+    s+=T(bx+8,230,'each case solved 9 times: 4 timed, 4 traced, 1 BP oracle','cap white',1.9,'style="font-size:13px;--d:1.9s"');
+    s+=T(bx+bw+12,230,'statistics, hashes','cap white',2.7,'style="font-size:13px;--d:2.7s"');
+    s+=T(40,290,'replay pass','',2.6);
+    s+=rect(bx,272,380,26,'f-ctl',2.7,'bar',3);
+    s+=rect(bx+384,272,156,26,'f-warn',3.4,'bar',3);
+    s+=T(bx+8,290,'each case solved 5 times, no timing','cap white',3.0,'style="font-size:13px;--d:3.0s"');
+    s+=T(bx+392,290,'statistics, hashes','cap white',3.6,'style="font-size:13px;--d:3.6s"');
+    s+=T(40,350,'valid only if','',3.9,bold(3.9));
+    s+=T(bx,350,'both passes give the same SHA-256 of the scientific record; then the result is written','',4.0);
+    s+=rect(40,380,880,1,'f-line',4.2,'fi',0);
+    s+=T(40,412,'what gets hashed after each pass','ttl',4.3);
+    s+=T(40,442,'frame table: one row per arm and case · 800 rows for the held-out','cap',4.4);
+    s+=T(40,466,'iteration table: one row per update of every arm · 24,000 rows for the held-out','cap',4.5);
+    s+=T(40,490,'then the gate records and the science record itself','cap',4.6);
+    s+=T(640,442,'wall-clock cap','ttl f-warn',4.8);
+    s+=T(640,466,'ends a job that runs too long','cap',4.9);
+    s+=T(640,490,'5 hours for the first held-out run','cap',4.9);
+    return `<defs><marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--ink)"/></marker></defs>`+s;
+  },
+  html:`<p>Every experiment in this study is run the same way. The inputs and the source code are frozen and hashed first. A 24-case anchor runs, and a gate checks its correctness flags, its deterministic replay and its checksums. Only then do the <span class="num">200</span> held-out cases run, and the registered contrasts are computed on those alone.</p>
+<p>Each stage is computed twice. The primary pass also times the solves and checks every derivative by finite differences, so it solves each case nine times: four timed arms, four traced arms, and one native BP oracle. The replay pass solves each case five times. Both passes must produce the same SHA-256 of the scientific record, or the stage is invalid.</p>
+<p>After each pass the runner computes the statistics, then hashes its tables: the frame table, one row per arm and case, and the iteration table, one row per update of every arm, <span class="num">24,000</span> rows for 200 cases. A wall-clock cap ends a job that runs too long; the first held-out run had five hours.</p>`+take('Two passes, one hash, one cap. That machinery, not the science, is where the first 31 October run broke.')
+});
+
+// 13 — why the first held-out run failed
+BEATS.push({
+  title:'Why the first held-out run failed',
+  eyebrow:'Chapter 5 · Attempt v1, 31 October 2026',
+  svg(){
+    let s='';
+    const t0=10.8,t1=16.4, X=t=>60+(t-t0)/(t1-t0)*840, Y=96;
+    s+=T(60,24,'the first held-out run, wall clock (CST)','cap',0);
+    s+=tick(X(t0),Y+30,X(t1),Y+30);
+    [11,12,13,14,15,16].forEach(t=>{s+=tick(X(t),Y+25,X(t),Y+35);s+=T(X(t),Y+56,t+':00','cap mid',0.1);});
+    const seg=[[10.998,12.634,'f-act','solving, primary pass','98 min',0.4],[12.634,15.287,'f-warn','no output, full load','2 h 39 min',1.2],[15.287,15.963,'f-ctl','replay','40 min',2.0]];
+    seg.forEach(g=>{s+=rect(X(g[0]),Y-14,X(g[1])-X(g[0]),28,g[2],g[5],'bar',3);
+      const cx=(X(g[0])+X(g[1]))/2;
+      s+=T(cx,Y-24,g[3],'cap mid',g[5]+0.5); s+=T(cx,Y-44,g[4],'mid',g[5]+0.5,bold(g[5]+0.5));});
+    s+=dashed(X(15.966),Y-60,X(15.966),Y+36,'s-warn',2.6);
+    s+=T(X(15.966)-6,Y+82,'5-hour cap at 15:58 · killed with the replay at 124 of 200 cases · nothing kept','cap end',2.7);
+    const cx=v=>80+(v/2)*360, cy=v=>470-(v/20)*190;
+    s+=T(80,200,'seconds to hash a text of this size','ttl',2.9,'style="font-size:14px;--d:2.9s"');
+    s+=tick(cx(0),cy(0),cx(2),cy(0),3.0); s+=tick(cx(0),cy(0),cx(0),cy(20),3.0);
+    [0,0.5,1,1.5,2].forEach(v=>{s+=tick(cx(v),cy(0)-4,cx(v),cy(0)+4,3.0);s+=T(cx(v),cy(0)+22,v+' MB','cap mid',3.0);});
+    [0,10,20].forEach(v=>{s+=tick(cx(0)-4,cy(v),cx(0)+4,cy(v),3.0);s+=T(cx(0)-10,cy(v)+5,v+' s','cap end',3.0);});
+    const pts=[[0.25,0.30],[0.5,1.13],[1,4.6],[2,19.6]];
+    s+=`<path d="${pts.map((p,i)=>(i?'L':'M')+cx(p[0])+' '+cy(p[1])).join(' ')}" class="draw s-warn" style="--d:3.2s;stroke-width:3;fill:none"/>`;
+    pts.forEach((p,i)=>{s+=`<circle cx="${cx(p[0])}" cy="${cy(p[1])}" r="5" class="pop f-warn" style="--d:${3.4+0.2*i}s"/>`;});
+    s+=T(cx(2)-12,cy(19.6)+5,'19.6 s','cap end f-warn',4.2);
+    s+=T(cx(1)+10,cy(4.6)-6,'4.6 s','cap f-warn',4.0);
+    s+=`<path d="M${cx(0.25)} ${cy(0.0018)} L${cx(2)} ${cy(0.036)}" class="draw s-ok" style="--d:4.4s;stroke-width:3;fill:none"/>`;
+    s+=T(cx(2)-12,cy(0.036)-12,'after the fix: 2 MB in 0.036 s','cap end f-ok',4.8);
+    s+=T(80,520,'double the size, four times the time: the hash is quadratic','cap',4.6);
+    const px=520;
+    s+=T(px,200,'the arithmetic','ttl',3.0,'style="font-size:14px;--d:3.0s"');
+    const lines=[
+      ['anchor table','2,880 rows, 5.9 MB → 150 s per pass'],
+      ['held-out table','24,000 rows, 49 MB → about 2.6 h, after each pass'],
+      ['solving alone','98 + 65 min: inside the cap'],
+      ['with the hashes','98 + 156 + 65 + 156 min ≈ 8 h, against 5'],
+      ['every statistic','under one second'],
+      ['the fix','one line: hash a byte vector instead; identical digest'],
+    ];
+    lines.forEach((l,k)=>{const y=236+k*46, d=3.2+0.2*k;
+      s+=T(px,y,l[0],'',d,'style="font-weight:600;font-size:15px;--d:'+d+'s"');
+      wrap(l[1],52).forEach((ln,i)=>{s+=T(px,y+19+17*i,ln,'cap',d+0.05,'style="font-size:14px;--d:'+(d+0.05)+'s"');});});
+    return s;
+  },
+  html:`<p>The primary pass solved all <span class="num">200</span> cases in 98 minutes. Then the process went silent for 2 hours 39 minutes at full load, writing nothing, before the replay pass began. The replay was at <span class="num">124</span> of 200 cases when the five-hour cap ended the job. The primary pass's science existed only in memory, so nothing was kept.</p>
+<p>The silence was the hash of the iteration table. The runner turns the table into one 49-megabyte text and hashes it with a call that, on this Julia build, takes four times longer every time the input doubles: 0.3 s for a quarter megabyte, 4.6 s for one, 19.6 s for two. The anchor's 5.9-megabyte table costs 150 seconds, which hid the problem. The held-out table costs about 2.6 hours, and it is hashed after each of the two passes.</p>
+<p>Every statistic in the same block takes under a second, and solving alone, 98 plus 65 minutes, fit the cap. The fix is one line: hash the same bytes as a byte vector. The digest is identical, and two megabytes take 0.036 seconds.</p>`+take('Not the solver, not the statistics: a quadratic hash, run twice, cost the run. The anchor was too small to show it.')
+});
+
+// 14 — dated execution snapshot
+BEATS.push({
+  title:'What was running at the snapshot',
+  eyebrow:'Chapter 5 · Snapshot 21:26 CST, 31 October 2026',
+  svg(){
+    let s='';
+    const t0=16,t1=27, X=t=>150+(t-t0)/(t1-t0)*790, snapshotTime=21.44, Yax=470;
+    const hh=t=>String(Math.floor(t)%24).padStart(2,'0')+':'+String(Math.round((t%1)*60)).padStart(2,'0');
+    s+=T(150,30,'wall clock, 31 October → 1 November (CST) · solid = measured · faded = projected','cap',0);
+    s+=tick(X(t0),Yax,X(t1),Yax);
+    for(let t=16;t<=27;t+=1){s+=tick(X(t),Yax-(t%2?3:5),X(t),Yax+(t%2?3:5));if(t%2===0)s+=T(X(t),Yax+26,hh(t),'cap mid',0.1);}
+    const lane=(y,label,sub,d)=>{s+=T(20,y+6,label,'',d,bold(d)); s+=T(20,y+28,sub,'cap',d,'style="font-size:13px;--d:'+d+'s"');};
+    const seg=(y,a,b,cls,d,dim)=>{s+=rect(X(a),y-14,X(b)-X(a),28,cls+(dim?' dim':''),d,'bar',3);};
+    const lab=(x,y,text,cls,d,anchor)=>{s+=T(x,y,text,'cap '+(anchor||'mid')+' '+(cls||''),d,'style="font-size:13px;--d:'+d+'s"');};
+    // v2
+    const y2=150; lane(y2,'attempt v2','unchanged runner, 10-hour cap',0.2);
+    seg(y2,16.47,17.33,'f-line',0.4,false); lab(X(16.9),y2+46,'waited for the other queue','',0.6);
+    seg(y2,17.33,17.74,'f-ok',0.8,false); lab(X(17.53),y2-46,'anchor, same hash','f-ok',1.0);
+    seg(y2,17.75,19.27,'f-act',1.2,false); lab(X(18.5),y2-24,'primary pass, 200 of 200','',1.4);
+    seg(y2,19.27,21.39,'f-warn',1.6,false); lab(X(20.33),y2-46,'silent hash, 2 h 07 min','f-warn',1.9);
+    s+=rect(X(21.39)-1.5,y2-22,3,44,'f-ink',2.0,'fi',1); lab(X(21.39)+10,y2-24,'stopped 21:23, after the gate','',2.1,'start');
+    // v3
+    const y3=310; lane(y3,'attempt v3','hash fix, phase telemetry, checkpoint',0.3);
+    seg(y3,20.62,20.74,'f-soft',2.8,false); lab(X(20.74)-6,y3+46,'first anchor 20:37–20:44, set aside (a telemetry bug)','',3.0,'end');
+    seg(y3,20.8,21.37,'f-ok',3.2,false); lab(X(21.37)-4,y3-46,'anchor again: same hash, 21:22','f-ok',3.4,'end');
+    seg(y3,21.4,snapshotTime,'f-act',3.6,false); seg(y3,snapshotTime,24.3,'f-act',3.7,true); lab(X(21.5)+4,y3-24,'held-out: primary pass, checkpoint, replay','',3.8,'start');
+    lab(X(24.3)+8,y3+6,'done ≈00:10–00:35','f-ok',4.1,'start');
+    s+=dashed(X(26.12),y2-60,X(26.12),Yax,'s-warn',2.6); lab(X(26.12),y2-66,'budget 02:07','f-warn',2.7);
+    // dated snapshot marker
+    s+=`<line x1="${X(snapshotTime)}" y1="100" x2="${X(snapshotTime)}" y2="${Yax}" class="axis fi s-ink" style="--d:0.5s;stroke-width:2.5"/>`;
+    s+=T(X(snapshotTime),88,'snapshot 21:26','mid',0.5,bold(0.5));
+    return s;
+  },
+  html:`<p>Attempt v2 relaunched the unchanged runner at 16:28 with a ten-hour cap. Its anchor reproduced the v1 science hash at 17:44, its held-out primary pass finished all <span class="num">200</span> cases at 19:16, and it then sat in the first silent hash for two hours.</p>
+<p>Attempt v3 introduced the one-line hash fix, named phases in the progress file and an append-only phase log, a checkpoint of the primary pass before replay, and a wall budget derived from measured anchor times. A first anchor attempt at 20:37 was set aside for a telemetry bug. The corrected anchor ran from 20:48 to 21:22 beside v2 and reproduced the same science hash; its iteration-table hash took <span class="num">0.2</span> s instead of 150. V2 was then stopped at 21:23 and the v3 held-out launched at 21:24.</p>
+<p>At this <span class="num">21:26 CST, 31 October 2026</span> snapshot, the held-out had a 4 h 45 min budget and a measured-anchor projection of 3 h 10 min. Those times are a historical execution forecast, not a completed result.</p>`+take('At the dated snapshot, the equivalence gate had passed, v2 was stopped, and v3 was running with its phases visible.')
+});
+
+// 15 — the null control: four arms
+BEATS.push({
+  title:'A complementary four-arm control',
+  eyebrow:'Chapter 6 · RQ2-GD-OFFSET-NULL-001',
+  chapter:'Two controls beside it',
+  svg(){
+    let s='';
+    const arms=[
+      {name:'control',cls:'ctl',n:107,read:['x_i','x_i','x_i'],cap:'reads no offsets',x:30,y:30},
+      {name:'reference',cls:'act',n:163,read:['x_i+δ_A','x_i+δ_B','x_i+δ_C'],cap:'each check reads its own offset, refreshed after every update',x:490,y:30},
+      {name:'permuted',cls:'oonly',n:73,read:['x_i+δ_B','x_i+δ_C','x_i+δ_A'],cap:'the same three numbers, shuffled among the bit’s checks',x:30,y:280},
+      {name:'frozen',cls:'ponly',n:165,read:['x_i+δ_A','x_i+δ_B','x_i+δ_C'],cap:'each check’s own offset, built once after update 1, never refreshed',x:490,y:280},
+    ];
+    arms.forEach((a,k)=>{const d=0.3*k, x=a.x, y=a.y;
+      s+=rect(x,y,440,236,'box',d,'fi',6);
+      s+=rect(x,y,10,236,'f-'+a.cls,d+0.05,'fi',3);
+      s+=T(x+28,y+34,a.name,'f-'+a.cls,d+0.1,'style="font-weight:600;font-size:21px;--d:'+(d+0.1)+'s"');
+      const C=[[x+70,y+86],[x+140,y+86],[x+210,y+86]], bl=[x+140,y+170];
+      s+=star(bl[0],bl[1],C,d+0.2,['A','B','C']);
+      s+=bit(bl[0],bl[1],'x_i',d+0.15,'s-'+a.cls);
+      const pos=[[lerp(bl[0],C[0][0],.58)-12,lerp(bl[1],C[0][1],.58)+5,'end'],[x+140,y+58,'mid'],[lerp(bl[0],C[2][0],.58)+12,lerp(bl[1],C[2][1],.58)+5,'']];
+      a.read.forEach((r,i)=>{s+=T(pos[i][0],pos[i][1],r,'m '+pos[i][2]+' f-'+a.cls,d+0.8+0.1*i,'style="font-size:15px;--d:'+(d+0.8+0.1*i)+'s"');});
+      s+=T(x+330,y+118,String(a.n),'big mid f-'+a.cls,d+1.2);
+      s+=T(x+330,y+144,'of 200 recovered','cap mid',d+1.2);
+      wrap(a.cap,46).forEach((ln,i)=>{s+=T(x+28,y+206+17*i,ln,'cap',d+1.4,'style="font-size:13px;--d:'+(d+1.4)+'s"');});
+    });
+    return s;
+  },
+  html:`<p>A separate control tested a distinction absent from the offset-use split. The earlier result showed that reading the offsets helps. It did not show whether the help comes from <em>which</em> check reads <em>which</em> offset, or merely from the disturbance of reading any offset at all. Four GD arms ran on the same <span class="num">200</span> cases, two passes each, every gate passing.</p>
+<p>The control reads no offsets. The reference reads them as the active arm did. The permuted arm reads the same three numbers at each bit but shuffled among that bit's checks, so every check reads an offset built for a different check. The frozen arm reads the offsets built after the first update and never refreshes them.</p>
+<p>Transmitted word recovered out of 200: control <span class="num">107</span>, reference <span class="num">163</span>, permuted <span class="num">73</span>, frozen <span class="num">165</span>. Parity validity gave identical counts, and no arm produced a wrong word that passed every check.</p>`+take('Same numbers at the wrong addresses did worse than no numbers at all.')
+});
+
+// 16 — what the null control says
+BEATS.push({
+  title:'What the null control says',
+  eyebrow:'Chapter 6 · Registered contrasts, 99.5% intervals',
+  svg(){
+    let s='';
+    const X=v=>110+(v+0.3)/0.9*760, Yax=352;
+    s+=T(X(0.15),36,'paired difference in the share of cases recovered, with 99.5% intervals','cap mid',0);
+    s+=tick(X(-0.3),Yax,X(0.6),Yax);
+    [-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6].forEach(v=>{s+=tick(X(v),Yax-5,X(v),Yax+5);s+=T(X(v),Yax+26,v.toFixed(1).replace('-','−'),'cap mid',0.1);});
+    const rows=[
+      ['reference − permuted','+0.45',0.343,0.540,0.45,'act','the gain needs the check assignment'],
+      ['reference − control','+0.28',0.187,0.367,0.28,'act','the compound effect on these cases'],
+      ['permuted − control','−0.17',-0.242,-0.093,-0.17,'oonly','wrongly addressed offsets hurt'],
+      ['reference − frozen','−0.01',-0.045,0.023,-0.01,'ponly','the refresh adds nothing'],
+    ];
+    rows.forEach((r,k)=>{const y=84+k*70, d=0.4+0.5*k;
+      s+=tick(X(0),y-9,X(0),y+9,0.2);
+      s+=`<line x1="${X(r[2])}" y1="${y}" x2="${X(r[3])}" y2="${y}" class="draw s-${r[5]}" style="--d:${d}s;stroke-width:8;stroke-linecap:round"/>`;
+      s+=`<circle cx="${X(r[4])}" cy="${y}" r="7" class="pop f-${r[5]}" style="--d:${d+0.4}s"/>`;
+      s+=T(X(r[4]),y-16,r[0]+'  '+r[1],'mid',d+0.5,'style="font-size:15px;font-weight:600;--d:'+(d+0.5)+'s"');
+      s+=T(X(r[4]),y+30,r[6],'cap mid',d+0.6,'style="font-size:13px;--d:'+(d+0.6)+'s"');
+    });
+    s+=T(60,412,'registered prediction','ttl',2.8,'style="font-size:14px;--d:2.8s"');
+    s+=T(540,412,'observed','ttl',2.8,'style="font-size:14px;--d:2.8s"');
+    const pr=[['if the offsets carry check-specific information, permuted falls to the neighbourhood of control','permuted fell below control','warn'],['if the refresh is the mechanism, frozen falls toward control','frozen equals reference','ok']];
+    pr.forEach((p,k)=>{const y=442+k*52, d=3.0+0.4*k;
+      wrap(p[0],52).forEach((ln,i)=>{s+=T(60,y+18*i,ln,'cap',d);});
+      s+=T(540,y,p[1],'f-'+p[2],d+0.2,'style="font-weight:600;--d:'+(d+0.2)+'s"');
+    });
+    return s;
+  },
+  html:`<p>Two contrasts were registered as primary. Reference minus permuted is <span class="num">+0.45</span> with a 99.5% interval from <span class="num">0.34</span> to <span class="num">0.54</span>: the gain needs the check assignment. Reference minus frozen is <span class="num">−0.01</span> with an interval from <span class="num">−0.04</span> to <span class="num">0.02</span>: refreshing the offsets after every update adds nothing beyond the first refresh.</p>
+<p>One outcome was not in the registered map. The prediction said that if the offsets carry check-specific information, the permuted arm would fall to the neighbourhood of the control. It fell below it, by <span class="num">0.17</span> with an interval from <span class="num">−0.24</span> to <span class="num">−0.09</span>. A wrongly addressed check-specific offset misleads the parity term where an absent offset is neutral. This shows that the assignment of the retained quantity matters; it does not identify the offsets as BP messages.</p>
+<p>The next design, a ladder that swaps one native operation at a time, was written to trigger only if permuted lands within its interval of control. That literal condition is not met, so building it is a decision for the user, not an automatic step.</p>`+take('The assignment carries the effect, one reshaping is enough, and the map needs a row it did not have.')
+});
+
+// 17 — the native gap
+BEATS.push({
+  title:'The native gap, on the same cases',
+  eyebrow:'Chapter 6 · RQ2-NATIVE-GAP-001',
+  svg(){
+    let s='';
+    const Y0=400, H=v=>v/200*250;
+    s+=T(40,50,'200 held-out cases at 6 dB — transmitted word recovered','cap',0);
+    const bars=[['exact BP','',200,'bp'],['best constructed','GD (reference)',163,'act'],['native','projected GD',107,'ctl']];
+    bars.forEach((b,k)=>{const x=120+k*150, d=0.3+0.5*k;
+      s+=rect(x-45,Y0-H(b[2]),90,H(b[2]),'f-'+b[3],d,'vbar',3);
+      s+=T(x,Y0-H(b[2])-12,String(b[2]),'big mid f-'+b[3],d+0.6);
+      s+=T(x,Y0+26,b[0],'cap mid',d+0.2); if(b[1]) s+=T(x,Y0+46,b[1],'cap mid',d+0.2);
+    });
+    s+=tick(50,Y0,500,Y0);
+    s+=T(270,Y0+92,'the gap: 93 cases; the reference arm closes 56 of them','cap mid',2.4);
+    const px=e=>600+(e-1.5)/4.5*320, py=v=>Y0-v/24*250;
+    s+=T(600,50,'24 cases per level — recovered, of 24','cap',0.2);
+    s+=tick(px(1.5),py(0),px(6),py(0),0.3); s+=tick(px(1.5),py(0),px(1.5),py(24),0.3);
+    [1.5,3,4.5,6].forEach(e=>{s+=tick(px(e),py(0)-4,px(e),py(0)+4,0.3);s+=T(px(e),py(0)+24,e+' dB','cap mid',0.3);});
+    [0,12,24].forEach(v=>{s+=tick(px(1.5)-4,py(v),px(1.5)+4,py(v),0.3);s+=T(px(1.5)-10,py(v)+5,String(v),'cap end',0.3);});
+    s+=`<path d="M${px(1.5)} ${py(24)} L${px(6)} ${py(24)}" class="draw s-bp" style="--d:1.2s;stroke-width:3.5;fill:none"/>`;
+    s+=T(px(6)+8,py(24)+5,'BP','f-bp',2.0);
+    const gd=[[1.5,0],[2,0],[2.5,0],[3,0],[3.5,0],[4,0],[5,1],[6,15]];
+    s+=`<path d="${gd.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ')}" class="draw s-ctl" style="--d:1.6s;stroke-width:3.5;fill:none"/>`;
+    gd.forEach((p,i)=>{s+=`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="5" class="pop f-ctl" style="--d:${1.8+0.15*i}s"/>`;});
+    s+=T(px(6)+8,py(15)+5,'GD','f-ctl',3.0);
+    s+=T(760,Y0+92,'at the second level, 1.5 dB: BP 200 of 200, GD 0 of 200','cap mid',3.2,'style="font-size:14px;--d:3.2s"');
+    return s;
+  },
+  html:`<p>The chain compares constructed GD variants with one another. This run puts them on the native scale. On the same <span class="num">200</span> cases at 6 dB, exact sum-product BP recovers all <span class="num">200</span> transmitted words and native projected GD <span class="num">107</span>, the same 107 as the null control's control arm. The reference arm's <span class="num">163</span> closes 56 of those 93 cases.</p>
+<p>A profile over 24 cases per level found BP at 24 of 24 from 1.5 to 6 dB, while GD recovered none below 5 dB. The registered rule picked 1.5 dB as the second level: there BP decodes <span class="num">200</span> of 200 and GD <span class="num">0</span> of 200.</p>
+<p>The constructed offsets close part of the gap at 6 dB and are untested where the gap is total. The route map keeps native attribution open; these numbers say how much remains.</p>`+take('BP 200, GD 107, the best constructed variant 163: a real part of the gap, not all of it.')
+});
+
+// 18 — where we stand
+BEATS.push({
+  title:'Where we stand',
+  eyebrow:'Chapter 7 · Distance to the research objective',
+  chapter:'Where we stand',
+  svg(){
+    let s='';
+    const rows=[
+      ['Lock the fingerprints; locate the native divergence','done'],
+      ['RQ1 one-mechanism controls, confirmed on a second graph','done'],
+      ['Reproduce both native endpoints','done'],
+      ['AWGN anchor and 200-case confirmation: exact SP 200 of 200, tied 0 of 200','done'],
+      ['RQ2-GD-STATE-USE-001: retained offsets, 172 against 113','done'],
+      ['RQ2-GD-OFFSET-SPLIT-001: held-out shown running at the dated snapshot','recorded'],
+      ['Scoped RQ2 conclusion','waiting'],
+    ];
+    rows.forEach((r,k)=>{const y=36+k*58, d=0.2*k;
+      s+=rect(60,y,840,46,'box',d,'fi');
+      if(k<rows.length-1) s+=`<line x1="480" y1="${y+46}" x2="480" y2="${y+58}" class="axis fi" style="--d:${d+0.1}s"/>`;
+      s+=T(84,y+29,r[0],'',d+0.1,r[1]==='waiting'?'style="font-weight:600;--d:'+(d+0.1)+'s"':'style="--d:'+(d+0.1)+'s"');
+      s+=status(868,y+23,r[1],d+0.3);
+    });
+    s+=T(60,470,'beside the chain, completed by the 31 October snapshot','ttl',1.8,'style="font-size:14px;--d:1.8s"');
+    s+=T(60,494,'null control: the assignment carries it, one reshaping suffices · native gap: BP 200, GD 107, reference 163 at 6 dB','cap',1.9,'style="font-size:14px;--d:1.9s"');
+    s+=T(60,514,'check-rule ladder: design only; its literal trigger was not met, so the decision is the user’s','cap',2.0,'style="font-size:14px;--d:2.0s"');
+    return s;
+  },
+  html:`<p>The route map's destination is a scoped RQ2 conclusion: whether adding or removing the RQ1 mechanism changes parity validity and transmitted-word equality on preregistered cases. At the <span class="num">31 October 2026</span> snapshot, every step before the last was done and the split held-out result was still missing. Its anchor suggested that the gain follows the parity term rather than the interval, but the anchor is development-only.</p>
+<p>A valid result will attribute the earlier gain among four constructed GD variants on this graph, this 6 dB sample, this initialization and 30 updates. It will not make the offsets BP messages, reproduce BP, rank the decoders, or explain the whole native gap. The null control adds that the gain needs the check assignment and a single reshaping. The native gap adds that <span class="num">37</span> of 200 cases at 6 dB, and all 200 at 1.5 dB, remain unexplained.</p>
+<p>At this snapshot, the human decision was whether the null control's stronger-than-predicted outcome counts as the trigger for the check-rule ladder; the machine-side dependency was the one held-out run.</p>`+take('One result from the registered endpoint. The native cause stays open by design, and the numbers show how open.')
+});
+
+// ---------- deck ----------
+const stage=document.getElementById('stage'),aside=document.getElementById('aside'),dots=document.getElementById('dots'),count=document.getElementById('count'),chapters=document.getElementById('chapters');
+const back=document.getElementById('back'),next=document.getElementById('next'),replay=document.getElementById('replay');
+let cur=0;
+BEATS.forEach((b,k)=>{const d=document.createElement('button');d.setAttribute('role','tab');d.title=b.title;d.addEventListener('click',()=>go(k));dots.appendChild(d);});
+const CH=[];BEATS.forEach((b,k)=>{if(b.chapter)CH.push([k,b.chapter]);});
+CH.forEach(([k,name])=>{const d=document.createElement('button');d.textContent=name;d.title='go to beat '+(k+1);d.addEventListener('click',()=>go(k));chapters.appendChild(d);});
+function render(){
+  const b=BEATS[cur];
+  stage.innerHTML=`<svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${b.title}">${b.svg()}</svg>`;
+  aside.innerHTML=`<div class="eyebrow">${b.eyebrow}</div><h2>${b.title}</h2>${b.html}`;
+  count.textContent=`${cur+1} / ${BEATS.length}`;
+  [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===cur?'true':'false'));
+  let active=0;CH.forEach(([k],i)=>{if(cur>=k)active=i;});
+  [...chapters.children].forEach((d,i)=>d.setAttribute('aria-current',i===active?'true':'false'));
+  back.disabled=cur===0; next.disabled=cur===BEATS.length-1;
+}
+function go(k){
+  cur=Math.max(0,Math.min(BEATS.length-1,k));
+  const h='b'+(cur+1);
+  if(location.hash!=='#'+h){try{history.replaceState(null,'','#'+h);}catch(e){}}
+  render();
+}
+back.addEventListener('click',()=>go(cur-1));
+next.addEventListener('click',()=>go(cur+1));
+replay.addEventListener('click',render);
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='BUTTON'&&e.key===' ')return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(cur+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1);}
+});
+window.addEventListener('hashchange',()=>{const mt=/^#b(\d+)$/.exec(location.hash);if(mt)go(parseInt(mt[1],10)-1);});
+(function(){const mt=/^#b(\d+)$/.exec(location.hash);cur=mt?Math.max(0,Math.min(BEATS.length-1,parseInt(mt[1],10)-1)):0;render();})();
+
+document.getElementById('src').innerHTML=`Sources in this repository: <code>routemap.md</code>; <code>experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2</code> (172/113, 59/0, interval [0.2206, 0.3668]); <code>experiments/rq2_gd_offset_split_001/</code> card, config, v1/v2 anchors and failure records, <code>attempts/2026-10-31_v3/</code>, <code>results/2026-10-31_anchor_v3</code> (science hash 2062fce2…; iteration-table hash 0.2 s), <code>queue/2026-10-31_v3/budget_derivation.toml</code> (11,399 s projected, 17,100 s budget), and the rejected-anchor records; <code>experiments/rq2_gd_offset_null_001/results/2026-10-31_heldout_v1/aggregate.csv</code> (107/163/73/165 and the five contrasts); and <code>experiments/rq2_native_gap_001/results/2026-10-31_{six,profile,second}_v2</code> (200/107, the profile, 200/0). The v3 held-out status shown here is an explicitly dated local observer snapshot, not a completed result; its live telemetry was intentionally not frozen into this commit. Hash timings were measured on Julia 1.12.6 with SHA.jl 0.7.0. The full-BP 200/200 against tied 0/200 figure is <code>RQ2-CONFIRM-001</code> in the route map. Toy numbers on the Tanner-graph beats (0.42, 0.30, the three readings) are illustrations, not trace values. Projected times are projections.`;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+schema_version = "rq2-gd-offset-split-001/queue-v1"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V1"
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+created_utc = "2026-10-31T02:18:42Z"
+job_count = 5
+execution = "serial, fail-closed, correctness-gated"
+outcome_direction_is_a_gate = false
+scientific_passes_per_stage = 2
+third_scientific_recalculation_allowed = false
+external_replay_command_allowed = false
+registered_timed_executions_per_arm_case = 1
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+termination_grace_seconds_inside_wall_budget = 120
+thread_count_julia = 1
+thread_count_omp = 1
+thread_count_openblas = 1
+
+[paths]
+repository_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030"
+experiment_root = "experiments/rq2_gd_offset_split_001"
+project = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+config = "experiments/rq2_gd_offset_split_001/config.toml"
+runner = "experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+test = "experiments/rq2_gd_offset_split_001/test_rq2_gd_offset_split_001.jl"
+preflight = "experiments/rq2_gd_offset_split_001/preflight_validation.md"
+freeze = "experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v1"
+anchor_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v1"
+heldout_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v1"
+queue_progress = "progress.toml"
+status_history = "status_history.csv"
+queue_log = "queue.log"
+queue_manifest = "QUEUE_MANIFEST.sha256"
+queue_package_record = "QUEUE_PACKAGE_LOCK.toml"
+queue_lock = "queue.lock"
+final_summary = "final_summary.toml"
+
+[jobs.J01]
+title = "Focused tests, locked preflight verification, and source/input freeze"
+depends_on = []
+terminal_marker = "jobs/J01/COMPLETED.toml"
+failure_marker = "jobs/J01/FAILED.toml"
+log = "logs/J01.log"
+
+[jobs.J02]
+title = "Four-arm 24-case anchor"
+depends_on = ["J01"]
+terminal_marker = "jobs/J02/COMPLETED.toml"
+failure_marker = "jobs/J02/FAILED.toml"
+log = "logs/J02.log"
+
+[jobs.J03]
+title = "Anchor embedded-replay record, correctness, and checksum gate"
+depends_on = ["J02"]
+terminal_marker = "jobs/J03/COMPLETED.toml"
+failure_marker = "jobs/J03/FAILED.toml"
+log = "logs/J03.log"
+
+[jobs.J04]
+title = "Four-arm 200-case held-out execution"
+depends_on = ["J03"]
+terminal_marker = "jobs/J04/COMPLETED.toml"
+failure_marker = "jobs/J04/FAILED.toml"
+log = "logs/J04.log"
+
+[jobs.J05]
+title = "Held-out embedded-replay record, checksum, and final queue summary"
+depends_on = ["J04"]
+terminal_marker = "jobs/J05/COMPLETED.toml"
+failure_marker = "jobs/J05/FAILED.toml"
+log = "logs/J05.log"

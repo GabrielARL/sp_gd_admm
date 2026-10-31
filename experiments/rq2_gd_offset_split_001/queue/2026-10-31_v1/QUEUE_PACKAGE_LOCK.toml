@@ -1,0 +1,6 @@
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+locked_file_count = 4
+locked_utc = "2026-10-31T02:32:28Z"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V1"
+queue_manifest_sha256 = "0710a16d1ba13bd899c70e446816fa51980adf8b9175c9b2df2e4dd4c99ec917"
+schema_version = "rq2-gd-offset-split-001/queue-package-lock-v1"

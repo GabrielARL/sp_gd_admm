@@ -1,0 +1,20 @@
+2026-10-31T04:58:29Z queue started (pid 599774) in /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031
+2026-10-31T04:58:29Z starting J1: tests, preflight probes, input freezes
+2026-10-31T05:03:16Z completed J1
+2026-10-31T05:03:16Z starting J2: null-control 24-case anchor, 4 arms, 2 passes
+2026-10-31T05:43:21Z completed J2
+2026-10-31T05:43:21Z starting J3: null-control anchor verification
+2026-10-31T05:43:40Z completed J3
+2026-10-31T05:43:40Z starting J4: native gap: six, profile, second
+2026-10-31T05:53:44Z FAILED J4 (exit 1, gate_failure); queue stops
+2026-10-31T05:55:50Z manual relaunch: J4 attempt v1 failed on an implementation error (paired-count helper expects an arm column) after its six-dB primary pass; no endpoint was written or read. Fix in rq2_native_gap_001.jl paired_table, test added; gap experiment re-frozen as attempt v2; failed attempt retained in results/2026-10-31_six_v1 and jobs/J4/FAILED_attempt_v1.toml
+2026-10-31T05:55:51Z queue started (pid 608490) in /home/gabiel/Documents/GitHub/sp_gd_admm-claude-controls-20261031
+2026-10-31T05:55:51Z skipping J1: already complete
+2026-10-31T05:55:51Z skipping J2: already complete
+2026-10-31T05:55:51Z skipping J3: already complete
+2026-10-31T05:55:51Z starting J4: native gap: six, profile, second (attempt v2)
+2026-10-31T06:44:58Z completed J4
+2026-10-31T06:44:58Z starting J5: null-control 200-case held-out, 4 arms, 2 passes
+2026-10-31T09:18:18Z completed J5
+2026-10-31T09:18:18Z starting J6: final verification and summary
+2026-10-31T09:19:30Z FAILED J6 (exit 1, gate_failure); queue stops

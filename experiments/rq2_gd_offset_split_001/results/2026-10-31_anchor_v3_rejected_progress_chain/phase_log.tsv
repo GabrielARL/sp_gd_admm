@@ -1,0 +1,4 @@
+utc	pass	phase	seconds
+2026-10-31T12:37:08.788	primary	pass_preamble:start	0.000000000
+2026-10-31T12:37:57.320	primary	pass_preamble:end	48.531504101
+2026-10-31T12:37:57.323	primary	frame_loop:start	0.000000000

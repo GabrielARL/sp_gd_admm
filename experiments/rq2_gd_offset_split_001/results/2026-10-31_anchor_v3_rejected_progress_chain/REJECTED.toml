@@ -1,0 +1,7 @@
+schema_version = "rq2-gd-offset-split-001/rejected-attempt-v1"
+optimization_id = "RQ2-OPTIMIZE-001"
+recorded_utc = "2026-10-31T12:44:30Z"
+status = "rejected_before_scientific_completion"
+reason = "progress tracker reset erased previous phase name and elapsed seconds at cross-tracker boundaries"
+science_artifact_written = false
+v2_signaled = false

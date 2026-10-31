@@ -1,0 +1,9 @@
+anchor_expansion_authorized = true
+completed_utc = "2026-10-31T05:43:21.067"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-GD-OFFSET-NULL-001"
+schema_version = "rq2-gd-offset-null-001/completion-v1"
+science_sha256 = "9941227d6ea64ada36918cbf8471a1a31c166a4df784a86e4c9b5127280abc61"
+stage = "anchor"
+status = "complete_valid"

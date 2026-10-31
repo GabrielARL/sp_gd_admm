@@ -1,0 +1,4 @@
+endpoint,definition,frames,score_sum,risk_difference_interaction,score_minus2,score_minus1,score_zero,score_plus1,score_plus2,bootstrap_resamples,bootstrap_seed,interval_confidence_level,interval_lower,interval_upper
+information_word_equal,p11 - p10 - p01 + p00,24,1,0.041666666666666664,0,0,23,1,0,,,,,
+parity_valid,p11 - p10 - p01 + p00,24,0,0,0,1,22,1,0,,,,,
+transmitted_word_equal,p11 - p10 - p01 + p00,24,0,0,0,1,22,1,0,,,,,

@@ -1,0 +1,9 @@
+queue_id = "CLAUDE-CONTROLS-QUEUE-2026-10-31-V1"
+state = "failed"
+current_job = "J6"
+current_job_state = "failed"
+jobs_completed = 5
+jobs_total = 6
+detail = "final verification and summary"
+process_id = 608490
+updated_utc = "2026-10-31T09:19:30Z"

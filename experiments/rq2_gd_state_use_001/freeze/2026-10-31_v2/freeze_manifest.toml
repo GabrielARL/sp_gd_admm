@@ -1,0 +1,323 @@
+anchor_reference_identity_gate = true
+anchor_row_count = 24
+command = "julia --project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl freeze --output experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2"
+configuration_sha256 = "40baeef54e305f9854cd354dc07e5f368510c16f154106d8f06fcaf73e21d382"
+created_utc = "2026-10-30T18:54:03.248"
+experiment_id = "RQ2-GD-STATE-USE-001"
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+heldout_row_count = 200
+input_freeze_sha256 = "53f515fda963da468e973568f503d1f0792cf161873d447826c5b4b7b182bee8"
+input_row_count = 224
+schema_version = "rq2-gd-state-use-001/freeze-v1"
+
+[environment]
+blas_threads = 1
+cpu = "haswell"
+gzip_version = "gzip 1.10"
+julia_threads = 1
+julia_version = "1.12.6"
+
+[jade_project]
+head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+root = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+status = ""
+
+[preflight_gate]
+passed = true
+
+    [preflight_gate.checks]
+    card_sha256 = true
+    config_sha256 = true
+    runner_sha256 = true
+    test_exit_code = true
+    test_sha256 = true
+    validation_status = true
+
+    [preflight_gate.expected]
+    card_sha256 = "4b2400eeb58ed2124ef6fd62f8e369edd4643db6f802aeba90d1cc20456df209"
+    config_sha256 = "40baeef54e305f9854cd354dc07e5f368510c16f154106d8f06fcaf73e21d382"
+    runner_sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+    test_exit_code = "0"
+    test_sha256 = "6e9f1d8c079e3b1c393e0b0bfd9a4c894666bfbee3f9438bdb00313fe5160320"
+    validation_status = "pass"
+
+    [preflight_gate.recorded]
+    card_sha256 = "4b2400eeb58ed2124ef6fd62f8e369edd4643db6f802aeba90d1cc20456df209"
+    config_sha256 = "40baeef54e305f9854cd354dc07e5f368510c16f154106d8f06fcaf73e21d382"
+    runner_sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+    test_exit_code = "0"
+    test_sha256 = "6e9f1d8c079e3b1c393e0b0bfd9a4c894666bfbee3f9438bdb00313fe5160320"
+    validation_status = "pass"
+
+[source_gate]
+jade_project_clean_passed = true
+jade_project_head_actual = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_head_expected = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_head_passed = true
+jade_project_status = ""
+passed = true
+
+    [[source_gate.records]]
+    actual_sha256 = "2ed497316164b46f4cff9d19475c5f0ae97bb4b93a9de8bcaf6eaba954d42a02"
+    expected_sha256 = "2ed497316164b46f4cff9d19475c5f0ae97bb4b93a9de8bcaf6eaba954d42a02"
+    label = "archived_native_completion"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/completion.toml"
+    [[source_gate.records]]
+    actual_sha256 = "c035c34b0d49e12129d6f828b8eaa2ce240e681e16ef9f37741ec5d236587d3a"
+    expected_sha256 = "c035c34b0d49e12129d6f828b8eaa2ce240e681e16ef9f37741ec5d236587d3a"
+    label = "archived_native_frames"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/frames.csv"
+    [[source_gate.records]]
+    actual_sha256 = "7623472b457792fc36944d30947587a1ed9b43f99815591baced9b0e7d13d2be"
+    expected_sha256 = "7623472b457792fc36944d30947587a1ed9b43f99815591baced9b0e7d13d2be"
+    label = "archived_native_manifest"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/manifest.toml"
+    [[source_gate.records]]
+    actual_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+    expected_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+    label = "archived_native_runner"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+    [[source_gate.records]]
+    actual_sha256 = "f0bc4b1fe110b0e38222eda5db36741d1525cd3b58e6a906c9e384da136ae2cc"
+    expected_sha256 = "f0bc4b1fe110b0e38222eda5db36741d1525cd3b58e6a906c9e384da136ae2cc"
+    label = "archived_native_test"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/test_three_receivers.jl"
+    [[source_gate.records]]
+    actual_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+    expected_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+    label = "jade_core_common"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+    [[source_gate.records]]
+    actual_sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+    expected_sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+    label = "jade_joint_projected_gradient"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+    [[source_gate.records]]
+    actual_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+    expected_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+    label = "jade_manifest_toml"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+    [[source_gate.records]]
+    actual_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+    expected_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+    label = "jade_project_toml"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+    [[source_gate.records]]
+    actual_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+    expected_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+    label = "jade_receiver_core"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+    [[source_gate.records]]
+    actual_sha256 = "90861bee79ae392cfd76fc199679a93942e72a7ddea4952e000cc95eb8d9d496"
+    expected_sha256 = "90861bee79ae392cfd76fc199679a93942e72a7ddea4952e000cc95eb8d9d496"
+    label = "rq1_card"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/experiment_card.md"
+    [[source_gate.records]]
+    actual_sha256 = "4e8da3201ab384cfab74b836fc098cfcd4f06fe723ac685e1a170f5c66aa6935"
+    expected_sha256 = "4e8da3201ab384cfab74b836fc098cfcd4f06fe723ac685e1a170f5c66aa6935"
+    label = "rq1_checksum_manifest"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/MANIFEST.sha256"
+    [[source_gate.records]]
+    actual_sha256 = "f00fe215c024142e962b01ed5ecbc237230ea8f177a492c9781bc71a273919af"
+    expected_sha256 = "f00fe215c024142e962b01ed5ecbc237230ea8f177a492c9781bc71a273919af"
+    label = "rq1_config"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/config.toml"
+    [[source_gate.records]]
+    actual_sha256 = "4ba1536ba8d95446acb641ec89c71126d7759f7e5ac79799ba37d8bfe1ff3f10"
+    expected_sha256 = "4ba1536ba8d95446acb641ec89c71126d7759f7e5ac79799ba37d8bfe1ff3f10"
+    label = "rq1_manifest"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/manifest.json"
+    [[source_gate.records]]
+    actual_sha256 = "1672ffce0fb54cc1f0ebbd11a5c1336f95603b01db801b21884f6af95eea70c6"
+    expected_sha256 = "1672ffce0fb54cc1f0ebbd11a5c1336f95603b01db801b21884f6af95eea70c6"
+    label = "rq1_runner"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/rq1_gd_state_use_001.jl"
+    [[source_gate.records]]
+    actual_sha256 = "cc98aea55fbe6701543dce67e01171919fb3c2823b3d1c83b4fdc1c1caf71186"
+    expected_sha256 = "cc98aea55fbe6701543dce67e01171919fb3c2823b3d1c83b4fdc1c1caf71186"
+    label = "rq1_test"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/test_rq1_gd_state_use_001.jl"
+    [[source_gate.records]]
+    actual_sha256 = "1e8d5833a8ecd9c7a1be9d7f2e7ec8350f3250f93ce55ab6846c6d04226fbd07"
+    expected_sha256 = "1e8d5833a8ecd9c7a1be9d7f2e7ec8350f3250f93ce55ab6846c6d04226fbd07"
+    label = "rq1_trace"
+    passed = true
+    path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/trace.json"
+
+[[sources]]
+archived_relative_path = "source/config.toml"
+label = "config.toml"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/config.toml"
+sha256 = "40baeef54e305f9854cd354dc07e5f368510c16f154106d8f06fcaf73e21d382"
+[[sources]]
+archived_relative_path = "source/experiment_card.md"
+label = "experiment_card.md"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/experiment_card.md"
+sha256 = "4b2400eeb58ed2124ef6fd62f8e369edd4643db6f802aeba90d1cc20456df209"
+[[sources]]
+archived_relative_path = "source/jade_src/JadeJcade.jl"
+label = "jade_src/JadeJcade.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/JadeJcade.jl"
+sha256 = "7df2835853a69896a4a00206c3b8b1357667dd4589cc63d83f8701660efd662d"
+[[sources]]
+archived_relative_path = "source/jade_src/LDPC.jl"
+label = "jade_src/LDPC.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/LDPC.jl"
+sha256 = "e7bd15a6f42f3319245c661a28b25a545071256c1f8d46263808f52b6da846d0"
+[[sources]]
+archived_relative_path = "source/jade_src/Modulations.jl"
+label = "jade_src/Modulations.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/Modulations.jl"
+sha256 = "50abaec021f07c8f9aba8063b5186ab1dcc9ad92b0ae5bb1b79bb567eb5f9c5a"
+[[sources]]
+archived_relative_path = "source/jade_src/ReceiverCore.jl"
+label = "jade_src/ReceiverCore.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+[[sources]]
+archived_relative_path = "source/jade_src/core/baseline_likelihood.jl"
+label = "jade_src/core/baseline_likelihood.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/baseline_likelihood.jl"
+sha256 = "568ad500601e6b6cb47e4dc5a372045cee6314f2263c19888f587a95b004a5e1"
+[[sources]]
+archived_relative_path = "source/jade_src/core/common.jl"
+label = "jade_src/core/common.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+[[sources]]
+archived_relative_path = "source/jade_src/core/jcade.jl"
+label = "jade_src/core/jcade.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/jcade.jl"
+sha256 = "d4c0fe3a20ad693c2463c2d963ca26f26356ccc9f78f3d8614d1cbafc2d48e6b"
+[[sources]]
+archived_relative_path = "source/jade_src/core/joint_cz_projected_gradient.jl"
+label = "jade_src/core/joint_cz_projected_gradient.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+[[sources]]
+archived_relative_path = "source/jade_src/core/normalized_minsum_sensitivity.jl"
+label = "jade_src/core/normalized_minsum_sensitivity.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_sensitivity.jl"
+sha256 = "5c4ead0c0aa4817e573dffc0e04b06cd3b3e07ffd4a1e6aa78438c6a422ac93d"
+[[sources]]
+archived_relative_path = "source/jade_src/core/normalized_minsum_trace.jl"
+label = "jade_src/core/normalized_minsum_trace.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_trace.jl"
+sha256 = "7cc4152cb12f42a506004ac74c59b4654ec47118c1e2ea08a00ca2e778d5da98"
+[[sources]]
+archived_relative_path = "source/jade_src/core/persistent_edge.jl"
+label = "jade_src/core/persistent_edge.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/persistent_edge.jl"
+sha256 = "b8a3f3f6f46e2216f06cb667d920395c5c04a7b36cf639357a6e15a280aee770"
+[[sources]]
+archived_relative_path = "source/jade_src/core/soft_minsum_lagrangian.jl"
+label = "jade_src/core/soft_minsum_lagrangian.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/soft_minsum_lagrangian.jl"
+sha256 = "70dbc7418c29699f0959840f4b46ddec1098740136e0e4648633747ccae1ac46"
+[[sources]]
+archived_relative_path = "source/preflight_validation.md"
+label = "preflight_validation.md"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/preflight_validation.md"
+sha256 = "986a6a51846a78639a8e1b3c72adf07255a906c5a76da6416a0ade8f68638325"
+[[sources]]
+archived_relative_path = "source/retained/archived_native_completion.toml"
+label = "retained/archived_native_completion.toml"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/completion.toml"
+sha256 = "2ed497316164b46f4cff9d19475c5f0ae97bb4b93a9de8bcaf6eaba954d42a02"
+[[sources]]
+archived_relative_path = "source/retained/archived_native_frames.csv"
+label = "retained/archived_native_frames.csv"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/frames.csv"
+sha256 = "c035c34b0d49e12129d6f828b8eaa2ce240e681e16ef9f37741ec5d236587d3a"
+[[sources]]
+archived_relative_path = "source/retained/archived_native_manifest.toml"
+label = "retained/archived_native_manifest.toml"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/manifest.toml"
+sha256 = "7623472b457792fc36944d30947587a1ed9b43f99815591baced9b0e7d13d2be"
+[[sources]]
+archived_relative_path = "source/retained/archived_native_runner.jl"
+label = "retained/archived_native_runner.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+[[sources]]
+archived_relative_path = "source/retained/archived_native_test.jl"
+label = "retained/archived_native_test.jl"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/test_three_receivers.jl"
+sha256 = "f0bc4b1fe110b0e38222eda5db36741d1525cd3b58e6a906c9e384da136ae2cc"
+[[sources]]
+archived_relative_path = "source/retained/jade_manifest_toml.toml"
+label = "retained/jade_manifest_toml.toml"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+[[sources]]
+archived_relative_path = "source/retained/jade_project_toml.toml"
+label = "retained/jade_project_toml.toml"
+original_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+[[sources]]
+archived_relative_path = "source/retained/rq1_card.md"
+label = "retained/rq1_card.md"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/experiment_card.md"
+sha256 = "90861bee79ae392cfd76fc199679a93942e72a7ddea4952e000cc95eb8d9d496"
+[[sources]]
+archived_relative_path = "source/retained/rq1_checksum_manifest.sha256"
+label = "retained/rq1_checksum_manifest.sha256"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/MANIFEST.sha256"
+sha256 = "4e8da3201ab384cfab74b836fc098cfcd4f06fe723ac685e1a170f5c66aa6935"
+[[sources]]
+archived_relative_path = "source/retained/rq1_config.toml"
+label = "retained/rq1_config.toml"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/config.toml"
+sha256 = "f00fe215c024142e962b01ed5ecbc237230ea8f177a492c9781bc71a273919af"
+[[sources]]
+archived_relative_path = "source/retained/rq1_manifest.json"
+label = "retained/rq1_manifest.json"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/manifest.json"
+sha256 = "4ba1536ba8d95446acb641ec89c71126d7759f7e5ac79799ba37d8bfe1ff3f10"
+[[sources]]
+archived_relative_path = "source/retained/rq1_runner.jl"
+label = "retained/rq1_runner.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/rq1_gd_state_use_001.jl"
+sha256 = "1672ffce0fb54cc1f0ebbd11a5c1336f95603b01db801b21884f6af95eea70c6"
+[[sources]]
+archived_relative_path = "source/retained/rq1_test.jl"
+label = "retained/rq1_test.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq1_gd_state_use_001/test_rq1_gd_state_use_001.jl"
+sha256 = "cc98aea55fbe6701543dce67e01171919fb3c2823b3d1c83b4fdc1c1caf71186"
+[[sources]]
+archived_relative_path = "source/retained/rq1_trace.json"
+label = "retained/rq1_trace.json"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm/experiments/rq1_gd_state_use_001/results/2026-10-31_anchor_v1/trace.json"
+sha256 = "1e8d5833a8ecd9c7a1be9d7f2e7ec8350f3250f93ce55ab6846c6d04226fbd07"
+[[sources]]
+archived_relative_path = "source/rq2_gd_state_use_001.jl"
+label = "rq2_gd_state_use_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+[[sources]]
+archived_relative_path = "source/test_rq2_gd_state_use_001.jl"
+label = "test_rq2_gd_state_use_001.jl"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/test_rq2_gd_state_use_001.jl"
+sha256 = "6e9f1d8c079e3b1c393e0b0bfd9a4c894666bfbee3f9438bdb00313fe5160320"
+
+[sp_repository]
+branch = "codex/rq2-gd-state-use-20261031"
+head = "ebb14f39218ca945e403007a840c462c702d2db9"
+root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030"
+status = """?? experiments/rq1_gd_state_use_001/config.toml\n?? experiments/rq1_gd_state_use_001/experiment_card.md\n?? experiments/rq1_gd_state_use_001/rq1_gd_state_use_001.jl\n?? experiments/rq1_gd_state_use_001/test_rq1_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/config.toml\n?? experiments/rq2_gd_state_use_001/experiment_card.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/MANIFEST.sha256\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/freeze_manifest.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/input_freeze.csv\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/config.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/experiment_card.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/JadeJcade.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/LDPC.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/Modulations.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/ReceiverCore.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/baseline_likelihood.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/common.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/jcade.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/joint_cz_projected_gradient.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/normalized_minsum_sensitivity.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/normalized_minsum_trace.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/persistent_edge.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/jade_src/core/soft_minsum_lagrangian.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/preflight_validation.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/archived_native_completion.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/archived_native_frames.csv\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/archived_native_manifest.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/archived_native_runner.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/archived_native_test.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/jade_manifest_toml.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/jade_project_toml.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_card.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_checksum_manifest.sha256\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_config.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_manifest.json\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_runner.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_test.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/retained/rq1_trace.json\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v1/source/test_rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/input_freeze.csv\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/config.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/experiment_card.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/JadeJcade.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/LDPC.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/Modulations.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/ReceiverCore.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/baseline_likelihood.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/common.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/jcade.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/joint_cz_projected_gradient.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/normalized_minsum_sensitivity.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/normalized_minsum_trace.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/persistent_edge.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/jade_src/core/soft_minsum_lagrangian.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/preflight_validation.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/archived_native_completion.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/archived_native_frames.csv\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/archived_native_manifest.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/archived_native_runner.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/archived_native_test.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/jade_manifest_toml.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/jade_project_toml.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_card.md\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_checksum_manifest.sha256\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_config.toml\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_manifest.json\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_runner.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_test.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/retained/rq1_trace.json\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2/source/test_rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/preflight_validation.md\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/COMPLETED.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/MANIFEST.sha256\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/aggregate.csv\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/frame_first_state_snapshots.csv.gz\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/frames.csv\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/iterations.csv\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/manifest.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/runtime.csv\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/science.json\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/config.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/experiment_card.md\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/JadeJcade.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/LDPC.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/Modulations.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/ReceiverCore.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/baseline_likelihood.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/common.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/jcade.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/joint_cz_projected_gradient.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/normalized_minsum_sensitivity.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/normalized_minsum_trace.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/persistent_edge.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/jade_src/core/soft_minsum_lagrangian.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/preflight_validation.md\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/archived_native_completion.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/archived_native_frames.csv\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/archived_native_manifest.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/archived_native_runner.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/archived_native_test.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/jade_manifest_toml.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/jade_project_toml.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_card.md\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_checksum_manifest.sha256\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_config.toml\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_manifest.json\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_runner.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_test.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/retained/rq1_trace.json\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v1/source/test_rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl\n?? experiments/rq2_gd_state_use_001/test_rq2_gd_state_use_001.jl"""

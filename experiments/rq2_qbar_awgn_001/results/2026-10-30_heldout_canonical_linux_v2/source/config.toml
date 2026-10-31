@@ -1,0 +1,104 @@
+schema_version = "bpgd-rq2-qbar-awgn-001/v1"
+experiment_id = "BPGD-RQ2-QBAR-AWGN-001"
+research_question = "RQ2"
+classification = "candidate-mechanism exact-sum-product state ablation"
+
+[scope]
+native_bp_vs_projected_gd_attribution = false
+admm_included = false
+snr_sweep = false
+channel_estimation = false
+
+[jade]
+repo = "/home/gabiel/Documents/GitHub/JadeJcade"
+expected_head = "57599f73ead8fa6d968ca1525d2866eb3fca5eea"
+core_common = "/home/gabiel/Documents/GitHub/JadeJcade/src/core/common.jl"
+core_common_sha256 = "a0de5b17af781f6f46102c93c15d07201baf355cd9666930d29b14af1b33df75"
+awgn_generator = "/home/gabiel/Documents/GitHub/JadeJcade/experiments/jade_awgn/parity_admm_awgn.jl"
+awgn_generator_sha256 = "2011fa99d5048e86bfc2e93e98c27eb173195a562150df21e1c2d446b5979254"
+generator_dependency = "/home/gabiel/Documents/GitHub/JadeJcade/experiments/jade_red12/parity_admm_decoder.jl"
+generator_dependency_sha256 = "b9e769931a852e85d91015a746437f071fcd5fc7e6336687d8e3c7d5becc267c"
+project_toml = "/home/gabiel/Documents/GitHub/JadeJcade/Project.toml"
+project_toml_sha256 = "7ea80a1fc1d0d46aa81b91eb4dfb4a2848b77e74588d72c7208a9a37d4930f54"
+manifest_toml = "/home/gabiel/Documents/GitHub/JadeJcade/Manifest.toml"
+manifest_toml_sha256 = "f812026d2e2666d61b852309ed4c4043f5d2d54cc3a867512a22fbb5cab8b305"
+
+[code]
+n = 10200
+k = 5100
+variable_degree = 3
+check_degree = 6
+graph_seed = 169616412
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+transmitted_word = "all_zero"
+
+[channel]
+model = "known-unit-gain post-FFT complex AWGN"
+physical_esn0_db = 1.5
+qpsk_symbol_energy = 1.0
+llr_convention = "positive favors coded bit zero"
+llr_clip = 20.0
+noise_seed_base = 20261012
+noise_seed_rule = "base plus frame index"
+
+[decoder]
+maximum_message_passing_iterations = 80
+stopping_rule = "first zero syndrome or iteration cap"
+schedule = "flooding"
+damping = 1.0
+check_calculation = "JadeJcade exact tanh-atanh sum-product"
+tie_start = "first post-check variable update; consumed by check iteration 2"
+qbar_definition = "unweighted arithmetic mean of the complete outgoing variable-to-check vector for one bit"
+
+[anchor]
+frame_first = 1
+frame_last = 24
+expected_count = 24
+reference_frames_csv = "/home/gabiel/Documents/GitHub/JadeJcade-runs/projected-parity-awgn-audit-20261013-anchor-s1p5-f24/frames.csv"
+reference_frames_sha256 = "82e7175dc446184de34305b4fb2efb80ef3e7ccef0635e7221c9d3e37aae1004"
+require_full_exact_count = 24
+require_full_valid_count = 24
+require_endpoint_discordance = true
+require_net_direction_favor_full = true
+
+[heldout]
+frame_first = 10001
+frame_last = 10200
+expected_count = 200
+enabled_only_after_anchor_gate = true
+familywise_alpha = 0.05
+newcombe_method = "Newcombe 1998 score/Wilson method 10 for paired proportions with continuity-corrected correlation"
+newcombe_confidence_level = 0.975
+interval_multiplicity_rule = "two 97.5 percent intervals; Holm correction applies separately to exact McNemar p-values"
+directional_claim_rule = "for an endpoint, risk difference is positive, 97.5 percent interval lower bound exceeds zero, and Holm-adjusted exact McNemar p-value is below 0.05"
+
+[timing]
+warmup_frame = 1
+warmup_repetitions_per_arm = 1
+arm_order = "full first on odd frame indices, tied first on even frame indices"
+timed_boundary = "instrumented exact-SP kernel with Qstar, qbar, delta, Q, U, hard decision, and syndrome; excludes trace hashing, serialization, input generation, and native validation"
+replay_scope = "scientific states, categorical work, hashes, and gates; excludes elapsed time and allocated bytes"
+
+[snapshots]
+format = "UTF-8 CSV with decimal Float64 plus 0x-prefixed IEEE-754 UInt64 hex for every floating state value"
+compressor = "GNU gzip 1.10 with -n (no timestamp or original filename)"
+gzip_version_line = "gzip 1.10"
+file = "frame_first_state_snapshots.csv.gz"
+
+[validation]
+absolute_tolerance = 1.0e-12
+enumeration_tolerance = 2.0e-12
+enumeration_near_clip_tolerance = 2.0e-8
+reconstruction_tolerance = 1.0e-10
+relabel_tolerance = 2.0e-12
+delta_zero_sum_tolerance = 2.0e-12
+expected_julia_version = "1.12.6"
+julia_threads = 1
+blas_threads = 1
+
+[provenance]
+freeze_schema = "bpgd-rq2-qbar-awgn-001/freeze-v1"
+science_schema = "bpgd-rq2-qbar-awgn-001/science-v1"
+manifest_schema = "bpgd-rq2-qbar-awgn-001/manifest-v1"
+archive_loaded_sources = true
+refuse_overwrite = true

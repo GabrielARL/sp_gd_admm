@@ -1,0 +1,2156 @@
+<!doctype html>
+<html lang="en" data-animation-ready="false" data-animation-smoke="not-run" data-animation-smoke-beats="0" data-math="pending">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BP versus ADMM: what crosses the iteration boundary?</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script>
+<style>
+:root {
+  --paper: #f3f0e8;
+  --card: #fffdf8;
+  --ink: #172126;
+  --muted: #5e6b70;
+  --line: #d5cfc4;
+  --tint: #faf8f3;
+  --bp: #155b8a;
+  --bp-soft: #dcebf4;
+  --admm: #087d77;
+  --admm-soft: #d9efeb;
+  --focus: #78519b;
+  --gold: #b67913;
+  --good: #24704a;
+  --bad: #a64040;
+  --flash: #ffe3a1;
+  --flash-ring: rgb(232 160 32 / 42%);
+  --flash-ink: #b35a00;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 6% 0%, rgb(21 91 138 / 9%), transparent 31rem),
+    radial-gradient(circle at 96% 25rem, rgb(8 125 119 / 8%), transparent 32rem),
+    var(--paper);
+  color: var(--ink);
+  font: 15px/1.5 var(--sans);
+}
+button, select { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.katex { font-size: 1.08em; }
+.tex-fallback { font: .88em ui-monospace, SFMono-Regular, Consolas, monospace; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .92em; }
+
+/* ---------- page frame: scrolls on narrow screens, fits one screen on wide ones ---------- */
+.deck { width: min(1440px, calc(100% - 24px)); margin: 0 auto; padding: 12px 0 28px; display: grid; gap: 10px; }
+.topbar {
+  display: grid; grid-template-columns: auto minmax(0, 1.1fr) minmax(160px, 1fr) auto; gap: 16px; align-items: center;
+  padding: 8px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+}
+.button-row { display: flex; gap: 6px; align-items: center; }
+.control { min-height: 36px; padding: 5px 14px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.control:hover { border-color: var(--focus); }
+.control.primary { min-width: 6rem; color: #fff; background: var(--focus); border-color: var(--focus); }
+.control:focus-visible, .dot:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.readout { display: flex; gap: 12px; align-items: baseline; min-width: 0; white-space: nowrap; }
+.readout b { font-size: 16px; }
+.readout > span { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; }
+.timeline { display: flex; gap: 5px; }
+.dot { height: 10px; min-width: 12px; flex: 1; padding: 0; background: #d3cdc2; border: 0; border-radius: 999px; cursor: pointer; }
+.dot.past { background: color-mix(in srgb, var(--focus) 42%, #d3cdc2); }
+.dot.now { background: var(--focus); box-shadow: 0 0 0 3px rgb(120 81 155 / 18%); }
+.speed { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.speed select { margin-left: 4px; padding: 4px; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: 6px; }
+.clock { margin: 0; padding: 0 4px; color: var(--muted); font-size: 12px; }
+.clock b { margin-right: 6px; color: var(--focus); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.clock > span + span { margin-left: 8px; }
+
+/* ---------- method lanes ---------- */
+.lanes { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px 16px; }
+.lane {
+  --accent: var(--bp); --soft: var(--bp-soft);
+  min-width: 0; display: flex; flex-direction: column; gap: 6px; padding: 12px;
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: 12px;
+}
+.lane.admm { --accent: var(--admm); --soft: var(--admm-soft); }
+.lane h2, .poly h2 { margin: 0; color: var(--accent); font: 700 24px/1.2 var(--serif); }
+.kind { display: block; margin-top: 2px; color: var(--muted); font: 13px/1.35 var(--sans); }
+.state-tray { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; align-content: flex-start; min-height: 42px; padding: 5px 8px; background: var(--tint); border-radius: 8px; }
+.state-tray::before { content: "STATE TRAY"; margin-right: 4px; color: var(--muted); font-size: 10.5px; font-weight: 800; letter-spacing: .08em; }
+.state-card, .scratch-card, .faded-card { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 9px; border-radius: 6px; font: 15px/1.2 var(--serif); }
+.state-card .katex, .scratch-card .katex, .faded-card .katex { font-size: 1.05em; }
+.state-card { color: var(--accent); background: #fff; border: 2px solid var(--accent); }
+.lane.bp .state-card { padding-right: 15px; clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 50%, calc(100% - 8px) 100%, 0 100%); }
+.lane.bp .state-card.updated-card { background: var(--bp-soft); }
+.lane.bp .state-card.q-card { background: var(--bp-soft); border-style: dashed; }
+.lane.bp .state-card.fixed-card { padding-right: 9px; clip-path: none; border-style: double; border-width: 3px; }
+.lane.admm .state-card.dual-card { border-style: double; border-width: 3px; }
+.scratch-card { color: var(--admm); background: var(--admm-soft); border: 2px dashed var(--admm); }
+.faded-card {
+  color: #8c8780; border: 1px dashed #aaa39a; opacity: .62; font-size: 13px; text-decoration: line-through;
+  background: linear-gradient(transparent calc(50% - 1px), #aaa39a calc(50% - 1px), #aaa39a calc(50% + 1px), transparent calc(50% + 1px)), #f0ede7;
+}
+.graph-wrap { position: relative; width: 100%; container-type: inline-size; }
+.graph { display: block; width: 100%; height: auto; }
+.graph text { fill: var(--ink); font-family: var(--sans); font-size: 14px; }
+.graph .base { stroke: #c5beb2; stroke-width: 3; }
+.graph .base.active { stroke: var(--accent); stroke-width: 7; opacity: .34; }
+.graph .dependency { stroke: var(--admm); stroke-width: 3; stroke-dasharray: 7 7; fill: none; animation: dash 1.6s linear infinite; }
+.graph .message { stroke: var(--bp); stroke-width: 3.5; fill: none; stroke-dasharray: 9 7; animation: dash 1.6s linear infinite; }
+.graph .bit { fill: #fff; stroke: var(--accent); stroke-width: 2.5; }
+.graph .bit.hot, .graph .check.hot { stroke-width: 5; }
+.graph .check { fill: var(--soft); stroke: var(--accent); stroke-width: 2.5; }
+.graph .node-label { font-size: 15px; font-weight: 800; }
+.graph .small { fill: var(--muted); font-size: 12px; }
+.graph .tick circle { fill: var(--good); }
+.graph .tick path { fill: none; stroke: #fff; stroke-width: 2; }
+.graph .member { fill: none; stroke: var(--flash-ink); stroke-width: 3.5; }
+.graph .used { stroke: var(--flash-ink); stroke-width: 9; stroke-linecap: round; opacity: .4; }
+.graph .blink { animation: glow 1.3s ease-in-out; }
+.chips { position: absolute; inset: 0; pointer-events: none; font-size: 2.15cqw; }
+.chip {
+  position: absolute; z-index: 1; transform: translate(-50%, -50%);
+  padding: .16em .5em; color: var(--ink); white-space: nowrap; line-height: 1.15;
+  background: #fff; border: .12em solid var(--accent); border-radius: .5em;
+}
+.chip .katex { font-size: 1.14em; }
+.chip.admm { background: var(--admm-soft); border-style: dashed; }
+.chip.value { background: transparent; border-color: transparent; }
+.chip.hot { box-shadow: 0 0 0 .25em color-mix(in srgb, var(--accent) 22%, transparent); }
+.chip.excluded { color: var(--bad); border-color: var(--bad); background: #fff7f7; }
+.chip.sign { padding: 0; color: var(--focus); background: transparent; border: 0; font-size: 2.3em; }
+/* general formulas float in the band above the Tanner graph while they are in use; a derivation may grow down over the graph */
+.hover-layer { position: absolute; z-index: 2; inset: 0 0 auto; min-height: 24.74%; display: grid; place-items: center; pointer-events: none; font-size: 2.75cqw; }
+.hover {
+  grid-area: 1 / 1; max-width: 97%; padding: .25em .9em .35em; color: var(--ink); text-align: center;
+  background: rgb(255 255 255 / 96%); border: .1em solid var(--accent); border-radius: .6em;
+  box-shadow: 0 .45em 1.3em rgb(23 33 38 / 14%); animation: float 5s ease-in-out infinite;
+}
+.hover .katex-display { margin: 0; }
+.hover .katex { font-size: 1.05em; }
+.hover-note { margin: .15em 0 0; font: .85em/1.35 var(--serif); }
+.hover-note .katex { font-size: 1.05em; }
+.hover-note .tag { margin-right: .5em; color: var(--flash-ink); font: 800 .84em/1 var(--sans); letter-spacing: .02em; }
+.hover-note .tag .katex { font-size: 1.15em; }
+.hover.morph { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-items: center; overflow: visible; font-size: 1.04em; }
+.hover.morph { position: relative; }
+/* a small triangle says the expression is about to change */
+.next-cue {
+  position: absolute; right: .25em; bottom: .3em; width: 0; height: 0; pointer-events: none;
+  border-top: .38em solid transparent; border-bottom: .38em solid transparent; border-left: .58em solid var(--flash-ink);
+  animation: nudge 1s ease-in-out infinite;
+}
+@keyframes nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(.2em); } }
+.morph-step { grid-area: 1 / 1; white-space: nowrap; }
+.morph-step .hover-note { max-width: 34em; margin-inline: auto; white-space: normal; }
+.hover .dim { opacity: .26; }
+.hover .hl { color: var(--flash-ink); }
+.hover .gone { color: var(--bad); opacity: .7; }
+.morph-ghost { position: absolute; z-index: 2; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
+.sparkle {
+  position: absolute; z-index: 3; width: .8em; height: .8em; margin: -.4em 0 0 -.4em; pointer-events: none;
+  background: radial-gradient(circle, #fffbe6 0 22%, #ffc83d 48%, #e38b00 100%);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+}
+.math {
+  position: relative; min-height: 150px; padding: 8px 12px; overflow-x: auto; overflow-y: hidden;
+  background: var(--soft); border-radius: 8px; font: 16px/1.65 var(--serif);
+}
+.math .line { display: block; white-space: nowrap; padding: 1px 0; }
+.math .line.block { padding: 3px 0; }
+.math .katex { font-size: 1.2em; }
+.math .line.compact .katex { font-size: .98em; }
+.math .outcome { color: var(--accent); }
+.flying { position: absolute; z-index: 3; transform: translate(-50%, -50%); color: var(--flash-ink); line-height: 1; white-space: nowrap; pointer-events: none; }
+.explain { margin: 0; font-size: 16px; line-height: 1.45; }
+
+/* ---------- the box [-1, 1]^3 where ADMM moves x ---------- */
+.poly {
+  --accent: var(--admm); --soft: var(--admm-soft);
+  min-width: 0; display: flex; flex-direction: column; gap: 7px; padding: 12px;
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--admm); border-radius: 12px;
+}
+.poly > * { flex-shrink: 0; }
+.poly-wrap { position: relative; width: 100%; max-width: 348px; margin: 0 auto; container-type: inline-size; }
+.cube { display: block; width: 100%; height: auto; }
+.cube text { font-family: var(--sans); }
+.cube .cube-edge { stroke: #98a3a1; stroke-width: 1.6; }
+.cube .cube-edge.hidden { stroke-dasharray: 5 5; opacity: .55; }
+.cube .face { fill: var(--admm-soft); opacity: .7; }
+.cube .zero-edge { stroke-width: 7; stroke-linecap: round; opacity: .55; }
+.cube .zero-edge.a { stroke: var(--admm); }
+.cube .zero-edge.b { stroke: var(--gold); }
+.cube .zero-edge.faint { opacity: .2; }
+.cube .plane { stroke-width: 1.4; fill-opacity: .14; stroke-opacity: .75; }
+.cube .plane.a { fill: var(--admm); stroke: var(--admm); }
+.cube .plane.b { fill: var(--gold); stroke: var(--gold); }
+.cube .plane.faint { fill-opacity: .07; stroke-opacity: .3; }
+.cube .codeword-line { stroke: var(--flash-ink); stroke-width: 3.5; stroke-dasharray: 2 6; stroke-linecap: round; }
+.cube .corner { fill: #fff; stroke: #8c9593; stroke-width: 1.5; }
+.cube .corner.code { fill: var(--admm); stroke: var(--admm); }
+.cube .corner-label { fill: var(--muted); font-size: 13px; }
+.cube .corner-label.code { fill: var(--admm); font-size: 15px; font-weight: 800; }
+.cube .axis { stroke: var(--muted); stroke-width: 1.6; }
+.cube .x-arrow { stroke: var(--admm); stroke-width: 3; fill: none; }
+.cube .x-arrow.hot { stroke: var(--flash-ink); }
+.cube .trail { stroke: var(--flash-ink); stroke-width: 2.5; opacity: .75; }
+.cube .x-dot { fill: var(--flash-ink); stroke: #fff; stroke-width: 2; }
+.cube .x-dot.old { fill: #fff; stroke: var(--flash-ink); stroke-width: 2; }
+.cube .x-dot.step { r: 3.5px; stroke-width: 0; opacity: .8; }
+.cube .blink { animation: glow 1.3s ease-in-out; }
+.poly .chips { font-size: 4.1cqw; }
+.poly .chip.value { padding: 0 .2em; background: rgb(255 255 255 / 78%); }
+.poly .chip.axis-label { color: var(--muted); }
+.poly-readout { padding: 6px 12px; background: var(--admm-soft); border-radius: 8px; font: 15.5px/1.45 var(--serif); }
+.update-card { padding: 6px 10px; background: var(--tint); border-left: 4px solid var(--admm); border-radius: 6px; text-align: center; }
+.update-card .katex-display { margin: 0; }
+.update-card .katex { font-size: 1.12em; }
+.rules { display: grid; gap: 5px; margin: 0; padding: 0; list-style: none; font: 14.5px/1.38 var(--serif); }
+.rules::before { content: "EXACT VARIANT RULES FOR THIS BEAT"; color: var(--muted); font: 800 10.5px var(--sans); letter-spacing: .06em; }
+.rules li { display: none; padding: 2px 0 2px 10px; border-left: 3px solid var(--line); border-radius: 2px; }
+.rules li.visible { display: block; }
+.rules li[data-rule="direction"] { font-size: 12.5px; line-height: 1.3; }
+.rules b { margin-right: 4px; color: var(--admm); font: 800 12.5px var(--sans); }
+.source-note { margin: auto 0 0; color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+
+.chip.blink, .state-card.blink, .scratch-card.blink, .hover.blink, .rules li.blink { animation: flash 1.3s ease-in-out; }
+.chip.travelling { animation: flash .8s ease-in-out infinite; }
+.chip.sign.blink, .math .blink, .hover .blink, .update-card .blink { animation: ink 1.3s ease-in-out; }
+@keyframes flash { 15%, 55% { background-color: var(--flash); box-shadow: 0 0 0 .3em var(--flash-ring); } 35%, 75% { box-shadow: none; } }
+@keyframes ink { 15%, 55% { color: var(--flash-ink); text-shadow: 0 0 .45em var(--flash-ring); } 35%, 75% { text-shadow: none; } }
+@keyframes glow { 15%, 55% { filter: drop-shadow(0 0 5px #f0a020); } 35%, 75% { filter: none; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.12em); } }
+@keyframes dash { to { stroke-dashoffset: -32; } }
+
+/* ---------- enlarge one panel; the other two fade into the background ---------- */
+.lane, .poly { position: relative; transition: opacity .6s ease, filter .6s ease; }
+.zoom-btn {
+  position: absolute; top: 8px; right: 8px; z-index: 4; display: grid; place-items: center; width: 30px; height: 30px; padding: 0;
+  color: var(--accent); background: #fff; border: 1px solid var(--line); border-radius: 7px; cursor: pointer;
+}
+.zoom-btn:hover { border-color: var(--accent); background: var(--soft); }
+.zoom-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.zoom-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.zoom-btn .shrink, .zoom .zoom-btn .grow { display: none; }
+.zoom .zoom-btn .shrink { display: block; }
+.deck.zoomed .lane:not(.zoom), .deck.zoomed .poly:not(.zoom) { opacity: .08; filter: blur(2px); pointer-events: none; }
+.lane.zoom, .poly.zoom { z-index: 20; box-shadow: 0 1.4em 3.5em rgb(23 33 38 / 24%); }
+/* an absolutely placed grid item is measured from its grid area, so an enlarged panel takes the whole lanes area or the deck's third row */
+html.fit .lanes { position: relative; }
+html.fit .lane.zoom, html.fit .poly.zoom { position: absolute; left: 0; top: 0; width: 1872px; height: 884px; }
+html.fit .lane.zoom { grid-column: 1 / -1; grid-row: 1 / -1; }
+html.fit .poly.zoom { grid-column: 1 / -1; grid-row: 3; }
+html:not(.fit) .lane.zoom, html:not(.fit) .poly.zoom { position: fixed; inset: 8px; display: flex; flex-direction: column; overflow: auto; }
+html.fit .lane.zoom { display: grid; grid-template-columns: 1040px minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 8px 20px; padding: 16px; }
+.lane.zoom > h2, .lane.zoom > .state-tray { grid-column: 1 / -1; }
+.lane.zoom > .graph-wrap { grid-column: 1; grid-row: 3 / span 2; align-self: start; }
+.lane.zoom > .math { grid-column: 2; grid-row: 3; min-height: 0; font-size: 18px; }
+.lane.zoom > .explain { grid-column: 2; grid-row: 4; font-size: 18px; }
+html.fit .poly.zoom { display: grid; grid-template-columns: 800px minmax(0, 1fr); grid-template-rows: auto auto auto auto minmax(0, 1fr); gap: 12px 28px; padding: 16px; }
+.poly.zoom > h2 { grid-column: 1 / -1; }
+.poly.zoom > .poly-wrap { grid-column: 1; grid-row: 2 / span 4; max-width: none; margin: 0; }
+.poly.zoom > .poly-readout, .poly.zoom > .update-card, .poly.zoom > .rules, .poly.zoom > .source-note { grid-column: 2; }
+.poly.zoom > .source-note { grid-row: 5; align-self: end; font-size: 13px; }
+.poly.zoom .chips { font-size: 2.6cqw; }
+.poly.zoom .poly-readout { font-size: 20px; }
+.poly.zoom .update-card .katex { font-size: 1.45em; }
+.poly.zoom .rules, .poly.zoom .rules li[data-rule="direction"] { font-size: 18px; }
+.poly.zoom .rules b { font-size: 14px; }
+
+/* ---------- tutorial mode: in an enlarged panel, one highlighted step plays per click ---------- */
+.lane.zoom, .poly.zoom { overflow: hidden; }
+.zoom .zoom-btn { z-index: 32; }
+.spotlight {
+  position: absolute; z-index: 30; pointer-events: none; border-radius: 14px;
+  box-shadow: 0 0 0 3px var(--flash-ink), 0 0 26px 6px rgb(239 124 0 / 35%), 0 0 0 4000px rgb(243 240 232 / 88%);
+  transition: left .45s ease, top .45s ease, width .45s ease, height .45s ease;
+}
+.tour-next {
+  position: absolute; z-index: 31; display: inline-flex; gap: .45em; align-items: center; padding: 10px 20px;
+  color: #fff; background: var(--flash-ink); border: 0; border-radius: 999px; cursor: pointer;
+  font: 700 17px/1.2 var(--sans); white-space: nowrap; box-shadow: 0 8px 22px rgb(179 90 0 / 35%);
+}
+.tour-next[hidden] { display: none; }
+.tour-next .katex { font-size: 1.05em; }
+.tour-next.pop { animation: pop .5s cubic-bezier(.2, 1.6, .4, 1) both, beckon 1.6s ease-in-out .5s infinite; }
+.tour-next:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+@keyframes pop { from { transform: scale(.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes beckon {
+  0%, 100% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 0 rgb(239 124 0 / 50%); }
+  50% { box-shadow: 0 8px 22px rgb(179 90 0 / 35%), 0 0 0 12px rgb(239 124 0 / 0%); }
+}
+
+@media (min-width: 900px) {
+  .lanes { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, auto); }
+  .lane { grid-row: span 5; display: grid; grid-template-rows: subgrid; }
+}
+@media (max-width: 899px) {
+  .topbar { grid-template-columns: 1fr; }
+  .readout { white-space: normal; flex-wrap: wrap; }
+}
+/* one 1920 x 1000 screen, scaled to the window by fit() */
+html.fit, html.fit body { height: 100%; overflow: hidden; }
+html.fit .deck {
+  position: fixed; top: 0; left: 0; width: 1920px; height: 1000px; margin: 0; padding: 14px 24px;
+  grid-template-columns: 712px 712px 416px; grid-template-rows: 52px 20px minmax(0, 1fr); gap: 8px 16px; transform-origin: 0 0;
+}
+html.fit .topbar, html.fit .clock { grid-column: 1 / -1; }
+html.fit .clock { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+html.fit .lanes { grid-column: 1 / span 2; grid-row: 3; min-height: 0; grid-template-columns: 712px 712px; grid-template-rows: auto auto auto minmax(0, 1fr) auto; }
+html.fit .lane { grid-row: 1 / span 5; }
+html.fit .math { min-height: 0; }
+html.fit .poly { grid-column: 3; grid-row: 3; min-height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+</head>
+<body>
+<main class="deck" id="deck">
+  <h1 class="sr-only">BP versus ADMM: what crosses the iteration boundary?</h1>
+  <nav class="topbar" aria-label="Animation controls">
+    <div class="button-row">
+      <button class="control" id="back" type="button" aria-label="Previous beat">← Back</button>
+      <button class="control primary" id="play" type="button">Play beat</button>
+      <button class="control" id="next" type="button" aria-label="Next beat">Next beat →</button>
+      <button class="control" id="restart" type="button">Restart</button>
+    </div>
+    <div class="readout" aria-live="polite">
+      <b id="beat-readout">Beat 1 of 10</b>
+      <span id="beat-subtitle">Fixed graph and channel evidence; the ADMM decoding problem</span>
+    </div>
+    <div class="timeline" id="timeline" aria-label="Animation timeline"></div>
+    <label class="speed">Speed
+      <select id="speed" aria-label="Playback speed">
+        <option value="0.5">0.5×</option>
+        <option value="0.75">0.75×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.5">1.5×</option>
+        <option value="2">2×</option>
+      </select>
+    </label>
+  </nav>
+  <p class="clock">
+    <b>Synchronized explanation clock</b>
+    <span>Matching beats align the visual comparison; they do not imply equal arithmetic, storage, or computational work.</span>
+    <span>The ADMM check updates shown for A then B both read the same frozen x and u; A then B is presentation order, not a sequential update.</span>
+  </p>
+
+  <section class="lanes" id="lanes">
+    <article class="lane bp" aria-labelledby="bp-heading">
+      <button class="zoom-btn" type="button" data-zoom="bp" aria-label="Enlarge the BP panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
+      <h2 id="bp-heading">Belief propagation (BP)<span class="kind">sum-product algorithm · directed variable-to-check and check-to-variable messages</span></h2>
+      <div class="state-tray" id="bp-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="bp-graph" viewBox="0 0 620 388" role="img" aria-label="Belief-propagation Tanner graph"></svg>
+        <div class="chips" id="bp-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="bp-hover"></div>
+      </div>
+      <div class="math" id="bp-math"></div>
+      <p class="explain" id="bp-explain"></p>
+    </article>
+
+    <article class="lane admm" aria-labelledby="admm-heading">
+      <button class="zoom-btn" type="button" data-zoom="admm" aria-label="Enlarge the ADMM panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
+      <h2 id="admm-heading">ADMM<span class="kind">alternating direction method of multipliers · constructed teaching variant: LP decoding with <span class="tex">\rho=1</span> · <span class="tex">\mathbf{x}</span> has one scalar per bit, each check–bit edge keeps a scaled dual entry <span class="tex">u_{a,i}</span>, and each check rebuilds a replica <span class="tex">\mathbf{z}_a</span> · <span class="tex">x_i = +1</span> favours bit 0 · dashed cards are temporary calculations, not messages</span></h2>
+      <div class="state-tray" id="admm-state"></div>
+      <div class="graph-wrap">
+        <svg class="graph" id="admm-graph" viewBox="0 0 620 388" role="img" aria-label="Tanner graph showing the dependencies of the ADMM gradient terms"></svg>
+        <div class="chips" id="admm-chips" aria-hidden="true"></div>
+        <div class="hover-layer" id="admm-hover"></div>
+      </div>
+      <div class="math" id="admm-math"></div>
+      <p class="explain" id="admm-explain"></p>
+    </article>
+  </section>
+
+  <aside class="poly" aria-labelledby="poly-heading">
+    <button class="zoom-btn" type="button" data-zoom="poly" aria-label="Enlarge the box panel" aria-pressed="false" title="Enlarge"><svg class="grow" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><svg class="shrink" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2"/></svg></button>
+    <h2 id="poly-heading">Where ADMM moves <span class="tex">\mathbf{x}</span><span class="kind">the box <span class="tex">[-1,1]^3</span>: each corner gives a hard-decision estimate; 000 and 111 are the codewords</span></h2>
+    <div class="poly-wrap">
+      <svg class="cube" id="poly-graph" viewBox="0 0 400 360" role="img" aria-label="The box of relaxed bit vectors with the ADMM iterate"></svg>
+      <div class="chips" id="poly-chips" aria-hidden="true"></div>
+    </div>
+    <div class="poly-readout" id="poly-readout"></div>
+    <div class="update-card" id="update-card"></div>
+    <ul class="rules" id="rules"></ul>
+    <p class="source-note">One three-bit teaching variant. The channel evidence and <span class="tex">\mathbf{x}^{(0)}</span> are anchored to <code title="experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json">rq1_endpoint_001/…/trace.json</code> (SHA-256 <code>c47e200c…679e2f9</code>). The ADMM trajectory is generated by the explicit rules on this page and independently recomputed by this artifact’s verifier. It is not the retained projected-gradient-descent endpoint, not a receiver implementation, and not evidence for the active BP–projected-GD research questions, from which ADMM is deferred. It does not establish error rate, convergence, complexity, or decoder superiority over a code ensemble.</p>
+  </aside>
+</main>
+
+<script id="animation-data" type="application/json">
+{
+  "schema": "bp-admm-state-boundary-animation/v1",
+  "source": {"path": "experiments/rq1_endpoint_001/results/2026-10-28_endpoint_v3/trace.json", "sha256": "c47e200c5be707b66e9fc454ee221671c4eb36771aedac6e143719b6a679e2f9"},
+  "graph": {"checks": [[1, 2], [2, 3]], "edge_order": ["1-A", "2-A", "2-B", "3-B"]},
+  "bp": {
+    "L": [-2.1972245773362196, 0.4054651081081644, 0.6931471805599453],
+    "u0": [0.0, 0.0, 0.0, 0.0],
+    "q1": [-2.1972245773362196, 0.4054651081081644, 0.4054651081081644, 0.6931471805599453],
+    "u1": [0.40546510810816433, -2.1972245773362196, 0.6931471805599453, 0.40546510810816433],
+    "posterior1": [-1.7917594692280552, -1.0986122886681098, 1.0986122886681096],
+    "q2": [-2.1972245773362196, 1.0986122886681096, -1.7917594692280552, 0.6931471805599453]
+  },
+  "objective": {
+    "ell": [2.1972245773362196, -0.4054651081081644, -0.6931471805599453],
+    "x0": [0.8, -0.19999999999999998, -0.3333333333333333],
+    "anchor_card": "RQ1-BRIDGE-CHANNEL-001",
+    "objective_before": -1.0349608718386285
+  },
+  "admm": {
+    "rho": 1.0,
+    "tolerance": 1e-06,
+    "max_iterations": 500,
+    "u0": [[0.0, 0.0], [0.0, 0.0]],
+    "v1": [[0.8, -0.19999999999999998], [-0.19999999999999998, -0.3333333333333333]],
+    "t1": [0.30000000000000004, -0.26666666666666666],
+    "z1": [[0.30000000000000004, 0.30000000000000004], [-0.26666666666666666, -0.26666666666666666]],
+    "u1": [[0.5, -0.5], [0.06666666666666668, -0.06666666666666665]],
+    "targets1": [[-0.19999999999999996, 0.8], [-0.33333333333333337, -0.2]],
+    "x1": [0.8986122886681098, 0.13196705630629224, -0.5465735902799727],
+    "primal1": 0.5986122886681098,
+    "dual1": 0.5,
+    "v2": [[1.3986122886681098, -0.36803294369370776], [0.19863372297295892, -0.6132402569466393]],
+    "z2": [[0.515289672487201, 0.515289672487201], [-0.2073032669868402, -0.2073032669868402]],
+    "u2": [[0.8833226161809088, -0.8833226161809088], [0.4059369899597991, -0.4059369899597991]],
+    "x2": [0.730579344974402, 0.2913197388336941, -0.14793986730701375],
+    "path": [
+      [0.8, -0.19999999999999998, -0.3333333333333333],
+      [0.8986122886681098, 0.13196705630629224, -0.5465735902799727],
+      [0.730579344974402, 0.2913197388336941, -0.14793986730701375],
+      [0.506609411320895, 0.42864627491720775, 0.35068313851352056],
+      [0.4243061443340549, 0.5659728110007214, 0.7076394776673882],
+      [0.522651112215725, 0.7032993470842352, 0.8839475819527454],
+      [0.7308109816325721, 0.8406258831677489, 0.9504407847029257],
+      [0.9584616351503408, 0.9779524192512626, 0.9974432033521845],
+      [1.0, 1.0, 1.0],
+      [1.0, 1.0, 1.0],
+      [1.0, 1.0, 1.0]
+    ],
+    "objective_path": [-1.0349608718386285, -1.1499004562385318, -0.7948355024939878, -0.34812925636703873, -0.10615767642440146, -0.125256374570632, -0.3030580177135743, -0.5090274668087942, -0.549306144334055, -0.549306144334055, -0.549306144334055],
+    "primal_path": [0.5986122886681098, 0.4986230058205343, 0.3569563391538676, 0.317974770952024, 0.24714143761869056, 0.2276506535177688, 0.19223398685110216, 0.03179297279919824, 0.0, 0.0],
+    "dual_path": [0.5, 0.215289672487201, 0.27899320275018036, 0.3179747709520241, 0.24714143761869056, 0.1568173201844355, 0.1727432027501804, 0.18248859480064128, 0.03179297279919824, 0.0]
+  },
+  "beat_count": 10
+}
+</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("animation-data").textContent);
+  const BP = DATA.bp, OBJ = DATA.objective, AD = DATA.admm;
+  const R = String.raw;
+  const EDGES = [
+    { i: 0, a: 0, label: "1→A" }, { i: 1, a: 0, label: "2→A" },
+    { i: 1, a: 1, label: "2→B" }, { i: 2, a: 1, label: "3→B" }
+  ];
+  const USLOT = [R`A\to 1`, R`A\to 2`, R`B\to 2`, R`B\to 3`];
+  const QSLOT = [R`1\to A`, R`2\to A`, R`2\to B`, R`3\to B`];
+  const ESLOT = [R`A,1`, R`A,2`, R`B,2`, R`B,3`];
+  const BEATS = [
+    { subtitle: "Fixed graph and channel evidence; the ADMM decoding problem" },
+    { subtitle: "Four addressed BP slots versus ADMM’s bit scalars and per-edge dual entries" },
+    { subtitle: "Messages addressed to A; A’s replica update" },
+    { subtitle: "Addressed BP messages versus A’s scaled dual update" },
+    { subtitle: "B touches bits 2 and 3" },
+    { subtitle: "BP’s U and ADMM’s u are both kept per edge" },
+    { subtitle: "BP recurrence versus one ADMM x-update" },
+    { subtitle: "Retained state crosses; temporary calculations fade" },
+    { subtitle: R`BP supplies two different $Q$ values; in ADMM the two checks also see bit 2 differently` },
+    { subtitle: "Representation, addressing, retention, and next-state use" }
+  ];
+  const BP_EXPLAIN = [
+    "The fixed LLR vector is expressed with positive values favouring bit 1.",
+    "At this boundary placement, the four check-to-variable slots begin at zero. Their edge labels are part of the state description.",
+    R`Bit 2 is speaking to check A. It combines its channel LLR $L_2$ with the check-to-variable message from its other neighboring check, B, and leaves out A’s preceding check-to-variable message. Here $U^{(0)}_{B\to 2}=0$, so $Q^{(1)}_{2\to A}=L_2=${tn(BP.L[1])}$.`,
+    "Each check here joins two bits that must agree, so each outgoing message equals the other incoming message. The two outputs are stored under different edge addresses.",
+    "B receives the frozen variable-to-check values for bits 2 and 3.",
+    R`B writes its two check-to-variable messages into the $B\to 2$ and $B\to 3$ slots.`,
+    "The a-posteriori LLR is useful for a decision, but the separately addressed $U$ values feed the next variable calculation in this displayed schedule.",
+    R`The solid $U$ cards cross the boundary. $Q$ and the a-posteriori LLR can be recalculated from the fixed $\mathbf{L}$ and retained $U$ values.`,
+    "Bit 2 now supplies a positive $Q$ to A and a negative $Q$ to B because each calculation excludes the message from its recipient check.",
+    "BP preserves which check supplied the preceding information and uses that address when calculating the next $Q$."
+  ];
+  const ADMM_EXPLAIN = [
+    R`ADMM solves a decoding problem: follow the channel evidence while each check’s bits lie in that check’s parity polytope. $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ starts from the channel evidence.`,
+    R`The channel term is the negative log-likelihood for BPSK symbols in AWGN, with constants dropped. ADMM’s retained state is $\mathbf{x}$ and one scaled dual entry $u_{a,i}$ for each check–bit edge, starting at $0$.`,
+    R`Check A reads $x_1$ and $x_2$ plus its own scaled dual entries and projects that view onto its parity polytope, the segment $x_1=x_2$. The replica $\mathbf{z}_A$ is a temporary calculation.`,
+    R`A adds the gap $\mathbf{S}_A\mathbf{x}-\mathbf{z}_A$ into $\mathbf{u}_A$. The two entries of $\mathbf{u}_A$ are stored per edge and persist; they are running sums of disagreement, not messages.`,
+    R`B reads the same $x_2$ value that A read, plus its own scaled dual entry $u_{B,2}$, and projects onto the segment $x_2=x_3$.`,
+    R`B’s scaled dual entries are stored on the $B$–2 and $B$–3 edges. Each check now asks each of its bits for $z_{a,i}-u_{a,i}$.`,
+    R`At bit 2, the $\mathbf{x}$-update averages what A and B ask and adds the channel nudge $\ell_2/(2\rho)$, then clips to $[-1,1]$.`,
+    R`Across the next iteration, ADMM keeps $\mathbf{x}^{(1)}$ and the four entries of $\mathbf{u}^{(1)}$. The replicas $\mathbf{z}$ are rebuilt from $\mathbf{S}_a\mathbf{x}+\mathbf{u}_a$; the primal and dual residuals decide whether to stop.`,
+    null,
+    "ADMM keeps one $\\mathbf{x}$ indexed by bit and one scaled dual entry indexed by check–bit edge. The edge entries are running sums of disagreement, not BP messages."
+  ];
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const VW = 620, VH = 388;
+  const PX = [90, 310, 530], PY = 274, CX = [200, 420], CY = 132, BIT_R = 26;
+  const SLOT_T = [0.38, 0.62, 0.62, 0.38];
+  const DECK_W = 1920, DECK_H = 1000;
+  const TIME = { sub: 1000, fly: 1400, stagger: 600, res: 450, gap: 1000, travel: 2000, hold: 4500, morph: 3000, read: 4200 };
+  let current = 0, playing = false, frozen = true, speed = 1;
+  const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const query = new URLSearchParams(location.search);
+  const smoke = query.get("smoke") === "1";
+  const tourSmoke = query.get("tour-smoke") === "1";
+  const KATEX = typeof window.katex === "object" && typeof window.katex.renderToString === "function";
+  document.documentElement.dataset.math = KATEX ? "katex" : "fallback";
+  ADMM_EXPLAIN[8] = R`Both checks read $x_2^{(1)}=${tn(AD.x1[1])}$, but A adds $u^{(1)}_{A,2}=${tn(AD.u1[0][1])}$ and B adds $u^{(1)}_{B,2}=${tn(AD.u1[1][0])}$, so the two checks see bit 2 differently.`;
+
+  // ---------- numbers and typesetting ----------
+  function tn(value, digits = 6, sign = true) {
+    if (value === 0) return "0";
+    const v = Math.abs(value) < 0.5 * Math.pow(10, -digits) ? 0 : value;
+    return (sign && v >= 0 ? "+" : "") + v.toFixed(digits);
+  }
+  function tp(value, digits = 6) { const s = tn(value, digits, false); return s.startsWith("-") ? `(${s})` : s; }
+  function vecT(values, digits = 6) { return R`\left(` + values.map(v => tn(v, digits)).join(R`,\ `) + R`\right)`; }
+  const M = m => ({ m });
+  function vecParts(items) {
+    const out = [R`\left(`];
+    items.forEach((item, j) => { if (j) out.push(R`,\ `); out.push(M(item)); });
+    out.push(R`\right)`);
+    return out;
+  }
+  function sumParts(values, digits = 6) {
+    const out = [];
+    values.forEach((v, j) => {
+      if (j === 0) out.push(M(tn(v, digits, false)));
+      else out.push(v < 0 ? " - " : " + ", M(tn(Math.abs(v), digits, false)));
+    });
+    return out;
+  }
+  function esc(text) { return String(text).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+  function tex(src, display = false) {
+    if (!KATEX) return `<code class="tex-fallback">${esc(src.replace(/\\htmlClass\{[^}]*\}/g, ""))}</code>`;
+    return window.katex.renderToString(src, {
+      displayMode: display, throwOnError: false, strict: "ignore", output: "htmlAndMathml",
+      trust: context => context.command === "\\htmlClass"
+    });
+  }
+  // Inline math between $...$; punctuation right after a formula stays on the formula's line.
+  function mixed(text) {
+    return String(text).split(/(\$[^$]+\$[,.;:)]?)/).map(part => {
+      const m = /^\$([^$]+)\$([,.;:)]?)$/.exec(part);
+      if (!m) return esc(part);
+      return m[2] ? `<span style="white-space:nowrap">${tex(m[1])}${m[2]}</span>` : tex(m[1]);
+    }).join("");
+  }
+  function plain(text) { return String(text).replace(/\$([^$]*)\$/g, "$1").replace(/[\\{}]/g, ""); }
+  function visibleText(node) {
+    const copy = node.cloneNode(true);
+    copy.querySelectorAll(".katex-mathml").forEach(n => n.remove());
+    return copy.textContent.replace(/​/g, "").replace(/\s+/g, " ").trim();
+  }
+  const corner = x => x.map(v => (v >= 0 ? "0" : "1")).join("");
+
+  // ---------- beat clock ----------
+  // Every visual cue in a beat is an event on one clock: it starts at `at` ms and
+  // runs for `dur` ms. Without motion, each event jumps straight to its end state.
+  const clock = { t: 0, last: 0, length: 0, events: [], raf: 0 };
+  // Tutorial stops: each one plays a single action [at, until] of one panel ("bp", "admm" or "poly").
+  let STOPS = [];
+  function addStop(lane, at, until, target, label) { STOPS.push({ lane, at, until: Math.max(at, until), target, label }); }
+  const tour = { on: false, stops: [], i: 0, running: false, limit: Infinity, spot: null, next: null, returnFocus: null };
+  const lerp = (a, b, p) => a + (b - a) * p;
+  const ease = p => (p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2);
+  const nodeOf = target => (typeof target === "function" ? target() : target);
+
+  function startTimeline(events, length) {
+    events.sort((a, b) => a.at - b.at);
+    clock.events = events; clock.t = 0; clock.length = length;
+    events.forEach(e => { e.state = 0; if (e.init) e.init(); });
+    if (smoke || (reduced && !zoomed)) events.forEach(e => { if (e.apply) e.apply(1); if (e.end) e.end(); e.state = 2; });
+    if (playing && !frozen) wake();
+  }
+  function wake() {
+    if (clock.raf) return;
+    clock.last = performance.now();
+    clock.raf = requestAnimationFrame(tick);
+  }
+  function tick(now) {
+    clock.raf = 0;
+    const dt = Math.min(80, Math.max(0, now - clock.last));
+    clock.last = now;
+    if (!frozen && (playing || tour.running)) clock.t = Math.min(clock.t + dt * speed, tour.on ? tour.limit : clock.length);
+    runEvents();
+    if (tour.on) {
+      if (tour.running) { tourPlace(); if (clock.t >= tour.limit) tourArrive(); else clock.raf = requestAnimationFrame(tick); }
+      return;
+    }
+    if (playing && !frozen && clock.t >= clock.length) {
+      playing = false; frozen = true; updatePlay();
+      return;
+    }
+    if (playing && !frozen) clock.raf = requestAnimationFrame(tick);
+  }
+  function runEvents() {
+    for (const e of clock.events) {
+      if (e.state === 2) continue;
+      if (clock.t < e.at) continue;
+      if (e.state === 0) { e.state = 1; if (e.start) e.start(); }
+      const p = e.dur > 0 ? Math.min(1, (clock.t - e.at) / e.dur) : 1;
+      if (e.apply) e.apply(p);
+      if (p >= 1) { e.state = 2; if (e.end) e.end(); }
+    }
+  }
+  function seek(ms) {
+    playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    clock.t = Math.max(clock.t, Number(ms));
+    runEvents();
+    updatePlay();
+  }
+  function show(target, at, dur = 600) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); if (node) node.style.opacity = "0"; },
+      apply(p) { if (node) node.style.opacity = String(p); },
+      end() { if (node) node.style.opacity = ""; } };
+  }
+  function hide(target, at, dur = 600) {
+    let node = null;
+    return { at, dur,
+      init() { node = nodeOf(target); },
+      apply(p) { if (node) node.style.opacity = String(1 - p); },
+      end() { if (node) node.style.opacity = "0"; } };
+  }
+  function blink(target, at) {
+    let node = null;
+    return { at, dur: 1300,
+      start() { node = nodeOf(target); if (!node) return; node.classList.remove("blink"); void node.getBoundingClientRect(); node.classList.add("blink"); },
+      end() { if (node) node.classList.remove("blink"); } };
+  }
+  function swap(target, at, html, cls) {
+    return { at, dur: 0, end() { const node = nodeOf(target); if (!node) return; node.innerHTML = html; if (cls) node.classList.add(cls); } };
+  }
+  function morph(target, at, dur, render) {
+    let node = null, last = "";
+    const set = p => { const html = render(p); if (node && html !== last) { node.innerHTML = html; last = html; } };
+    return { at, dur, init() { node = nodeOf(target); set(0); }, apply(p) { set(ease(p)); }, end() { set(1); } };
+  }
+  // A substituted value lifts off its symbol and lands in its slot further along the equation.
+  function flight(root, symSel, valSel, at) {
+    let sym = null, val = null, clone = null, from = null, to = null;
+    return { at, dur: TIME.fly,
+      init() { sym = root.querySelector(symSel); val = root.querySelector(valSel); if (val) val.style.opacity = "0"; },
+      start() {
+        if (!sym || !val) return;
+        const box = root.getBoundingClientRect(), k = box.width / root.offsetWidth || 1;
+        const centre = rect => [(rect.left - box.left + rect.width / 2) / k + root.scrollLeft, (rect.top - box.top + rect.height / 2) / k + root.scrollTop];
+        from = centre(sym.getBoundingClientRect());
+        to = centre(val.getBoundingClientRect());
+        clone = document.createElement("span");
+        clone.className = "katex flying";
+        clone.style.fontSize = getComputedStyle(val).fontSize;
+        clone.innerHTML = val.innerHTML;
+        root.appendChild(clone);
+      },
+      apply(p) {
+        if (!clone) return;
+        const e = ease(p);
+        clone.style.left = `${lerp(from[0], to[0], e)}px`;
+        clone.style.top = `${lerp(from[1], to[1], e) - 16 * Math.sin(Math.PI * p)}px`;
+      },
+      end() { if (clone) clone.remove(); clone = null; if (val) val.style.opacity = ""; } };
+  }
+
+  // ---------- equation lines ----------
+  function mathLane(method) { return { method, n: 0, lines: [], ev: [], outcomes: [], root: $(`${method}-math`) }; }
+  function marked(list, tag) {
+    let count = 0;
+    const names = [];
+    const src = list.map(item => {
+      if (typeof item === "string") return item;
+      const name = `${tag}${++count}`;
+      names.push(name);
+      return R`\htmlClass{${name}}{${item.m}}`;
+    }).join("");
+    return { src, names };
+  }
+  // lhs = symbolic form, then = substituted values (each flies from its symbol), then = outcome (blinks).
+  function chain(L, t, lhs, sym, val, res, opts = {}) {
+    const id = `${L.method}${++L.n}`;
+    const find = sel => () => L.root.querySelector(sel);
+    const s = sym ? marked(sym, `${id}y`) : null;
+    const v = val ? marked(val, `${id}v`) : null;
+    const r = Array.isArray(res) ? marked(res, `${id}r`) : null;
+    const resSrc = r ? r.src : res;
+    const subSrc = v ? R`\htmlClass{${id}b}{{}={}{${v.src}}}` : "";
+    const outSrc = resSrc != null ? R`\htmlClass{${id}c}{{}={}{${resSrc}}}` : "";
+    const src = opts.aligned
+      ? R`\begin{aligned}\htmlClass{${id}l}{${lhs}} &\htmlClass{${id}a}{{}={}{${s.src}}} \\ &${subSrc}${outSrc}\end{aligned}`
+      : R`\htmlClass{${id}a}{${lhs}${s ? " = " + s.src : ""}}${subSrc}${outSrc}`;
+    const testId = opts.testId ? ` data-check="${opts.testId}"` : "";
+    L.lines.push(`<span class="line${opts.aligned ? " block" : ""}"${testId}>${tex(src)}</span>`);
+    L.ev.push(show(find(`.${id}l`), t), show(find(`.${id}a`), t));
+    const out = { t, subs: [], lands: [], comps: [], done: t + 600 };
+    let cursor = t + 600;
+    if (v) {
+      const t0 = t + TIME.sub;
+      L.ev.push(show(find(`.${id}b`), t0, 500));
+      v.names.forEach((name, j) => {
+        const at = t0 + j * TIME.stagger;
+        const symName = s && s.names[j];
+        if (symName) L.ev.push(blink(find(`.${symName}`), at), flight(L.root, `.${symName}`, `.${name}`, at));
+        else L.ev.push(show(find(`.${name}`), at, TIME.fly));
+        L.ev.push(blink(find(`.${name}`), at + TIME.fly));
+        out.subs.push(at);
+        out.lands.push(at + TIME.fly);
+      });
+      cursor = out.lands[out.lands.length - 1];
+      out.done = cursor;
+    }
+    if (resSrc != null) {
+      const t1 = v ? cursor + TIME.res : t + TIME.sub;
+      L.ev.push(show(find(`.${id}c`), t1, 500));
+      if (r) {
+        r.names.forEach((name, j) => {
+          const at = t1 + 200 + j * 600;
+          L.ev.push(show(find(`.${name}`), at, 450), blink(find(`.${name}`), at));
+          out.comps.push(at);
+        });
+        out.done = out.comps[out.comps.length - 1];
+      } else {
+        L.ev.push(blink(find(`.${id}c`), t1));
+        out.done = t1;
+      }
+      L.outcomes.push(`.${id}c`);
+    } else if (v) L.outcomes.push(`.${id}b`);
+    out.next = out.done + TIME.gap;
+    addStop(L.method, t, out.done + 500, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); },
+      v ? "Substitute the values" : "Show the result");
+    return out;
+  }
+  function formula(L, t, src, className = "") {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line${className ? ` ${className}` : ""}">${tex(R`\htmlClass{${id}a}{${src}}`)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`.${id}a`), t));
+    addStop(L.method, t, t + 600, () => { const n = L.root.querySelector(`.${id}a`); return n && n.closest(".line"); }, "Show the formula");
+    return { done: t + 600, next: t + 600 + TIME.gap };
+  }
+  function prose(L, t, text) {
+    const id = `${L.method}${++L.n}`;
+    L.lines.push(`<span class="line prose" data-line="${id}">${mixed(text)}</span>`);
+    L.ev.push(show(() => L.root.querySelector(`[data-line="${id}"]`), t));
+    addStop(L.method, t, t + 600, () => L.root.querySelector(`[data-line="${id}"]`), "Next line");
+    return { done: t + 600, next: t + 600 + TIME.gap };
+  }
+  function commit(L) {
+    L.root.innerHTML = L.lines.join("");
+    L.outcomes.forEach(sel => { const node = L.root.querySelector(sel); if (node) node.classList.add("outcome"); });
+    return L.ev;
+  }
+
+  // ---------- Tanner graph ----------
+  function svgEl(parent, name, attrs = {}, text = null) {
+    const node = document.createElementNS(NS, name);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    if (text !== null) node.textContent = text;
+    parent.appendChild(node);
+    return node;
+  }
+  function addMarker(svg, color, id) {
+    const defs = svgEl(svg, "defs");
+    const marker = svgEl(defs, "marker", { id, viewBox: "0 0 10 10", refX: "8", refY: "5", markerWidth: "7", markerHeight: "7", orient: "auto-start-reverse" });
+    svgEl(marker, "path", { d: "M 0 0 L 10 5 L 0 10 z", fill: color });
+  }
+  function edgePoint(e, t) { const { i, a } = EDGES[e]; return [lerp(PX[i], CX[a], t), lerp(PY, CY, t)]; }
+  const atBit = e => (BIT_R + 3) / Math.hypot(CX[EDGES[e].a] - PX[EDGES[e].i], PY - CY);
+  const AT_CHECK = (PY - (CY + 22)) / (PY - CY);
+  const below = (i, row = 0) => [PX[i], PY + 48 + row * 30];
+  function activeEdges(k) {
+    if (k === 2 || k === 3) return [0, 1];
+    if (k === 4 || k === 5) return [2, 3];
+    if (k === 8) return [1, 2];
+    return k === 0 ? [0, 1, 2, 3] : [];
+  }
+  function graph(method, k) {
+    const svg = $(`${method}-graph`), layer = $(`${method}-chips`);
+    svg.replaceChildren();
+    layer.replaceChildren();
+    addMarker(svg, method === "bp" ? "#155b8a" : "#087d77", `${method}-arrow`);
+    const active = activeEdges(k);
+    EDGES.forEach((edge, index) => {
+      svgEl(svg, "line", { x1: PX[edge.i], y1: PY, x2: CX[edge.a], y2: CY, class: "base" + (active.includes(index) ? " active" : "") });
+    });
+    const flows = svgEl(svg, "g", { class: "flow-layer" });
+    const nodes = svgEl(svg, "g", { class: "node-layer" });
+    [0, 1].forEach(a => {
+      const hot = (a === 0 && (k === 2 || k === 3)) || (a === 1 && (k === 4 || k === 5)) || k === 8;
+      svgEl(nodes, "rect", { x: CX[a] - 27, y: CY - 20, width: 54, height: 40, rx: 5, class: "check" + (hot ? " hot" : "") });
+      svgEl(nodes, "text", { x: CX[a], y: CY + 5, "text-anchor": "middle", class: "node-label" }, a === 0 ? "A" : "B");
+    });
+    [0, 1, 2].forEach(i => {
+      svgEl(nodes, "circle", { cx: PX[i], cy: PY, r: BIT_R, class: "bit" + (k === 8 && i === 1 ? " hot" : "") });
+      svgEl(nodes, "text", { x: PX[i], y: PY + 5, "text-anchor": "middle", class: "node-label" }, `bit ${i + 1}`);
+    });
+    if (method === "bp" && (k === 2 || k === 4 || k === 8)) {
+      svgEl(nodes, "text", { x: 12, y: VH - 24, class: "small" }, "red crossed U = omit that preceding check-to-variable message; the Tanner-graph edge remains");
+    }
+    svgEl(nodes, "text", { x: 12, y: VH - 8, class: "small" }, method === "bp" ? "arrowheads and travelling labels show BP message direction" : "dashed guides = factor dependence, not message motion");
+    const hoverLayer = $(`${method}-hover`);
+    hoverLayer.replaceChildren();
+    return { method, svg, layer, flows, nodes, hoverLayer };
+  }
+  function place(node, xy, w = VW, h = VH) { node.style.left = `${(xy[0] / w) * 100}%`; node.style.top = `${(xy[1] / h) * 100}%`; }
+  function chip(G, xy, src, cls = "") {
+    const node = document.createElement("span");
+    node.className = `chip ${G.method}${cls ? " " + cls : ""}`;
+    node.innerHTML = tex(src);
+    place(node, xy, G.w, G.h);
+    G.layer.appendChild(node);
+    return node;
+  }
+  function guide(G, e) {
+    const a = edgePoint(e, atBit(e)), b = edgePoint(e, AT_CHECK);
+    return svgEl(G.flows, "line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], class: "dependency" });
+  }
+  function tickMark(G, x, y) {
+    const group = svgEl(G.nodes, "g", { class: "tick" });
+    svgEl(group, "circle", { cx: x, cy: y, r: 9 });
+    svgEl(group, "path", { d: `M ${x - 4.5} ${y} l 3.5 3.5 l 6 -7` });
+    return group;
+  }
+  // A BP message is drawn from sender to recipient; its label rides the arrow tip
+  // until it reaches its edge slot, blinking while it moves.
+  function message(G, e, dir, src, at, ev, cls = "hot", rest = SLOT_T[e]) {
+    const t0 = dir === "up" ? atBit(e) : AT_CHECK, t1 = dir === "up" ? AT_CHECK : atBit(e);
+    const start = edgePoint(e, t0), stop = edgePoint(e, t1);
+    const line = svgEl(G.flows, "line", { x1: start[0], y1: start[1], x2: stop[0], y2: stop[1], class: "message", "marker-end": `url(#${G.method}-arrow)` });
+    const label = chip(G, edgePoint(e, rest), src, cls);
+    if (ev === null) return { label, land: 0 };
+    const hold = t => (t1 > t0 ? Math.min(rest, t) : Math.max(rest, t));
+    ev.push({ at, dur: TIME.travel,
+      init() { line.style.opacity = "0"; label.style.opacity = "0"; },
+      start() { line.style.opacity = ""; label.style.opacity = ""; label.classList.add("travelling"); },
+      apply(p) {
+        const t = lerp(t0, t1, ease(p)), tip = edgePoint(e, t);
+        line.setAttribute("x2", tip[0]); line.setAttribute("y2", tip[1]);
+        place(label, edgePoint(e, hold(t)));
+      },
+      end() {
+        line.style.opacity = ""; label.style.opacity = ""; label.classList.remove("travelling");
+        line.setAttribute("x2", stop[0]); line.setAttribute("y2", stop[1]);
+        place(label, edgePoint(e, rest));
+      } });
+    ev.push(blink(label, at + TIME.travel));
+    addStop(G.method, at, at + TIME.travel, () => G.svg.parentNode, "Send the message");
+    return { label, land: at + TIME.travel };
+  }
+
+  // A general formula floats above the graph while it is in use; its terms blink as values are substituted.
+  const F = {
+    q: R`Q^{(t)}_{i\to a} = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{b\in N(i)\setminus a} U^{(t-1)}_{b\to i}}`,
+    lam: R`\Lambda^{(t)}_i = \htmlClass{hL}{L_i} + \htmlClass{hU}{\sum_{a\in N(i)} U^{(t)}_{a\to i}}`,
+    z: R`\mathbf{z}_a = \Pi_{\mathcal{P}_a}\bigl(\htmlClass{hS}{\mathbf{S}_a\mathbf{x}} + \htmlClass{hU}{\mathbf{u}_a}\bigr)`,
+    u: R`\mathbf{u}_a \leftarrow \htmlClass{hU}{\mathbf{u}_a} + \htmlClass{hS}{\mathbf{S}_a\mathbf{x}} - \htmlClass{hZ}{\mathbf{z}_a}`,
+    x: R`x_i = \Pi_{[-1,1]}\Bigl(\tfrac{1}{d_i}\Bigl[\htmlClass{hT}{\sum_{a\in N(i)}\bigl(z_{a,i}-u_{a,i}\bigr)} + \htmlClass{hC}{\tfrac{\ell_i}{2\rho}}\Bigr]\Bigr)`,
+    view: R`\mathbf{v}_a = \htmlClass{hS}{\mathbf{S}_a\mathbf{x}} + \htmlClass{hU}{\mathbf{u}_a}`
+  };
+  // ---------- derivations of the ADMM updates from the decoding problem ----------
+  // A term id is wrapped in a style: "dim", "hl" (highlighted) or "gone" (crossed out).
+  function styled(src, style) {
+    if (style === "gone") return R`\htmlClass{gone}{\cancel{${src}}}`;
+    return style ? R`\htmlClass{${style}}{${src}}` : src;
+  }
+  // The decoding problem: follow the channel evidence while each check's bits lie in its parity polytope.
+  function problem(mark = {}) {
+    const ch = styled(R`-\frac{1}{2}\sum_i \ell_i x_i`, mark.c);
+    const con = styled(R`\mathbf{S}_a\mathbf{x}\in\mathcal{P}_a\ \text{for every check } a`, mark.p);
+    return R`\min_{\mathbf{x}\in[-1,1]^3}\ \htmlClass{hC}{${ch}}\quad\text{subject to}\quad \htmlClass{hPar}{${con}}`;
+  }
+  // The same problem written out for checks A = {1, 2} and B = {2, 3}.
+  const PROBLEM_WRITTEN = R`\min_{\mathbf{x}\in[-1,1]^3}\ \htmlClass{hC}{-\tfrac{1}{2}\bigl(\ell_1x_1+\ell_2x_2+\ell_3x_3\bigr)}\quad\text{s.t.}\quad \htmlClass{hPar}{(x_1,x_2)\in\mathcal{P}_A,\ (x_2,x_3)\in\mathcal{P}_B}`;
+  const P_INTRO = [
+    { tex: problem(), tag: "Decoding problem", note: R`ADMM looks for the $\mathbf{x}$ that follows the channel evidence while each check’s bits lie in that check’s parity polytope` },
+    { tex: problem({ c: "hl", p: "dim" }), tag: "Channel term", note: R`smaller when each $x_i$ has the sign of $\ell_i$, so it follows the channel evidence`, sparkle: ["hC"] },
+    { tex: problem({ c: "dim", p: "hl" }), tag: "Parity constraints", note: R`$\mathbf{S}_a$ picks the bits of check $a$; the parity polytope $\mathcal{P}_a$ is the convex hull of the bit patterns that satisfy $a$`, sparkle: ["hPar"] },
+    { tex: R`\mathcal{P}_A = \operatorname{conv}\{(+1,+1),\,(-1,-1)\} = \{(t,t) : -1\le t\le 1\}`, tag: "A two-bit check",
+      note: R`even parity on two bits means the two bits agree, so this polytope is a segment` },
+    { tex: R`\min_{\mathbf{x},\,\mathbf{z}}\ -\frac{1}{2}\sum_i \ell_i x_i \quad\text{s.t.}\quad \htmlClass{mZ}{\mathbf{z}_a = \mathbf{S}_a\mathbf{x}},\ \ \mathbf{z}_a\in\mathcal{P}_a`, tag: "Replica variables",
+      note: R`each check gets its own copy $\mathbf{z}_a$ of its bits, and the copies must agree with the shared $\mathbf{x}$`, sparkle: ["mZ"] },
+    { tex: R`L_\rho = -\frac{1}{2}\sum_i \ell_i x_i + \frac{\rho}{2}\sum_a \bigl\|\mathbf{S}_a\mathbf{x} - \mathbf{z}_a + \htmlClass{mU}{\mathbf{u}_a}\bigr\|^2 - \frac{\rho}{2}\sum_a\|\mathbf{u}_a\|^2`, tag: "Augmented Lagrangian",
+      note: R`the scaled dual variable $\mathbf{u}_a$ adds up check $a$’s past disagreement; each iteration here updates $\mathbf{z}$, then $\mathbf{u}$, then $\mathbf{x}$, with $\rho=${AD.rho}$`, sparkle: ["mU"], hold: 5200 }
+  ];
+  // Where the channel term comes from: the negative log-likelihood for discrete BPSK symbols, followed by the stated relaxation.
+  const CH_ORIGIN = [
+    { tex: problem({ c: "hl", p: "dim" }), tag: "Channel term", note: R`where does $-\tfrac{1}{2}\sum_i\ell_ix_i$ come from?` },
+    { tex: R`-\log p(\mathbf{y}\mid\mathbf{x}) = \frac{1}{2\sigma^2}\sum_i \htmlClass{mSq}{(y_i-x_i)^2} + \text{const},\quad x_i\in\{-1,+1\}`, tag: "Channel model",
+      note: R`With BPSK modulation, $x_i\in\{-1,+1\}$. In an AWGN channel, $y_i=x_i+w_i$ with noise variance $\sigma^2$, and $x_i=+1$ sends bit 0`, sparkle: ["mSq"] },
+    { tex: R`-\log p(\mathbf{y}\mid\mathbf{x}) = \frac{1}{2\sigma^2}\sum_i\bigl(\htmlClass{mYY}{y_i^2} - \htmlClass{mXY}{2y_ix_i} + \htmlClass{mXX}{x_i^2}\bigr) + \text{const}`, tag: "Expand the square",
+      note: R`$(y-x)^2 = y^2 - 2yx + x^2$`, sparkle: ["mYY", "mXY", "mXX"] },
+    { tex: R`-\log p(\mathbf{y}\mid\mathbf{x}) = \frac{1}{2\sigma^2}\sum_i\bigl(\htmlClass{mYY}{\htmlClass{gone}{\cancel{y_i^2}}} - \htmlClass{mXY}{2y_ix_i} + \htmlClass{mXX}{\htmlClass{gone}{\cancel{x_i^2}}}\bigr) + \text{const}`, tag: "Drop constants",
+      note: R`At this discrete-symbol step, $y_i^2$ contains no $x_i$ and $x_i^2=1$ for both symbol choices; both terms are constant with respect to the choice $x_i\in\{-1,+1\}$`, sparkle: ["mYY", "mXX"], hold: 5200 },
+    { tex: R`-\log p(\mathbf{y}\mid\mathbf{x}) = -\frac{1}{\sigma^2}\sum_i \htmlClass{mXY}{y_ix_i} + \text{const}`, tag: "Collect",
+      note: R`$\tfrac{1}{2\sigma^2}\cdot(-2y_ix_i) = -\tfrac{y_i}{\sigma^2}\,x_i$`, keys: ["mXY"] },
+    { tex: R`-\log p(\mathbf{y}\mid\mathbf{x}) = -\frac{1}{2}\sum_i \htmlClass{mL}{\ell_i}\,x_i + \text{const},\qquad \htmlClass{mL2}{\ell_i = \frac{2y_i}{\sigma^2}}`, tag: "Channel LLR",
+      note: R`the LLR with positive values favouring bit 0 is $\ell_i=2y_i/\sigma^2$, so $y_i/\sigma^2=\ell_i/2$; this example fixes $\boldsymbol{\ell}$ directly`, sparkle: ["mL", "mL2"], hold: 5200 },
+    { tex: problem({ c: "hl" }), tag: "Channel term", note: R`the decoding problem uses this linear expression over relaxed $\mathbf{x}\in[-1,1]^3$; it does not treat $x_i^2$ as constant inside the box`, sparkle: ["hC"], hold: 5200 },
+    { tex: PROBLEM_WRITTEN, tag: "Write out", note: R`$A=\{1,2\}$ and $B=\{2,3\}$; each constraint involves only the two bits of its check`,
+      keys: ["hC", "hPar"], sparkle: ["hC", "hPar"], hold: 5200 }
+  ];
+  // Replica update of check a: project the check's view onto its segment.
+  function zSteps(a) {
+    const N = CHECK[a], [i, j] = a ? [2, 3] : [1, 2];
+    return [
+      { tex: F.z, tag: "Replica update", note: R`check $a$ moves its copy to the nearest point of its parity polytope` },
+      { tex: R`\htmlClass{mV}{\mathbf{v}_${N}} = \mathbf{S}_${N}\mathbf{x}+\mathbf{u}_${N} = \bigl(x_${i}+u_{${N},${i}},\ x_${j}+u_{${N},${j}}\bigr)`, tag: R`Check ${N}’s view`,
+        note: R`check ${N} reads the shared $x_${i}$ and $x_${j}$ and adds its own scaled dual entries`, sparkle: ["mV"] },
+      { tex: R`\min_t\ (v_1-t)^2+(v_2-t)^2 \;\Rightarrow\; -2(v_1-t)-2(v_2-t)=0 \;\Rightarrow\; \htmlClass{mT}{t=\tfrac{v_1+v_2}{2}}`, tag: "Nearest point of the segment",
+        note: R`every point of the segment is $(t,t)$; set the derivative with respect to $t$ to $0$`, sparkle: ["mT"], hold: 5200 },
+      { tex: R`\htmlClass{mT}{t_${N} = \Pi_{[-1,1]}\bigl(\tfrac{v_1+v_2}{2}\bigr)},\qquad \htmlClass{mZ}{\mathbf{z}_${N} = (t_${N},\ t_${N})}`, tag: "Stay on the segment",
+        note: R`the segment ends at $\pm1$, so the average is clipped; both entries of the replica are equal`, keys: ["mT"], sparkle: ["mZ"] }
+    ];
+  }
+  // Scaled dual update of check a: add the gap between the bits and the replica, entry by entry.
+  function uSteps(a) {
+    const N = CHECK[a];
+    return [
+      { tex: F.u, tag: "Scaled dual update", note: R`$\mathbf{u}_a$ adds the gap between the bits and check $a$’s replica` },
+      { tex: R`\mathbf{u}_${N} \leftarrow \mathbf{u}_${N} + \htmlClass{mG}{\bigl(\mathbf{S}_${N}\mathbf{x}-\mathbf{z}_${N}\bigr)}`, tag: "Running sum of disagreement",
+        note: R`a positive entry means the bit sat above the replica; $\mathbf{u}_${N}$ is a running sum, not a message`, sparkle: ["mG"], hold: 5200 },
+      { tex: R`u_{${N},i} \leftarrow \htmlClass{hU}{u_{${N},i}} + \htmlClass{hS}{x_i} - \htmlClass{hZ}{z_{${N},i}}`, tag: "Entry by entry",
+        note: R`one scaled dual entry for each edge of check ${N}; each entry stays on its edge for the next iteration` }
+    ];
+  }
+  // x-update: minimize L_rho over x with z and u held fixed; bit 2 is the bit two checks share.
+  const X_STEPS = [
+    { tex: R`\mathbf{x} = \arg\min_{\mathbf{x}\in[-1,1]^3}\ -\frac{1}{2}\sum_i\ell_ix_i + \frac{\rho}{2}\sum_a\bigl\|\mathbf{S}_a\mathbf{x}-\mathbf{z}_a+\mathbf{u}_a\bigr\|^2`, tag: "x-update",
+      note: R`with $\mathbf{z}$ and $\mathbf{u}$ held fixed, minimize $L_\rho$ over $\mathbf{x}$ inside the box` },
+    { tex: R`\htmlClass{hC}{-\tfrac12\ell_2x_2} + \tfrac{\rho}{2}\bigl[\htmlClass{mA}{(x_2-z_{A,2}+u_{A,2})^2} + \htmlClass{mB}{(x_2-z_{B,2}+u_{B,2})^2}\bigr]`, tag: R`Terms with $x_2$`,
+      note: R`every other term has derivative $0$ with respect to $x_2$; bit 2 sits in checks $A$ and $B$, so both squares stay`, sparkle: ["hC", "mA", "mB"], hold: 5200 },
+    { tex: R`-\tfrac12\ell_2 + \rho\,(x_2-z_{A,2}+u_{A,2}) + \rho\,(x_2-z_{B,2}+u_{B,2}) = 0`, tag: "Set the derivative to 0",
+      note: R`chain rule on each square: $\partial_{x_2}\tfrac{\rho}{2}w^2 = \rho\,w\,\partial_{x_2}w$, and $\partial_{x_2}w=1$`, hold: 5200 },
+    { tex: R`x_2 = \tfrac12\Bigl[\htmlClass{hT}{(z_{A,2}-u_{A,2}) + (z_{B,2}-u_{B,2})} + \htmlClass{hC}{\tfrac{\ell_2}{2\rho}}\Bigr]`, tag: "Solve for x₂",
+      note: R`the average of what the two checks ask, nudged by the channel evidence`, sparkle: ["hT"] },
+    { tex: F.x, tag: "Clip to the box", note: R`a convex parabola restricted to $[-1,1]$ is smallest at its clipped minimizer; $d_i$ is the number of checks on bit $i$` }
+  ];
+  const NOTES = {
+    agree: R`Each check here joins two bits and requires them to agree; therefore $U_{a\to i}$ is the other incoming $Q$.`,
+    boundary: R`This page places the iteration boundary after the check calculation, so the four $U$ values feed the next variable calculation.`,
+    recompute: R`ADMM keeps $\mathbf{x}^{(1)}$ and the four scaled dual entries of $\mathbf{u}^{(1)}$; each replica $\mathbf{z}_a$ is rebuilt from $\mathbf{S}_a\mathbf{x}+\mathbf{u}_a$ in the next iteration.`
+  };
+  // N(i) \ a, step by step: the checks joined to bit i, minus the recipient a, then the sum that is left.
+  const CHECK = ["A", "B"];
+  function qSteps(i, a, iter, first) {
+    const I = i + 1, A = CHECK[a], sup = iter === 2 ? "^{(2)}" : "", uSup = `^{(${iter - 1})}`;
+    const nbr = EDGES.filter(e => e.i === i).map(e => CHECK[e.a]), rest = nbr.filter(n => n !== A);
+    const set = names => (names.length ? R`\{${names.join(R`,\ `)}\}` : R`\varnothing`);
+    const sum = rest.length ? rest.map(n => R`U${uSup}_{${n}\to ${I}}`).join(" + ") : "0";
+    const steps = first ? [{ tex: F.q, tag: "BP variable update", note: R`the message bit $i$ sends to check $a$; the sum runs over $b\in N(i)\setminus a$`, hold: 3600 }] : [];
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})} = ${set(nbr)}`, tag: "Neighbours", note: R`$N(i)$ is every check joined to bit $i$; they are circled on the graph`, sparkle: ["mN"], hold: 3600 });
+    steps.push({ tex: R`\htmlClass{mN}{N(${I})\setminus ${A}} = \htmlClass{mS}{${set(rest)}}`, tag: R`Omit $U${uSup}_{${A}\to ${I}}$ from this sum`,
+      note: R`$N(i)\setminus a$ changes only this sum’s index set. $Q${sup}_{${I}\to ${A}}$ is still sent along the bit-${I}–check ${A} edge; only $U${uSup}_{${A}\to ${I}}$ is omitted`, keys: ["mN"], sparkle: ["mS"], hold: 3600 });
+    steps.push({ tex: R`Q${sup}_{${I}\to ${A}} = \htmlClass{hL}{L_${I}} + \htmlClass{hU}{\sum_{b\in ${set(rest)}} U${uSup}_{b\to ${I}}} = L_${I} + ${sum}`,
+      tag: rest.length ? `Message to check ${A}` : "Empty sum",
+      note: rest.length ? R`bit ${I} is preparing a message for check ${A}: use the channel LLR $L_${I}$ and the check-to-variable message $${sum}$ from check ${rest.join(", ")}; leave out check ${A}’s preceding check-to-variable message`
+        : R`bit ${I} is preparing a message for check ${A}; no other neighboring check remains, so the message contains only its channel LLR $L_${I}$` });
+    return steps;
+  }
+  // On the graph: circle each check in N(i), cross the omitted preceding U on the
+  // recipient edge (not the check or edge itself), then light each U that is summed.
+  function exclusion(G, i, a, iter, ev, tN, tOut, tUse) {
+    const parts = [];
+    EDGES.forEach((edge, e) => {
+      if (edge.i !== i) return;
+      const b = edge.a, x0 = CX[b] - 36, y0 = CY - 28;
+      const ring = svgEl(G.nodes, "rect", { x: x0, y: y0, width: 72, height: 56, rx: 12, class: "member" });
+      ev.push(show(ring, tN, 600), blink(ring, tN + 600));
+      parts.push(ring);
+      if (b === a) {
+        const omitted = chip(G, edgePoint(e, 0.25), R`\cancel{U^{(${iter - 1})}_{${CHECK[a]}\to ${i + 1}}}`, "excluded");
+        omitted.dataset.message = `U^(${iter - 1})_${CHECK[a]}->${i + 1}`;
+        ev.push(show(omitted, tOut, 500), blink(omitted, tOut + 500));
+        parts.push(omitted);
+      } else {
+        const used = svgEl(G.flows, "line", { x1: CX[b], y1: CY + 20, x2: PX[i], y2: PY - BIT_R, class: "used" });
+        ev.push(show(used, tUse, 700), blink(ring, tUse));
+        parts.push(used);
+      }
+    });
+    return parts;
+  }
+  // A floating derivation: TeX steps cross-fade into each other while parts tagged
+  // \htmlClass{m...} glide to their new place and sparkle where they land.
+  function stepLayer(step) {
+    const layer = document.createElement("div");
+    layer.className = "morph-step";
+    const tag = step.tag ? `<span class="tag">${mixed(step.tag)}</span>` : "";
+    layer.innerHTML = tex(step.tex, true) + (step.note ? `<p class="hover-note">${tag}${mixed(step.note)}</p>` : "");
+    return layer;
+  }
+  function extent(node, box, k) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    [node, ...node.querySelectorAll("*")].forEach(n => {
+      for (const r of n.getClientRects()) {
+        if (!r.width || !r.height) continue;
+        x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom);
+      }
+    });
+    if (x0 === Infinity) return null;
+    return { x: (x0 - box.left) / k, y: (y0 - box.top) / k, w: (x1 - x0) / k, h: (y1 - y0) / k };
+  }
+  function morphStep(card, state, step, at, dur, seed) {
+    let from = null, to = null, ghosts = [], sparks = [], size = null, fs = 16;
+    let r = seed * 7919 % 233280;
+    const rand = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+    const per = (step.sparkle || []).length > 3 ? 9 : 16;
+    return { at, dur,
+      start() {
+        from = state.layer;
+        fs = parseFloat(getComputedStyle(card).fontSize) || 16;
+        const w0 = card.offsetWidth, h0 = card.offsetHeight;
+        to = stepLayer(step);
+        to.style.opacity = "0";
+        card.appendChild(to);
+        const padX = card.offsetWidth - card.clientWidth + parseFloat(getComputedStyle(card).paddingLeft) * 2;
+        const padY = card.offsetHeight - card.clientHeight + parseFloat(getComputedStyle(card).paddingTop) + parseFloat(getComputedStyle(card).paddingBottom);
+        size = [w0, h0, to.offsetWidth + padX, to.offsetHeight + padY];
+        card.style.width = `${w0 / fs}em`; card.style.height = `${h0 / fs}em`;
+        const box = card.getBoundingClientRect(), k = box.width / card.offsetWidth || 1;
+        (step.keys || []).forEach(key => {
+          const a = from && from.querySelector(`.${key}`), b = to.querySelector(`.${key}`);
+          if (!a || !b) return;
+          const ea = extent(a, box, k), eb = extent(b, box, k);
+          if (!ea || !eb) return;
+          const ghost = document.createElement("span");
+          ghost.className = "katex morph-ghost";
+          ghost.style.fontSize = `${parseFloat(getComputedStyle(a).fontSize) / fs}em`;
+          ghost.innerHTML = a.innerHTML;
+          card.appendChild(ghost);
+          a.style.visibility = "hidden";
+          b.style.opacity = "0";
+          ghosts.push({ ghost, b, from: [ea.x + ea.w / 2, ea.y + ea.h / 2], to: [eb.x + eb.w / 2, eb.y + eb.h / 2] });
+        });
+        (step.sparkle || []).forEach(key => {
+          const b = to.querySelector(`.${key}`), eb = b && extent(b, box, k);
+          if (!eb) return;
+          for (let n = 0; n < per; n += 1) {
+            const spark = document.createElement("i");
+            spark.className = "sparkle";
+            card.appendChild(spark);
+            const side = rand() * 4 | 0, u = rand();
+            const x = side < 2 ? eb.x + u * eb.w : eb.x + (side === 2 ? -6 : eb.w + 6);
+            const y = side < 2 ? eb.y + (side === 0 ? -6 : eb.h + 6) : eb.y + u * eb.h;
+            sparks.push({ spark, x, y, delay: 0.3 + rand() * 0.45, life: 0.22 + rand() * 0.2, size: 0.7 + rand() * 1.1, spin: rand() * 180 - 90 });
+          }
+        });
+      },
+      apply(p) {
+        if (!to) return;
+        const e = ease(p);
+        if (from) from.style.opacity = String(Math.max(0, 1 - p / 0.4));
+        to.style.opacity = String(Math.min(1, Math.max(0, (p - 0.45) / 0.4)));
+        card.style.width = `${lerp(size[0], size[2], e) / fs}em`;
+        card.style.height = `${lerp(size[1], size[3], e) / fs}em`;
+        ghosts.forEach(g => {
+          g.ghost.style.left = `${lerp(g.from[0], g.to[0], e) / fs}em`;
+          g.ghost.style.top = `${(lerp(g.from[1], g.to[1], e) - 10 * Math.sin(Math.PI * p)) / fs}em`;
+        });
+        sparks.forEach(sp => {
+          const q = Math.min(1, Math.max(0, (p - sp.delay) / sp.life)), glow = Math.sin(Math.PI * q);
+          sp.spark.style.left = `${sp.x / fs}em`;
+          sp.spark.style.top = `${(sp.y - 6 * q) / fs}em`;
+          sp.spark.style.opacity = String(glow);
+          sp.spark.style.transform = `scale(${0.2 + sp.size * glow}) rotate(${sp.spin * q}deg)`;
+        });
+      },
+      end() {
+        if (!to) { to = stepLayer(step); card.appendChild(to); from = state.layer; }
+        if (from) from.remove();
+        ghosts.forEach(g => { g.ghost.remove(); g.b.style.opacity = ""; });
+        sparks.forEach(sp => sp.spark.remove());
+        ghosts = []; sparks = [];
+        to.style.opacity = "";
+        card.style.width = ""; card.style.height = "";
+        state.layer = to;
+      } };
+  }
+  // Step k lands TIME.morph ms after its transition starts and is read for its own hold (default TIME.read).
+  const CUE = 1600;
+  function derivation(G, ev, at, steps) {
+    const card = document.createElement("div");
+    card.className = "hover morph";
+    G.hoverLayer.appendChild(card);
+    const state = { layer: null };
+    ev.push({ at, dur: 600,
+      init() { card.replaceChildren(); state.layer = stepLayer(steps[0]); card.appendChild(state.layer); card.style.opacity = "0"; },
+      apply(p) { card.style.opacity = String(p); },
+      end() { card.style.opacity = ""; } });
+    ev.push(blink(card, at));
+    addStop(G.method, at, at + 600, card, steps[0].tag || "Show the formula");
+    const part = name => () => card.querySelector(`.${name}`);
+    const holdOf = step => step.hold || TIME.read;
+    let t = at + holdOf(steps[0]);
+    const lands = [at];
+    for (let k = 1; k < steps.length; k += 1) {
+      // the triangle appears CUE ms before the expression changes and leaves when the change starts
+      const cue = document.createElement("i");
+      cue.className = "next-cue";
+      ev.push({ at: t - CUE, dur: 500,
+        init() { cue.style.opacity = "0"; card.appendChild(cue); },
+        apply(p) { cue.style.opacity = String(p); },
+        end() { cue.style.opacity = ""; } }, hide(cue, t, 250));
+      ev.push(morphStep(card, state, steps[k], t, TIME.morph, k));
+      addStop(G.method, t, t + TIME.morph, card, steps[k].tag || "Next expression");
+      (steps[k].sparkle || []).forEach(key => ev.push(blink(part(key), t + TIME.morph)));
+      lands.push(t + TIME.morph);
+      t += TIME.morph + (k < steps.length - 1 ? holdOf(steps[k]) : 0);
+    }
+    return { card, done: t, part, lands };
+  }
+  function hover(G, ev, at, src, note = "", until = null) {
+    const card = document.createElement("div");
+    card.className = "hover";
+    card.innerHTML = (src ? tex(src, true) : "") + (note ? `<p class="hover-note">${mixed(note)}</p>` : "");
+    G.hoverLayer.appendChild(card);
+    ev.push(show(card, at, 600), blink(card, at));
+    addStop(G.method, at, at + 600, card, src ? "Show the formula" : "Read the note");
+    if (until !== null) ev.push(hide(card, until, 500));
+    return { card, part: name => () => card.querySelector(`.${name}`) };
+  }
+
+  // ---------- the box [-1, 1]^3 where ADMM moves x ----------
+  // Oblique view: azimuth -28 degrees around the x3 axis, elevation 22 degrees.
+  const CV = { w: 400, h: 360, s: 100, cx: 202, cy: 182 };
+  const CAM = (() => {
+    const az = -28 * Math.PI / 180, el = 22 * Math.PI / 180;
+    return {
+      c: [Math.cos(el) * Math.cos(az), Math.cos(el) * Math.sin(az), Math.sin(el)],
+      r: [-Math.sin(az), Math.cos(az), 0],
+      u: [-Math.sin(el) * Math.cos(az), -Math.sin(el) * Math.sin(az), Math.cos(el)]
+    };
+  })();
+  const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const proj = x => [CV.cx + CV.s * dot3(CAM.r, x), CV.cy - CV.s * dot3(CAM.u, x)];
+  const UPDATE_TEX = R`\begin{aligned}\mathbf{z}_a &= \Pi_{\mathcal{P}_a}\bigl(\htmlClass{pS}{\mathbf{S}_a\mathbf{x}}+\htmlClass{pU}{\mathbf{u}_a}\bigr)\\ \mathbf{u}_a &\leftarrow \mathbf{u}_a+\mathbf{S}_a\mathbf{x}-\htmlClass{pZ}{\mathbf{z}_a}\\ x_i &= \Pi_{[-1,1]}\Bigl(\tfrac{1}{d_i}\Bigl[\htmlClass{pT}{\textstyle\sum_{a\in N(i)}(z_{a,i}-u_{a,i})}+\htmlClass{pC}{\tfrac{\ell_i}{2\rho}}\Bigr]\Bigr)\end{aligned}`;
+  const RULES = [
+    ["order", "Order", R`replica update, scaled dual update, then $\mathbf{x}$-update, from $\mathbf{x}^{(0)}$ and $\mathbf{u}^{(0)}=\mathbf{0}$: standard scaled ADMM with the boundary after the $\mathbf{x}$-update, $\rho=${AD.rho}$.`],
+    ["replica", "Replica update", R`$\mathbf{z}_a=\Pi_{\mathcal{P}_a}(\mathbf{S}_a\mathbf{x}+\mathbf{u}_a)$. For a two-bit check, $\mathcal{P}_a=\{(t,t):-1\le t\le1\}$, so $t=\Pi_{[-1,1]}\bigl(\tfrac{v_1+v_2}{2}\bigr)$ and $\mathbf{z}_a=(t,t)$.`],
+    ["dual", "Scaled dual update", R`$\mathbf{u}_a\leftarrow\mathbf{u}_a+\mathbf{S}_a\mathbf{x}-\mathbf{z}_a$: one entry for each check–bit edge, kept from one iteration to the next.`],
+    ["x", "x-update", R`$x_i=\Pi_{[-1,1]}\bigl(\tfrac{1}{d_i}\bigl[\sum_{a\in N(i)}(z_{a,i}-u_{a,i})+\tfrac{\ell_i}{2\rho}\bigr]\bigr)$, the exact minimizer of $L_\rho$ over the box with $\mathbf{z}$ and $\mathbf{u}$ fixed.`],
+    ["stop", "Stop", R`Stop when the primal residual $\max_a\|\mathbf{S}_a\mathbf{x}-\mathbf{z}_a\|_\infty$ and the dual residual $\rho\max_a\|\mathbf{z}_a-\mathbf{z}^{\mathrm{prev}}_a\|_\infty$ are both below $10^{-6}$ (with $\mathbf{z}^{(0)}_a=\mathbf{S}_a\mathbf{x}^{(0)}$), or after ${AD.max_iterations} iterations.`]
+  ];
+  const RULES_BY_BEAT = [
+    ["order"], ["dual"], ["replica"], ["dual"], ["replica"],
+    ["dual"], ["x"], ["stop"], ["replica"], ["stop"]
+  ];
+  const rule = key => () => $("rules").querySelector(`[data-rule="${key}"]`);
+  const upd = key => () => $("update-card").querySelector(`.${key}`);
+  function cube() {
+    const svg = $("poly-graph"), layer = $("poly-chips");
+    svg.replaceChildren();
+    layer.replaceChildren();
+    addMarker(svg, "#087d77", "poly-arrow");
+    addMarker(svg, "#b35a00", "poly-arrow-hot");
+    const C = { method: "admm", svg, layer, w: CV.w, h: CV.h };
+    C.faces = svgEl(svg, "g"); C.zero = svgEl(svg, "g"); C.edges = svgEl(svg, "g");
+    C.marks = svgEl(svg, "g"); C.paths = svgEl(svg, "g"); C.points = svgEl(svg, "g");
+    const V = [];
+    [-1, 1].forEach(a => [-1, 1].forEach(b => [-1, 1].forEach(c => V.push([a, b, c]))));
+    const back = V.reduce((m, v) => (dot3(CAM.c, v) < dot3(CAM.c, m) ? v : m));
+    V.forEach(v => [0, 1, 2].forEach(i => {
+      if (v[i] !== -1) return;
+      const w = v.slice(); w[i] = 1;
+      const p = proj(v), q = proj(w), hidden = v.join() === back.join() || w.join() === back.join();
+      svgEl(C.edges, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: "cube-edge" + (hidden ? " hidden" : "") });
+    }));
+    V.forEach(v => {
+      const p = proj(v), word = corner(v), code = word === "000" || word === "111";
+      const dx = p[0] - CV.cx, dy = p[1] - CV.cy, len = Math.hypot(dx, dy) || 1;
+      // the hidden back corner sits behind the iterates' region, so its label goes up and to the right
+      const at = v.join() === back.join() ? [p[0] + 18, p[1] - 8] : [p[0] + dx / len * 21, p[1] + dy / len * 21 + 5];
+      C[`v${word}`] = svgEl(C.marks, "circle", { cx: p[0], cy: p[1], r: code ? 7 : 4, class: code ? "corner code" : "corner" });
+      svgEl(C.marks, "text", { x: at[0], y: at[1], "text-anchor": "middle", class: code ? "corner-label code" : "corner-label" }, word);
+    });
+    // axis triad in the free upper-right corner: each arrow points toward +x_i
+    const o = [344, 50];
+    [0, 1, 2].forEach(i => {
+      const d = [CAM.r[i] * 26, -CAM.u[i] * 26];
+      svgEl(C.marks, "line", { x1: o[0], y1: o[1], x2: o[0] + d[0], y2: o[1] + d[1], class: "axis", "marker-end": "url(#poly-arrow)" });
+      chip(C, [o[0] + d[0] * 1.6 + (i === 2 ? -12 : 4), o[1] + d[1] * 1.6 + (i === 2 ? 6 : 0)], `x_${i + 1}`, "value axis-label");
+    });
+    return C;
+  }
+  function xDot(C, x, cls = "") { const p = proj(x); return svgEl(C.points, "circle", { cx: p[0], cy: p[1], r: 7, class: "x-dot" + (cls ? " " + cls : "") }); }
+  function xArrow(C, a, b, cls = "") {
+    const p = proj(a), q = proj(b);
+    return svgEl(C.paths, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: "x-arrow" + (cls ? " " + cls : ""), "marker-end": `url(#poly-arrow${cls.includes("hot") ? "-hot" : ""})` });
+  }
+  function segment(C, a, b, cls) { const p = proj(a), q = proj(b); return svgEl(C.paths, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: cls }); }
+  function xLabel3(C, x, src, dx, dy) { const p = proj(x); return chip(C, [p[0] + dx, p[1] + dy], src, "value"); }
+  // An arrow or line is drawn out from its tail.
+  function grow(line, at, dur = 1500) {
+    let end = null;
+    return { at, dur,
+      init() { end = [line.getAttribute("x2"), line.getAttribute("y2")].map(Number); line.style.opacity = "0"; },
+      start() { line.style.opacity = ""; },
+      apply(p) {
+        const e = ease(p), x1 = Number(line.getAttribute("x1")), y1 = Number(line.getAttribute("y1"));
+        line.setAttribute("x2", lerp(x1, end[0], e)); line.setAttribute("y2", lerp(y1, end[1], e));
+      },
+      end() { line.style.opacity = ""; line.setAttribute("x2", end[0]); line.setAttribute("y2", end[1]); } };
+  }
+  // Each accepted update is drawn as a straight segment; the complete box-projected path is piecewise linear and can kink at a wall.
+  function slide(dot, a, b, at, dur = 1600) {
+    const p = proj(a), q = proj(b);
+    return { at, dur,
+      apply(s) { const e = ease(s); dot.setAttribute("cx", lerp(p[0], q[0], e)); dot.setAttribute("cy", lerp(p[1], q[1], e)); },
+      end() { dot.setAttribute("cx", q[0]); dot.setAttribute("cy", q[1]); } };
+  }
+  // Each check's parity polytope, lifted into the box: A is the plane x1 = x2, B the plane x2 = x3.
+  function checkPlane(C, which, cls = "") {
+    const corners = which === "A" ? [[-1, -1, -1], [1, 1, -1], [1, 1, 1], [-1, -1, 1]] : [[-1, -1, -1], [1, -1, -1], [1, 1, 1], [-1, 1, 1]];
+    return svgEl(C.zero, "polygon", { points: corners.map(v => proj(v).join(",")).join(" "), class: `plane ${which.toLowerCase()}${cls ? " " + cls : ""}` });
+  }
+  // The two planes meet on the diagonal from 111 to 000, the codeword polytope of this graph.
+  function diagonal(C) {
+    const p = proj([-1, -1, -1]), q = proj([1, 1, 1]);
+    return svgEl(C.zero, "line", { x1: p[0], y1: p[1], x2: q[0], y2: q[1], class: "codeword-line" });
+  }
+  function polyText(k) {
+    const v3 = x => R`\left(${x.map(t => tn(t, 3, false)).join(R`,\ `)}\right)`;
+    const v2 = x => R`\left(${x.map(t => tn(t, 3, false)).join(R`,\ `)}\right)`;
+    const last = AD.path.length - 1, end = AD.path[last];
+    switch (k) {
+      case 0: return R`Each corner gives a hard-decision estimate ($x_i=+1$ means bit 0). $\mathbf{x}^{(0)}=\tanh(\boldsymbol{\ell}/2)$ lies nearest corner ${corner(OBJ.x0)}, which violates check $A$.`;
+      case 1: return R`$\mathbf{x}^{(0)}=${v3(OBJ.x0)}$ is one point in the box. The scaled dual entries $\mathbf{u}$ are not points here: they sit on the Tanner-graph edges.`;
+      case 2: return R`Check $A$’s parity polytope, lifted into the box, is the teal plane $x_1=x_2$. With $\mathbf{u}^{(0)}=\mathbf{0}$, $\mathbf{z}_A=${v2(AD.z1[0])}$ is the nearest point of that plane for bits 1 and 2.`;
+      case 3: return R`The short arrow is $A$’s gap $\mathbf{S}_A\mathbf{x}^{(0)}-\mathbf{z}_A=${v2([OBJ.x0[0] - AD.z1[0][0], OBJ.x0[1] - AD.z1[0][1]])}$, now added into $\mathbf{u}_A$.`;
+      case 4: return R`Check $B$’s plane is $x_2=x_3$ (gold). The two planes meet on the dotted diagonal from 111 to 000, the codeword polytope of this graph.`;
+      case 5: return R`$B$’s gap $\mathbf{S}_B\mathbf{x}^{(0)}-\mathbf{z}_B=${v2([OBJ.x0[1] - AD.z1[1][0], OBJ.x0[2] - AD.z1[1][1]])}$ is added into $\mathbf{u}_B$; the point $\mathbf{x}$ has not moved yet.`;
+      case 6: return R`The $\mathbf{x}$-update moves the point to $\mathbf{x}^{(1)}=${v3(AD.x1)}$, toward what the checks ask and nudged by the channel evidence.`;
+      case 7: return R`Primal residual $r^{(1)}=${tn(AD.primal1, 3, false)}$ and dual residual $s^{(1)}=${tn(AD.dual1, 3, false)}$ are both above $10^{-6}$, so ADMM continues.`;
+      case 8: return R`The second iteration moves the point to $\mathbf{x}^{(2)}=${v3(AD.x2)}$.`;
+      default: return R`After ${last} iterations, $\mathbf{x}=${v3(end)}$: hard-decision estimate ${corner(end)}, a codeword, with both residuals below $10^{-6}$.`;
+    }
+  }
+  // The box shows the iterate for each beat; times come from the ADMM lane so the two stay in step.
+  function polyBeat(k, ev, sync) {
+    const C = cube();
+    const svgT = () => $("poly-graph"), readT = () => $("poly-readout");
+    if (k === 0) addStop("poly", sync.x0, sync.x0 + 1300, svgT, R`Place $\mathbf{x}^{(0)}$`);
+    if (k === 1 || k === 7) addStop("poly", 300, 1000, readT, "Read what the box shows");
+    if (k === 2 || k === 4) {
+      addStop("poly", sync.edges, sync.edges + 2300, svgT, `Show check ${k === 2 ? "A" : "B"}’s plane`);
+      addStop("poly", sync.proj, sync.proj + 1900, svgT, "Project onto the plane");
+    }
+    if (k === 3 || k === 5) addStop("poly", sync.gap, sync.gap + 1500, svgT, "Show the gap");
+    if (k === 6) addStop("poly", sync.step, sync.step + 2400, svgT, R`Take the $\mathbf{x}$-update`);
+    if (k === 8) addStop("poly", sync.start + 600, sync.start + 3500, svgT, "Take the second iteration");
+    if (k === 9) addStop("poly", sync.start, sync.start + (AD.path.length - 1) * 700 + 700, svgT, "Run every iteration");
+    const readout = $("poly-readout");
+    readout.innerHTML = mixed(polyText(k));
+    if (k !== 9) ev.push(show(readout, sync.readout != null ? sync.readout : 300, 700));
+    if (k >= 2) {
+      const pa = checkPlane(C, "A", k >= 4 ? "faint" : "");
+      if (k === 2) ev.push(show(pa, sync.edges, 900));
+    }
+    if (k >= 4) {
+      const pb = checkPlane(C, "B", k >= 6 ? "faint" : ""), dg = diagonal(C);
+      if (k === 4) {
+        ev.push(show(pb, sync.edges, 900), show(dg, sync.edges + 900, 700));
+        ["v000", "v111"].forEach(v => ev.push(blink(C[v], sync.edges + 1600)));
+      }
+    }
+    // with u = 0, each replica is the orthogonal projection of x onto its check's plane
+    const projected = [[AD.t1[0], AD.t1[0], OBJ.x0[2]], [OBJ.x0[0], AD.t1[1], AD.t1[1]]];
+    if (k <= 5) {
+      const dot = xDot(C, OBJ.x0), label = xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      if (k === 0) ev.push(show(dot, sync.x0, 600), show(label, sync.x0, 600), blink(dot, sync.x0 + 600));
+      if (k >= 2) {
+        const a = k <= 3 ? 0 : 1, N = CHECK[a], target = projected[a];
+        const zdot = xDot(C, target, "old"), zl = xLabel3(C, target, R`\mathbf{z}_${N}`, a === 0 ? 24 : -28, a === 0 ? -14 : 18);
+        if (k === 2 || k === 4) {
+          const arrow = xArrow(C, OBJ.x0, target, "hot");
+          ev.push(grow(arrow, sync.proj, 1500), show(zdot, sync.proj + 1300, 400), show(zl, sync.proj + 1300, 500));
+        } else {
+          const gap = xArrow(C, target, OBJ.x0);
+          ev.push(grow(gap, sync.gap, 1400));
+        }
+      }
+      return;
+    }
+    if (k === 6) {
+      const old = xDot(C, OBJ.x0, "old"), dot = xDot(C, OBJ.x0);
+      xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      const arrow = xArrow(C, OBJ.x0, AD.x1, "hot");
+      const next = xLabel3(C, AD.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      ev.push(grow(arrow, sync.step), show(old, sync.step, 400));
+      ev.push(slide(dot, OBJ.x0, AD.x1, sync.step), show(next, sync.step + 1600, 600), blink(dot, sync.step + 1600));
+      return;
+    }
+    if (k === 7) {
+      xDot(C, OBJ.x0, "old");
+      xLabel3(C, OBJ.x0, R`\mathbf{x}^{(0)}`, -30, -16);
+      segment(C, OBJ.x0, AD.x1, "trail");
+      const dot = xDot(C, AD.x1);
+      xLabel3(C, AD.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      ev.push(blink(dot, sync.x1));
+      return;
+    }
+    if (k === 8) {
+      xDot(C, OBJ.x0, "old");
+      segment(C, OBJ.x0, AD.x1, "trail");
+      const arrow = xArrow(C, AD.x1, AD.x2, "hot");
+      const old = xDot(C, AD.x1, "old"), dot = xDot(C, AD.x1);
+      xLabel3(C, AD.x1, R`\mathbf{x}^{(1)}`, 26, 16);
+      const next = xLabel3(C, AD.x2, R`\mathbf{x}^{(2)}`, 26, -18);
+      const t = sync.start + 600;
+      ev.push(grow(arrow, t, 1500), show(old, t + 600, 300), slide(dot, AD.x1, AD.x2, t + 600, 1600), show(next, t + 2200, 600));
+      ev.push(blink(rule("replica"), t));
+      return;
+    }
+    // k === 9: the whole run, one iteration after another
+    const path = AD.path, step = 700, t0 = sync.start;
+    xLabel3(C, path[0], R`\mathbf{x}^{(0)}`, -30, -16);
+    const dot = xDot(C, path[0]);
+    for (let j = 1; j < path.length; j += 1) {
+      const line = segment(C, path[j - 1], path[j], "trail"), mark = xDot(C, path[j - 1], "step");
+      ev.push(show(mark, t0 + (j - 1) * step, 200), grow(line, t0 + (j - 1) * step, step), slide(dot, path[j - 1], path[j], t0 + (j - 1) * step, step));
+    }
+    C.points.appendChild(dot);
+    const done = t0 + (path.length - 1) * step;
+    const label = xLabel3(C, path[path.length - 1], R`\mathbf{x}^{(${path.length - 1})}`, -34, 14);
+    ev.push(show(label, done, 600), show(readout, done, 700), blink(dot, done), blink(C.v000, done));
+  }
+
+  // ---------- beat scripts ----------
+  function script(k) {
+    STOPS = [];
+    $("rules").querySelectorAll("li").forEach(node => node.classList.toggle("visible", RULES_BY_BEAT[k].includes(node.dataset.rule)));
+    const B = mathLane("bp"), G = mathLane("admm");
+    const bg = graph("bp", k), gg = graph("admm", k);
+    const ev = [];
+    const sync = {};
+    const card = (src, cls, key) => `<span class="${cls}" data-card="${key}">${tex(src)}</span>`;
+    const bpCard = key => () => $("bp-state").querySelector(`[data-card="${key}"]`);
+    const admmCard = key => () => $("admm-state").querySelector(`[data-card="${key}"]`);
+    const uLabel = (e, value) => R`U_{${USLOT[e]}} = ${tn(value, 3)}`;
+    const trayU = upTo => BP.u0.map((initial, e) => {
+      const updated = (e < 2 && upTo >= 3) || (e >= 2 && upTo >= 5);
+      return card(uLabel(e, updated ? BP.u1[e] : initial), updated ? "state-card updated-card" : "state-card", `u${e}`);
+    }).join("");
+    const xLabel = (i, value, iter, digits = 3) => R`x^{(${iter})}_${i + 1} = ${tn(value, digits)}`;
+    const trayX0 = () => OBJ.x0.map((v, i) => card(xLabel(i, v, 0), "state-card", `x${i}`)).join("");
+    const trayX1 = () => AD.x1.map((v, i) => card(xLabel(i, v, 1), "state-card", `x${i}`)).join("");
+    // ADMM keeps one scaled dual entry per check–bit edge: edge e belongs to check EDGES[e].a at position e % 2.
+    const uE = (U, e) => U[EDGES[e].a][e % 2];
+    const dualLabel = (e, value, iter) => R`u^{(${iter})}_{${ESLOT[e]}} = ${tn(value, 3)}`;
+    const dualAt = (e, aDone, bDone) => ((EDGES[e].a === 0 ? aDone : bDone) ? 1 : 0);
+    const trayDual = (aDone, bDone) => [0, 1, 2, 3].map(e => {
+      const iter = dualAt(e, aDone, bDone);
+      return card(dualLabel(e, uE(iter ? AD.u1 : AD.u0, e), iter), "state-card dual-card", `u${e}`);
+    }).join("");
+    const dualChips = (aDone, bDone) => [0, 1, 2, 3].map(e => {
+      const iter = dualAt(e, aDone, bDone);
+      return chip(gg, edgePoint(e, SLOT_T[e]), dualLabel(e, uE(iter ? AD.u1 : AD.u0, e), iter));
+    });
+    const zChip = a => chip(gg, [CX[a] + (a === 0 ? -112 : 112), CY], R`\mathbf{z}_${CHECK[a]} = ${vecT(AD.z1[a], 3)}`, "admm");
+    const lChips = () => BP.L.map((v, i) => chip(bg, below(i), R`L_${i + 1} = ${tn(v, 3)}`, "value"));
+    const xChips = values => values.map((v, i) => chip(gg, below(i), R`x_${i + 1} = ${tn(v, 3)}`, "value"));
+    const uChips = values => values.map((v, e) => chip(bg, edgePoint(e, SLOT_T[e]), uLabel(e, v)));
+    const qLabel = (e, iter) => R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}} = ${tn((iter === 2 ? BP.q2 : BP.q1)[e], 3)}`;
+    // Q_{i→a} = L_i + U_{b→i} from the bit's other check (edges 1 and 2 share bit 2).
+    const qChain = (t, e, iter) => {
+      const { i } = EDGES[e];
+      const other = e === 1 ? 2 : e === 2 ? 1 : null;
+      const u = iter === 2 ? BP.u1 : BP.u0, q = iter === 2 ? BP.q2 : BP.q1;
+      const lhs = R`Q${iter === 2 ? "^{(2)}" : ""}_{${QSLOT[e]}}`;
+      if (other === null) return chain(B, t, lhs, [M(`L_${i + 1}`)], [M(tn(BP.L[i]))], null);
+      return chain(B, t, lhs, [M(`L_${i + 1}`), " + ", M(R`U^{(${iter - 1})}_{${USLOT[other]}}`)],
+        [M(tp(BP.L[i])), " + ", M(tp(u[other]))], tn(q[e]));
+    };
+    // U_{a→i} = Q_{j→a}: each two-bit check returns the other incoming message.
+    const uChain = (t, e) => {
+      const from = [1, 0, 3, 2][e];
+      return chain(B, t, R`U^{(1)}_{${USLOT[e]}}`, [M(R`Q^{(1)}_{${QSLOT[from]}}`)], [M(tn(BP.q1[from]))], null);
+    };
+    let bpTray = "", admmTray = "";
+
+    if (k === 0) {
+      const lc = lChips();
+      bpTray = BP.L.map((v, i) => card(R`L_${i + 1} = ${tn(v, 3)}`, "state-card fixed-card", `L${i}`)).join("");
+      const c = chain(B, 300, R`\mathbf{L}`, vecParts(["L_1", "L_2", "L_3"]), vecParts(BP.L.map(v => tn(v))), null);
+      lc.forEach((node, i) => ev.push(show(node, c.lands[i], 450), blink(node, c.lands[i]),
+        show(bpCard(`L${i}`), c.lands[i], 450), blink(bpCard(`L${i}`), c.lands[i])));
+      hover(bg, ev, c.next, F.q);
+
+      const xc = xChips(OBJ.x0);
+      admmTray = trayX0();
+      const jd = derivation(gg, ev, 300, P_INTRO);
+      const g1 = chain(G, 300, R`\boldsymbol{\ell}`, [R`-\mathbf{L}`], null, vecT(OBJ.ell));
+      const g2 = chain(G, g1.next, R`\mathbf{x}^{(0)}`, [R`\tanh\left(\boldsymbol{\ell}/2\right)`], null, vecParts(OBJ.x0.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(node, g2.comps[i], 450), blink(node, g2.comps[i]),
+        show(admmCard(`x${i}`), g2.comps[i], 450), blink(admmCard(`x${i}`), g2.comps[i])));
+      ev.push(blink(jd.part("hC"), g1.done), blink(rule("order"), g2.done));
+      sync.x0 = g2.done; sync.readout = g2.done;
+    } else if (k === 1) {
+      lChips();
+      bpTray = trayU(1);
+      const uc = uChips(BP.u0);
+      const c = chain(B, 300, R`\mathbf{U}^{(0)}`, vecParts(USLOT.map(s => R`U_{${s}}`)), vecParts(BP.u0.map(v => tn(v))), null);
+      uc.forEach((node, e) => ev.push(show(node, c.lands[e], 450), blink(node, c.lands[e]), blink(bpCard(`u${e}`), c.lands[e])));
+      prose(B, c.next, "four slots are indexed by check and bit");
+
+      const xc = xChips(OBJ.x0);
+      admmTray = trayX0() + trayDual(false, false);
+      derivation(gg, ev, 300, CH_ORIGIN);
+      const g = chain(G, 300, R`\mathbf{x}^{(0)}`, vecParts(["x_1", "x_2", "x_3"]), vecParts(OBJ.x0.map(v => tn(v))), null);
+      xc.forEach((node, i) => ev.push(blink(node, g.lands[i]), blink(admmCard(`x${i}`), g.lands[i])));
+      const dc = dualChips(false, false);
+      const u = chain(G, g.next, R`\mathbf{u}^{(0)}`, vecParts(ESLOT.map(s => R`u_{${s}}`)), vecParts([0, 1, 2, 3].map(e => tn(uE(AD.u0, e)))), null);
+      dc.forEach((node, e) => ev.push(show(node, u.lands[e], 450), blink(node, u.lands[e]), blink(admmCard(`u${e}`), u.lands[e])));
+      ev.push(blink(rule("dual"), u.t));
+      prose(G, u.next, R`retained state: $\mathbf{x}$, one scalar per bit, and $\mathbf{u}$, one scaled dual entry per edge`);
+    } else if (k === 2 || k === 4) {
+      const a = k === 2 ? 0 : 1, N = CHECK[a], edges = a === 0 ? [0, 1] : [2, 3];
+      const lc = lChips();
+      bpTray = trayU(k);
+      let t = 300;
+      edges.forEach((e, n) => {
+        const { i } = EDGES[e];
+        const qd = derivation(bg, ev, t, qSteps(i, a, 1, n === 0)), o = n === 0 ? 1 : 0;
+        const marks = exclusion(bg, i, a, 1, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+        const c = qChain(qd.done + 600, e, 1);
+        ev.push(blink(lc[i], c.subs[0]), blink(qd.part("hL"), c.subs[0]));
+        if (c.subs.length > 1) ev.push(blink(qd.part("hU"), c.subs[1]));
+        const m = message(bg, e, "up", qLabel(e, 1), c.done, ev);
+        if (n < edges.length - 1) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
+        t = m.land + 600;
+      });
+
+      // ADMM: check a projects its view S_a x + u_a onto its segment (iteration 1 reads u^(0) = 0)
+      const [bi, bj] = edges.map(e => EDGES[e].i);
+      const xc = xChips(OBJ.x0);
+      admmTray = trayX0() + trayDual(a === 1, false) + card(R`\mathbf{z}_${N} = ${vecT(AD.z1[a], 3)}`, "scratch-card", "z");
+      const zd = derivation(gg, ev, 300, zSteps(a));
+      const uA = AD.u0[a];
+      const v = chain(G, zd.done + 600, R`\mathbf{v}_${N}`,
+        [R`\bigl(`, M(`x_${bi + 1}`), " + ", M(R`u_{${N},${bi + 1}}`), R`,\ `, M(`x_${bj + 1}`), " + ", M(R`u_{${N},${bj + 1}}`), R`\bigr)`],
+        [R`\bigl(`, M(tn(OBJ.x0[bi], 3, false)), " + ", M(tp(uA[0], 3)), R`,\ `, M(tn(OBJ.x0[bj], 3, false)), " + ", M(tp(uA[1], 3)), R`\bigr)`],
+        vecT(AD.v1[a], 3));
+      edges.forEach((e, j) => {
+        ev.push(show(guide(gg, e), v.t));
+        const bit = EDGES[e].i;
+        const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_${bit + 1}+u_{${N},${bit + 1}} = ${tn(AD.v1[a][j], 3)}`);
+        ev.push(show(read, v.subs[2 * j + 1], 450), blink(read, v.subs[2 * j + 1]), blink(xc[bit], v.subs[2 * j]));
+      });
+      const tc = chain(G, v.next, R`t_${N}`,
+        [R`\Pi_{[-1,1]}\bigl(\tfrac{`, M("v_1"), " + ", M("v_2"), R`}{2}\bigr)`],
+        [R`\Pi_{[-1,1]}\bigl(\tfrac{`, M(tn(AD.v1[a][0], 6, false)), " + ", M(tp(AD.v1[a][1])), R`}{2}\bigr)`],
+        tn(AD.t1[a]));
+      const zc = chain(G, tc.next, R`\mathbf{z}_${N}`, [R`(t_${N},\ t_${N})`], null, vecT(AD.z1[a]));
+      const zchip = zChip(a);
+      ev.push(blink(zd.part("mT"), tc.subs[0]), blink(zd.part("mZ"), zc.done), blink(rule("replica"), tc.t));
+      ev.push(show(zchip, zc.done, 450), blink(zchip, zc.done), show(admmCard("z"), zc.done, 450), blink(admmCard("z"), zc.done));
+      prose(G, zc.next, `check ${N} moves its copy to the nearest point of its parity polytope`);
+      sync.edges = zd.done; sync.proj = zc.done;
+    } else if (k === 3 || k === 5) {
+      const a = k === 3 ? 0 : 1, N = CHECK[a], edges = a === 0 ? [0, 1] : [2, 3];
+      lChips();
+      bpTray = trayU(k - 1);
+      const ah = hover(bg, ev, 300, "", NOTES.agree);
+      let t = 300;
+      edges.forEach(e => {
+        const c = uChain(t, e);
+        ev.push(blink(ah.card, c.subs[0]));
+        const m = message(bg, e, "down", uLabel(e, BP.u1[e]), c.done, ev);
+        ev.push(swap(bpCard(`u${e}`), m.land, tex(uLabel(e, BP.u1[e])), "updated-card"), blink(bpCard(`u${e}`), m.land));
+        t = c.next;
+      });
+
+      // ADMM: check a adds the gap S_a x - z_a into its two scaled dual entries
+      const xc = xChips(OBJ.x0);
+      admmTray = trayX0() + trayDual(a === 1, false) + card(R`\mathbf{z}_${N} = ${vecT(AD.z1[a], 3)}`, "scratch-card", "z");
+      const zchip = zChip(a);
+      const ud = derivation(gg, ev, 300, uSteps(a));
+      t = ud.done + 600;
+      edges.forEach((e, j) => {
+        const i = EDGES[e].i;
+        const c = chain(G, t, R`u^{(1)}_{${N},${i + 1}}`,
+          [M(R`u^{(0)}_{${N},${i + 1}}`), " + ", M(`x_${i + 1}`), " - ", M(R`z_{${N},${i + 1}}`)],
+          [M(tp(AD.u0[a][j])), " + ", M(tp(OBJ.x0[i])), " - ", M(tp(AD.z1[a][j]))],
+          tn(AD.u1[a][j]));
+        ev.push(blink(ud.part("hU"), c.subs[0]), blink(ud.part("hS"), c.subs[1]), blink(ud.part("hZ"), c.subs[2]));
+        ev.push(blink(xc[i], c.subs[1]), blink(zchip, c.subs[2]));
+        const uc = chip(gg, edgePoint(e, SLOT_T[e]), dualLabel(e, AD.u1[a][j], 1));
+        ev.push(show(uc, c.done, 450), blink(uc, c.done), swap(admmCard(`u${e}`), c.done, tex(dualLabel(e, AD.u1[a][j], 1))), blink(admmCard(`u${e}`), c.done));
+        if (j === 0) { ev.push(blink(rule("dual"), c.t)); sync.gap = c.t; }
+        t = c.next;
+      });
+      const tg = chain(G, t, R`\mathbf{z}_${N}-\mathbf{u}_${N}`, null, null, vecT(AD.targets1[a]));
+      prose(G, tg.next, R`what check ${N} asks of its bits in the $\mathbf{x}$-update`);
+    } else if (k === 6) {
+      const lc = lChips();
+      bpTray = trayU(5);
+      const uc = uChips(BP.u1);
+      const lh = hover(bg, ev, 300, F.lam);
+      const c = chain(B, 900, R`\Lambda^{(1)}_2`,
+        [M("L_2"), " + ", M(R`U^{(1)}_{A\to 2}`), " + ", M(R`U^{(1)}_{B\to 2}`)],
+        [M(tp(BP.L[1])), " + ", M(tp(BP.u1[1])), " + ", M(tp(BP.u1[2]))], tn(BP.posterior1[1]), { aligned: true });
+      ev.push(blink(lc[1], c.subs[0]), blink(uc[1], c.subs[1]), blink(uc[2], c.subs[2]));
+      ev.push(blink(lh.part("hL"), c.subs[0]), blink(lh.part("hU"), c.subs[1]), blink(lh.part("hU"), c.subs[2]));
+      const lam = BP.posterior1.map((v, i) => chip(bg, below(i, 1), R`\Lambda^{(1)}_${i + 1} = ${tn(v, 3)}`, "value"));
+      ev.push(show(lam[1], c.done, 450), blink(lam[1], c.done));
+      const vec = chain(B, c.next, R`\boldsymbol{\Lambda}^{(1)}`, null, null, vecParts(BP.posterior1.map(v => tn(v))));
+      [0, 2].forEach(i => ev.push(show(lam[i], vec.comps[i], 450), blink(lam[i], vec.comps[i])));
+      ev.push(blink(lam[1], vec.comps[1]));
+
+      // ADMM: the x-update at bit 2 averages what A and B ask and adds the channel nudge
+      const xc = xChips(OBJ.x0);
+      admmTray = trayX0() + trayDual(true, true) + AD.targets1.map((target, a) =>
+        card(R`\mathbf{z}_${CHECK[a]}-\mathbf{u}_${CHECK[a]} = ${vecT(target, 3)}`, "scratch-card", `target${a}`)).join("");
+      const xd = derivation(gg, ev, 300, X_STEPS);
+      const t0 = xd.done + 600;
+      const askA = AD.targets1[0][1], askB = AD.targets1[1][0], nudge = OBJ.ell[1] / (2 * AD.rho);
+      const terms = [
+        chip(gg, edgePoint(1, SLOT_T[1]), R`z_{A,2}-u_{A,2} = ${tn(askA, 3)}`, "admm"),
+        chip(gg, edgePoint(2, SLOT_T[2]), R`z_{B,2}-u_{B,2} = ${tn(askB, 3)}`, "admm"),
+        chip(gg, [200, PY], R`\tfrac{\ell_2}{2\rho} = ${tn(nudge, 3)}`, "admm")
+      ];
+      const up = chain(G, t0, R`x^{(1)}_2`,
+        [R`\Pi\Bigl(\tfrac12\bigl[`, M(R`(z_{A,2}-u_{A,2})`), " + ", M(R`(z_{B,2}-u_{B,2})`), " + ", M(R`\tfrac{\ell_2}{2\rho}`), R`\bigr]\Bigr)`],
+        [R`\Pi\Bigl(\tfrac12\bigl[`, M(tn(askA, 6, false)), " + ", M(tp(askB)), " + ", M(tp(nudge)), R`\bigr]\Bigr)`],
+        tn(AD.x1[1]), { aligned: true, testId: "admm-first-x-update" });
+      terms.forEach((node, j) => ev.push(show(node, t0), blink(node, up.subs[j]), hide(node, up.done + 900)));
+      ev.push(blink(xd.part("hT"), up.subs[0]), blink(xd.part("hT"), up.subs[1]), blink(xd.part("hC"), up.subs[2]));
+      ev.push(blink(upd("pT"), up.subs[0]), blink(upd("pC"), up.subs[2]), blink(rule("x"), up.t));
+      const all = chain(G, up.next, R`\mathbf{x}^{(1)}`, null, null, vecParts(AD.x1.map(v => tn(v))));
+      xc.forEach((node, i) => {
+        ev.push(morph(node, all.comps[i], 1200, p => tex(R`x_${i + 1} = ${tn(lerp(OBJ.x0[i], AD.x1[i], p), 3)}`)), blink(node, all.comps[i] + 1200));
+        ev.push(morph(admmCard(`x${i}`), all.comps[i], 1200, p => tex(p === 0 ? xLabel(i, OBJ.x0[i], 0) : xLabel(i, lerp(OBJ.x0[i], AD.x1[i], p), 1))),
+          blink(admmCard(`x${i}`), all.comps[i] + 1200));
+      });
+      prose(G, all.next, R`bits 1 and 3 sit in one check each, so $d_1=d_3=1$`);
+      addStop("admm", all.done, all.done + 1400, () => gg.svg.parentNode, R`Move $\mathbf{x}$ to $\mathbf{x}^{(1)}$`);
+      sync.step = all.t; sync.readout = all.done;
+    } else if (k === 7) {
+      lChips();
+      bpTray = trayU(5) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$Q$ and $\Lambda$ are recomputed`)}</span></span>`;
+      const uc = uChips(BP.u1);
+      hover(bg, ev, 300, "", NOTES.boundary);
+      const c = chain(B, 300, R`\mathbf{U}^{(1)}`, null, null, vecParts(BP.u1.map(v => tn(v))));
+      uc.forEach((node, e) => {
+        const p = edgePoint(e, SLOT_T[e]);
+        ev.push(show(tickMark(bg, p[0], p[1] - 25), c.comps[e], 450), blink(node, c.comps[e]), blink(bpCard(`u${e}`), c.comps[e]));
+      });
+      const p1 = prose(B, c.next, R`next variable phase reads $\mathbf{L}$ and $\mathbf{U}^{(1)}$`);
+      const p2 = prose(B, p1.next, R`$Q^{(2)}$ is then recomputed for each recipient check`);
+      ev.push(show(bpCard("faded"), p2.done, 600));
+
+      // ADMM: x^(1) and the four scaled dual entries cross; the replicas are rebuilt next time
+      const xc = xChips(AD.x1);
+      admmTray = trayX1() + trayDual(true, true) + `<span class="faded-card" data-card="faded"><span>${mixed(R`$\mathbf{z}$ and $\mathbf{z}-\mathbf{u}$ are recomputed`)}</span></span>`;
+      hover(gg, ev, 300, "", NOTES.recompute);
+      const dc = dualChips(true, true);
+      const g = chain(G, 300, R`\text{carried: }\mathbf{x}^{(1)}`, null, null, vecParts(AD.x1.map(v => tn(v))));
+      xc.forEach((node, i) => ev.push(show(tickMark(gg, PX[i] + 24, PY - 26), g.comps[i], 450), blink(node, g.comps[i]), blink(admmCard(`x${i}`), g.comps[i])));
+      const u = chain(G, g.next, R`\text{carried: }\mathbf{u}^{(1)}`, null, null, vecParts([0, 1, 2, 3].map(e => tn(uE(AD.u1, e)))));
+      dc.forEach((node, e) => {
+        const p = edgePoint(e, SLOT_T[e]);
+        ev.push(show(node, u.comps[e], 450), show(tickMark(gg, p[0], p[1] - 25), u.comps[e], 450), blink(node, u.comps[e]), blink(admmCard(`u${e}`), u.comps[e]));
+      });
+      const r = chain(G, u.next, R`r^{(1)}=\max_a\bigl\|\mathbf{S}_a\mathbf{x}^{(1)}-\mathbf{z}^{(1)}_a\bigr\|_\infty`, null, null, tn(AD.primal1, 6, false));
+      const s = chain(G, r.next, R`s^{(1)}=\rho\max_a\bigl\|\mathbf{z}^{(1)}_a-\mathbf{z}^{(0)}_a\bigr\|_\infty`, null, null, tn(AD.dual1, 6, false));
+      ev.push(blink(rule("stop"), r.t));
+      const p3 = prose(G, s.next, R`both residuals exceed $10^{-6}$, so ADMM continues`);
+      ev.push(show(admmCard("faded"), Math.max(p2.done, p3.done), 600));
+      sync.x1 = g.done;
+    } else {
+      const animate = k === 8;
+      const lc = lChips();
+      bpTray = BP.q2.map((v, e) => card(qLabel(e, 2), "state-card q-card", `q${e}`)).join("");
+      const xc = xChips(AD.x1);
+      admmTray = trayX1() + trayDual(true, true);
+      [1, 2].forEach(e => { const line = guide(gg, e); if (animate) ev.push(show(line, 300)); });
+      if (!animate) hover(bg, ev, 300, F.q);
+      const gh = hover(gg, ev, 300, animate ? F.view : F.x);
+      // what each check sees of bit 2 in iteration 2: the shared x_2 plus that check's own scaled dual entry
+      const view2 = e => { const a = EDGES[e].a; return AD.v2[a][a === 0 ? 1 : 0]; };
+      if (animate) {
+        [0, 3].forEach(e => {
+          const m = message(bg, e, "up", qLabel(e, 2), 300, ev, "", SLOT_T[e]);
+          ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
+        });
+        let t = 1200, last = 0;
+        [1, 2].forEach((e, j) => {
+          const qd = derivation(bg, ev, t, qSteps(1, EDGES[e].a, 2, j === 0)), o = j === 0 ? 1 : 0;
+          const marks = exclusion(bg, 1, EDGES[e].a, 2, ev, Math.max(t, qd.lands[o] - TIME.morph / 2), qd.lands[o + 1] - TIME.morph / 2, qd.lands[o + 2] - TIME.morph / 2);
+          const c = qChain(qd.done + 600, e, 2);
+          ev.push(blink(lc[1], c.subs[0]), blink(qd.part("hL"), c.subs[0]), blink(qd.part("hU"), c.subs[1]));
+          const m = message(bg, e, "up", qLabel(e, 2), c.done, ev, "hot", SLOT_T[e]);
+          if (j === 0) [qd.card, ...marks].forEach(node => ev.push(hide(node, m.land, 500)));
+          ev.push(show(bpCard(`q${e}`), m.land, 450), blink(bpCard(`q${e}`), m.land));
+          const a = EDGES[e].a, N = CHECK[a], u2 = AD.u1[a][a === 0 ? 1 : 0];
+          const r = chain(G, c.done - TIME.sub, R`\text{${N} sees bit 2: } v^{(2)}_{${N},2}`,
+            [M(R`x^{(1)}_2`), " + ", M(R`u^{(1)}_{${N},2}`)], [M(tn(AD.x1[1], 6, false)), " + ", M(tp(u2))], tn(view2(e)));
+          const read = chip(gg, edgePoint(e, SLOT_T[e]), R`x_2+u_{${N},2} = ${tn(view2(e), 3)}`);
+          ev.push(show(read, r.done, 450), blink(read, r.done), blink(xc[1], r.subs[0]), blink(gh.part("hS"), r.subs[0]), blink(gh.part("hU"), r.subs[1]));
+          t = m.land + 600; last = m.land;
+        });
+        const ne = chip(bg, [310, CY + 16], R`\neq`, "sign"), ne2 = chip(gg, [310, CY + 16], R`\neq`, "sign");
+        ev.push(show(ne, last + 300, 500), blink(ne, last + 300), show(ne2, last + 300, 500), blink(ne2, last + 300));
+        prose(G, last + 1200, R`$x_2^{(1)}$ is shared; each check adds its own $u_{a,2}$, so A and B see bit 2 differently`);
+        sync.start = 1200;
+      } else {
+        [0, 1, 2, 3].forEach(e => message(bg, e, "up", qLabel(e, 2), 0, null, e === 1 || e === 2 ? "hot" : "", SLOT_T[e]));
+        [1, 2].forEach(e => chip(gg, edgePoint(e, SLOT_T[e]), R`x_2+u_{${CHECK[EDGES[e].a]},2} = ${tn(view2(e), 3)}`));
+        chip(bg, [310, CY + 16], R`\neq`, "sign");
+        chip(gg, [310, CY + 16], R`\neq`, "sign");
+        const p1 = prose(B, 300, R`$Q_{i\to a}$ excludes the preceding $U$ from recipient $a$`);
+        prose(B, p1.next, "one bit can therefore supply different values to neighboring checks");
+        const f = formula(G, 300, R`\mathbf{v}_a=\mathbf{S}_a\mathbf{x}+\mathbf{u}_a,\qquad \mathbf{z}_a=\Pi_{\mathcal{P}_a}(\mathbf{v}_a)`);
+        prose(G, f.next, R`ADMM carries $\mathbf{x}$ and one $u_{a,i}$ per edge; each $\mathbf{z}_a$ is rebuilt from them`);
+        sync.start = 900;
+      }
+    }
+
+    $("bp-state").innerHTML = bpTray;
+    $("admm-state").innerHTML = admmTray;
+    polyBeat(k, ev, sync);
+    const events = commit(B).concat(commit(G), ev);
+    const end = events.reduce((m, e) => Math.max(m, e.at + e.dur), 0);
+    return { events, end };
+  }
+
+  function render() {
+    const beat = BEATS[current];
+    $("beat-readout").textContent = `Beat ${current + 1} of ${BEATS.length}`;
+    $("beat-subtitle").innerHTML = mixed(beat.subtitle);
+    $("bp-explain").innerHTML = mixed(BP_EXPLAIN[current]);
+    $("admm-explain").innerHTML = mixed(ADMM_EXPLAIN[current]);
+    const { events, end } = script(current);
+    startTimeline(events, Math.max(9000, end + TIME.hold));
+    if (tour.on) tourStart();
+    document.querySelectorAll(".dot").forEach((dot, index) => {
+      dot.classList.toggle("past", index < current);
+      dot.classList.toggle("now", index === current);
+      dot.setAttribute("aria-current", index === current ? "step" : "false");
+    });
+    updatePlay();
+    if (!smoke) history.replaceState(null, "", `#beat=${current + 1}`);
+  }
+  function updatePlay() {
+    const atEnd = clock.t >= clock.length;
+    const label = tour.on ? "Next step" : playing ? "Pause beat" :
+      (atEnd ? "Replay beat" : (clock.t > 0 ? "Resume beat" : "Play beat"));
+    $("play").textContent = label;
+    $("play").setAttribute("aria-label", label);
+  }
+  // On wide windows the whole page is one 1920 x 1000 screen scaled to fit; narrow windows scroll.
+  function fit() {
+    const deck = $("deck"), w = window.innerWidth, h = window.innerHeight;
+    const on = w >= 1100 && h >= 560 && w / h >= 1.35;
+    document.documentElement.classList.toggle("fit", on);
+    if (!on) { deck.style.transform = ""; return; }
+    const s = Math.min(w / DECK_W, h / DECK_H);
+    deck.style.transform = `translate(${(w - DECK_W * s) / 2}px, ${(h - DECK_H * s) / 2}px) scale(${s})`;
+  }
+  function play() {
+    if (tour.on) { tourNext(); return; }
+    if (playing) {
+      playing = false; frozen = true;
+      if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+      updatePlay();
+      return;
+    }
+    if (clock.t >= clock.length) {
+      render();
+    }
+    playing = true; frozen = false;
+    updatePlay();
+    wake();
+  }
+  function goTo(index) {
+    playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    current = Math.max(0, Math.min(BEATS.length - 1, Number(index)));
+    render();
+  }
+  function resetCurrentBeat() { goTo(current); }
+
+  // ---------- tutorial mode: the enlarged panel plays one highlighted step per click ----------
+  // Between steps the clock waits; a spotlight rings the part that changes next and a button pops out
+  // beside it. Actions whose time windows overlap become one synchronized step with every target
+  // highlighted. A paused or closed step must not leave anything half faded.
+  function settle(startedBefore = Infinity) {
+    clock.events.forEach(e => {
+      if (e.state === 1 && e.at < startedBefore) {
+        if (e.apply) e.apply(1);
+        if (e.end) e.end();
+        e.state = 2;
+      }
+    });
+  }
+  function stopTargets(stop) {
+    return (stop.targets || [stop.target]).map(nodeOf).filter(node => node && node.isConnected);
+  }
+  function stopBounds(stop, panel) {
+    const nodes = stopTargets(stop);
+    if (!nodes.length) return panel.getBoundingClientRect();
+    const boxes = nodes.map(node => node.getBoundingClientRect());
+    return {
+      left: Math.min(...boxes.map(box => box.left)), top: Math.min(...boxes.map(box => box.top)),
+      right: Math.max(...boxes.map(box => box.right)), bottom: Math.max(...boxes.map(box => box.bottom)),
+      width: Math.max(...boxes.map(box => box.right)) - Math.min(...boxes.map(box => box.left)),
+      height: Math.max(...boxes.map(box => box.bottom)) - Math.min(...boxes.map(box => box.top))
+    };
+  }
+  function tourStart() {
+    if (!zoomed || smoke) return;
+    const panel = PANELS[zoomed]();
+    tour.on = true; tour.running = false; tour.limit = Infinity; playing = false; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    const merged = [];
+    STOPS.filter(st => st.lane === zoomed && st.at >= clock.t - 1).sort((a, b) => a.at - b.at).forEach(st => {
+      const last = merged[merged.length - 1];
+      if (last && st.at <= last.until) {
+        last.until = Math.max(last.until, st.until);
+        last.targets.push(st.target);
+        if (!last.labels.includes(st.label)) last.labels.push(st.label);
+      } else merged.push({ ...st, targets: [st.target], labels: [st.label] });
+    });
+    merged.push({ end: true, at: clock.length, until: clock.length, target: panel, label: current < BEATS.length - 1 ? "Next beat" : "Finish" });
+    tour.stops = merged; tour.i = 0;
+    settle();
+    if (!tour.spot) { tour.spot = document.createElement("div"); tour.spot.className = "spotlight"; }
+    if (!tour.next) {
+      tour.next = document.createElement("button");
+      tour.next.type = "button"; tour.next.className = "tour-next";
+      tour.next.addEventListener("click", tourNext);
+    }
+    tour.returnFocus = panel.querySelector(".zoom-btn");
+    panel.append(tour.spot, tour.next);
+    tourShow();
+    updatePlay();
+  }
+  function tourStop() {
+    if (!tour.on) return;
+    const returnFocus = tour.returnFocus;
+    tour.on = false; tour.running = false; tour.limit = Infinity; frozen = true;
+    if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+    settle();
+    tour.spot.remove(); tour.next.remove();
+    tour.returnFocus = null;
+    if (returnFocus && returnFocus.isConnected) returnFocus.focus({ preventScroll: true });
+    updatePlay();
+  }
+  function tourShow() {
+    const stop = tour.stops[tour.i];
+    const labels = stop.labels || [stop.label];
+    const label = labels.length === 1 ? labels[0] : `Show ${labels.length} synchronized actions`;
+    tour.next.innerHTML = `${mixed(label)}<span aria-hidden="true">▶</span>`;
+    tour.next.setAttribute("aria-label", labels.map(plain).join("; "));
+    tour.next.hidden = false;
+    tour.next.classList.remove("pop"); void tour.next.offsetWidth; tour.next.classList.add("pop");
+    tourReveal();
+    tour.next.focus({ preventScroll: true });
+  }
+  function tourReveal() {
+    const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
+    if (!panel || !stop) return;
+    const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
+    if (panel.scrollWidth > panel.clientWidth + 1) panel.scrollLeft += ((r.left + r.right) / 2 - (p.left + p.right) / 2) / k;
+    if (panel.scrollHeight > panel.clientHeight + 1) panel.scrollTop += ((r.top + r.bottom) / 2 - (p.top + p.bottom) / 2) / k;
+    tourPlace();
+  }
+  function tourPlace() {
+    const stop = tour.stops[tour.i], panel = zoomed && PANELS[zoomed]();
+    if (!panel || !stop) return;
+    const p = panel.getBoundingClientRect(), k = p.width / panel.offsetWidth || 1, r = stopBounds(stop, panel);
+    const sx = panel.scrollLeft, sy = panel.scrollTop, W = panel.clientWidth, H = panel.clientHeight, pad = 8;
+    let w = Math.min(r.width / k + 2 * pad, W - 8), h = Math.min(r.height / k + 2 * pad, H - 8);
+    let x = sx + (r.left - p.left) / k - pad, y = sy + (r.top - p.top) / k - pad;
+    x = Math.max(sx + 4, Math.min(sx + W - w - 4, x));
+    y = Math.max(sy + 4, Math.min(sy + H - h - 4, y));
+    Object.assign(tour.spot.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` });
+    if (tour.next.hidden) return;
+    const bw = tour.next.offsetWidth, bh = tour.next.offsetHeight;
+    let bx = x + w - bw, by = y + h + 12;
+    if (by + bh > sy + H - 8) by = y - bh - 12;
+    if (by < sy + 8) by = y + h - bh - 8;
+    bx = Math.max(sx + 8, Math.min(sx + W - bw - 8, bx));
+    by = Math.max(sy + 8, Math.min(sy + H - bh - 8, by));
+    Object.assign(tour.next.style, { left: `${bx}px`, top: `${by}px` });
+  }
+  function tourNext() {
+    if (!tour.on || tour.running) return;
+    const stop = tour.stops[tour.i];
+    if (stop.end) {
+      if (current < BEATS.length - 1) { current += 1; render(); } else zoom(null);
+      return;
+    }
+    tour.next.hidden = true;
+    if (clock.t < stop.at) { clock.t = stop.at; runEvents(); }
+    tour.limit = stop.until; tour.running = true; frozen = false;
+    if (reduced) {
+      clock.t = tour.limit;
+      runEvents();
+      tourArrive();
+      return;
+    }
+    tourPlace();
+    wake();
+  }
+  function tourArrive() {
+    const arrivedAt = tour.limit;
+    tour.running = false; frozen = true; tour.limit = Infinity;
+    settle(arrivedAt);
+    tour.i = Math.min(tour.i + 1, tour.stops.length - 1);
+    tourShow();
+  }
+
+  // ---------- enlarge one panel; the other two fade into the background ----------
+  // The panel switches to a landscape layout and zooms there from where it stood (a FLIP transition).
+  const PANELS = { bp: () => document.querySelector(".lane.bp"), admm: () => document.querySelector(".lane.admm"), poly: () => document.querySelector(".poly") };
+  const animateZoom = !(smoke || tourSmoke || reduced);
+  let zoomed = null, zoomBusy = false;
+  const deckScale = () => $("deck").getBoundingClientRect().width / $("deck").offsetWidth || 1;
+  function updateZoomButtons() {
+    document.querySelectorAll(".zoom-btn").forEach(btn => {
+      const on = btn.dataset.zoom === zoomed;
+      btn.setAttribute("aria-pressed", String(on));
+      btn.title = on ? "Back to all three panels" : "Enlarge";
+    });
+  }
+  function openZoom(key) {
+    const panel = PANELS[key](), first = panel.getBoundingClientRect(), k = deckScale();
+    zoomed = key;
+    $("deck").classList.add("zoomed");
+    panel.classList.add("zoom");
+    updateZoomButtons();
+    resetCurrentBeat();
+    tourStart();
+    if (!animateZoom) return;
+    const last = panel.getBoundingClientRect();
+    panel.style.transition = "none";
+    panel.style.transformOrigin = "0 0";
+    panel.style.transform = `translate(${(first.left - last.left) / k}px, ${(first.top - last.top) / k}px) scale(${first.width / last.width})`;
+    panel.style.opacity = "0.5";
+    void panel.offsetWidth;
+    panel.style.transition = "transform .7s cubic-bezier(.2, .7, .2, 1), opacity .5s ease";
+    panel.style.transform = "";
+    panel.style.opacity = "";
+  }
+  function closeZoom(then) {
+    const panel = PANELS[zoomed](), k = deckScale();
+    const finish = () => {
+      if (!zoomBusy) return;
+      zoomBusy = false;
+      panel.classList.remove("zoom");
+      panel.style.transition = panel.style.transform = panel.style.transformOrigin = panel.style.opacity = "";
+      zoomed = null;
+      updateZoomButtons();
+      if (then) then();
+    };
+    zoomBusy = true;
+    tourStop();
+    $("deck").classList.remove("zoomed");
+    if (!animateZoom) { finish(); return; }
+    const last = panel.getBoundingClientRect();
+    panel.classList.remove("zoom");
+    const home = panel.getBoundingClientRect();
+    panel.classList.add("zoom");
+    panel.style.transformOrigin = "0 0";
+    panel.style.transition = "transform .55s ease-in, opacity .55s ease-in";
+    panel.style.transform = `translate(${(home.left - last.left) / k}px, ${(home.top - last.top) / k}px) scale(${home.width / last.width})`;
+    panel.style.opacity = "0";
+    panel.addEventListener("transitionend", finish, { once: true });
+    setTimeout(finish, 650);
+  }
+  function zoom(key) {
+    if (zoomBusy) return;
+    if (zoomed) closeZoom(key && key !== zoomed ? () => openZoom(key) : null);
+    else if (key) openZoom(key);
+  }
+
+  fit();
+  document.querySelectorAll(".tex").forEach(node => { node.innerHTML = tex(node.textContent.trim(), node.classList.contains("display")); });
+  $("update-card").innerHTML = tex(UPDATE_TEX, true);
+  $("rules").innerHTML = RULES.map(([key, name, text]) => `<li data-rule="${key}"><b>${name}</b>${mixed(text)}</li>`).join("");
+  const timeline = $("timeline");
+  BEATS.forEach((beat, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button"; dot.className = "dot"; dot.title = `Beat ${index + 1}: ${plain(beat.subtitle)}`;
+    dot.setAttribute("aria-label", dot.title);
+    dot.addEventListener("click", () => goTo(index));
+    timeline.appendChild(dot);
+  });
+  $("play").addEventListener("click", play);
+  document.querySelectorAll(".zoom-btn").forEach(btn => btn.addEventListener("click", () => zoom(btn.dataset.zoom === zoomed ? null : btn.dataset.zoom)));
+  $("back").addEventListener("click", () => goTo(current - 1));
+  $("next").addEventListener("click", () => goTo(current + 1));
+  $("restart").addEventListener("click", () => goTo(0));
+  $("speed").addEventListener("change", event => { speed = Number(event.target.value); });
+  window.addEventListener("resize", () => { fit(); if (tour.on) tourPlace(); });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && zoomed) { event.preventDefault(); zoom(null); return; }
+    const control = event.target && event.target.closest && event.target.closest("button, select, input, textarea, summary");
+    if (tour.on && event.key === "ArrowRight" && (!control || event.target === tour.next)) { event.preventDefault(); tourNext(); return; }
+    if (control) return;
+    if (event.key === " ") { event.preventDefault(); play(); }
+    if (event.key === "ArrowRight") { event.preventDefault(); goTo(current + 1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); goTo(current - 1); }
+    if (event.key === "Home") { event.preventDefault(); goTo(0); }
+  });
+  const match = /^#beat=(\d+)$/.exec(location.hash);
+  if (match) current = Math.max(0, Math.min(BEATS.length - 1, Number(match[1]) - 1));
+
+  window.BP_ADMM_STATE_ANIMATION = {
+    data: DATA, beats: BEATS.slice(),
+    getBeat: () => current,
+    getInteractionState: () => {
+      const stop = tour.stops[tour.i];
+      return {
+        beat: current, time: clock.t, length: clock.length, playing, frozen, zoomed, raf: clock.raf,
+        tour: { on: tour.on, running: tour.running, index: tour.i, stop: stop ? { at: stop.at, until: stop.until, end: Boolean(stop.end) } : null }
+      };
+    },
+    setBeat: index => goTo(index),
+    length: () => clock.length,
+    seek
+  };
+  function tourControlFits() {
+    if (!zoomed || !tour.next || tour.next.hidden) return false;
+    const panelBox = PANELS[zoomed]().getBoundingClientRect(), buttonBox = tour.next.getBoundingClientRect();
+    const spotBox = tour.spot.getBoundingClientRect();
+    const buttonInside = buttonBox.left >= panelBox.left - 1 && buttonBox.right <= panelBox.right + 1 &&
+      buttonBox.top >= panelBox.top - 1 && buttonBox.bottom <= panelBox.bottom + 1;
+    const spotlightVisible = spotBox.width > 0 && spotBox.height > 0 && spotBox.right > panelBox.left &&
+      spotBox.left < panelBox.right && spotBox.bottom > panelBox.top && spotBox.top < panelBox.bottom;
+    return buttonInside && spotlightVisible;
+  }
+  async function runTourSmoke() {
+    const root = document.documentElement;
+    const check = (condition, message) => { if (!condition) throw new Error(message); };
+    const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const stateSignature = () => `${current}|${clock.t}|${playing}|${frozen}|${clock.events.map(event => event.state).join("")}`;
+    root.dataset.tourSmoke = "running";
+    root.dataset.tourSmokeMotion = reduced ? "reduced" : "full";
+    try {
+      const controls = ["back", "play", "next", "restart", "speed"].map($);
+      const topbarBox = document.querySelector(".topbar").getBoundingClientRect();
+      controls.forEach(control => {
+        const box = control.getBoundingClientRect();
+        check(box.width > 0 && box.height > 0, `${control.id} control is not visible`);
+        check(box.left >= topbarBox.left - 1 && box.right <= topbarBox.right + 1 &&
+          box.top >= topbarBox.top - 1 && box.bottom <= topbarBox.bottom + 1, `${control.id} control is clipped by the top bar`);
+      });
+      for (let a = 0; a < controls.length; a += 1) for (let b = a + 1; b < controls.length; b += 1) {
+        const x = controls[a].getBoundingClientRect(), y = controls[b].getBoundingClientRect();
+        const overlaps = x.left < y.right - 1 && x.right > y.left + 1 && x.top < y.bottom - 1 && x.bottom > y.top + 1;
+        check(!overlaps, `${controls[a].id} and ${controls[b].id} controls overlap`);
+      }
+      check($("play").textContent === "Play beat", "overview playback is not explicitly opt-in");
+      check($("next").textContent.trim() === "Next beat →", "next-beat control is not explicit");
+      root.dataset.tourSmokeControls = "passed";
+
+      const loadState = stateSignature();
+      await wait(1200);
+      check(stateSignature() === loadState && clock.t === 0, "animation advanced before a click");
+      root.dataset.tourSmokeLoadIdle = "passed";
+
+      speed = 1000;
+      const playedBeat = current;
+      $("play").click();
+      check(playing && !frozen, "Play beat did not start the current beat");
+      if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+      for (let frame = 0; frame < 100 && playing; frame += 1) tick(clock.last + 80);
+      check(!playing && frozen && current === playedBeat && clock.t === clock.length, "Play beat did not stop at the end of the current beat");
+      check($("play").textContent === "Replay beat", "completed beat is not ready for an explicit replay");
+      root.dataset.tourSmokePlayBeat = "passed";
+
+      goTo(playedBeat);
+      seek(1800);
+      check(clock.t === 1800, "test setup could not move inside the beat");
+      openZoom("admm");
+      await wait(20);
+      check(tour.on && zoomed === "admm", "ADMM tutorial did not open");
+      check(clock.t === 0 && tour.i === 0 && frozen && !tour.running, "enlarged tutorial did not reset to its first click step");
+      check($("play").textContent === "Next step", "enlarged top control is not a step control");
+      const zoomState = stateSignature(), zoomIndex = tour.i;
+      await wait(200);
+      check(stateSignature() === zoomState && tour.i === zoomIndex, "enlarged tutorial advanced without a click");
+      root.dataset.tourSmokeZoomIdle = "passed";
+
+      const grouped = tour.stops.findIndex(stop => stop.labels && stop.labels.length > 1);
+      check(grouped >= 0, "overlapping actions were not grouped");
+      tour.i = grouped; tourShow();
+      check(tour.next.textContent.includes("synchronized actions"), "grouped action label is missing");
+      check(tourControlFits(), "grouped tutorial control is outside the enlarged panel");
+      root.dataset.tourSmokeGrouping = "passed";
+
+      const beforeKey = tour.i;
+      $("speed").focus();
+      $("speed").dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true, cancelable: true }));
+      check(tour.i === beforeKey && !tour.running, "ArrowRight advanced while the speed control had focus");
+      root.dataset.tourSmokeKeyboard = "passed";
+
+      const clickedStop = tour.stops[tour.i], beforeStep = tour.i;
+      tour.next.click();
+      if (reduced) check(!tour.running && frozen, "reduced-motion click did not complete the grouped presentation step immediately");
+      else {
+        check(tour.running, "click did not start the grouped presentation step");
+        if (clock.raf) { cancelAnimationFrame(clock.raf); clock.raf = 0; }
+        for (let frame = 0; frame < 100 && tour.running; frame += 1) tick(clock.last + 80);
+      }
+      check(!tour.running && frozen, "one click did not stop after one grouped presentation step");
+      check(tour.i === beforeStep + 1, "one click advanced more or less than one grouped presentation step");
+      check(clock.t === clickedStop.until, "one click did not stop at the grouped presentation-step boundary");
+      root.dataset.tourSmokeSingleStep = "passed";
+
+      const stoppedState = stateSignature(), stoppedIndex = tour.i;
+      await wait(200);
+      check(stateSignature() === stoppedState && tour.i === stoppedIndex, "grouped presentation step kept moving after it arrived");
+      root.dataset.tourSmokeStepIdle = "passed";
+
+      resetCurrentBeat();
+      tour.i = tour.stops.findIndex(stop => !stop.end); tourShow(); speed = 0.01;
+      const returnButton = PANELS.admm().querySelector(".zoom-btn");
+      tourNext();
+      check(reduced ? (!tour.running && frozen) : tour.running, "tutorial step did not follow the selected motion mode");
+      closeZoom();
+      check(!tour.on && zoomed === null && clock.raf === 0, "closing did not stop the tutorial clock");
+      check(!clock.events.some(event => event.state === 1), "closing left a partially rendered event");
+      check(document.activeElement === returnButton, "closing did not restore focus to the zoom button");
+      root.dataset.tourSmokeClose = "passed";
+      root.dataset.tourSmokeFocus = "passed";
+
+      speed = 1000; goTo(1); openZoom("bp");
+      await wait(20);
+      check(tour.on && zoomed === "bp", "BP tutorial did not open");
+      for (let i = 0; i < tour.stops.length; i += 1) {
+        tour.i = i; tourShow();
+        check(tourControlFits(), `tutorial control ${i + 1} is outside the enlarged BP panel`);
+      }
+      root.dataset.tourSmokeVisibility = "passed";
+
+      const beforeBeat = current;
+      tour.i = tour.stops.length - 1; tourShow();
+      check(visibleText(tour.next).startsWith("Next beat") && tour.next.getAttribute("aria-label") === "Next beat", "terminal control is not labelled Next beat");
+      await wait(120);
+      check(current === beforeBeat, "terminal control advanced the beat without a click");
+      root.dataset.tourSmokeNextBeatLabel = "passed";
+      tour.next.click();
+      check(current === beforeBeat + 1 && tour.on && zoomed === "bp", "Next beat did not retain the tutorial");
+      root.dataset.tourSmokeBeat = "passed";
+
+      current = BEATS.length - 1; render();
+      const finalReturnButton = PANELS.bp().querySelector(".zoom-btn");
+      tour.i = tour.stops.length - 1; tourShow(); tourNext();
+      check(!tour.on && zoomed === null, "Finish did not close the tutorial");
+      check(document.activeElement === finalReturnButton, "Finish did not restore focus");
+      root.dataset.tourSmokeFinish = "passed";
+      root.dataset.tourSmoke = "passed";
+    } catch (error) {
+      root.dataset.tourSmoke = "failed";
+      root.dataset.tourSmokeError = error && error.message ? error.message : String(error);
+    }
+  }
+  render();
+  const seekTo = /[?&]at=(\d+)/.exec(location.search);
+  if (seekTo && !smoke) seek(seekTo[1]);
+  document.documentElement.dataset.animationReady = "true";
+  if (tourSmoke) runTourSmoke();
+  if (smoke) {
+    try {
+      const snapshots = document.createElement("section");
+      snapshots.id = "animation-smoke-snapshots";
+      snapshots.hidden = true;
+      const saveSnapshot = (id, sourceId) => {
+        const snapshot = document.createElement("p");
+        snapshot.id = id;
+        snapshot.textContent = visibleText($(sourceId));
+        snapshots.appendChild(snapshot);
+      };
+      const overflow = [];
+      for (let k = 0; k < BEATS.length; k += 1) {
+        current = k; render();
+        if (!$("beat-subtitle").textContent || !$("bp-math").textContent || !$("admm-math").textContent || !$("poly-readout").textContent) throw new Error(`empty beat ${k + 1}`);
+        if (document.querySelector(".katex-error")) throw new Error(`TeX error in beat ${k + 1}: ${document.querySelector(".katex-error").textContent}`);
+        ["bp", "admm", "poly"].forEach(lane => { if (!STOPS.some(st => st.lane === lane)) throw new Error(`no tutorial step for ${lane} in beat ${k + 1}`); });
+        STOPS.forEach(st => { if (!nodeOf(st.target)) throw new Error(`tutorial step "${plain(st.label)}" in beat ${k + 1} has no target`); });
+        if (k === 2) {
+          if ($("bp-graph").querySelector(".strike")) throw new Error("recipient check node is incorrectly struck out");
+          if ($("bp-graph").querySelectorAll(".base").length !== EDGES.length) throw new Error("a Tanner-graph edge was removed");
+          const omitted = [...$("bp-chips").querySelectorAll(".excluded")];
+          const omittedMessages = omitted.map(node => node.dataset.message).sort().join(",");
+          if (omittedMessages !== "U^(0)_A->1,U^(0)_A->2") throw new Error("the exact omitted check-to-variable messages are not marked on their edges");
+          const finalOmitted = omitted.find(node => node.dataset.message === "U^(0)_A->2");
+          if (!finalOmitted || getComputedStyle(finalOmitted).opacity === "0") throw new Error("the final omitted check-to-variable message is not visible");
+          saveSnapshot("smoke-beat3-bp-explain", "bp-explain");
+          saveSnapshot("smoke-beat3-bp-hover", "bp-hover");
+        }
+        if (k === 6) saveSnapshot("smoke-beat7-admm-math", "admm-math");
+        if (k === 6) saveSnapshot("smoke-beat7-bp-math", "bp-math");
+        if (k === 7) saveSnapshot("smoke-beat8-admm-math", "admm-math");
+        if (k === 8) {
+          saveSnapshot("smoke-beat9-bp-math", "bp-math");
+          saveSnapshot("smoke-beat9-admm-math", "admm-math");
+          saveSnapshot("smoke-beat9-poly", "poly-readout");
+          if (!$("bp-chips").querySelector(".sign") || !$("admm-chips").querySelector(".sign")) throw new Error("iteration-2 contrast signs missing");
+        }
+        if (k === 9) saveSnapshot("smoke-beat10-poly", "poly-readout");
+        if (document.documentElement.classList.contains("fit")) {
+          document.querySelectorAll(".deck, .lanes, .lane, .poly, .math, .clock, .readout, .poly-readout").forEach(node => {
+            if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`beat ${k + 1}: ${node.className || node.id}`);
+          });
+          if (k === 6) {
+            const updateLine = document.querySelector('[data-check="admm-first-x-update"]');
+            const mathPanel = $("admm-math");
+            if (!updateLine) overflow.push("beat 7: first x update line missing");
+            else {
+              const lineBox = updateLine.getBoundingClientRect(), panelBox = mathPanel.getBoundingClientRect();
+              if (lineBox.top < panelBox.top - 1 || lineBox.bottom > panelBox.bottom + 1 ||
+                  lineBox.left < panelBox.left - 1 || lineBox.right > panelBox.right + 1) {
+                overflow.push("beat 7: first x update line clipped");
+              }
+            }
+          }
+          // a floating card may cover the checks, but never the bits or their values
+          document.querySelectorAll(".graph-wrap").forEach(wrap => {
+            const limit = wrap.getBoundingClientRect().top + wrap.getBoundingClientRect().height * (PY - BIT_R) / VH;
+            wrap.querySelectorAll(".hover").forEach(cardNode => {
+              if (cardNode.style.opacity !== "0" && cardNode.getBoundingClientRect().bottom > limit + 1) overflow.push(`beat ${k + 1}: floating card covers the bits`);
+            });
+          });
+        }
+      }
+      // each panel, enlarged, must also fit every beat
+      if (document.documentElement.classList.contains("fit")) {
+        Object.keys(PANELS).forEach(key => {
+          zoom(key);
+          for (let k = 0; k < BEATS.length; k += 1) {
+            current = k; render();
+            const panel = PANELS[key]();
+            [panel, ...panel.querySelectorAll(".math, .poly-readout")].forEach(node => {
+              if (node.scrollHeight > node.clientHeight + 1 || node.scrollWidth > node.clientWidth + 1) overflow.push(`enlarged ${key}, beat ${k + 1}: ${node.className}`);
+            });
+            const deck = $("deck").getBoundingClientRect(), box = panel.getBoundingClientRect(), scale = deck.width / $("deck").offsetWidth;
+            const at = [box.left - deck.left, box.top - deck.top, box.width, box.height].map(v => Math.round(v / scale));
+            if (at.join() !== "24,102,1872,884") overflow.push(`enlarged ${key} sits at ${at.slice(0, 2)} with size ${at.slice(2).join("x")}`);
+          }
+          zoom(null);
+        });
+      }
+      document.documentElement.dataset.layoutOverflow = overflow.length ? overflow.join("; ") : (document.documentElement.classList.contains("fit") ? "none" : "not-fit");
+      document.body.appendChild(snapshots);
+      current = 0; render();
+      document.documentElement.dataset.animationSmoke = "passed";
+      document.documentElement.dataset.animationSmokeBeats = String(BEATS.length);
+    } catch (error) {
+      document.documentElement.dataset.animationSmoke = `failed: ${error.message}`;
+    }
+  }
+})();
+</script>
+</body>
+</html>

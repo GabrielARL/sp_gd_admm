@@ -123,8 +123,8 @@ a-posteriori LLR are numerically distinct in this case.
   therefore every delta is zero.
 - `delta_shadow_ignored` must be identical to `qbar_collapse`.
 - `qbar_delta_reconstruct` must be identical to `full`.
-- Consistently reversing the check-row labels must preserve all bit-indexed
-  trajectories and permute edge- and check-indexed values according to the same
+- Consistently reversing the check-row labels must preserve the trajectory for
+  every bit and permute edge- and check-indexed values according to the same
   relabeling.
 - Repeated execution with the retained configuration must reproduce the trace
   hashes, and replay succeeds only when every recomputed and recorded scientific
@@ -180,7 +180,7 @@ The run is valid only if all of the following pass:
 - all pre-intervention trajectories are identical;
 - the iteration-1 mean-collapse negative control is bitwise identical to the
   standard variable-to-check vector;
-- a consistent check-row relabeling preserves the bit-indexed trajectory and
+- a consistent check-row relabeling preserves the trajectory for every bit and
   applies the expected permutation to edge- and check-indexed values;
 - the equal-mean, different-delta witness changes the next check inputs;
 - the shadow and reconstruction controls match their required branches;

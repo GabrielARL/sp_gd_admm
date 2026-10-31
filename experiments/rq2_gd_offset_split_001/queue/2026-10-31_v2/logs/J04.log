@@ -1,0 +1,4 @@
+Running held-out set with wall budget 36000 seconds
+TERM after 35880 seconds; KILL no later than the registered 36000-second wall budget
+Terminated
+2026-10-31T13:23:20Z queue=failed job=J04 job_state=failed completed=3/5 detail=queue stopped after a failed job

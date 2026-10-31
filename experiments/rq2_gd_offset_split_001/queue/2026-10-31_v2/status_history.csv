@@ -1,0 +1,63 @@
+updated_utc,queue_state,job_id,job_state,jobs_completed,jobs_total,exit_code,detail
+2026-10-31T08:27:59Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:28:59Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:29:59Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:31:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:32:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:33:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:34:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:35:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:36:00Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:37:01Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:38:01Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:39:01Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:40:01Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:41:01Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:42:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:43:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:44:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:45:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:46:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:47:02Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:48:03Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:49:03Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:50:03Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:51:03Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:52:03Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:53:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:54:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:55:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:56:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:57:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:58:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:59:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:00:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:01:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:02:04Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:03:05Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:04:05Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:05:05Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:06:05Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:07:05Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:08:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:09:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:10:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:11:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:12:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:13:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:14:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:15:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:16:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:17:06Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:18:07Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:19:07Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:20:07Z,waiting,,waiting,0,5,-1,waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:20:07Z,running,,queued,0,5,-1,serial queue initialized
+2026-10-31T09:20:07Z,running,J01,running,0,5,-1,"Amendment whitelist, focused tests, preflight, and v2 freeze"
+2026-10-31T09:21:54Z,running,J01,complete,1,5,0,"Amendment whitelist, focused tests, preflight, and v2 freeze"
+2026-10-31T09:21:54Z,running,J02,running,1,5,-1,Four-arm 24-case v2 anchor provenance rebind
+2026-10-31T09:44:35Z,running,J02,complete,2,5,0,Four-arm 24-case v2 anchor provenance rebind
+2026-10-31T09:44:36Z,running,J03,running,2,5,-1,Anchor replay/correctness/checksum and v1-science equality gate
+2026-10-31T09:44:36Z,running,J03,complete,3,5,0,Anchor replay/correctness/checksum and v1-science equality gate
+2026-10-31T09:44:37Z,running,J04,running,3,5,-1,Four-arm 200-case held-out execution
+2026-10-31T13:23:20Z,failed,J04,failed,3,5,143,queue stopped after a failed job

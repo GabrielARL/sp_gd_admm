@@ -1,0 +1,101 @@
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+locked queue package: 4 files; record=/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v2/QUEUE_PACKAGE_LOCK.toml
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T08:27:59Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:27:59Z waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:28:59Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:29:59Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:31:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:32:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:33:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:34:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:35:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:36:00Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:37:01Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:38:01Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:39:01Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:40:01Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:41:01Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:42:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:43:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:44:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:45:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:46:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:47:02Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:48:03Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:49:03Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:50:03Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:51:03Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:52:03Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:53:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:54:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:55:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:56:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:57:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:58:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T08:59:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:00:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:01:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:02:04Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:03:05Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:04:05Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:05:05Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:06:05Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:07:05Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:08:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:09:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:10:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:11:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:12:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:13:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:14:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:15:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:16:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:17:06Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:18:07Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:19:07Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:20:07Z queue=waiting job=- job_state=waiting completed=0/5 detail=waiting for existing scientific workload sp-gd-claude-controls-20261031.service
+2026-10-31T09:20:07Z external scientific workload is terminal; starting v2 jobs
+2026-10-31T09:20:07Z queue=running job=- job_state=queued completed=0/5 detail=serial queue initialized
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T09:20:07Z queue=running job=J01 job_state=running completed=0/5 detail=Amendment whitelist, focused tests, preflight, and v2 freeze
+2026-10-31T09:20:07Z starting J01: Amendment whitelist, focused tests, preflight, and v2 freeze
+2026-10-31T09:21:54Z queue=running job=J01 job_state=complete completed=1/5 detail=Amendment whitelist, focused tests, preflight, and v2 freeze
+2026-10-31T09:21:54Z completed J01
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T09:21:54Z queue=running job=J02 job_state=running completed=1/5 detail=Four-arm 24-case v2 anchor provenance rebind
+2026-10-31T09:21:54Z starting J02: Four-arm 24-case v2 anchor provenance rebind
+2026-10-31T09:44:35Z queue=running job=J02 job_state=complete completed=2/5 detail=Four-arm 24-case v2 anchor provenance rebind
+2026-10-31T09:44:35Z completed J02
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T09:44:36Z queue=running job=J03 job_state=running completed=2/5 detail=Anchor replay/correctness/checksum and v1-science equality gate
+2026-10-31T09:44:36Z starting J03: Anchor replay/correctness/checksum and v1-science equality gate
+2026-10-31T09:44:36Z queue=running job=J03 job_state=complete completed=3/5 detail=Anchor replay/correctness/checksum and v1-science equality gate
+2026-10-31T09:44:36Z completed J03
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T09:44:37Z queue=running job=J04 job_state=running completed=3/5 detail=Four-arm 200-case held-out execution
+2026-10-31T09:44:37Z starting J04: Four-arm 200-case held-out execution

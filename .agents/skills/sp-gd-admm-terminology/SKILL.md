@@ -15,6 +15,9 @@ quantities are the same.
 - Projected GD retains relaxed bit variables. It computes partial derivatives
   of the objective function, takes a gradient step, and projects onto its stated
   box or feasible set. Do not call this message passing.
+- Do not use `bit-indexed relaxed values` or reader-facing `bit-indexed`
+  descriptions of GD state. Use `one scalar per bit`; when the index matters,
+  name the scalar directly, such as `$x_i$ for bit $i$`.
 - ADMM retains shared bit variables, per-check replica variables, and scaled
   dual variables. Name the parity-polytope projection and the primal and dual
   residuals. Do not relabel replica or dual updates as BP messages.

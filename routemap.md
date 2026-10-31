@@ -1,6 +1,6 @@
 # BP–GD Research Route Map
 
-Last updated: 2026-10-28
+Last updated: 2026-10-31
 
 ## Destination and scope
 
@@ -72,8 +72,11 @@ and is not required to answer either research question.
 | `RQ1-UPDATE-CYCLE-001` | Second-graph update confirmation | **Complete; valid structural confirmation** | `confirmation_v1` reproduces nonzero state, update, and interaction contrasts without retuning; no cell is parity-valid after one update. |
 | `RQ1-ENDPOINT-001` | Controlled-to-native endpoint bridge | **Complete; valid endpoint reproduction** | `endpoint_v3` reproduces native exact SP and the scalar `coral_exact_gradient` endpoint and enumerates their remaining non-equivalences. |
 | `RQ1-DECISION-001` | Mechanism decision | **Partially resolved; native attribution open** | Recipient-specific variable-to-check calculation and update operator are validated candidate trajectory mechanisms; no unique native BP-versus-GD cause is established. |
+| `RQ1-GD-STATE-USE-001` | Projected-GD check-specific-state toy control | **Complete; valid trajectory effect** | Retaining and using the constructed check-specific offsets changes the two-update scalar trajectory, but not the toy hard decision or syndrome. It is the precursor to the long-code transfer. |
 | `RQ2-AWGN-001` | Preregistered paired AWGN anchor | **Complete; valid sealed descriptive anchor** | `anchor_v2` passes validation, deterministic replay, native full-arm equivalence, and the registered expansion gate. Full exact SP succeeds on 24/24 frames and persistent `qbar` tying on 0/24 for both registered endpoints. |
-| `RQ2-CONFIRM-001` | Held-out paired confirmation | **Parallel transfer complete; canonical confirmation pending** | `heldout_parallel_windows_v1` is a valid four-thread Windows transfer on all 200 frozen frames: full exact SP succeeds on 200/200 and persistent `qbar` tying on 0/200 for both endpoints. It is not a substitute for the registered one-thread execution record. |
+| `RQ2-CONFIRM-001` | Held-out paired confirmation | **Complete; valid canonical confirmation** | `2026-10-30_heldout_canonical_linux_v2` is the registered one-thread Linux result on all 200 frozen frames: full exact SP succeeds on 200/200 and persistent `qbar` tying on 0/200 for both endpoints. The earlier Windows transfer is byte-identical in its scientific tables and state snapshot and is cross-platform corroboration. |
+| `RQ2-GD-STATE-USE-001` | Retained check-specific offsets used by projected GD | **Complete; valid favorable held-out result** | On 200 frozen 6 dB cases, active/control transmitted-word and parity-valid successes are 172/113, with 59 active-only and 0 control-only pairs. All correctness, checksum, and deterministic-replay gates pass. This establishes a consequence for the constructed intervention, not BP equivalence or unique native attribution. |
+| `RQ2-GD-OFFSET-SPLIT-001` | Separate retained-offset use in the parity calculation from its use in projection bounds | **V1 terminal; v2 retired; v3 held-out running** | V1 remains an execution-budget failure. V2 completed its primary pass but entered the legacy hash before publishing science and was stopped only after the implementation-equivalent v3 anchor reproduced the registered science hash. The v3 held-out was still running at this publication snapshot; no held-out causal conclusion exists yet. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -96,6 +99,9 @@ gate into evidence or require mutually exclusive branches to be run.
 | `BPGD-APP-010` | Run held-out paired confirmation | valid anchor |
 | `BPGD-APP-011` | Update the route and mechanism-first report | retained evidence |
 | `BPGD-APP-012` | Build or revise animation from the validated trace | validated trace |
+| `RQ2-AMEND-001` | Prospectively increase only the offset-split held-out wall-clock service cap from 18,000 to 36,000 seconds | terminal v1 execution-budget failure |
+| `RQ2-LAUNCH-001` | Validate, freeze, and launch the cap-amended v2 serial queue | `RQ2-AMEND-001` |
+| `RQ2-OPTIMIZE-001` | Replace the pathological hash input construction, add phase telemetry and a primary checkpoint, prove anchor science equivalence, then launch v3 | measured v2 hash bottleneck and explicit user authorization |
 
 The user separately authorized staging and a local commit on 2026-10-28 after
 stopping the first held-out run, then authorized pushing the retained parallel
@@ -127,6 +133,15 @@ experimental evidence merely because it runs.
 | `experiments/rq2_qbar_awgn_001/results/2026-10-28_anchor_v2` | Included | Eligible valid sealed descriptive anchor. Full succeeds 24/24 versus tied 0/24 for parity validity and transmitted-word equality; native equivalence, validation, replay, checksums, and the registered expansion gate pass. This anchor is not pooled into held-out inference. |
 | `experiments/rq2_qbar_awgn_001/results/2026-10-28_heldout_v1/INTERRUPTED.md` | Included | Audit record for the intentionally stopped held-out attempt. The process ended during native preflight before atomic output; no held-out frames or endpoints are evidence. |
 | `experiments/rq2_qbar_awgn_001/results/2026-10-28_heldout_parallel_windows_v1` | Included | Valid parallel Windows transfer over the 200 frozen held-out frames. Validation, all frame gates, native full-state equivalence, checksums, and two-pass scientific replay pass. Full exact SP is 200/200 and persistent `qbar` tying is 0/200 for both registered endpoints. Four Julia threads and GNU gzip 1.14 differ from the frozen one-thread, gzip-1.10 execution contract, so this is supporting transfer evidence rather than the canonical confirmatory record. |
+| `experiments/rq2_qbar_awgn_001/results/2026-10-30_heldout_canonical_linux_v2` | Included | Eligible canonical one-thread Linux confirmation over the 200 frozen held-out frames. It has `status = valid`, `validation_passed = true`, passes all 57 checksums and deterministic replay, and reproduces full exact SP 200/200 versus persistent `qbar` tying 0/200 for both endpoints. |
+| `experiments/rq2_gd_state_use_001/freeze/2026-10-31_v2` | Included | Eligible immutable identity/source freeze for the amended 24-case anchor and untouched 200-case confirmation. The input table is byte-identical to v1 and has SHA-256 `53f515fda963da468e973568f503d1f0792cf161873d447826c5b4b7b182bee8`; every checksum entry verifies. |
+| `experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v2` | Included | Eligible valid development anchor. Active/control transmitted-word and parity-valid successes are 19/11, with 8 active-only and 0 control-only pairs. It passes deterministic replay and authorizes the frozen confirmation; it is not pooled with it. |
+| `experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2` | Included | Eligible `complete_valid` held-out result. Active/control transmitted-word and parity-valid successes are 172/113, with 59 active-only and 0 control-only pairs; the 97.5% paired interval for the 0.295 risk difference is `[0.2206105421, 0.3667643089]`. All 39 checksums and both scientific passes agree. |
+| `experiments/rq2_gd_state_use_001/result_interpretation.md` | Included | Terminal mechanism-first interpretation, provenance, diagnostics, claim boundary, failed-attempt audit, and next-branch constraint. |
+| `experiments/rq2_gd_offset_split_001` | Included except live v3 held-out telemetry | V1 and v2 terminal records, the optimized v3 source capsule and freeze, rejected-anchor audit records, the exact-match v3 anchor, and the locked held-out queue package are retained. The still-running v3 held-out result directory and mutable logs are not frozen as evidence. |
+| `experiments/rq2_gd_offset_null_001` and `experiments/rq2_native_gap_001` | Included | Retained complementary controls and native-gap measurements. Their conclusions remain scoped to their registered arms and cases; they do not complete the offset-use split or uniquely explain the native BP-versus-GD gap. |
+| `offset_split_explainer.html` | Included | Self-contained 19-beat explanatory animation. Completed quantities point to retained artifacts; the v3 execution panel is explicitly a dated observer snapshot and not a completed scientific result. |
+| `bp_gd_side_by_side_synced_deck.tex` and `.pdf` | Included | Thirteen-slide synchronized BP/GD teaching and RQ2-consequence deck. Reader-facing terminology distinguishes BP messages from GD partial derivatives. |
 | `rq1_mechanism_animation.html` and verifier | Included | Sixteen-beat explanatory animation. Sixty-eight embedded scientific values and five eligible source hashes pass automated and browser validation. |
 | `mechanism_report.md` | Included | Mechanism-first RQ1/RQ2 report with the native-attribution boundary retained. |
 
@@ -434,11 +449,14 @@ set. It shows a recovery consequence of recipient-specific variable-to-check
 values within the locked exact-SP recurrence; it does not identify the unique
 cause of the native BP-versus-projected-GD performance gap.
 
-**Reporting invariant.** Endpoint flags are void unless the sealed record has
-`status = valid`, `validation_passed = true`, and a passed deterministic
-replay. A failed or incompletely serialized run cannot contribute a
-parity-validity or transmitted-word-equality result even if a partial file
-contains such a field.
+**Reporting invariant.** Endpoint flags are evidence only when the record's
+registered terminal-valid status and correctness fields pass, deterministic
+replay passes, and its manifest/checksum gates pass. For the exact-SP anchor
+and canonical confirmation these fields are `status = valid` and
+`validation_passed = true`; the projected-GD experiment uses its own
+registered `complete_valid` and `correctness_passed` fields. A failed or
+incompletely serialized run cannot contribute a parity-validity or
+transmitted-word-equality result even if a partial file contains such a field.
 
 ### `RQ2-CONFIRM-001` — confirmatory cases
 
@@ -448,30 +466,153 @@ stopping reasons. The first held-out attempt was intentionally interrupted
 after about 26 minutes, during native preflight, before the atomic runner wrote
 any frame or endpoint output. It is incomplete and contributes no outcome.
 
-The retained `2026-10-28_heldout_parallel_windows_v1` result is a complete
-four-thread Windows transfer over the frozen 200-frame set. It has
-`status = valid_parallel_transfer`, `validation_passed = true`, passed native
-full-state equivalence and all frame gates, and reproduced the same scientific
-SHA-256 on two complete passes. For both parity validity and equality to the
-transmitted word, full exact SP succeeds on 200/200 frames and persistent
-`qbar` tying succeeds on 0/200, giving 200 full-only discordances and a risk
-difference of `1`. The registered 97.5% paired-proportion interval is
+The retained `2026-10-30_heldout_canonical_linux_v2` result is the valid
+one-thread Linux confirmation over the frozen 200-frame set. It has
+`status = valid`, `validation_passed = true`, passes native full-state
+equivalence, all frame and checksum gates, and deterministic replay. For both
+parity validity and equality to the transmitted word, full exact SP succeeds
+on 200/200 frames and persistent `qbar` tying succeeds on 0/200, giving 200
+full-only discordances and a risk difference of `1`. The registered 97.5%
+paired-proportion interval is
 `[0.96534624278665548, 1]`; the exact two-sided McNemar p-value is
 `1.2446030555722283e-60`, and its Holm-adjusted value is
 `2.4892061111444567e-60` for each endpoint.
 
-This transfer ran independent frames concurrently with four Julia threads and
-used GNU gzip 1.14. The frozen confirmation instead specifies one Julia thread,
-one BLAS thread, and GNU gzip 1.10. The transfer therefore supports the scoped
-recovery consequence within the locked exact-SP recurrence but does not replace
-the canonical registered execution record. The next required execution is the
-original runner on the same frozen frames in the registered single-thread
-Linux environment, with deterministic replay and no tuning. Do not substitute
-or pool the descriptive anchor.
+The canonical run used one Julia thread, one BLAS/OMP thread, and GNU gzip 1.10
+as registered. Its two scientific passes both produce SHA-256
+`71b865a7ac33667620a4c809e56f1bd60e8eb41c9de5c24c6bbe978f56c99d99`.
+The earlier four-thread Windows transfer has byte-identical frames, aggregate
+table, iteration table, and deterministic compressed state snapshot, so it is
+cross-platform corroboration. Do not pool the descriptive anchor with the
+confirmation.
 
 The retained report must state the tested code, cases, changed mechanism, work
 budget, metric, and denominator. Do not generalize a toy case or a small fixed
 set to a code ensemble without ensemble evidence.
+
+### `RQ2-GD-STATE-USE-001` — retained check-specific offsets used by projected GD
+
+This separate transfer starts from the native projected-gradient scalar
+backbone rather than from exact sum-product. Both arms calculate and retain one
+bounded, mean-zero check-specific offset for every Tanner-graph edge after each
+accepted update. The control does not use those offsets in the next update: it
+uses the unshifted parity objective and the scalar interval `[-1,1]`. The
+active arm uses them through both the shifted parity objective and the induced
+scalar feasibility interval that keeps every shifted reading in `[-1,1]`.
+The treatment therefore tests subsequent use of equally retained offsets
+through both mechanisms. It does not separately isolate retention,
+parity-objective use, or projection. The offsets are not BP messages.
+
+The 24-case `2026-10-31_anchor_v2` development result is `complete_valid` and
+passes deterministic replay. For both transmitted-word equality and parity
+validity, active/control successes are 19/11, with 8 active-only and 0
+control-only pairs. The anchor authorized the frozen 200-case confirmation and
+is not pooled with it.
+
+The eligible `2026-10-31_heldout_v2` record is `complete_valid`, all 15
+registered correctness gates pass, all 39 checksum entries verify, and both
+complete passes reproduce scientific SHA-256
+`d4ba7a7a131e854e24399c3cc154bd891b16654a1b4834d1993838cf2d18601b`.
+The registered confirmatory endpoints agree:
+
+| Endpoint | Active successes | Control successes | Active only | Control only | Active minus control | 97.5% Newcombe interval | Exact McNemar p | Holm-adjusted p |
+|---|---:|---:|---:|---:|---:|---|---:|---:|
+| Transmitted-word equality | 172/200 | 113/200 | 59 | 0 | 0.295 | [0.2206105421, 0.3667643089] | 3.469446952e-18 | 6.938893904e-18 |
+| Parity validity | 172/200 | 113/200 | 59 | 0 | 0.295 | [0.2206105421, 0.3667643089] | 3.469446952e-18 | 6.938893904e-18 |
+
+Information-word equality is supporting output: active/control successes are
+183/143, with 40 active-only and 0 control-only pairs. Neither arm produces a
+wrong valid word.
+
+The registered mechanism boundary is reproduced on every held-out case. The
+scalar states, retained offsets, partial derivatives, and accepted scalar
+updates are identical through update 1. At update 2, both arms read the same
+scalar state and retained offsets; only the active arm uses the offsets in its
+parity objective and induced scalar feasibility interval. All 200
+partial-derivative vectors and accepted scalar updates then differ. This
+precedes the decoding-outcome difference and rules out Tanner-graph traversal
+alone as a sufficient explanation for this controlled contrast.
+
+Both arms retain 40,800 `Float64` values, or 326,400 bytes, across updates.
+This is the persistent-state footprint, not total process allocation. In this
+constructed implementation, median timed execution is 5.543 seconds for
+active and 0.582 seconds for control, and median allocation within the timed
+solver boundary is about 2.752 GB and 229 MB, respectively. That boundary
+excludes input generation, validation, hashing, and serialization. These
+measurements are reported as implementation-specific work, not as an
+asymptotic-complexity or optimized-decoder comparison.
+
+**Scoped conclusion.** Using this constructed retained check-specific
+distinction jointly in the parity objective and its induced scalar feasibility
+interval causally improves recovery on the locked projected-gradient backbone
+and update budget. It does not show that the offsets are BP messages,
+reproduce BP, isolate retention, separate parity-objective use from
+projection-bound use, or uniquely explain the native BP-versus-projected-GD
+performance gap. Stop this construction without tuning. The next
+native-attribution branch must first split parity-objective use from
+projection-bound use, then continue changing one mechanism at a time.
+
+### `RQ2-GD-OFFSET-SPLIT-001` — separate parity calculation from projection bounds
+
+This registered 2 x 2 projected-GD experiment holds the frozen cases and
+update protocol fixed while varying whether retained check-specific offsets
+are used in the parity calculation and whether they are used to derive the
+projection bounds. Its 24-case anchor is verified but remains development-only.
+
+The first queued held-out attempt is terminal as an execution failure, not a
+mechanism result. J04 ended with exit code 124 after its 17,880-second effective
+run budget, within the registered 18,000-second service budget. The primary
+calculation had completed in memory, but the deterministic replay stopped after
+124 of 200 frames and three of four arms for frame 30125. The queue therefore
+stopped before J05. No held-out `frames.csv`, science record, aggregate,
+manifest, or completion marker was published, so there is no eligible held-out
+result and no causal conclusion from this attempt.
+
+The failed attempt remains intact for audit and must not be resumed or
+overwritten. A next execution requires explicit approval for one of two
+prospective paths: amend the wall-clock budget and use new attempt/output
+directories, or optimize the implementation and establish equivalence under a
+new source freeze and preflight before launch.
+
+The user subsequently approved the first path as `RQ2-AMEND-001` and approved
+its execution as `RQ2-LAUNCH-001`. The v2 successor increases only the
+held-out queue-level wall-clock service budget from 18,000 to 36,000 seconds;
+`TERM` is sent after 35,880 seconds with 120 seconds reserved inside the cap.
+The per-arm projected-GD stopping rule, scientific runner, graph, frame
+identities, seeds, four arms, retained-offset construction, calculations,
+endpoints, inference, thread count, and two scientific passes are unchanged.
+V2 uses new freeze, anchor, held-out, and queue directories; it does not resume
+v1. The new input table must be byte identical to v1, and the new anchor must
+reproduce the v1 anchor science file before held-out execution. This amendment
+does not itself supply a causal result.
+
+The v2 primary pass subsequently completed all 200 cases, but the process then
+entered the legacy iteration-table hash before publishing a scientific result.
+The queue was stopped only after the implementation-equivalent v3 anchor
+passed the exact science-hash gate. Its exit code 143 is therefore an
+operational retirement record; v2 contributes no held-out decoding outcome.
+
+The user authorized `RQ2-OPTIMIZE-001` as attempt v3. Its only computational
+optimization replaces `sha256(codeunits(s))` with
+`sha256(Vector{UInt8}(codeunits(s)))`, preserving the byte sequence and
+digest. Phase-boundary progress, an append-only phase log, and a primary-pass
+checkpoint add observability and recoverability without changing the graph,
+case identities, four arms, offset construction, parity calculations, partial
+derivatives, projection steps, update budget, endpoints, or inference.
+
+The corrected v3 anchor is `complete_valid`; its `science.json` SHA-256 is
+`2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46`,
+exactly matching v1 and v2. Primary and replay iteration-table hashing took
+`0.222612771` and `0.257836261` seconds. The locked budget derivation projects
+`11399.347925517` seconds before safety and assigns 17,100 seconds after the
+1.5 factor, with `TERM` after 16,980 seconds and 120 seconds of grace.
+
+At this publication snapshot,
+`sp-gd-rq2-offset-split-v3-20261031.service` is running the held-out primary
+pass. The mutable held-out progress file, phase log, queue log, status history,
+and incomplete result directory are deliberately excluded from the commit.
+No split-use causal conclusion is permitted until both passes and all result
+gates complete.
 
 ## Separate complexity track
 
@@ -575,9 +716,63 @@ outcome: observed difference | no observed difference
   0/200 for both registered endpoints. Because the run departs from the frozen
   one-thread and GNU gzip 1.10 environment, it is retained as a parallel
   transfer and does not close the canonical confirmatory gate.
-- **2026-10-28:** The next execution is the unmodified frozen held-out runner
-  on the registered one-thread Linux environment. If it passes, update the
-  mechanism report and route map; then preregister a one-mechanism-at-a-time
-  native-attribution bridge. Do not retune this RQ2 protocol or introduce ADMM.
+- **2026-10-30:** The unmodified frozen held-out runner completed in the
+  registered one-thread Linux environment. `2026-10-30_heldout_canonical_linux_v2`
+  is valid, passes all 57 checksums and deterministic replay, and reproduces
+  full exact SP 200/200 versus persistent `qbar` tying 0/200 for both
+  endpoints. The prior Windows transfer is cross-platform corroboration. Do
+  not retune this RQ2 protocol or introduce ADMM.
 - **2026-10-28:** The user authorized pushing the parallel transfer result and
   updated research record to `main`.
+- **2026-10-31:** Before the projected-GD state-use source and input freeze,
+  original anchor frame 1 was quarantined after an independent validator
+  accidentally ran three active updates and observed an intermediate coded-
+  error count. The endpoint was not run and the value was not communicated to
+  the primary runner. The anchor was mechanically shifted from frames 1:24 to
+  2:25; confirmation frames 10001:10200 remained untouched.
+- **2026-10-31:** The first projected-GD state-use held-out attempt completed
+  its first in-memory calculation but failed while attaching the nested
+  Newcombe inference object. It wrote no held-out output directory and
+  contributes no endpoint evidence. The v2 repair changes only the result-
+  container type and adds direct inference-assembly tests.
+- **2026-10-31:** The v2 projected-GD state-use anchor is `complete_valid`,
+  passes deterministic replay, and is scientifically byte-identical to v1.
+  Its 8 active-only and 0 control-only transmitted-word/parity-valid outcomes
+  authorize the already frozen confirmation set; the anchor remains
+  development-only.
+- **2026-10-31:** The first v2 held-out service was terminated by signal 15
+  when tied to a tool-session lifetime and wrote no result. The same immutable
+  freeze and valid anchor were rerun in a detached one-thread user service;
+  this operational change does not alter the scientific protocol.
+- **2026-10-31:** The eligible v2 held-out record is `complete_valid`. Active
+  versus control transmitted-word and parity-valid successes are 172/200
+  versus 113/200, with 59 active-only and 0 control-only pairs. All correctness,
+  checksum, and deterministic-replay gates pass. The favorable result shows a
+  causal recovery consequence for using the constructed check-specific
+  offsets jointly in the parity objective and its induced scalar feasibility
+  interval; it does not separate those two uses, and native BP-versus-
+  projected-GD attribution remains open. Stop this construction without
+  retuning and register the next split-use native-attribution branch.
+- **2026-10-31:** The 24-case `RQ2-GD-OFFSET-SPLIT-001` anchor is verified but
+  development-only. The first queued held-out attempt ended at J04 with exit
+  124 after its 17,880-second effective run budget, during deterministic replay
+  after 124/200 frames and three of four arms for frame 30125; J05 did not run.
+  No eligible held-out science artifacts, result, or causal conclusion exist.
+  A prospective wall-budget amendment or optimized implementation with a new
+  source freeze and equivalence validation requires explicit approval before
+  launch.
+- **2026-10-31:** The user approved `RQ2-AMEND-001` and `RQ2-LAUNCH-001`.
+  The prospective v2 successor changes only the held-out queue-level wall-clock
+  service cap from 18,000 to 36,000 seconds, preserves v1, and starts from new
+  freeze/anchor/held-out/queue directories. The 30-update projected-GD rule and
+  scientific calculation remain unchanged. No causal claim follows from the
+  authorization or launch; the held-out gates must complete first.
+- **2026-10-31:** Measurement localized v2's silent delay to the legacy
+  iteration-table hash. The user authorized `RQ2-OPTIMIZE-001`: v3 hashes the
+  same bytes through a byte vector, adds phase telemetry and a primary
+  checkpoint, and uses new source, freeze, anchor, held-out, and queue
+  directories. The v3 anchor exactly reproduces the registered science SHA-256
+  `2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46`.
+  Only after that equality gate was v2 stopped and the v3 held-out launched.
+  The v3 held-out is still running at this publication snapshot, so its mutable
+  telemetry is excluded and no split-use causal conclusion is recorded.

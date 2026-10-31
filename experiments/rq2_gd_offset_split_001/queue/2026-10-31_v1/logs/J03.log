@@ -1,0 +1,8 @@
+Verifying anchor embedded replay record, correctness, and checksums
+anchor replay-record/correctness/checksum gate passed: 50 checksum entries; science=2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46
+No endpoint direction is used as an expansion gate
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files

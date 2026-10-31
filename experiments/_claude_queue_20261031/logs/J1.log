@@ -1,0 +1,13 @@
+Test Summary:          | Pass  Total   Time
+RQ2-GD-OFFSET-NULL-001 |  544    544  58.2s
+Test Summary:      | Pass  Total   Time
+RQ2-NATIVE-GAP-001 |   16     16  20.7s
+experiment: RQ2-GD-OFFSET-NULL-001
+graph SHA-256: 94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d
+arms: control,reference,permuted,frozen
+experiment: RQ2-NATIVE-GAP-001
+graph SHA-256: 94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d
+bp iterations: 80
+frozen input rows: 224
+input table SHA-256: 739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd
+frozen input rows: 1792

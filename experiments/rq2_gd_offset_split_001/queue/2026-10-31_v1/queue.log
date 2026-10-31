@@ -1,0 +1,49 @@
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+locked queue package: 4 files; record=/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v1/QUEUE_PACKAGE_LOCK.toml
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T02:32:28Z queue=running job=- job_state=queued completed=0/5 detail=serial queue initialized
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T02:32:29Z queue=running job=J01 job_state=running completed=0/5 detail=Focused tests, locked preflight verification, and freeze
+2026-10-31T02:32:29Z starting J01: Focused tests, locked preflight verification, and freeze
+2026-10-31T02:34:34Z queue=running job=J01 job_state=complete completed=1/5 detail=Focused tests, locked preflight verification, and freeze
+2026-10-31T02:34:34Z completed J01
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T02:34:34Z queue=running job=J02 job_state=running completed=1/5 detail=Four-arm 24-case anchor
+2026-10-31T02:34:35Z starting J02: Four-arm 24-case anchor
+2026-10-31T02:59:54Z queue=running job=J02 job_state=complete completed=2/5 detail=Four-arm 24-case anchor
+2026-10-31T02:59:54Z completed J02
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T02:59:54Z queue=running job=J03 job_state=running completed=2/5 detail=Anchor replay-record/correctness/checksum gate
+2026-10-31T02:59:54Z starting J03: Anchor replay-record/correctness/checksum gate
+2026-10-31T02:59:55Z queue=running job=J03 job_state=complete completed=3/5 detail=Anchor replay-record/correctness/checksum gate
+2026-10-31T02:59:55Z completed J03
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files
+2026-10-31T02:59:55Z queue=running job=J04 job_state=running completed=3/5 detail=Four-arm 200-case held-out execution
+2026-10-31T02:59:55Z starting J04: Four-arm 200-case held-out execution
+2026-10-31T07:57:56Z queue=failed job=J04 job_state=failed completed=3/5 detail=Four-arm 200-case held-out execution
+2026-10-31T07:57:56Z failed J04 with exit code 124; see /home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v1/logs/J04.log
+2026-10-31T07:57:56Z queue=failed job=J04 job_state=failed completed=3/5 detail=queue stopped after a failed job

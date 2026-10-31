@@ -1,0 +1,280 @@
+schema_version = "rq2-gd-offset-split-001/v1"
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "four-arm factorial AWGN ablation separating offset use in the parity calculation from offset use in the interval for the projection step"
+
+[amendment]
+amendment_id = "RQ2-AMEND-001"
+launch_approval_id = "RQ2-LAUNCH-001"
+authorized_utc = "2026-10-31T08:23:06Z"
+classification = "prospective queue-level wall-clock-budget amendment after terminal execution-budget failure"
+only_protocol_change = "heldout_wall_budget_seconds: 18000 -> 36000"
+scientific_runner_must_remain_byte_identical = true
+scientific_runner_sha256 = "70cf7cf14c3d1184f8ecb65d1689da6cfdae1eb9272b3227055a434af1585860"
+test_source_must_remain_byte_identical = true
+test_source_sha256 = "c70187cd2858c23efe93e15492f50ad0ac037e7068d152945a7f18dd68fcf1e0"
+predecessor_config_sha256 = "d5f55d93a4ff20bd680082f80f24169d5a3f80d4fe6facb5dea76c8fe38e39a9"
+predecessor_card_sha256 = "551c068c18357d4f53482fcbbdf2013e5049bf15b8d0a1b495345fab10435b69"
+predecessor_freeze = "freeze/2026-10-31_v1"
+predecessor_anchor_result = "results/2026-10-31_anchor_v1"
+predecessor_heldout_result = "results/2026-10-31_heldout_v1"
+predecessor_queue = "queue/2026-10-31_v1"
+predecessor_heldout_terminal_status = "execution_budget_failure"
+predecessor_heldout_scientific_artifacts_exist = false
+predecessor_partial_progress_is_a_checkpoint = false
+reuse_predecessor_partial_progress = false
+successor_freeze = "freeze/2026-10-31_v2"
+successor_anchor_result = "results/2026-10-31_anchor_v2"
+successor_heldout_result = "results/2026-10-31_heldout_v2"
+successor_queue = "queue/2026-10-31_v2"
+predecessor_input_freeze_sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+predecessor_anchor_science_sha256 = "2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46"
+predecessor_heldout_wall_budget_seconds = 18000
+successor_heldout_wall_budget_seconds = 36000
+termination_grace_seconds_inside_wall_budget = 120
+term_signal_after_seconds = 35880
+
+[scope]
+admm_included = false
+bp_arm_included = false
+snr_sweep = false
+native_bp_vs_projected_gd_attribution = false
+new_receiver_route = false
+all_arms_are_constructed_projected_gradient_variants = true
+
+[code]
+n = 10200
+k = 5100
+variable_degree = 3
+check_degree = 6
+graph_seed = 169616412
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+transmitted_word = "all_zero"
+
+[channel]
+model = "known-unit-gain post-FFT complex AWGN"
+physical_esn0_db = 6.0
+information_bit_ebn0_db = 6.0
+qpsk_symbol_energy = 1.0
+noise_variance = 0.251188643150958
+noise_variance_float64_hex = "0x3fd0137987dd704c"
+llr_convention = "positive favors coded bit zero"
+llr_clip = 20.0
+noise_seed_base = 20261012
+noise_seed_rule = "base plus frame index"
+
+[projected_gradient]
+parity_weight = 2.0
+binary_weight = 0.2
+initialization = "x_i^(0) = tanh(clipped channel LLR_i / 2)"
+maximum_update_attempts = 30
+initial_step = 0.2
+maximum_backtracks = 16
+line_search = "first strict decrease of the arm's registered fixed-offset objective"
+native_box_lower = -1.0
+native_box_upper = 1.0
+preconditioner = "native curvature bound"
+hard_decision = "bit_i = 1 iff x_i < 0"
+stopping_rule = "30 update attempts or first line-search stall; no syndrome early stop"
+
+[offset_construction]
+leave_one_check_scaling = "degree(i)/(degree(i)-1)"
+degree_one_rule = "constructed value equals the scalar partial derivative"
+local_proposal = "q_(c,i) = x_i - accepted_step * G_tilde_(i,c) / kappa_i"
+bounded_mean_projection = "Euclidean projection of q_i onto [-1,1]^degree(i) with arithmetic mean fixed to accepted x_i"
+offset = "delta_(c,i) = projected_local_(c,i) - accepted_x_i"
+refresh = "only after an accepted scalar update"
+consumption = "offsets from one accepted update remain fixed throughout the next calculation of partial derivatives and backtracking line search"
+fitted_coefficient = false
+
+[factorial]
+arm_order = ["objective0__bounds0", "objective1__bounds0", "objective0__bounds1", "objective1__bounds1"]
+first_possible_divergence_update = 2
+physical_state_equal_across_arms = true
+offset_construction_equal_across_arms = true
+
+[factorial.arms.objective0__bounds0]
+objective_uses_offsets = false
+projection_uses_offset_bounds = false
+
+[factorial.arms.objective1__bounds0]
+objective_uses_offsets = true
+projection_uses_offset_bounds = false
+
+[factorial.arms.objective0__bounds1]
+objective_uses_offsets = false
+projection_uses_offset_bounds = true
+
+[factorial.arms.objective1__bounds1]
+objective_uses_offsets = true
+projection_uses_offset_bounds = true
+
+[domain]
+native_scalar_box = "[-1,1]"
+offset_bounds = "max_c(-1-delta_(c,i)) <= x_i <= min_c(1-delta_(c,i))"
+objective1_bounds0_uses_polynomial_extension = true
+objective1_bounds0_shifted_readings_may_leave_box = true
+objective1_bounds0_clipping_forbidden = true
+objective1_bounds0_overshoot_required_diagnostic = true
+require_shifted_readings_in_box_when_offset_bounds_enabled = true
+
+[anchor]
+frame_first = 20001
+frame_last = 20024
+expected_count = 24
+development_only = true
+freeze_before_any_endpoint = true
+require_all_correctness_gates = true
+outcome_direction_is_not_an_expansion_gate = true
+heldout_runs_after_correctness_for_null_reverse_or_interaction = true
+
+[heldout]
+frame_first = 30001
+frame_last = 30200
+expected_count = 200
+freeze_before_anchor = true
+enabled_only_after_correctness_gate = true
+outcome_direction_gate = false
+
+[endpoints]
+primary = ["transmitted_word_equal", "parity_valid"]
+supporting = ["information_word_equal", "coded_bit_errors", "information_bit_errors", "syndrome_weight", "wrong_valid_word_count"]
+
+[contrasts]
+primary = ["objective_use_given_bounds0", "offset_bounds_given_objective0"]
+conditional = ["objective_use_given_bounds1", "offset_bounds_given_objective1"]
+interaction = "objective1_bounds1 - objective1_bounds0 - objective0_bounds1 + objective0_bounds0"
+retain_all_signs = true
+
+[inference]
+pairwise_method = "two-sided exact McNemar test and Newcombe method 10 paired-risk-difference interval"
+pairwise_contrasts_per_endpoint = 4
+endpoint_count = 2
+holm_family_size = 8
+familywise_alpha = 0.05
+pairwise_interval_confidence_level = 0.99375
+holm_correction = true
+interaction_method = "paired-case percentile bootstrap of the complete four-arm outcome vector"
+interaction_bootstrap_seed = 20261031
+interaction_bootstrap_resamples = 100000
+interaction_interval_confidence_level = 0.95
+interaction_is_descriptive = true
+interaction_is_gate = false
+
+[work_budget]
+arms_per_case = 4
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+maximum_update_attempts_per_arm = 30
+anchor_cases = 24
+anchor_arm_runs_per_pass = 96
+anchor_maximum_arm_updates_per_pass = 2880
+heldout_cases = 200
+heldout_arm_runs_per_pass = 800
+heldout_maximum_arm_updates_per_pass = 24000
+synthetic_warmups_per_arm = 1
+timed_executions_per_arm_case = 1
+anchor_wall_budget_seconds = 1800
+heldout_wall_budget_seconds = 36000
+parameter_sweep_allowed = false
+snr_sweep_allowed = false
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+manual_relaunch_must_use_same_frozen_command = true
+extra_cases_allowed = false
+
+[timing]
+warmup_input = "deterministic synthetic length-N LLR vector with no channel-frame identity"
+warmup_llr_rule = "ell_i = 2 sin(0.013 i) + 0.4 cos(0.031 i)"
+warmup_has_frame_identity = false
+warmup_included_in_outcomes = false
+warmup_repetitions_per_arm = 1
+arm_order = "cyclic rotations of factorial.arm_order by frame index; each arm occupies each order position equally often"
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+timed_boundary = "four-arm scalar kernel including offset construction, partial derivatives, line search, projection step, hard decision, and syndrome; excluding input generation, validation, hashing, and serialization"
+runtime_is_diagnostic_only = true
+allocation_is_diagnostic_only = true
+
+[progress]
+filename = "progress.toml"
+atomic_write = true
+update_after_each_frame = true
+passes = ["primary", "replay"]
+
+[validation]
+absolute_tolerance = 1.0e-12
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 3.0e-8
+finite_difference_domain = "unconstrained polynomial extension with retained offsets fixed; probes are validation-only"
+mean_offset_tolerance = 2.0e-12
+box_tolerance = 2.0e-14
+native_composition_tolerance = 2.0e-12
+prior_compound_composition_tolerance = 0.0
+require_exact_native_control_path = true
+require_exact_prior_compound_path_on_regression_cases = true
+require_no_divergence_before_update_2 = true
+require_nonzero_offsets_entering_update_2 = true
+require_equal_physical_array_shapes = true
+require_equal_offset_construction = true
+require_check_and_local_edge_relabeling = true
+require_independent_hard_decision_and_syndrome = true
+require_overshoot_diagnostics = true
+require_deterministic_replay = true
+refuse_overwrite = true
+reject_extra_output_files = true
+
+[sources]
+sp_repo = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030"
+jade_project_repo = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+jade_project_expected_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+jade_project_toml_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+jade_manifest_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+jade_manifest_toml_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+jade_receiver_core = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+jade_receiver_core_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+jade_core_common = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+jade_core_common_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+jade_joint_projected_gradient = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+jade_joint_projected_gradient_sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+archived_native_runner = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+archived_native_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+archived_native_test = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/test_three_receivers.jl"
+archived_native_test_sha256 = "f0bc4b1fe110b0e38222eda5db36741d1525cd3b58e6a906c9e384da136ae2cc"
+archived_native_frames = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/frames.csv"
+archived_native_frames_sha256 = "c035c34b0d49e12129d6f828b8eaa2ce240e681e16ef9f37741ec5d236587d3a"
+prior_config = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/config.toml"
+prior_config_sha256 = "40baeef54e305f9854cd354dc07e5f368510c16f154106d8f06fcaf73e21d382"
+prior_card = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/experiment_card.md"
+prior_card_sha256 = "4b2400eeb58ed2124ef6fd62f8e369edd4643db6f802aeba90d1cc20456df209"
+prior_runner = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+prior_runner_sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+prior_test = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/test_rq2_gd_state_use_001.jl"
+prior_test_sha256 = "6e9f1d8c079e3b1c393e0b0bfd9a4c894666bfbee3f9438bdb00313fe5160320"
+prior_anchor_result = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/results/2026-10-31_anchor_v2"
+prior_anchor_completion_sha256 = "fa90c0c474dfce8ecd1d6849025c2a86126a9811619ac6af812f583372745a82"
+prior_anchor_science_sha256 = "beb8517b8bb95c2d988728641942806d8292904a6fe186963029237fcf9e6bfa"
+prior_anchor_frames_sha256 = "23658b008368247f4fa7da404d91837f2550d294634aea7a13c56980508cc78c"
+prior_anchor_iterations_sha256 = "824febb4f16b41a77151afc746b7a13ece39ee8bbd5df3f63bb282c75f3e6733"
+prior_anchor_checksum_manifest_sha256 = "cdaec687b2bb49568437389d326fe6d8b81425f20e92d88efd9d2ad4a51eaf18"
+prior_heldout_result = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2"
+prior_heldout_completion_sha256 = "3099cce2f59f1a964031cf3ce329d1b39d0324224e8321827cf36d8c4ebbdda0"
+prior_heldout_science_sha256 = "2ae5f7f636edbf6753529213993b7301535b23d916f465a3b7e1bf7ee9075a64"
+prior_heldout_aggregate_sha256 = "93b8cfc089e93a426720bad3d0713b0d27cf17e3015c799694976b3b21be5ad9"
+prior_heldout_frames_sha256 = "f3e371887149ab992198a2b4fde832fa6f7522e81fa00bad99dd13d54e6f2df6"
+prior_heldout_iterations_sha256 = "f38a10e902e98e68939fb79e7a9ab4497b88aff7e7ade3cee219a6c0a1acb6c1"
+prior_heldout_manifest_sha256 = "b3361fb5ff5d865ec86a51a8c89cb46a9ff8ffbe2babde2f639ba2aa74582428"
+prior_heldout_checksum_manifest_sha256 = "07b11ca649f544f5c07bfffaa4a97050709756236aa900cec6f983f38ea1e463"
+
+[provenance]
+freeze_schema = "rq2-gd-offset-split-001/freeze-v1"
+science_schema = "rq2-gd-offset-split-001/science-v1"
+manifest_schema = "rq2-gd-offset-split-001/manifest-v1"
+completion_schema = "rq2-gd-offset-split-001/completion-v1"
+progress_schema = "rq2-gd-offset-split-001/progress-v1"
+archive_loaded_sources = true
+scientific_hash_scope = "canonical scientific state and gates; runtime, progress timestamps, and provenance excluded"

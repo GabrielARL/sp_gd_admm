@@ -1,0 +1,17 @@
+Running focused tests
+Test Summary:           | Pass  Total     Time
+RQ2-GD-OFFSET-SPLIT-001 | 1089   1089  1m01.8s
+Verifying locked preflight record and retained source gate
+locked preflight validation passed: 1089/1089 assertions
+experiment: RQ2-GD-OFFSET-SPLIT-001
+graph SHA-256: 94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d
+arms: objective0__bounds0,objective1__bounds0,objective0__bounds1,objective1__bounds1
+Freezing the registered source and 224 input identities
+frozen input rows: 224
+freeze manifest SHA-256: 9e2371e074958683cf460fa8e3d6eea17346d77210c90967e732ce4109196518
+freeze verification passed: 224 rows, 43 checksum entries
+queue.toml: OK
+run_queue.sh: OK
+status_report.py: OK
+README.md: OK
+queue-package lock passed: 4 files

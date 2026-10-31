@@ -1,0 +1,11 @@
+endpoint,contrast,treatment,reference,pairs,both_success,treatment_only_success,reference_only_success,both_failure,treatment_successes,reference_successes,risk_difference,interval_lower,interval_upper,mcnemar_p,holm_p
+transmitted_word_equal,reference_vs_control,reference,control,24,15,7,0,2,22,15,0.29166666666666669,NaN,NaN,NaN,NaN
+transmitted_word_equal,permuted_vs_control,permuted,control,24,10,0,5,9,10,15,-0.20833333333333334,NaN,NaN,NaN,NaN
+transmitted_word_equal,frozen_vs_control,frozen,control,24,15,7,0,2,22,15,0.29166666666666669,NaN,NaN,NaN,NaN
+transmitted_word_equal,reference_vs_permuted,reference,permuted,24,10,12,0,2,22,10,0.5,NaN,NaN,NaN,NaN
+transmitted_word_equal,reference_vs_frozen,reference,frozen,24,22,0,0,2,22,22,0,NaN,NaN,NaN,NaN
+parity_valid,reference_vs_control,reference,control,24,15,7,0,2,22,15,0.29166666666666669,NaN,NaN,NaN,NaN
+parity_valid,permuted_vs_control,permuted,control,24,10,0,5,9,10,15,-0.20833333333333334,NaN,NaN,NaN,NaN
+parity_valid,frozen_vs_control,frozen,control,24,15,7,0,2,22,15,0.29166666666666669,NaN,NaN,NaN,NaN
+parity_valid,reference_vs_permuted,reference,permuted,24,10,12,0,2,22,10,0.5,NaN,NaN,NaN,NaN
+parity_valid,reference_vs_frozen,reference,frozen,24,22,0,0,2,22,22,0,NaN,NaN,NaN,NaN

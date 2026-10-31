@@ -1,0 +1,6 @@
+job = "J4"
+title = "native gap: six, profile, second"
+started_utc = "2026-10-31T05:43:40Z"
+failed_utc = "2026-10-31T05:53:44Z"
+exit_code = 1
+failure_class = "gate_failure"

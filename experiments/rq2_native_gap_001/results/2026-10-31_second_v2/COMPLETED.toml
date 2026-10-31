@@ -1,0 +1,8 @@
+completed_utc = "2026-10-31T06:44:57.947"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-NATIVE-GAP-001"
+schema_version = "rq2-native-gap-001/completion-v1"
+science_sha256 = "28a262739fddbb5428c99631510670a6a36b7c49214f061753a8bdf69ae75739"
+stage = "second"
+status = "complete_valid"

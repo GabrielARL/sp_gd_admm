@@ -1,0 +1,3 @@
+endpoint,pairs,both_success,bp_only_success,gd_only_success,both_failure,bp_successes,gd_successes,risk_difference_bp_minus_gd,interval_lower,interval_upper,mcnemar_p,holm_p
+transmitted_word_equal,200,0,200,0,0,200,0,1,0.96534624278665548,1,1.2446030555722283e-60,2.4892061111444567e-60
+parity_valid,200,0,200,0,0,200,0,1,0.96534624278665548,1,1.2446030555722283e-60,2.4892061111444567e-60

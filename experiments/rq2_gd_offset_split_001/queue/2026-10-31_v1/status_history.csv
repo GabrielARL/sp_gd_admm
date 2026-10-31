@@ -1,0 +1,11 @@
+updated_utc,queue_state,job_id,job_state,jobs_completed,jobs_total,exit_code,detail
+2026-10-31T02:32:28Z,running,,queued,0,5,-1,serial queue initialized
+2026-10-31T02:32:29Z,running,J01,running,0,5,-1,"Focused tests, locked preflight verification, and freeze"
+2026-10-31T02:34:34Z,running,J01,complete,1,5,0,"Focused tests, locked preflight verification, and freeze"
+2026-10-31T02:34:34Z,running,J02,running,1,5,-1,Four-arm 24-case anchor
+2026-10-31T02:59:54Z,running,J02,complete,2,5,0,Four-arm 24-case anchor
+2026-10-31T02:59:54Z,running,J03,running,2,5,-1,Anchor replay-record/correctness/checksum gate
+2026-10-31T02:59:55Z,running,J03,complete,3,5,0,Anchor replay-record/correctness/checksum gate
+2026-10-31T02:59:55Z,running,J04,running,3,5,-1,Four-arm 200-case held-out execution
+2026-10-31T07:57:56Z,failed,J04,failed,3,5,124,Four-arm 200-case held-out execution
+2026-10-31T07:57:56Z,failed,J04,failed,3,5,124,queue stopped after a failed job

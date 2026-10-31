@@ -1,0 +1,7 @@
+detail = "queue stopped after J04"
+exit_code = 124
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V1"
+recorded_utc = "2026-10-31T07:57:56Z"
+schema_version = "rq2-gd-offset-split-001/queue-terminal-v1"
+state = "failed"

@@ -1,0 +1,68 @@
+attempt_id = "R5-AWGN-ISOLATION-R050-001"
+classification = "explicit Route-5 AWGN isolation; not a new receiver route"
+created_utc = "2026-10-13T00:52:17.858"
+schema_version = 1
+
+[channel]
+H = "identity"
+cfo = false
+ici = false
+model = "post-FFT unit-gain complex AWGN"
+noise_variance = [0.5623413251903491, 0.5011872336272724, 0.44668359215096315, 0.39810717055349726, 0.35481338923357547, 0.31622776601683794, 0.28183829312644537, 0.251188643150958, 0.22387211385683392, 0.199526231496888, 0.17782794100389226, 0.15848931924611132, 0.14125375446227545, 0.1258925411794167, 0.11220184543019636, 0.1]
+pilots = 0
+qpsk_symbol_energy = 1.0
+shared_unit_noise_across_snr = true
+snr_db = [2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0]
+snr_definition = "information-bit Eb/N0"
+
+[code]
+check_degree = 6
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+k = 5100
+method = "evenboth"
+n = 10200
+no4cycle = false
+rate = 0.5
+seed = 169616412
+transmitted_word = "all-zero codeword by binary-linear AWGN symmetry"
+variable_degree = 3
+
+[environment]
+blas_threads = 1
+cpu = "haswell"
+julia_threads = 1
+julia_version = "1.12.6"
+
+[protocol]
+bp_iteration_limit = 80
+bp_normalization = 0.8
+bp_rule = "normalized min-sum"
+frames_per_snr = 200
+llr_clip = 20.0
+noise_seed_base = 20261012
+paired_inputs = true
+receivers = ["ofdm_fec_bp", "coral_exact_gradient", "jade_gradient_then_bp"]
+
+[scalar_block]
+binary_weight = 0.2
+equation = "-L'x/(2n) + mu_p/n sum_c(1-prod_i x_i)^2 + mu_b/n sum_i(1-x_i^2)^2"
+gradient = "exact analytical product gradient"
+initial_step = 0.2
+initialization = "tanh(clipped physical LLR / 2)"
+maximum_backtracks = 16
+objective = "J_exp: uncertainty-aware additive AWGN likelihood plus exact product parity and binary penalties"
+parity_weight = 2.0
+pseudogradient_calls = 0
+shared_by_coral_and_pre_bp_jade = true
+steps = 30
+
+[source]
+branch = "codex/awgn-jade-coral-20261012"
+head = "f44641e48fb9ade33c8c17598dd3f65b77f6205c"
+manifest_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+plotter_sha256 = "2abedb435989f37af0bfb8cf494bc39573492c667c65d998b5fdaa6ee635762a"
+project_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+repository = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+status = """?? experiments/jade_awgn/plot_three_receivers.py\n?? experiments/jade_awgn/run_three_receivers.jl\n?? experiments/jade_awgn/test_three_receivers.jl"""
+test_sha256 = "f0bc4b1fe110b0e38222eda5db36741d1525cd3b58e6a906c9e384da136ae2cc"

@@ -1,0 +1,119 @@
+schema_version = "rq2-gd-offset-split-001/queue-v3"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V3"
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+created_utc = "2026-10-31T12:41:51Z"
+job_count = 3
+execution = "serial, fail-closed, correctness-gated"
+outcome_direction_is_a_gate = false
+scientific_passes_per_stage = 2
+third_scientific_recalculation_allowed = false
+external_replay_command_allowed = false
+registered_timed_executions_per_arm_case = 1
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+termination_grace_seconds_inside_wall_budget = 120
+thread_count_julia = 1
+thread_count_omp = 1
+thread_count_openblas = 1
+anchor_run_mode = "one-off concurrent unit; scientific-queue wait deliberately bypassed"
+one_off_anchor_unit = "sp-gd-rq2-offset-split-v3-anchor-20261031.service"
+heldout_queue_unit = "sp-gd-rq2-offset-split-v3-20261031.service"
+predecessor_v2_unit = "sp-gd-rq2-offset-split-v2-20261031.service"
+queue_never_signals_predecessor = true
+predecessor_stopped_only_after_exact_anchor_equality = true
+anchor_wrapper_wall_budget_seconds = 3600
+anchor_wrapper_term_after_seconds = 3480
+
+[optimization]
+optimization_id = "RQ2-OPTIMIZE-001"
+classification = "same-science implementation and observability successor"
+hash_implementation_change = "sha256(codeunits(s)) -> sha256(Vector{UInt8}(codeunits(s)))"
+same_canonical_bytes = true
+predecessor_config_sha256 = "824dc576416f87c3f9d00e198059a14adc3f9970993a7702bbce504dbc300c38"
+predecessor_card_sha256 = "82056892bcad1477cf5e261145f059a537031b47a7888b9ca158142d5ce65a5f"
+predecessor_preflight_sha256 = "b7e58ca5f1f56f7d6629d525acbae7aedfe5879dc3b506d138cb078cc20b7d16"
+predecessor_split_runner_sha256 = "70cf7cf14c3d1184f8ecb65d1689da6cfdae1eb9272b3227055a434af1585860"
+predecessor_test_sha256 = "c70187cd2858c23efe93e15492f50ad0ac037e7068d152945a7f18dd68fcf1e0"
+predecessor_legacy_runner_sha256 = "6c09396c7f394ad2c45ae4ee0b22d8b556c384784e2ce21fcea0ce3632009f7d"
+optimized_config_sha256 = "27378985792f1cd963292a0b6986424b1994b42da1ef17bf9bf2b279c5bc346c"
+optimized_card_sha256 = "9353521503bc9c19836d70870f0b4e23b59424db1b1974e07c43485847ffabed"
+optimized_preflight_sha256 = "4b2dc7e17564a1dbba949f97ed840fa154fd4bfe357fb7ba877d19fded9c2001"
+optimized_split_runner_sha256 = "ddd2cc8ce258ebdd2c43a8c305bebd280e6dd609d3872eec039158b29a407ce4"
+optimized_test_sha256 = "c989908e6fe09966102e9f4e15d079e1fe2b431c617371de349d00d1d5111c99"
+optimized_legacy_runner_sha256 = "12272ccdcdde6b600073299caa4ada07953164dac65aecda98fc5dac1ba6b3cd"
+predecessor_input_freeze_sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+required_anchor_science_sha256 = "2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46"
+required_anchor_base_scientific_sha256 = "dfe9082912a6108fabae39f7db0e1749c7f097bc310d0cd5b63109cf327148d0"
+v2_partial_progress_reused = false
+rejected_precompletion_attempt_reused = false
+rejected_record_sha256 = "9dd41a1f785c2cbfd729a29cea47d9e8aec2abc7fd4f81499ed12dc67f9877d4"
+rejected_progress_sha256 = "e826362a0220edc27ae6c768ac69821e3b26266838d5d081014507901af65fe4"
+rejected_phase_log_sha256 = "b078aed29534c98540615993a5cd4ec95e52313551141cdd324bb634c90d5dbd"
+runtime_rejected_precompletion_attempt_reused = false
+runtime_rejected_record_sha256 = "aa0195bc78fea8c8356fb46fd3deeae297dfffad54f7bfc15f372a95737961a2"
+runtime_rejected_progress_sha256 = "0157e46c1d675e0054eee639f8bc8c079dc8b3b165ce740bab9b28e1976e8b1e"
+runtime_rejected_phase_log_sha256 = "8a8cc84abcaae8a65cd4cf12e32913750d18dc9251a5bd721ab7032562a60a90"
+
+[wall_budget]
+derivation = "ceil(1.5 * (anchor_seconds_per_frame * 200 * 2 + anchor_post_loop_seconds * (200 / 24)))"
+anchor_cases = 24
+heldout_cases = 200
+pass_count = 2
+safety_factor = 1.5
+absolute_safety_cap_seconds = 36000
+heldout_seconds = 17100
+termination_grace_seconds_inside_budget = 120
+heldout_term_after_seconds = 16980
+status = "bound to exact-equal completed v3 anchor phase log"
+
+[paths]
+repository_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030"
+experiment_root = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_offset_split_001"
+project = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+predecessor_config = "experiments/rq2_gd_offset_split_001/config.toml"
+predecessor_card = "experiments/rq2_gd_offset_split_001/experiment_card.md"
+predecessor_preflight = "experiments/rq2_gd_offset_split_001/preflight_validation.md"
+predecessor_split_runner = "experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+predecessor_test = "experiments/rq2_gd_offset_split_001/test_rq2_gd_offset_split_001.jl"
+predecessor_legacy_runner = "experiments/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+config = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_offset_split_001/config.toml"
+runner = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+test = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_offset_split_001/test_rq2_gd_offset_split_001.jl"
+preflight = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_offset_split_001/preflight_validation.md"
+legacy_runner = "experiments/rq2_gd_offset_split_001/attempts/2026-10-31_v3/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+freeze = "experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v3"
+anchor_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v3"
+heldout_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3"
+rejected_anchor_attempt = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v3_rejected_progress_chain"
+runtime_rejected_anchor_attempt = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v3_rejected_1800s_projection"
+budget_record = "budget_derivation.toml"
+budget_derivation_script = "derive_budget.py"
+queue_progress = "progress.toml"
+status_history = "status_history.csv"
+queue_log = "queue.log"
+queue_manifest = "QUEUE_MANIFEST.sha256"
+queue_package_record = "QUEUE_PACKAGE_LOCK.toml"
+queue_lock = "queue.lock"
+final_summary = "final_summary.toml"
+
+[jobs.J01]
+title = "V3 source, freeze, anchor-equality, checkpoint, phase, and budget gates"
+depends_on = []
+terminal_marker = "jobs/J01/COMPLETED.toml"
+failure_marker = "jobs/J01/FAILED.toml"
+log = "logs/J01.log"
+
+[jobs.J02]
+title = "Four-arm 200-case v3 held-out execution"
+depends_on = ["J01"]
+terminal_marker = "jobs/J02/COMPLETED.toml"
+failure_marker = "jobs/J02/FAILED.toml"
+log = "logs/J02.log"
+
+[jobs.J03]
+title = "Held-out replay/checkpoint/checksum and final summary"
+depends_on = ["J02"]
+terminal_marker = "jobs/J03/COMPLETED.toml"
+failure_marker = "jobs/J03/FAILED.toml"
+log = "logs/J03.log"

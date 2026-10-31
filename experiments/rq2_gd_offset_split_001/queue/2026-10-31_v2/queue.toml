@@ -1,0 +1,104 @@
+schema_version = "rq2-gd-offset-split-001/queue-v2"
+queue_id = "RQ2-GD-OFFSET-SPLIT-001-QUEUE-2026-10-31-V2"
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+created_utc = "2026-10-31T08:25:29Z"
+job_count = 5
+execution = "serial, fail-closed, correctness-gated"
+outcome_direction_is_a_gate = false
+scientific_passes_per_stage = 2
+third_scientific_recalculation_allowed = false
+external_replay_command_allowed = false
+registered_timed_executions_per_arm_case = 1
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+termination_grace_seconds_inside_wall_budget = 120
+thread_count_julia = 1
+thread_count_omp = 1
+thread_count_openblas = 1
+external_scientific_conflict_unit = "sp-gd-claude-controls-20261031.service"
+external_conflict_wait_poll_seconds = 60
+scientific_wall_budget_begins_after_external_wait = true
+
+[amendment]
+amendment_id = "RQ2-AMEND-001"
+launch_approval_id = "RQ2-LAUNCH-001"
+classification = "prospective queue-level wall-clock-budget amendment"
+only_protocol_change = "heldout_wall_budget_seconds: 18000 -> 36000"
+predecessor_queue = "experiments/rq2_gd_offset_split_001/queue/2026-10-31_v1"
+predecessor_freeze = "experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v1"
+predecessor_anchor_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v1"
+predecessor_heldout_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v1"
+predecessor_config_sha256 = "d5f55d93a4ff20bd680082f80f24169d5a3f80d4fe6facb5dea76c8fe38e39a9"
+predecessor_card_sha256 = "551c068c18357d4f53482fcbbdf2013e5049bf15b8d0a1b495345fab10435b69"
+predecessor_input_freeze_sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+predecessor_anchor_science_sha256 = "2062fce292d4b41cf93c6dd86afdb6855345b52ff1408d9c89c7318e25b20d46"
+predecessor_queue_failure_sha256 = "23df1b56d91a2c056265fda39eee4738f588d051ffc7f835839ed7ce281589df"
+predecessor_j04_failure_sha256 = "21d1622117a5c48e2dd4e8c2f9f5f5babeaf16d7484420a0aad3275b549aed0e"
+predecessor_queue_progress_sha256 = "cc4bcd39a784bcff7666f0e91d6b5f86f14174525264cca28884a99dacc89207"
+predecessor_j04_log_sha256 = "b1cef79feb5b6de67a5d342ed254ebd2b0e49ebc69e0c21da727bd3f4efca806"
+runner_sha256 = "70cf7cf14c3d1184f8ecb65d1689da6cfdae1eb9272b3227055a434af1585860"
+test_sha256 = "c70187cd2858c23efe93e15492f50ad0ac037e7068d152945a7f18dd68fcf1e0"
+predecessor_partial_progress_is_a_checkpoint = false
+reuse_predecessor_partial_progress = false
+predecessor_heldout_scientific_artifacts_exist = false
+
+[wall_budget]
+anchor_seconds = 1800
+heldout_seconds = 36000
+termination_grace_seconds_inside_budget = 120
+heldout_term_after_seconds = 35880
+
+[paths]
+repository_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030"
+experiment_root = "experiments/rq2_gd_offset_split_001"
+project = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+config = "experiments/rq2_gd_offset_split_001/config.toml"
+runner = "experiments/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+test = "experiments/rq2_gd_offset_split_001/test_rq2_gd_offset_split_001.jl"
+preflight = "experiments/rq2_gd_offset_split_001/preflight_validation.md"
+freeze = "experiments/rq2_gd_offset_split_001/freeze/2026-10-31_v2"
+anchor_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_anchor_v2"
+heldout_result = "experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v2"
+queue_progress = "progress.toml"
+status_history = "status_history.csv"
+queue_log = "queue.log"
+queue_manifest = "QUEUE_MANIFEST.sha256"
+queue_package_record = "QUEUE_PACKAGE_LOCK.toml"
+queue_lock = "queue.lock"
+final_summary = "final_summary.toml"
+
+[jobs.J01]
+title = "Amendment whitelist, focused tests, preflight, and v2 freeze"
+depends_on = []
+terminal_marker = "jobs/J01/COMPLETED.toml"
+failure_marker = "jobs/J01/FAILED.toml"
+log = "logs/J01.log"
+
+[jobs.J02]
+title = "Four-arm 24-case v2 anchor provenance rebind"
+depends_on = ["J01"]
+terminal_marker = "jobs/J02/COMPLETED.toml"
+failure_marker = "jobs/J02/FAILED.toml"
+log = "logs/J02.log"
+
+[jobs.J03]
+title = "Anchor replay/correctness/checksum and v1-science equality gate"
+depends_on = ["J02"]
+terminal_marker = "jobs/J03/COMPLETED.toml"
+failure_marker = "jobs/J03/FAILED.toml"
+log = "logs/J03.log"
+
+[jobs.J04]
+title = "Four-arm 200-case held-out execution"
+depends_on = ["J03"]
+terminal_marker = "jobs/J04/COMPLETED.toml"
+failure_marker = "jobs/J04/FAILED.toml"
+log = "logs/J04.log"
+
+[jobs.J05]
+title = "Held-out embedded-replay record, checksum, and final queue summary"
+depends_on = ["J04"]
+terminal_marker = "jobs/J05/COMPLETED.toml"
+failure_marker = "jobs/J05/FAILED.toml"
+log = "logs/J05.log"

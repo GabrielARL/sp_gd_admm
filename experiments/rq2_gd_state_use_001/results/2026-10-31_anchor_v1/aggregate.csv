@@ -1,0 +1,4 @@
+endpoint,pairs,both_success,active_only_success,control_only_success,both_failure,active_successes,control_successes,risk_difference_active_minus_control
+information_word_equal,24,19,4,0,1,23,19,0.16666666666666666
+parity_valid,24,11,8,0,5,19,11,0.33333333333333331
+transmitted_word_equal,24,11,8,0,5,19,11,0.33333333333333331
