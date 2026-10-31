@@ -77,6 +77,7 @@ and is not required to answer either research question.
 | `RQ2-CONFIRM-001` | Held-out paired confirmation | **Complete; valid canonical confirmation** | `2026-10-30_heldout_canonical_linux_v2` is the registered one-thread Linux result on all 200 frozen frames: full exact SP succeeds on 200/200 and persistent `qbar` tying on 0/200 for both endpoints. The earlier Windows transfer is byte-identical in its scientific tables and state snapshot and is cross-platform corroboration. |
 | `RQ2-GD-STATE-USE-001` | Retained check-specific offsets used by projected GD | **Complete; valid favorable held-out result** | On 200 frozen 6 dB cases, active/control transmitted-word and parity-valid successes are 172/113, with 59 active-only and 0 control-only pairs. All correctness, checksum, and deterministic-replay gates pass. This establishes a consequence for the constructed intervention, not BP equivalence or unique native attribution. |
 | `RQ2-GD-OFFSET-SPLIT-001` | Separate retained-offset use in the parity calculation from its use in projection bounds | **V1 terminal; v2 retired; v3 held-out running** | V1 remains an execution-budget failure. V2 completed its primary pass but entered the legacy hash before publishing science and was stopped only after the implementation-equivalent v3 anchor reproduced the registered science hash. The v3 held-out was still running at this publication snapshot; no held-out causal conclusion exists yet. |
+| `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001` | Cross check assignment with repeated replacement while offsets are read only by the parity calculation | **Implementation prepared; Julia validation and execution blocked on v3** | Four constructed projected-GD arms keep the native projection interval and calculate both as-built and fixed-derangement shadow candidates. The queue-governance and budget-derivation suites pass; no Julia preflight or endpoint has been run. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -613,6 +614,43 @@ pass. The mutable held-out progress file, phase log, queue log, status history,
 and incomplete result directory are deliberately excluded from the commit.
 No split-use causal conclusion is permitted until both passes and all result
 gates complete.
+
+### `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001` — assignment and replacement without offset-induced projection bounds
+
+This registered four-arm experiment is the next atomic branch only if the v3
+offset-split result is complete and valid and its `objective1__bounds0` arm has
+more treatment-only than reference-only recoveries for both transmitted-word
+equality and parity validity. If that rule fails, the branch stops before any
+new endpoint is calculated.
+
+All four arms read constructed offsets in the parity calculation and retain
+the native `[-1,1]` projection interval. They cross two selectors: as-built
+versus fixed within-bit deranged check assignment, and replacement after every
+accepted update versus retention of the first adopted offsets. Every arm
+calculates both candidates after every accepted update; the frozen arms discard
+later candidates. This holds candidate calculation fixed while testing which
+state is retained and whether it is replaced.
+
+The 24-case anchor is development-only and must reproduce v3
+`objective1__bounds0` bit for bit in the as-built/refreshed arm. A valid anchor
+authorizes a prospective transfer on frames `40001:40200`. Only after that
+transfer completes may the same four arms run on the locked
+`30001:30200` attribution set to count original native-GD failures recovered,
+native-GD successes lost, net change, and unresolved failures. The fresh
+transfer is the sole confirmatory family. The locked set is descriptive
+transition mapping because retained results from those cases informed this
+design, and it cannot rescue a null or reversed transfer result.
+
+The experiment card, configuration, runner, tests, immutable v3 numerical
+capsule, and fail-closed queue controls are prepared in an isolated worktree.
+The 13 queue-governance tests and four budget-derivation tests pass without
+starting Julia. The anchor and non-anchor wrappers execute only from the frozen
+source tree and treat the locked queue copies as checksum-bound evidence, not
+as their trust root. Julia preflight and every scientific endpoint remain
+blocked while the v3 offset-split service is active. A favorable result would
+identify whether this constructed state acts through its check assignment, its
+repeated replacement, or their interaction. It would not make the offsets BP
+messages or establish a complete explanation of the native BP-versus-GD gap.
 
 ## Separate complexity track
 

@@ -1,0 +1,58 @@
+schema_version = "rq2-gd-parity-assignment-refresh-001/queue-v1"
+queue_id = "REPLACE-WITH-UNIQUE-ATTEMPT-ID"
+experiment_id = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
+stages = ["transfer", "attribution"]
+execution_mode = "serial, one scientific unit, fail closed"
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+
+[execution]
+anchor_wall_budget_seconds = 7200
+anchor_term_after_seconds = 7080
+termination_grace_seconds = 120
+maximum_nonanchor_wall_budget_seconds = 36000
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+scientific_unit_pattern = "sp-gd-*.service"
+anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service"
+queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-20261031.service"
+
+[paths]
+repository_root = "/absolute/path/to/sp_gd_admm-worktree"
+project_root = "/absolute/path/to/JadeJcade-project"
+config = "experiments/rq2_gd_parity_assignment_refresh_001/config.toml"
+runner = "experiments/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+freeze = "experiments/rq2_gd_parity_assignment_refresh_001/freeze/REPLACE"
+anchor_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/REPLACE_anchor"
+transfer_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/REPLACE_transfer"
+attribution_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/REPLACE_attribution"
+budget_transfer = "budget_transfer.toml"
+budget_attribution = "budget_attribution.toml"
+
+[inventory]
+immutable_files = [
+  "README.md",
+  "budget_attribution.toml",
+  "budget_transfer.toml",
+  "derive_budget.py",
+  "lock_queue_package.py",
+  "queue.toml",
+  "run_anchor_once.sh",
+  "run_queue.sh",
+  "status_report.py",
+]
+
+[telemetry]
+files = [
+  "queue.lock",
+  "queue.log",
+  "progress.toml",
+  "status_history.tsv",
+  "QUEUE_COMPLETED.toml",
+  "QUEUE_FAILED.toml",
+]
+job_ids = ["J01", "J02"]
