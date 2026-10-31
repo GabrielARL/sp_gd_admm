@@ -146,7 +146,10 @@ def make_repository(root: Path) -> tuple[Path, Path]:
     experiment = root / "experiments/rq2_gd_parity_assignment_refresh_001"
     for relative in builder.HASH_PATHS.values():
         write(experiment / relative, f"fixture for {relative}\n")
-    preflight = write(experiment / "preflight_validation.md", preflight_text())
+    preflight = write(
+        experiment / "preflight/test-attempt/preflight_validation.md",
+        preflight_text(),
+    )
     return experiment, preflight
 
 
@@ -179,6 +182,21 @@ def fields(path: Path) -> dict[str, str]:
 
 
 class BuildPreflightRecordTests(unittest.TestCase):
+    def test_root_preflight_is_historical_and_cannot_be_reused(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            experiment, _ = make_repository(root)
+            historical = write(
+                experiment / "preflight_validation.md", preflight_text()
+            )
+            prerequisite = make_prerequisite(root)
+            command = fake_command(root, "must_not_run", "")
+            with self.assertRaisesRegex(builder.GateError, "attempt-local"):
+                builder.build_record(
+                    root, historical, prerequisite, None,
+                    command, command, command,
+                )
+
     def test_count_parsers_use_real_summaries(self) -> None:
         julia = textwrap.dedent(
             """\

@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Create and lock one non-resumable factorial experiment attempt.
 
-The attempt has two preparation boundaries.  ``initialize`` creates only the
-attempt-specific ``queue.toml`` needed by the frozen anchor wrapper.  After a
-complete-valid anchor, ``finalize`` derives both registered budgets, copies the
-exact immutable governance inventory from the freeze, locks the queue package,
-and verifies it through the frozen read-only checker.
+The attempt has three preparation boundaries.  ``create_attempt_preflight``
+creates one attempt-local preflight from a hash-pinned template.  ``initialize``
+then requires that record to have passed and creates only the attempt-specific
+``queue.toml`` needed by the frozen anchor wrapper.  After a complete-valid
+anchor, ``finalize`` derives both registered budgets, copies the exact
+immutable governance inventory from the freeze, locks the queue package, and
+verifies it through the frozen read-only checker.
 
 Neither boundary overwrites an existing path.  A failed or interrupted attempt
 is therefore retained and a new attempt ID is required.
@@ -15,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -34,6 +37,10 @@ EXPERIMENT_ID = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
 EXPERIMENT_RELATIVE = Path("experiments/rq2_gd_parity_assignment_refresh_001")
 QUEUE_SCHEMA = "rq2-gd-parity-assignment-refresh-001/queue-v1"
 ATTEMPT_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$")
+PREFLIGHT_TEMPLATE_NAME = "PREFLIGHT.template.md"
+PREFLIGHT_TEMPLATE_SHA256 = (
+    "23a35c7bd7941eccd658d723d864f2fbf1c2184fc09bc9d2c5a90065d073dd62"
+)
 
 REGISTERED_EXECUTION: dict[str, object] = {
     "anchor_wall_budget_seconds": 7200,
@@ -81,6 +88,7 @@ class PreparationError(RuntimeError):
 class AttemptPaths:
     repo_root: Path
     experiment_root: Path
+    preflight: Path
     freeze: Path
     anchor_result: Path
     transfer_result: Path
@@ -100,6 +108,14 @@ CommandRunner = Callable[..., subprocess.CompletedProcess[str]]
 def load_toml(path: Path) -> dict[str, Any]:
     with path.open("rb") as handle:
         return tomllib.load(handle)
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def run_checked(
@@ -162,6 +178,12 @@ def authored_paths(repo_root: Path, attempt_id: str) -> AttemptPaths:
     return AttemptPaths(
         repo_root=repo_root,
         experiment_root=experiment_root,
+        preflight=(
+            experiment_root
+            / "preflight"
+            / attempt_id
+            / "preflight_validation.md"
+        ),
         freeze=experiment_root / "freeze" / attempt_id,
         anchor_result=experiment_root / "results" / f"{attempt_id}_anchor",
         transfer_result=experiment_root / "results" / f"{attempt_id}_transfer",
@@ -194,6 +216,8 @@ def render_queue(paths: AttemptPaths, attempt_id: str) -> str:
             f'project_root = {json.dumps(str(paths.project_root))}',
         'freeze = "experiments/rq2_gd_parity_assignment_refresh_001/freeze/REPLACE"':
             f'freeze = {json.dumps(_relative_to_repository(paths.freeze, paths.repo_root))}',
+        'preflight = "experiments/rq2_gd_parity_assignment_refresh_001/preflight/REPLACE/preflight_validation.md"':
+            f'preflight = {json.dumps(_relative_to_repository(paths.preflight, paths.repo_root))}',
         'anchor_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/REPLACE_anchor"':
             f'anchor_result = {json.dumps(_relative_to_repository(paths.anchor_result, paths.repo_root))}',
         'transfer_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/REPLACE_transfer"':
@@ -220,6 +244,7 @@ def render_queue(paths: AttemptPaths, attempt_id: str) -> str:
         "project_root": str(paths.project_root),
         "config": _relative_to_repository(paths.config, paths.repo_root),
         "runner": _relative_to_repository(paths.runner, paths.repo_root),
+        "preflight": _relative_to_repository(paths.preflight, paths.repo_root),
         "freeze": _relative_to_repository(paths.freeze, paths.repo_root),
         "anchor_result": _relative_to_repository(paths.anchor_result, paths.repo_root),
         "transfer_result": _relative_to_repository(paths.transfer_result, paths.repo_root),
@@ -235,17 +260,100 @@ def render_queue(paths: AttemptPaths, attempt_id: str) -> str:
     return rendered
 
 
-def initialize_attempt(repo_root: Path, attempt_id: str) -> AttemptPaths:
+def _attempt_output_paths(paths: AttemptPaths) -> tuple[Path, ...]:
+    return (
+        paths.freeze,
+        paths.anchor_result,
+        paths.transfer_result,
+        paths.attribution_result,
+        paths.queue_root,
+    )
+
+
+def create_attempt_preflight(repo_root: Path, attempt_id: str) -> AttemptPaths:
+    """Exclusively create one fresh attempt-local preflight record."""
+
     paths = authored_paths(repo_root, attempt_id)
     occupied = [
         path
-        for path in (
-            paths.freeze,
-            paths.anchor_result,
-            paths.transfer_result,
-            paths.attribution_result,
-            paths.queue_root,
+        for path in (paths.preflight.parent, *_attempt_output_paths(paths))
+        if path.exists() or path.is_symlink()
+    ]
+    if occupied:
+        raise PreparationError(
+            "refusing to overwrite or resume attempt paths: "
+            + ", ".join(str(path) for path in occupied)
         )
+    template = paths.experiment_root / "dispatcher" / PREFLIGHT_TEMPLATE_NAME
+    if not template.is_file() or template.is_symlink():
+        raise PreparationError(f"missing or indirect preflight template: {template}")
+    if sha256_file(template) != PREFLIGHT_TEMPLATE_SHA256:
+        raise PreparationError("preflight template differs from its pinned SHA-256")
+    preflight_root = paths.preflight.parent.parent
+    if preflight_root.is_symlink() or (
+        preflight_root.exists() and not preflight_root.is_dir()
+    ):
+        raise PreparationError(
+            f"attempt preflight root is indirect or not a directory: {preflight_root}"
+        )
+    preflight_root.mkdir(parents=True, exist_ok=True)
+    created_directory = False
+    created_file = False
+    try:
+        paths.preflight.parent.mkdir()
+        created_directory = True
+        with template.open("rb") as source, paths.preflight.open("xb") as target:
+            created_file = True
+            for block in iter(lambda: source.read(1024 * 1024), b""):
+                target.write(block)
+            target.flush()
+            os.fsync(target.fileno())
+        directory = os.open(paths.preflight.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    except Exception as error:
+        if created_file:
+            paths.preflight.unlink(missing_ok=True)
+        if created_directory:
+            try:
+                paths.preflight.parent.rmdir()
+            except OSError:
+                pass
+        if isinstance(error, FileExistsError):
+            raise PreparationError(
+                f"refusing to overwrite or resume attempt preflight: {paths.preflight}"
+            ) from error
+        raise
+    return paths
+
+
+def require_passed_attempt_preflight(path: Path) -> None:
+    if (
+        not path.is_file()
+        or path.is_symlink()
+        or path.parent.is_symlink()
+        or path.parent.parent.is_symlink()
+    ):
+        raise PreparationError(f"missing or indirect attempt preflight: {path}")
+    statuses = [
+        line.split(":", 1)[1].strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.startswith("validation_status:")
+    ]
+    if statuses != ["pass"]:
+        raise PreparationError(
+            f"attempt preflight is not a unique passed record: {path}"
+        )
+
+
+def initialize_attempt(repo_root: Path, attempt_id: str) -> AttemptPaths:
+    paths = authored_paths(repo_root, attempt_id)
+    require_passed_attempt_preflight(paths.preflight)
+    occupied = [
+        path
+        for path in _attempt_output_paths(paths)
         if path.exists() or path.is_symlink()
     ]
     if occupied:
@@ -255,23 +363,33 @@ def initialize_attempt(repo_root: Path, attempt_id: str) -> AttemptPaths:
         )
     rendered = render_queue(paths, attempt_id)
     paths.queue_root.parent.mkdir(parents=True, exist_ok=True)
+    created_directory = False
+    created_file = False
     try:
         paths.queue_root.mkdir()
+        created_directory = True
         with (paths.queue_root / "queue.toml").open(
             "x", encoding="utf-8", newline=""
         ) as handle:
+            created_file = True
             handle.write(rendered)
             handle.flush()
             os.fsync(handle.fileno())
-    except Exception:
-        # Only remove the empty/new directory created by this call.  Scientific
-        # paths and any pre-existing path are never touched.
+    except Exception as error:
+        # Remove only objects created by this invocation.  A concurrent
+        # invocation's queue record is durable evidence and must be retained.
         queue_toml = paths.queue_root / "queue.toml"
-        queue_toml.unlink(missing_ok=True)
-        try:
-            paths.queue_root.rmdir()
-        except OSError:
-            pass
+        if created_file:
+            queue_toml.unlink(missing_ok=True)
+        if created_directory:
+            try:
+                paths.queue_root.rmdir()
+            except OSError:
+                pass
+        if isinstance(error, FileExistsError):
+            raise PreparationError(
+                f"refusing to overwrite or resume attempt queue: {queue_toml}"
+            ) from error
         raise
     return paths
 

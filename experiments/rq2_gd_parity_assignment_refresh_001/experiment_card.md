@@ -1,9 +1,10 @@
 # `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001`
 
-Status: **registered design; implementation prepared but not yet validated;
-scientific execution is blocked until `RQ2-GD-OFFSET-SPLIT-001` attempt v3
-finishes validly and its parity-calculation branch passes the selection rule
-below**.
+Status: **registered design; Offset Split v3 completed validly and passed the
+registered branch-selection rule; controller attempt `2026-10-31_v1` failed
+during syntax validation before any factorial endpoint was calculated; the
+isolated operational retry is `2026-11-01_v2`; no factorial result is claimed
+yet**.
 
 This identifier is an internal experiment ID, not a receiver name. ADMM and
 native BP are outside this experiment. The constructed offsets are
@@ -103,6 +104,23 @@ number won only by `objective0__bounds0`.
 If this rule fails, the parity-calculation branch has not transferred from the
 development anchor. This experiment stops before freezing or calculating a new
 endpoint. The failed branch is retained; no adjacent setting is substituted.
+
+## Operational retry amendment, 2026-11-01
+
+Controller attempt `2026-10-31_v1` retained a final failed preflight after the
+Julia test file encountered a parse error caused by a line break before an
+indexing bracket. The failure occurred before freeze, anchor, transfer,
+attribution, or any registered endpoint calculation. Its preflight and
+controller records remain immutable.
+
+Attempt `2026-11-01_v2` corrects that syntax defect and gives the retry its own
+preflight, freeze, result, queue, controller-state, and decision records. The
+controller revalidates the complete v3 evidence and recreates the registered
+branch-selection decision. The scientific question, four arms, cases,
+endpoints, contrasts, correction family, budgets, numerical operations, and
+stopping rules are unchanged. The registered scientific service names are
+reused only because v1 launched neither service and created no scientific
+output.
 
 ## Protocol fingerprint
 

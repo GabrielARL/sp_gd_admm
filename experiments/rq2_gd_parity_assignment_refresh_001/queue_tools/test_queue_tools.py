@@ -34,6 +34,8 @@ IMMUTABLE = (
     "run_queue.sh",
     "status_report.py",
 )
+TEST_ATTEMPT_ID = "test_v1"
+TEST_QUEUE_ID = f"{status.EXPERIMENT_ID}.{TEST_ATTEMPT_ID}"
 
 
 def budget_text(stage: str, anchor: Path | None = None) -> str:
@@ -82,7 +84,7 @@ def queue_text(root: Path) -> str:
     immutable = ",\n  ".join(f'"{value}"' for value in IMMUTABLE)
     telemetry = ",\n  ".join(f'"{value}"' for value in sorted(status.BASE_TELEMETRY))
     return f'''schema_version = "rq2-gd-parity-assignment-refresh-001/queue-v1"
-queue_id = "TEST-QUEUE-V1"
+queue_id = "{TEST_QUEUE_ID}"
 experiment_id = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
 stages = ["transfer", "attribution"]
 execution_mode = "serial, one scientific unit, fail closed"
@@ -109,6 +111,7 @@ repository_root = "{root}"
 project_root = "{root}/project"
 config = "experiments/rq2_gd_parity_assignment_refresh_001/config.toml"
 runner = "experiments/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+preflight = "experiments/rq2_gd_parity_assignment_refresh_001/preflight/{TEST_ATTEMPT_ID}/preflight_validation.md"
 freeze = "freeze"
 anchor_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/test_anchor"
 transfer_result = "experiments/rq2_gd_parity_assignment_refresh_001/results/test_transfer"
@@ -174,6 +177,12 @@ def write_freeze_manifest(freeze: Path, records: list[tuple[str, Path]]) -> None
     rows = [
         'experiment_id = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"',
         f'configuration_sha256 = "{status.sha256_file(config_record)}"',
+        "",
+        "[preflight_gate]",
+        "passed = true",
+        "",
+        "[preflight_gate.recorded]",
+        'validation_status = "pass"',
     ]
     for label, path in records:
         if label in {
@@ -189,6 +198,15 @@ def write_freeze_manifest(freeze: Path, records: list[tuple[str, Path]]) -> None
                     if label == "config.toml"
                     else "rq2_gd_parity_assignment_refresh_001.jl"
                 )
+            )
+        elif label == status.PREFLIGHT_SOURCE_LABEL:
+            original = (
+                freeze.parent
+                / "experiments"
+                / "rq2_gd_parity_assignment_refresh_001"
+                / "preflight"
+                / TEST_ATTEMPT_ID
+                / status.PREFLIGHT_FILENAME
             )
         else:
             original = path
@@ -244,6 +262,16 @@ ionice_class = "idle"
     shutil.copy2(config, live_experiment / "config.toml")
     live_runner = live_experiment / "rq2_gd_parity_assignment_refresh_001.jl"
     shutil.copy2(runner, live_runner)
+    preflight = source / status.PREFLIGHT_FILENAME
+    preflight.write_text("validation_status: pass\n", encoding="utf-8")
+    live_preflight = (
+        live_experiment
+        / "preflight"
+        / TEST_ATTEMPT_ID
+        / status.PREFLIGHT_FILENAME
+    )
+    live_preflight.parent.mkdir(parents=True)
+    shutil.copy2(preflight, live_preflight)
     frozen_governance: dict[str, Path] = {}
     for package_name, label in status.GOVERNANCE_SOURCE_LABELS.items():
         source_name = (
@@ -262,6 +290,7 @@ ionice_class = "idle"
     )
     records = [
         ("config.toml", config),
+        (status.PREFLIGHT_SOURCE_LABEL, preflight),
         ("rq2_gd_parity_assignment_refresh_001.jl", runner),
         *sorted(frozen_governance.items()),
         ("vendor/split_config.toml", split),
@@ -430,7 +459,7 @@ class QueuePackageTests(unittest.TestCase):
             locked = locker.lock_package(queue)
             self.assertEqual(locked["locked_file_count"], len(IMMUTABLE))
             verified = status.verify_queue_package(queue)
-            self.assertEqual(verified["queue_id"], "TEST-QUEUE-V1")
+            self.assertEqual(verified["queue_id"], TEST_QUEUE_ID)
 
             # Every registered telemetry path is allowed after lock.
             for relative in status.BASE_TELEMETRY:
@@ -728,6 +757,66 @@ class GuardAndWrapperTests(unittest.TestCase):
             completed = verify()
             self.assertEqual(completed.returncode, 0, completed.stderr)
 
+            live_preflight = (
+                root
+                / "experiments"
+                / "rq2_gd_parity_assignment_refresh_001"
+                / "preflight"
+                / TEST_ATTEMPT_ID
+                / status.PREFLIGHT_FILENAME
+            )
+            original_preflight = live_preflight.read_bytes()
+            live_preflight.write_text("validation_status: fail\n", encoding="utf-8")
+            completed = verify()
+            self.assertNotEqual(completed.returncode, 0)
+            self.assertIn("preflight", completed.stderr)
+            live_preflight.write_bytes(original_preflight)
+
+            queue_config = queue / "queue.toml"
+            original_queue = queue_config.read_text(encoding="utf-8")
+            prior_preflight = (
+                live_preflight.parent.parent
+                / "prior_attempt"
+                / status.PREFLIGHT_FILENAME
+            )
+            prior_preflight.parent.mkdir()
+            prior_preflight.write_bytes(original_preflight)
+            queue_config.write_text(
+                original_queue.replace(
+                    f"preflight/{TEST_ATTEMPT_ID}/{status.PREFLIGHT_FILENAME}",
+                    f"preflight/prior_attempt/{status.PREFLIGHT_FILENAME}",
+                ),
+                encoding="utf-8",
+            )
+            completed = verify()
+            self.assertNotEqual(completed.returncode, 0)
+            self.assertIn("different attempts", completed.stderr)
+            queue_config.write_text(original_queue, encoding="utf-8")
+
+            freeze = frozen_status.parents[2]
+            archived_preflight = freeze / "source" / status.PREFLIGHT_FILENAME
+            original_archived = archived_preflight.read_bytes()
+            archived_preflight.write_bytes(original_archived + b"# tampered\n")
+            write_tree_checksum_manifest(freeze)
+            completed = verify()
+            self.assertNotEqual(completed.returncode, 0)
+            self.assertIn("archived source", completed.stderr)
+            archived_preflight.write_bytes(original_archived)
+            write_tree_checksum_manifest(freeze)
+
+            freeze_manifest = freeze / "freeze_manifest.toml"
+            original_manifest = freeze_manifest.read_text(encoding="utf-8")
+            freeze_manifest.write_text(
+                original_manifest.replace("passed = true", "passed = false", 1),
+                encoding="utf-8",
+            )
+            write_tree_checksum_manifest(freeze)
+            completed = verify()
+            self.assertNotEqual(completed.returncode, 0)
+            self.assertIn("passed preflight gate", completed.stderr)
+            freeze_manifest.write_text(original_manifest, encoding="utf-8")
+            write_tree_checksum_manifest(freeze)
+
             original_runner = runner.read_bytes()
             runner.write_bytes(original_runner + b"# tampered\n")
             completed = verify()
@@ -746,8 +835,6 @@ class GuardAndWrapperTests(unittest.TestCase):
             self.assertNotEqual(completed.returncode, 0)
             config.write_bytes(original_config)
 
-            queue_config = queue / "queue.toml"
-            original_queue = queue_config.read_text(encoding="utf-8")
             alternate_runner = root / "same_bytes_elsewhere.jl"
             alternate_runner.write_bytes(original_runner)
             queue_config.write_text(

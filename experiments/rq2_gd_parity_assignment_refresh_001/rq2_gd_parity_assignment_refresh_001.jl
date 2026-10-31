@@ -81,7 +81,7 @@ const QUEUE_TOP_LEVEL_KEYS = Set((
     "manual_relaunch_requires_new_attempt_directory",
     "execution", "paths", "inventory", "telemetry"))
 const QUEUE_PATH_KEYS = Set((
-    "repository_root", "project_root", "config", "runner", "freeze",
+    "repository_root", "project_root", "config", "runner", "preflight", "freeze",
     "anchor_result", "transfer_result", "attribution_result",
     "budget_transfer", "budget_attribution"))
 const QUEUE_BASE_TELEMETRY = Set((
@@ -220,8 +220,15 @@ end
 
 function preflight_gate(config_path::AbstractString=DEFAULT_CONFIG;
                         preflight_path::AbstractString=PREFLIGHT_PATH)
+    preflight_path = abspath(preflight_path)
     isfile(preflight_path) || return Dict(
         "passed" => false, "reason" => "missing_preflight_record")
+    (!islink(preflight_path) && try
+        realpath(preflight_path) == preflight_path
+    catch
+        false
+    end) || return Dict(
+        "passed" => false, "reason" => "symlinked_preflight_record")
     fields = Dict{String,String}()
     for line in eachline(preflight_path)
         matched = match(r"^([a-z][a-z0-9_]*)[ ]*:[ ]*`?([^` ]+)`?[ ]*$", line)
@@ -1418,10 +1425,11 @@ function queue_package_governance_sources()
     )
 end
 
-function authored_source_paths(config_path::AbstractString)
+function authored_source_paths(config_path::AbstractString;
+                               preflight_path::AbstractString)
     Dict("config.toml" => abspath(config_path),
          "experiment_card.md" => CARD_PATH,
-         "preflight_validation.md" => PREFLIGHT_PATH,
+         "preflight_validation.md" => abspath(preflight_path),
          "queue_tools/derive_budget.py" => BUDGET_TOOL_PATH,
          "queue_tools/test_derive_budget.py" => BUDGET_TEST_PATH,
          "queue_tools/status_report.py" => QUEUE_STATUS_PATH,
@@ -1462,8 +1470,9 @@ function resolve_queue_config_path(queue_root::AbstractString, queue_config,
     normpath(joinpath(repository, candidate))
 end
 
-function freeze_source_paths(config, config_path)
-    paths = authored_source_paths(config_path)
+function freeze_source_paths(config, config_path;
+                             preflight_path::AbstractString)
+    paths = authored_source_paths(config_path; preflight_path)
     paths["vendor/rq2_gd_offset_split_001.jl"] = SPLIT_RUNNER_PATH
     paths["vendor/test_rq2_gd_offset_split_001.jl"] = SPLIT_TEST_PATH
     paths["vendor/rq2_gd_state_use_001.jl"] = Split.LEGACY_RUNNER_PATH
@@ -1561,13 +1570,15 @@ function environment_record(split)
 end
 
 function freeze_inputs(output::AbstractString; config_path=DEFAULT_CONFIG,
+                       preflight_path::AbstractString,
                        command::AbstractString="freeze")
     output = abspath(output)
+    preflight_path = abspath(preflight_path)
     ispath(output) && throw(ArgumentError("freeze output already exists: $output"))
     config = load_config(config_path)
     gate = source_gate(config)
     gate["passed"] || throw(ArgumentError("source gate failed: $(gate["checks"])"))
-    preflight = preflight_gate(config_path)
+    preflight = preflight_gate(config_path; preflight_path)
     preflight["passed"] || throw(ArgumentError(
         "locked preflight record does not match the authored sources"))
     prerequisite = prerequisite_gate(config)
@@ -1586,7 +1597,7 @@ function freeze_inputs(output::AbstractString; config_path=DEFAULT_CONFIG,
         "anchor or attribution input differs from the retained split freeze"))
     source_directory = joinpath(output, "source"); mkdir(source_directory)
     records = Legacy.archive_sources(source_directory,
-        freeze_source_paths(config, config_path))
+        freeze_source_paths(config, config_path; preflight_path))
     manifest = Dict(
         "schema_version" => String(config["provenance"]["freeze_schema"]),
         "experiment_id" => String(config["experiment_id"]),
@@ -1609,23 +1620,127 @@ function freeze_inputs(output::AbstractString; config_path=DEFAULT_CONFIG,
          "checksum_entries" => length(written.entries))
 end
 
+function regular_unlinked_file(path::AbstractString)
+    absolute = abspath(path)
+    isfile(absolute) || return false
+    islink(absolute) && return false
+    try
+        realpath(absolute) == absolute
+    catch
+        false
+    end
+end
+
+function frozen_archive_path(freeze::AbstractString, value)
+    relative = try
+        String(value)
+    catch
+        return nothing
+    end
+    isempty(relative) && return nothing
+    isabspath(relative) && return nothing
+    normpath(relative) == relative || return nothing
+    any(part -> part == "." || part == "..", splitpath(relative)) &&
+        return nothing
+    root = abspath(freeze)
+    candidate = normpath(joinpath(root, relative))
+    inside = relpath(candidate, root)
+    any(==(".."), splitpath(inside)) && return nothing
+    candidate
+end
+
+function validate_frozen_preflight_binding(config_path::AbstractString,
+                                           freeze::AbstractString, manifest)
+    checks = Dict{String,Bool}()
+    raw_sources = get(manifest, "sources", Any[])
+    checks["source_table"] = raw_sources isa AbstractVector &&
+        all(record -> record isa AbstractDict, raw_sources)
+    sources = checks["source_table"] ? raw_sources : Any[]
+    matches = [record for record in sources
+               if get(record, "label", nothing) == "preflight_validation.md"]
+    checks["one_source_record"] = length(matches) == 1
+    if !checks["one_source_record"]
+        return Dict("passed" => false, "checks" => checks,
+                    "original_path" => "")
+    end
+
+    record = only(matches)
+    raw_original = try
+        String(get(record, "original_path", ""))
+    catch
+        ""
+    end
+    raw_sha256 = try
+        String(get(record, "sha256", ""))
+    catch
+        ""
+    end
+    raw_archived = get(record, "archived_relative_path", "")
+    original_path = isabspath(raw_original) ? normpath(raw_original) : ""
+    archived_path = frozen_archive_path(freeze, raw_archived)
+
+    checks["original_path_absolute"] = isabspath(raw_original)
+    checks["original_path_normalized"] = !isempty(raw_original) &&
+        normpath(raw_original) == raw_original
+    checks["sha256_well_formed"] = occursin(r"^[0-9a-f]{64}$", raw_sha256)
+    checks["original_path_regular_unlinked"] =
+        !isempty(original_path) && regular_unlinked_file(original_path)
+    checks["original_sha256"] = checks["original_path_regular_unlinked"] &&
+        file_sha256(original_path) == raw_sha256
+    checks["archived_path_safe"] = archived_path !== nothing
+    checks["archived_path_registered"] = try
+        String(raw_archived) == normpath(joinpath(
+            "source", "preflight_validation.md"))
+    catch
+        false
+    end
+    checks["archived_path_regular_unlinked"] = archived_path !== nothing &&
+        regular_unlinked_file(archived_path)
+    checks["archived_sha256"] =
+        checks["archived_path_regular_unlinked"] &&
+        file_sha256(archived_path) == raw_sha256
+    checks["preflight_gate"] = checks["original_sha256"] &&
+        Bool(preflight_gate(config_path;
+            preflight_path=original_path)["passed"])
+    Dict("passed" => all(values(checks)), "checks" => checks,
+         "original_path" => original_path, "record" => record)
+end
+
 function validate_freeze(config, freeze::AbstractString; config_path=DEFAULT_CONFIG)
     freeze = abspath(freeze)
     checksum = Legacy.verify_checksum_manifest(freeze)
+    Bool(get(checksum, "passed", false)) || return Dict(
+        "passed" => false,
+        "checks" => Dict{String,Bool}("checksum_manifest" => false),
+        "manifest" => Dict{String,Any}())
     manifest = TOML.parsefile(joinpath(freeze, "freeze_manifest.toml"))
     table_path = joinpath(freeze, "input_freeze.csv")
-    frozen = Dict(String(r["label"]) => r for r in manifest["sources"])
-    expected_source_labels = Set(keys(freeze_source_paths(config, config_path)))
+    preflight_binding = validate_frozen_preflight_binding(
+        config_path, freeze, manifest)
+    registered_preflight_path = String(preflight_binding["original_path"])
+    inventory_preflight_path = isempty(registered_preflight_path) ?
+        joinpath(freeze, ".invalid-registered-preflight") :
+        registered_preflight_path
+    source_records = manifest["sources"]
+    source_labels = String[String(record["label"])
+                           for record in source_records]
+    frozen = Dict(String(r["label"]) => r for r in source_records)
+    expected_source_labels = Set(keys(freeze_source_paths(
+        config, config_path; preflight_path=inventory_preflight_path)))
     authored_ok = true
-    for (label, path) in authored_source_paths(config_path)
-        ok = haskey(frozen, label) && isfile(path) &&
+    for (label, path) in authored_source_paths(
+            config_path; preflight_path=inventory_preflight_path)
+        ok = haskey(frozen, label) && regular_unlinked_file(path) &&
+            abspath(path) == String(get(frozen[label], "original_path", "")) &&
             file_sha256(path) == String(frozen[label]["sha256"])
         authored_ok &= ok
     end
     archived_sources_ok = all(begin
-        archived = joinpath(freeze, String(record["archived_relative_path"]))
-        isfile(archived) && file_sha256(archived) == String(record["sha256"])
-    end for record in manifest["sources"])
+        archived = frozen_archive_path(
+            freeze, get(record, "archived_relative_path", ""))
+        archived !== nothing && regular_unlinked_file(archived) &&
+            file_sha256(archived) == String(record["sha256"])
+    end for record in source_records)
     frozen_rows = parse_simple_csv(table_path)
     expected_keys = expected_freeze_input_keys(config)
     actual_keys = [(String(row.set), parse(Int, row.frame)) for row in frozen_rows]
@@ -1643,17 +1758,22 @@ function validate_freeze(config, freeze::AbstractString; config_path=DEFAULT_CON
         "input_keys_unique" => key_gate["input_keys_unique"],
         "input_keys_exact" => key_gate["input_keys_exact"],
         "current_source_gate" => Bool(source_gate(config)["passed"]),
-        "current_preflight_record" => Bool(preflight_gate(config_path)["passed"]),
+        "registered_preflight_binding" => Bool(preflight_binding["passed"]),
+        "current_preflight_record" => get(
+            preflight_binding["checks"], "preflight_gate", false),
         "frozen_preflight_record" => haskey(manifest, "preflight_gate") &&
             manifest["preflight_gate"]["passed"] == true,
         "frozen_prerequisite_record" => haskey(manifest, "prerequisite_gate") &&
             manifest["prerequisite_gate"]["passed"] == true,
         "source_label_inventory_exact" => Set(keys(frozen)) ==
             expected_source_labels,
+        "source_labels_unique" => length(source_labels) ==
+            length(Set(source_labels)),
         "archived_source_record_hashes" => archived_sources_ok,
         "authored_sources_equal_freeze" => authored_ok)
     Dict("passed" => all(values(checks)), "checks" => checks,
-         "manifest" => manifest)
+         "manifest" => manifest,
+         "preflight_binding" => preflight_binding)
 end
 
 function expected_freeze_input_keys(config)
@@ -2521,7 +2641,8 @@ end
 function validate_execution_authorization(config, stage::Symbol,
                                           budget_record,
                                           queue_manifest,
-                                          handoff_record)
+                                          handoff_record;
+                                          registered_preflight_path=nothing)
     stage === :anchor && return Dict("passed" => true,
         "checks" => Dict("anchor_not_required" => true),
         "record" => Dict{String,Any}())
@@ -2662,6 +2783,10 @@ function validate_execution_authorization(config, stage::Symbol,
                 normpath(DEFAULT_CONFIG) &&
             resolve_queue_config_path(queue_root, queue_config, "runner") ==
                 normpath(RUNNER_PATH),
+        "queue_preflight_matches_freeze" =>
+            registered_preflight_path !== nothing &&
+            resolve_queue_config_path(queue_root, queue_config, "preflight") ==
+                normpath(abspath(String(registered_preflight_path))),
         "queue_budget_path" =>
             resolve_queue_config_path(queue_root, queue_config,
                 "budget_$(stage)") == normpath(budget_path),
@@ -2724,8 +2849,18 @@ function run_stage(stage::Symbol, output, freeze; config_path=DEFAULT_CONFIG,
     elseif stage !== :anchor
         throw(ArgumentError("unsupported scientific stage $stage"))
     end
+    registered_preflight_path = nothing
+    if stage !== :anchor
+        freeze_validation = validate_freeze(config, freeze; config_path)
+        freeze_validation["passed"] || throw(ArgumentError(
+            "frozen input gate failed before queue authorization: " *
+            string(freeze_validation["checks"])))
+        registered_preflight_path =
+            freeze_validation["preflight_binding"]["original_path"]
+    end
     authorization = validate_execution_authorization(config, stage,
-        budget_record, queue_manifest, handoff_record)
+        budget_record, queue_manifest, handoff_record;
+        registered_preflight_path)
     authorization["passed"] || throw(ArgumentError(
         "execution authorization failed: $(authorization["checks"])"))
     mkpath(dirname(output)); mkdir(output)
@@ -2802,7 +2937,7 @@ end
 function usage()
     "usage:\n" *
     "  rq2_gd_parity_assignment_refresh_001.jl preflight-probe [--config FILE]\n" *
-    "  rq2_gd_parity_assignment_refresh_001.jl freeze --output DIR\n" *
+    "  rq2_gd_parity_assignment_refresh_001.jl freeze --output DIR --preflight FILE\n" *
     "  rq2_gd_parity_assignment_refresh_001.jl anchor --freeze DIR --output DIR\n" *
     "  rq2_gd_parity_assignment_refresh_001.jl transfer --freeze DIR --anchor-result DIR --budget-record FILE --queue-manifest FILE --output DIR\n" *
     "  rq2_gd_parity_assignment_refresh_001.jl attribution --freeze DIR --transfer-result DIR --budget-record FILE --queue-manifest FILE --output DIR\n" *
@@ -2831,8 +2966,11 @@ function main(arguments=ARGS)
         return 0
     elseif parsed.mode === :freeze
         output = get(parsed.options, "output", nothing)
-        output === nothing && throw(ArgumentError("freeze requires --output"))
-        frozen = freeze_inputs(output; config_path, command)
+        preflight_path = get(parsed.options, "preflight", nothing)
+        (output === nothing || preflight_path === nothing) &&
+            throw(ArgumentError(
+                "freeze requires --output and --preflight"))
+        frozen = freeze_inputs(output; config_path, preflight_path, command)
         println("frozen input rows: ", frozen["input_rows"])
         println("input table SHA-256: ", frozen["input_freeze_sha256"])
         return 0

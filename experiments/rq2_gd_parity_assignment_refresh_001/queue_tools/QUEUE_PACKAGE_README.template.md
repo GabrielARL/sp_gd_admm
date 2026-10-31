@@ -29,10 +29,12 @@ RQ2_QUEUE_ROOT=/absolute/path/to/new/queue \
 
 This arrangement executes the checksum-bound frozen wrapper and the
 `status_report.py` beside it.  It does not execute an unverified copy from the
-still-unlocked queue directory.  The queue's `config` and `runner` paths remain
-the live authored paths recorded at freeze time; the pre-anchor gate requires
-their current SHA-256 values to equal the corresponding freeze records.  The
-archived config and runner are evidence copies, not an executable source tree.
+still-unlocked queue directory. The queue's `config`, `runner`, and
+attempt-local `preflight` paths remain the live authored paths recorded at
+freeze time; the pre-anchor gate requires their current SHA-256 values to equal
+the corresponding freeze records and requires both preflight copies to record
+`validation_status: pass`. The archived files are evidence copies, not an
+executable source tree.
 
 After a complete-valid anchor, use the frozen `derive_budget.py` to create both
 stage budget records, populate the attempt directory with the exact immutable

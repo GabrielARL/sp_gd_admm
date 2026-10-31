@@ -23,12 +23,24 @@ constructed offsets, and their interaction while every arm keeps the native
 `[-1,1]` projection interval. The result can identify the next mechanism to
 register; it cannot by itself explain the full native BP performance gap.
 
-## Production attempt
+## Attempt history
+
+### Retained failed controller attempt
 
 - Controller unit: `rq2-followup-controller-20261031.service`
 - Configuration: `controller_2026-10-31_v1.toml`
 - Controller state: `../controller/2026-10-31_v1/`
-- Factorial attempt: `2026-10-31_v1`
+- Intended factorial attempt: `2026-10-31_v1`
+- Outcome: Julia preflight failed before freeze and before any registered
+  endpoint calculation.
+
+### Registered operational retry
+
+- Controller unit: `rq2-followup-controller-20261101-v2.service`
+- Configuration: `controller_2026-11-01_v2.toml`
+- Controller state: `../controller/2026-11-01_v2/`
+- Factorial attempt: `2026-11-01_v2`
+- Preflight: `../preflight/2026-11-01_v2/preflight_validation.md`
 - Anchor unit:
   `sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service`
 - Serial transfer-plus-attribution unit:
@@ -36,18 +48,21 @@ register; it cannot by itself explain the full native BP performance gap.
 
 The controller has no automatic-resume path. Any durable controller state or
 any existing freeze, result, queue, or bridge-handoff path makes the attempt
-fail closed. A failed or interrupted scientific attempt is retained and needs
-a new attempt ID and new registered unit names.
+fail closed. A failed or interrupted scientific attempt requires a new attempt
+ID and new scientific unit names. A controller or preflight failure before any
+scientific unit is launched may retain the unlaunched registered scientific
+unit names, provided their absence and the absence of all scientific outputs
+are verified and recorded.
 
 The delayed dispatcher programs are SHA-256 pinned in the production
-configuration and rechecked immediately before successor execution. The
-preflight independently rechecks the complete v3 result and runs the Julia,
-budget, and queue-governance suites. A later new attempt may reuse a passed
-preflight only when the v3 evidence, registered counts, and every source hash
-remain exact; a failed preflight is final. The frozen wrappers then recheck the
-source, inputs, anchor, budgets, queue package, job order, and result manifests.
-Both scientific stages require their two passes to have the same canonical
-hash.
+configuration and rechecked immediately before successor execution. Each
+attempt receives its own preflight record. The preflight independently
+rechecks the complete v3 result and runs the Julia, budget, and
+queue-governance suites. A passed record belongs only to its attempt and is
+bound into that attempt's freeze; a failed record is final. The frozen wrappers
+then recheck the source, inputs, preflight, anchor, budgets, queue package, job
+order, and result manifests. Both scientific stages require their two passes
+to have the same canonical hash.
 
 ## Terminal outcomes
 

@@ -63,6 +63,7 @@ EXPECTED_PATH_KEYS = {
     "project_root",
     "config",
     "runner",
+    "preflight",
     "freeze",
     "anchor_result",
     "transfer_result",
@@ -70,6 +71,8 @@ EXPECTED_PATH_KEYS = {
     "budget_transfer",
     "budget_attribution",
 }
+PREFLIGHT_SOURCE_LABEL = "preflight_validation.md"
+PREFLIGHT_FILENAME = "preflight_validation.md"
 GOVERNANCE_SOURCE_LABELS = {
     "README.md": "queue_tools/QUEUE_PACKAGE_README.template.md",
     "derive_budget.py": "queue_tools/derive_budget.py",
@@ -447,6 +450,103 @@ def archived_source(freeze: Path, manifest: dict[str, Any], label: str) -> Path:
     return target
 
 
+def preflight_status(path: Path) -> str:
+    """Read the final validation status from an immutable preflight record."""
+
+    if not path.is_file() or path.is_symlink():
+        raise GateError(f"missing or indirect preflight record: {path}")
+    statuses: list[str] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.partition(":")
+        if separator and key.strip() == "validation_status":
+            statuses.append(value.strip().strip("`"))
+    if len(statuses) != 1:
+        raise GateError(
+            "preflight record must contain exactly one validation_status field"
+        )
+    return statuses[0]
+
+
+def verify_attempt_preflight(
+    queue_root: Path,
+    queue: dict[str, Any],
+    freeze: Path,
+    freeze_manifest: dict[str, Any],
+) -> dict[str, str]:
+    """Bind this attempt to one passed preflight and its frozen copy."""
+
+    repository = Path(str(queue.get("paths", {}).get("repository_root", "")))
+    if not repository.is_absolute():
+        raise GateError("paths.repository_root must be absolute")
+    raw_value = str(queue.get("paths", {}).get("preflight", ""))
+    raw_path = Path(raw_value)
+    if raw_path.is_absolute():
+        configured_raw = raw_path
+    else:
+        safe_relative(raw_value)
+        configured_raw = repository / raw_path
+    if not configured_raw.is_file() or configured_raw.is_symlink():
+        raise GateError(
+            f"attempt preflight is missing or indirect: {configured_raw}"
+        )
+    configured = configured_raw.resolve()
+
+    preflight_root = (
+        repository.resolve()
+        / "experiments"
+        / "rq2_gd_parity_assignment_refresh_001"
+        / "preflight"
+    )
+    try:
+        attempt_relative = configured.relative_to(preflight_root)
+    except ValueError as error:
+        raise GateError(
+            f"attempt preflight must be below the registered preflight root: {preflight_root}"
+        ) from error
+    if (
+        len(attempt_relative.parts) != 2
+        or attempt_relative.name != PREFLIGHT_FILENAME
+    ):
+        raise GateError(
+            "attempt preflight must have path preflight/<attempt-id>/"
+            f"{PREFLIGHT_FILENAME}"
+        )
+    attempt_id = attempt_relative.parts[0]
+    expected_queue_id = f"{EXPERIMENT_ID}.{attempt_id}"
+    if queue.get("queue_id") != expected_queue_id:
+        raise GateError(
+            "queue ID and attempt preflight directory identify different attempts"
+        )
+
+    record = source_record(freeze_manifest, PREFLIGHT_SOURCE_LABEL)
+    original_raw = Path(str(record.get("original_path", "")))
+    if not original_raw.is_absolute() or original_raw != configured:
+        raise GateError(
+            "frozen preflight source record is not the exact configured attempt preflight"
+        )
+    expected_hash = str(record.get("sha256", ""))
+    if sha256_file(configured) != expected_hash:
+        raise GateError("attempt preflight differs from its frozen source record")
+
+    archived = archived_source(freeze, freeze_manifest, PREFLIGHT_SOURCE_LABEL)
+    if preflight_status(configured) != "pass" or preflight_status(archived) != "pass":
+        raise GateError("attempt preflight validation_status is not pass")
+    gate = freeze_manifest.get("preflight_gate")
+    if not isinstance(gate, dict) or gate.get("passed") is not True:
+        raise GateError("freeze manifest does not contain a passed preflight gate")
+    recorded = gate.get("recorded")
+    if not isinstance(recorded, dict) or recorded.get("validation_status") != "pass":
+        raise GateError(
+            "freeze manifest preflight gate does not record validation_status=pass"
+        )
+    return {
+        "attempt_id": attempt_id,
+        "preflight": str(configured),
+        "preflight_sha256": expected_hash,
+        "archived_preflight": str(archived),
+    }
+
+
 def verify_anchor_launch(queue_root: Path) -> dict[str, Any]:
     """Bind the pre-anchor launch plan to the exact frozen sources."""
 
@@ -466,6 +566,10 @@ def verify_anchor_launch(queue_root: Path) -> dict[str, Any]:
     freeze_manifest = load_toml(freeze_manifest_path)
     if freeze_manifest.get("experiment_id") != EXPERIMENT_ID:
         raise GateError("freeze manifest has the wrong experiment ID")
+
+    preflight = verify_attempt_preflight(
+        queue_root, queue, freeze, freeze_manifest
+    )
 
     archived_config = archived_source(freeze, freeze_manifest, "config.toml")
     archived_runner = archived_source(
@@ -600,6 +704,7 @@ def verify_anchor_launch(queue_root: Path) -> dict[str, Any]:
         "config_sha256": sha256_file(configured_config),
         "runner": str(configured_runner),
         "runner_sha256": sha256_file(configured_runner),
+        "preflight": preflight,
         "project_root": configured_project,
         "repository_root": str(registered_repository),
         "result_paths": result_paths,

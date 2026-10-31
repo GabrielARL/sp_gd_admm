@@ -164,6 +164,7 @@ def record_bridge_handoff(
     if handoff_record.exists() or handoff_record.is_symlink():
         raise PipelineError(f"bridge handoff already exists: {handoff_record}")
     for protected in (
+        paths.preflight.parent,
         paths.freeze,
         paths.anchor_result,
         paths.transfer_result,
@@ -438,13 +439,16 @@ def selected_pipeline(
             f"missing or indirect selected decision record: {prerequisite_record}"
         )
 
-    print("pipeline phase 1/6: build one-time preflight record", flush=True)
+    paths = preparation.create_attempt_preflight(repo_root, attempt_id)
+    print("pipeline phase 1/6: build attempt-local preflight record", flush=True)
     run_checked(
         [
             executables.python,
             preflight_builder,
             "--repo-root",
             repo_root,
+            "--preflight",
+            paths.preflight,
             "--prerequisite-record",
             prerequisite_record,
         ],
@@ -467,6 +471,8 @@ def selected_pipeline(
             paths.config,
             "--output",
             paths.freeze,
+            "--preflight",
+            paths.preflight,
         ],
         command_runner=command_runner,
         env=environment,
@@ -595,6 +601,7 @@ def selected_pipeline(
         )
     return {
         "attempt_id": attempt_id,
+        "preflight": str(paths.preflight),
         "queue_root": str(paths.queue_root),
         "freeze": str(paths.freeze),
         "anchor_result": str(paths.anchor_result),

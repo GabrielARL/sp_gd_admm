@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 
 HERE = Path(__file__).resolve().parent
@@ -16,6 +17,8 @@ QUEUE_TOOLS = HERE.parent / "queue_tools"
 sys.path.insert(0, str(HERE))
 
 import prepare_attempt as prepare  # noqa: E402
+
+PREFLIGHT_TEMPLATE = HERE / prepare.PREFLIGHT_TEMPLATE_NAME
 
 
 def queue_plan_toml() -> str:
@@ -43,9 +46,11 @@ def make_repo(root: Path) -> Path:
     experiment = repo / prepare.EXPERIMENT_RELATIVE
     vendor = experiment / "vendor/rq2_gd_offset_split_001"
     tools = experiment / "queue_tools"
+    dispatcher = experiment / "dispatcher"
     project = root / "project"
     vendor.mkdir(parents=True)
     tools.mkdir()
+    dispatcher.mkdir()
     project.mkdir()
     (experiment / "config.toml").write_text(queue_plan_toml(), encoding="utf-8")
     (experiment / "rq2_gd_parity_assignment_refresh_001.jl").write_text(
@@ -55,7 +60,18 @@ def make_repo(root: Path) -> Path:
         f'[sources]\njade_project_repo = "{project}"\n', encoding="utf-8"
     )
     shutil.copy2(QUEUE_TOOLS / "queue_template.toml", tools / "queue_template.toml")
+    shutil.copy2(PREFLIGHT_TEMPLATE, dispatcher / prepare.PREFLIGHT_TEMPLATE_NAME)
     return repo
+
+
+def create_passed_preflight(repo: Path, attempt_id: str) -> prepare.AttemptPaths:
+    paths = prepare.create_attempt_preflight(repo, attempt_id)
+    text = paths.preflight.read_text(encoding="utf-8")
+    paths.preflight.write_text(
+        text.replace("validation_status: not_run", "validation_status: pass", 1),
+        encoding="utf-8",
+    )
+    return paths
 
 
 def make_frozen_tools(paths: prepare.AttemptPaths) -> Path:
@@ -94,9 +110,51 @@ class FakePackageCommands:
 
 
 class PrepareAttemptTests(unittest.TestCase):
+    def test_preflight_is_created_once_from_pinned_template(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = make_repo(Path(temporary))
+            paths = prepare.create_attempt_preflight(repo, "attempt_v1")
+            self.assertEqual(
+                paths.preflight.read_bytes(), PREFLIGHT_TEMPLATE.read_bytes()
+            )
+            with self.assertRaisesRegex(prepare.PreparationError, "overwrite or resume"):
+                prepare.create_attempt_preflight(repo, "attempt_v1")
+
+    def test_initialize_requires_passed_attempt_preflight(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = make_repo(Path(temporary))
+            prepare.create_attempt_preflight(repo, "attempt_v1")
+            with self.assertRaisesRegex(prepare.PreparationError, "not a unique passed"):
+                prepare.initialize_attempt(repo, "attempt_v1")
+
+    def test_preflight_race_never_deletes_other_invocations_record(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = make_repo(Path(temporary))
+            paths = prepare.authored_paths(repo, "attempt_v1")
+            original_mkdir = Path.mkdir
+
+            def racing_mkdir(path: Path, *args: object, **kwargs: object) -> None:
+                original_mkdir(path, *args, **kwargs)
+                if path == paths.preflight.parent:
+                    paths.preflight.write_text(
+                        "validation_status: fail\ncreated_by: other\n",
+                        encoding="utf-8",
+                    )
+
+            with mock.patch.object(Path, "mkdir", racing_mkdir):
+                with self.assertRaisesRegex(
+                    prepare.PreparationError, "overwrite or resume"
+                ):
+                    prepare.create_attempt_preflight(repo, "attempt_v1")
+            self.assertEqual(
+                paths.preflight.read_text(encoding="utf-8"),
+                "validation_status: fail\ncreated_by: other\n",
+            )
+
     def test_initialize_fills_exact_unique_paths_and_refuses_resume(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             repo = make_repo(Path(temporary))
+            create_passed_preflight(repo, "2026-10-31_factorial_v1")
             paths = prepare.initialize_attempt(repo, "2026-10-31_factorial_v1")
             queue = prepare.load_toml(paths.queue_root / "queue.toml")
             self.assertEqual(
@@ -106,6 +164,15 @@ class PrepareAttemptTests(unittest.TestCase):
             self.assertEqual(queue["paths"]["project_root"], str(paths.project_root))
             self.assertEqual(
                 (repo.resolve() / queue["paths"]["freeze"]), paths.freeze
+            )
+            self.assertEqual(
+                (repo.resolve() / queue["paths"]["preflight"]), paths.preflight
+            )
+            self.assertEqual(
+                paths.preflight,
+                repo.resolve()
+                / prepare.EXPERIMENT_RELATIVE
+                / "preflight/2026-10-31_factorial_v1/preflight_validation.md",
             )
             self.assertEqual(
                 (repo.resolve() / queue["paths"]["anchor_result"]),
@@ -127,15 +194,40 @@ class PrepareAttemptTests(unittest.TestCase):
     def test_initialize_refuses_any_preexisting_scientific_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             repo = make_repo(Path(temporary))
+            create_passed_preflight(repo, "attempt_v1")
             paths = prepare.authored_paths(repo, "attempt_v1")
             paths.transfer_result.mkdir(parents=True)
             with self.assertRaisesRegex(prepare.PreparationError, "overwrite or resume"):
                 prepare.initialize_attempt(repo, "attempt_v1")
             self.assertFalse(paths.queue_root.exists())
 
+    def test_queue_race_never_deletes_other_invocations_record(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repo = make_repo(Path(temporary))
+            paths = create_passed_preflight(repo, "attempt_v1")
+            original_mkdir = Path.mkdir
+
+            def racing_mkdir(path: Path, *args: object, **kwargs: object) -> None:
+                original_mkdir(path, *args, **kwargs)
+                if path == paths.queue_root:
+                    (paths.queue_root / "queue.toml").write_text(
+                        'queue_id = "created-by-other"\n', encoding="utf-8"
+                    )
+
+            with mock.patch.object(Path, "mkdir", racing_mkdir):
+                with self.assertRaisesRegex(
+                    prepare.PreparationError, "overwrite or resume"
+                ):
+                    prepare.initialize_attempt(repo, "attempt_v1")
+            self.assertEqual(
+                (paths.queue_root / "queue.toml").read_text(encoding="utf-8"),
+                'queue_id = "created-by-other"\n',
+            )
+
     def test_finalize_copies_only_registered_inventory_derives_then_locks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             repo = make_repo(Path(temporary))
+            create_passed_preflight(repo, "attempt_v1")
             paths = prepare.initialize_attempt(repo, "attempt_v1")
             frozen = make_frozen_tools(paths)
             commands = FakePackageCommands()
@@ -166,6 +258,7 @@ class PrepareAttemptTests(unittest.TestCase):
     def test_finalize_refuses_dirty_queue_before_running_any_command(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             repo = make_repo(Path(temporary))
+            create_passed_preflight(repo, "attempt_v1")
             paths = prepare.initialize_attempt(repo, "attempt_v1")
             make_frozen_tools(paths)
             (paths.queue_root / "unregistered.txt").write_text("x", encoding="utf-8")
@@ -177,6 +270,7 @@ class PrepareAttemptTests(unittest.TestCase):
     def test_finalize_refuses_existing_nonanchor_result(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             repo = make_repo(Path(temporary))
+            create_passed_preflight(repo, "attempt_v1")
             paths = prepare.initialize_attempt(repo, "attempt_v1")
             make_frozen_tools(paths)
             paths.transfer_result.mkdir(parents=True)

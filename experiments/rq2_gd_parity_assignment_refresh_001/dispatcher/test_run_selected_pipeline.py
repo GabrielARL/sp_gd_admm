@@ -63,6 +63,10 @@ def make_repo(root: Path) -> Path:
         f'[sources]\njade_project_repo = "{project}"\n', encoding="utf-8"
     )
     shutil.copy2(QUEUE_TOOLS / "queue_template.toml", tools / "queue_template.toml")
+    shutil.copy2(
+        HERE / prepare.PREFLIGHT_TEMPLATE_NAME,
+        dispatcher / prepare.PREFLIGHT_TEMPLATE_NAME,
+    )
     (dispatcher / "build_preflight_record.py").write_text(
         "# fake preflight builder\n", encoding="utf-8"
     )
@@ -116,6 +120,19 @@ class FullFakeCommands:
         self.commands.append(command)
         if command[0] == "fake-julia":
             self._make_freeze(Path(command[command.index("--output") + 1]))
+        elif (
+            len(command) > 1
+            and Path(command[1]).name == "build_preflight_record.py"
+        ):
+            preflight = Path(command[command.index("--preflight") + 1])
+            preflight.write_text(
+                preflight.read_text(encoding="utf-8").replace(
+                    "validation_status: not_run",
+                    "validation_status: pass",
+                    1,
+                ),
+                encoding="utf-8",
+            )
         elif command[0] == "fake-systemd-run":
             unit_argument = next(value for value in command if value.startswith("--unit="))
             unit = unit_argument.split("=", 1)[1]
@@ -188,6 +205,7 @@ deterministic_replay_passed = true
             paths = prepare.AttemptPaths(
                 repo_root=root,
                 experiment_root=root,
+                preflight=root / "preflight/attempt_v1/preflight_validation.md",
                 freeze=root / "freeze",
                 anchor_result=results["anchor"],
                 transfer_result=results["transfer"],
@@ -368,6 +386,12 @@ deterministic_replay_passed = true
                 if len(command) > 1 and Path(command[1]).name == "lock_queue_package.py"
             )
             self.assertLess(preflight_index, freeze_index)
+            self.assertIn("--preflight", commands[preflight_index])
+            self.assertIn("--preflight", commands[freeze_index])
+            self.assertEqual(
+                commands[preflight_index][commands[preflight_index].index("--preflight") + 1],
+                commands[freeze_index][commands[freeze_index].index("--preflight") + 1],
+            )
             self.assertLess(freeze_index, unit_indices[0])
             self.assertLess(unit_indices[0], lock_index)
             self.assertLess(lock_index, unit_indices[1])
@@ -404,6 +428,11 @@ deterministic_replay_passed = true
                     command_runner=fail_preflight,
                 )
             paths = prepare.authored_paths(repo, "attempt_v1")
+            self.assertTrue(paths.preflight.is_file())
+            self.assertIn(
+                "validation_status: not_run",
+                paths.preflight.read_text(encoding="utf-8"),
+            )
             self.assertFalse(paths.queue_root.exists())
             self.assertFalse(paths.freeze.exists())
 

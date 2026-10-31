@@ -480,6 +480,28 @@ def experiment_root(repo_root: Path) -> Path:
     return repo_root / "experiments" / "rq2_gd_parity_assignment_refresh_001"
 
 
+def validate_attempt_preflight_path(repo_root: Path, path: Path) -> Path:
+    """Require one regular attempt-local preflight destination.
+
+    The retained root preflight is historical v1 evidence.  Every retry must
+    use ``preflight/<attempt>/preflight_validation.md`` so a failed record can
+    never be reset or silently reused by a later attempt.
+    """
+
+    resolved = path.resolve(strict=False)
+    expected_parent = experiment_root(repo_root.resolve()) / "preflight"
+    if (
+        resolved.name != "preflight_validation.md"
+        or resolved.parent.parent != expected_parent
+        or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", resolved.parent.name)
+    ):
+        raise GateError(
+            "preflight must be attempt-local at "
+            "preflight/<attempt>/preflight_validation.md"
+        )
+    return resolved
+
+
 def source_hashes(root: Path) -> dict[str, str]:
     hashes: dict[str, str] = {}
     for field, relative in HASH_PATHS.items():
@@ -658,6 +680,7 @@ def build_record(
     queue_command: Sequence[str],
 ) -> bool:
     root = experiment_root(repo_root)
+    preflight_path = validate_attempt_preflight_path(repo_root, preflight_path)
     status, original, stat_before = current_preflight_status(preflight_path)
 
     # No configured test command may execute before this gate passes.
@@ -731,7 +754,7 @@ def parser() -> argparse.ArgumentParser:
     default_repo = Path(__file__).resolve().parents[3]
     result = argparse.ArgumentParser(description=__doc__)
     result.add_argument("--repo-root", type=Path, default=default_repo)
-    result.add_argument("--preflight", type=Path)
+    result.add_argument("--preflight", required=True, type=Path)
     prerequisite = result.add_mutually_exclusive_group(required=True)
     prerequisite.add_argument("--prerequisite-record", type=Path)
     prerequisite.add_argument(
@@ -748,9 +771,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     arguments = parser().parse_args(argv)
     repo_root = arguments.repo_root.resolve()
     root = experiment_root(repo_root)
-    if arguments.preflight is None:
-        preflight = root / "preflight_validation.md"
-    elif arguments.preflight.is_absolute():
+    if arguments.preflight.is_absolute():
         preflight = arguments.preflight
     else:
         preflight = Path.cwd() / arguments.preflight
