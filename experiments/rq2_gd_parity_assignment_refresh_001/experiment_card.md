@@ -2,8 +2,9 @@
 
 Status: **registered design; Offset Split v3 completed validly and passed the
 registered branch-selection rule; controller attempt `2026-10-31_v1` failed
-during syntax validation before any factorial endpoint was calculated; the
-isolated operational retry is `2026-11-01_v2`; no factorial result is claimed
+during syntax validation, and attempt `2026-11-01_v2` failed while enumerating
+freeze sources; both stopped before any factorial endpoint was calculated; the
+isolated operational retry is `2026-11-01_v3`; no factorial result is claimed
 yet**.
 
 This identifier is an internal experiment ID, not a receiver name. ADMM and
@@ -116,11 +117,19 @@ controller records remain immutable.
 Attempt `2026-11-01_v2` corrects that syntax defect and gives the retry its own
 preflight, freeze, result, queue, controller-state, and decision records. The
 controller revalidates the complete v3 evidence and recreates the registered
-branch-selection decision. The scientific question, four arms, cases,
-endpoints, contrasts, correction family, budgets, numerical operations, and
-stopping rules are unchanged. The registered scientific service names are
-reused only because v1 launched neither service and created no scientific
-output.
+branch-selection decision. Its preflight passed, but source enumeration during
+freeze stopped because a local variable named `split` shadowed Julia's
+`split(...)` function. The attempt retained its passed preflight, partial input
+table, queue configuration, and controller failure. It produced no freeze
+manifest, launched no scientific service, and calculated no endpoint.
+
+Attempt `2026-11-01_v3` renames that local variable and directly tests source
+enumeration against the retained prerequisite manifest. It receives new
+preflight, freeze, result, queue, controller-state, and decision records. The
+scientific question, four arms, cases, endpoints, contrasts, correction
+family, budgets, numerical operations, and stopping rules are unchanged. The
+registered scientific service names are reused only because v1 and v2 launched
+neither service and created no scientific result.
 
 ## Protocol fingerprint
 

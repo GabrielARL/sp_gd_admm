@@ -34,13 +34,23 @@ register; it cannot by itself explain the full native BP performance gap.
 - Outcome: Julia preflight failed before freeze and before any registered
   endpoint calculation.
 
-### Registered operational retry
+### Retained failed freeze attempt
 
 - Controller unit: `rq2-followup-controller-20261101-v2.service`
 - Configuration: `controller_2026-11-01_v2.toml`
 - Controller state: `../controller/2026-11-01_v2/`
 - Factorial attempt: `2026-11-01_v2`
 - Preflight: `../preflight/2026-11-01_v2/preflight_validation.md`
+- Outcome: preflight passed, then source enumeration stopped during freeze
+  before a freeze manifest, scientific service, or endpoint calculation.
+
+### Registered operational retry
+
+- Controller unit: `rq2-followup-controller-20261101-v3.service`
+- Configuration: `controller_2026-11-01_v3.toml`
+- Controller state: `../controller/2026-11-01_v3/`
+- Factorial attempt: `2026-11-01_v3`
+- Preflight: `../preflight/2026-11-01_v3/preflight_validation.md`
 - Anchor unit:
   `sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service`
 - Serial transfer-plus-attribution unit:
@@ -49,10 +59,10 @@ register; it cannot by itself explain the full native BP performance gap.
 The controller has no automatic-resume path. Any durable controller state or
 any existing freeze, result, queue, or bridge-handoff path makes the attempt
 fail closed. A failed or interrupted scientific attempt requires a new attempt
-ID and new scientific unit names. A controller or preflight failure before any
-scientific unit is launched may retain the unlaunched registered scientific
-unit names, provided their absence and the absence of all scientific outputs
-are verified and recorded.
+ID and new scientific unit names. An operational failure before any scientific
+unit is launched may retain the unlaunched registered scientific unit names,
+provided their absence and the absence of all scientific results are verified
+and recorded.
 
 The delayed dispatcher programs are SHA-256 pinned in the production
 configuration and rechecked immediately before successor execution. Each

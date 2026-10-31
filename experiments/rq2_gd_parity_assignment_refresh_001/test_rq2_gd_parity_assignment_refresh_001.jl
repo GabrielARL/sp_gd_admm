@@ -107,6 +107,11 @@ end
             @test F.authored_source_paths(F.DEFAULT_CONFIG;
                 preflight_path=record)["preflight_validation.md"] ==
                 abspath(record)
+            frozen_sources = F.freeze_source_paths(
+                config, F.DEFAULT_CONFIG; preflight_path=record)
+            @test frozen_sources["preflight_validation.md"] == abspath(record)
+            @test haskey(
+                frozen_sources, "prerequisite_result/COMPLETED.toml")
 
             open(record, "a") do io
                 println(io, "swapped_record: different")

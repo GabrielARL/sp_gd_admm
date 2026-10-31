@@ -1505,8 +1505,9 @@ function freeze_source_paths(config, config_path;
                 joinpath(prerequisite, relative)
         end
     end
-    split = load_split_config(config)
-    for (label, path) in Split.freeze_source_paths(split, SPLIT_CONFIG_PATH)
+    split_config = load_split_config(config)
+    for (label, path) in Split.freeze_source_paths(
+            split_config, SPLIT_CONFIG_PATH)
         paths["capsule/" * label] = path
     end
     paths
