@@ -1,0 +1,88 @@
+dispatcher_id = "RQ2-PARITY-ASSIGNMENT-REFRESH-DISPATCH-2026-10-31-V1"
+
+[controller]
+state_dir = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/controller/2026-10-31_v1"
+poll_interval_seconds = 30
+max_wait_seconds = 0
+command_timeout_seconds = 0
+command_cwd = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031"
+
+[v3]
+unit = "sp-gd-rq2-offset-split-v3-20261031.service"
+systemctl = "/usr/bin/systemctl"
+result = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3"
+frames_csv = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3/frames.csv"
+status_helper = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/status_report.py"
+status_python = "/usr/bin/python3"
+status_helper_sha256 = "bca4ebbdbc8234fb5123c04635334556c0ff7d0baa5178d0d87c82bf9f4ca546"
+required_terminal_files = [
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J01/COMPLETED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J02/COMPLETED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J03/COMPLETED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/final_summary.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/QUEUE_COMPLETED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3/COMPLETED.toml",
+]
+failure_terminal_files = [
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J01/FAILED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J02/FAILED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/jobs/J03/FAILED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/queue/2026-10-31_v3/QUEUE_FAILED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3/FAILED.toml",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3/REJECTED.toml",
+]
+
+[selection]
+reference_arm = "objective0__bounds0"
+treatment_arm = "objective1__bounds0"
+endpoints = ["transmitted_word_equal", "parity_valid"]
+expected_cases = 200
+
+[safety]
+refuse_existing_paths = [
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/freeze/2026-10-31_v1",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-10-31_v1_anchor",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-10-31_v1_transfer",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-10-31_v1_attribution",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/queue/2026-10-31_v1",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/controller/2026-10-31_v1/BRIDGE_REGISTRATION_REQUIRED.toml",
+]
+trusted_successor_files = [
+  { path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/dispatcher/conditional_controller.py", sha256 = "38bd440985c7eaa692a81c5665e6f9f54066e799cb16b3906c6d9c964c60366e" },
+  { path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/dispatcher/run_selected_pipeline.py", sha256 = "9aa3988d9a2f7535455669a4471630b3e57fd3db02c523b35fa693153628fc66" },
+  { path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/dispatcher/prepare_attempt.py", sha256 = "e9b49d2a2fbb527cc7ab0f926bd5eff530504d3f1438e3b270756760b6933e02" },
+  { path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/dispatcher/build_preflight_record.py", sha256 = "be227a2228a88ee9e50ceba6118db2e9ed50cffb3a6296d243686975cac8d540" },
+]
+
+[commands]
+pipeline = [
+  "/usr/bin/python3",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/dispatcher/run_selected_pipeline.py",
+  "--repo-root",
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031",
+  "--attempt-id",
+  "2026-10-31_v1",
+  "--decision-record",
+  "{decision_record}",
+  "--handoff-record",
+  "{state_dir}/BRIDGE_REGISTRATION_REQUIRED.toml",
+  "--python-executable",
+  "/usr/bin/python3",
+  "--julia-executable",
+  "/home/gabiel/.juliaup/bin/julia",
+  "--systemd-run-executable",
+  "/usr/bin/systemd-run",
+  "--systemctl-executable",
+  "/usr/bin/systemctl",
+  "--poll-seconds",
+  "20",
+]
+
+[environment]
+PYTHONDONTWRITEBYTECODE = "1"
+JULIA_NUM_THREADS = "1"
+OMP_NUM_THREADS = "1"
+OPENBLAS_NUM_THREADS = "1"
+MKL_NUM_THREADS = "1"
+BLIS_NUM_THREADS = "1"
+VECLIB_MAXIMUM_THREADS = "1"

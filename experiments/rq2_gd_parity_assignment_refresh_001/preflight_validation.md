@@ -11,6 +11,7 @@ budget_tests_total: pending
 queue_test_exit_code: pending
 queue_tests_passed: pending
 queue_tests_total: pending
+prerequisite_evidence_sha256: pending
 config_sha256: pending
 card_sha256: pending
 runner_sha256: pending
