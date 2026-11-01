@@ -1,0 +1,45 @@
+# Preflight record for `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001`
+
+validation_status: pass
+validated_utc: 2026-10-31T21:41:45Z
+test_exit_code: 0
+test_assertions_passed: 20529
+test_assertions_total: 20529
+budget_test_exit_code: 0
+budget_tests_passed: 4
+budget_tests_total: 4
+queue_test_exit_code: 0
+queue_tests_passed: 13
+queue_tests_total: 13
+prerequisite_evidence_sha256: 3c685f79ea4e0e79fb7504f547bfd5e818128c75d6e15a931d1288defa732e5e
+config_sha256: 27a438d5fba1377fc2412fed94f0fafb4df7721a27404168a400039278c0a531
+card_sha256: 667aedf2505778d95098bd2abddd0e6c7af841929fc5331bce75a05179f5f75f
+runner_sha256: f1568d0958ed00031ae62868721e42e0029ed118c78617cb2c4d74c93912aceb
+test_sha256: c5d380c50d87ce65a782c7b36838a45d340da665caee1ee3ca477c25cb4fe2c0
+budget_tool_sha256: 1d3110ef9c6e9fe60e502c69fe6e3aa86c58eddba0a6132c9a904842f405f030
+budget_test_sha256: 717e972fb6b589505183016ec7963afe9958abc6a532681b93b2758e76a05d49
+queue_status_sha256: e1db4f70ccc7a63f35581899535d392aea0ca0cf17e4cd4a7064377a69eaa638
+queue_lock_tool_sha256: 72d7f1d0034902fe2618aaa921aa10212a516ec902936d42ca055e57f1a46c12
+anchor_wrapper_sha256: 6f083c26651342ac3729b3f33b3c39e4a88c74404fe27d32f26106a6b2fa62fe
+queue_wrapper_sha256: b7a8eb2dc87d05f9b881b88071b2f58d718e8055553c26c7cdd67551fb6952a1
+queue_template_sha256: 65b92c873632a00d61226b9c40051ebbdf515387bd731697da23a3f65a7cf08b
+queue_readme_template_sha256: cd7d37f8b730a240e73f310a88d7c7985af3d9fb71e678ece8dc7de481f0a49e
+queue_test_sha256: be461dc8807237a31accc0cf7417a65ba02461be2a169ad96d914b48cae4efc9
+split_runner_sha256: ddd2cc8ce258ebdd2c43a8c305bebd280e6dd609d3872eec039158b29a407ce4
+legacy_runner_sha256: 12272ccdcdde6b600073299caa4ada07953164dac65aecda98fc5dac1ba6b3cd
+registered_endpoint_frames_executed_during_preflight: 0
+
+This is an attempt-local, initially unexecuted record. The dispatcher creates
+it exclusively for one attempt, the preflight builder finalizes it once, and
+the freeze binds its exact absolute source path and SHA-256 digest. A failed
+record is final and cannot be reset, overwritten, or reused by another
+attempt.
+
+The preflight performs no registered endpoint calculation. It first verifies
+the checksum-bound Offset Split v3 selection evidence, then runs the Julia,
+budget, and queue-governance test suites with one Julia, BLAS, and OpenMP
+thread. Only a passed record permits the attempt's freeze to be created.
+
+The retained root `preflight_validation.md` is the final failed record from
+attempt v1. It is historical evidence and is never the input to a later
+attempt.

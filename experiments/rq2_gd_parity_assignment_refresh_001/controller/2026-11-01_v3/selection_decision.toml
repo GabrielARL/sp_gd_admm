@@ -1,0 +1,50 @@
+aggregate_sha256 = "da69dc596418e116c670d1297d5b81164de8c21f228ae8ee89f6ba2d5d6a5d12"
+attempt = "v3"
+checksum_manifest_sha256 = "2012da33ae39c5862349907ae986bb4c8490daa81ec9541fffe322528681f977"
+comparison = "treatment_only strictly greater than reference_only for both endpoints"
+completion_sha256 = "1ee4e0d3139eea32e715213822f9e3bb2e06e71eb6f13508d23c85da1da882cf"
+controller_config_sha256 = "2cc4788771f89252652c3ddad25604b6ddc5952e2381677f7275358ecb1f2f68"
+decision = "selected"
+deterministic_replay_passed = true
+dispatcher_id = "RQ2-PARITY-ASSIGNMENT-REFRESH-DISPATCH-2026-11-01-V3"
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+frames_csv = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3/frames.csv"
+frames_csv_sha256 = "595d45ec4ace91f60bd92fa9972ad2129c0236d0f22568c0957f8882303e7e64"
+manifest_sha256 = "7788bf781cc5cc349e8bc1d2306cffa1ad98303490d0d5b4cf5ab3d36ccb093b"
+paired_cases = 200
+parity_valid_passed = true
+parity_valid_reference_arm = "objective0__bounds0"
+parity_valid_reference_only = 0
+parity_valid_treatment_arm = "objective1__bounds0"
+parity_valid_treatment_only = 56
+passed = true
+reason = "registered parity-calculation branch-selection rule passed"
+recorded_utc = "2026-10-31T21:40:22Z"
+reference_arm = "objective0__bounds0"
+result = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3"
+schema_version = "rq2-safe-dispatch/prerequisite-v1"
+science_sha256 = "a42793a4e94485e3f91873c1bb1cdce943879447a982555275ccf13483445125"
+selected = true
+selection_rule_passed = true
+state = "selected"
+transmitted_word_equal_passed = true
+transmitted_word_equal_reference_arm = "objective0__bounds0"
+transmitted_word_equal_reference_only = 0
+transmitted_word_equal_treatment_arm = "objective1__bounds0"
+transmitted_word_equal_treatment_only = 56
+treatment_arm = "objective1__bounds0"
+v3_status_helper_sha256 = "bca4ebbdbc8234fb5123c04635334556c0ff7d0baa5178d0d87c82bf9f4ca546"
+
+[endpoints.transmitted_word_equal]
+passed = true
+reference_arm = "objective0__bounds0"
+reference_only_success = 0
+treatment_arm = "objective1__bounds0"
+treatment_only_success = 56
+
+[endpoints.parity_valid]
+passed = true
+reference_arm = "objective0__bounds0"
+reference_only_success = 0
+treatment_arm = "objective1__bounds0"
+treatment_only_success = 56

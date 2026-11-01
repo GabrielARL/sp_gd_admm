@@ -1,0 +1,9 @@
+endpoint,contrast,treatment,reference,pairs,both_success,treatment_only_success,reference_only_success,both_failure,treatment_successes,reference_successes,risk_difference,interval_lower,interval_upper,mcnemar_p,holm_p,refresh_equivalence_applicable,refresh_equivalence_evaluated,refresh_equivalence_status,refresh_equivalence_margin,refresh_equivalent_within_margin,refresh_equivalence_criterion
+transmitted_word_equal,assignment_given_refreshed,asbuilt__refreshed,permuted__refreshed,24,10,13,0,1,23,10,0.54166666666666663,NaN,NaN,NaN,NaN,false,false,not_applicable,,,
+transmitted_word_equal,assignment_given_frozen,asbuilt__frozen,permuted__frozen,24,10,13,0,1,23,10,0.54166666666666663,NaN,NaN,NaN,NaN,false,false,not_applicable,,,
+transmitted_word_equal,refresh_given_asbuilt,asbuilt__refreshed,asbuilt__frozen,24,23,0,0,1,23,23,0,NaN,NaN,NaN,NaN,true,false,not_evaluated,,,
+transmitted_word_equal,refresh_given_permuted,permuted__refreshed,permuted__frozen,24,9,1,1,13,10,10,0,NaN,NaN,NaN,NaN,true,false,not_evaluated,,,
+parity_valid,assignment_given_refreshed,asbuilt__refreshed,permuted__refreshed,24,10,13,0,1,23,10,0.54166666666666663,NaN,NaN,NaN,NaN,false,false,not_applicable,,,
+parity_valid,assignment_given_frozen,asbuilt__frozen,permuted__frozen,24,10,13,0,1,23,10,0.54166666666666663,NaN,NaN,NaN,NaN,false,false,not_applicable,,,
+parity_valid,refresh_given_asbuilt,asbuilt__refreshed,asbuilt__frozen,24,23,0,0,1,23,23,0,NaN,NaN,NaN,NaN,true,false,not_evaluated,,,
+parity_valid,refresh_given_permuted,permuted__refreshed,permuted__frozen,24,9,1,1,13,10,10,0,NaN,NaN,NaN,NaN,true,false,not_evaluated,,,

@@ -1,0 +1,11 @@
+controller_config_sha256 = "2cc4788771f89252652c3ddad25604b6ddc5952e2381677f7275358ecb1f2f68"
+detail = "pipeline exited 2; see /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/controller/2026-11-01_v3/logs/pipeline.log"
+dispatcher_id = "RQ2-PARITY-ASSIGNMENT-REFRESH-DISPATCH-2026-11-01-V3"
+exit_code = 2
+phase = "pipeline"
+process_id = 759151
+schema_version = "rq2-gd-parity-assignment-refresh-001/conditional-controller-v1"
+started_utc = "2026-10-31T21:40:21Z"
+state = "failed"
+updated_utc = "2026-10-31T21:55:49Z"
+v3_unit = "sp-gd-rq2-offset-split-v3-20261031.service"

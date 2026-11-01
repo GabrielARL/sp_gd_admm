@@ -1,0 +1,3 @@
+endpoint,frames,score_sum,risk_difference_interaction,score_minus2,score_minus1,score_zero,score_plus1,score_plus2,bootstrap_lower,bootstrap_upper,bootstrap_seed,bootstrap_resamples
+transmitted_word_equal,24,0,0,0,1,22,1,0,NaN,NaN,0,0
+parity_valid,24,0,0,0,1,22,1,0,NaN,NaN,0,0
