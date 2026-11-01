@@ -1,0 +1,32 @@
+schema_version = "rq2-exact-map-update-001/freeze-spec-v1"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+attempt_id = "2026-11-01_v1"
+
+[predecessor]
+root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2"
+manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+
+[[overlays]]
+label = "exact_map_runner"
+path = "../../exact_map_update.jl"
+archive_as = "rq2_exact_map_update_001/exact_map_update.jl"
+
+[[overlays]]
+label = "exact_map_test"
+path = "../../test_exact_map_update.jl"
+archive_as = "rq2_exact_map_update_001/test_exact_map_update.jl"
+
+[[overlays]]
+label = "exact_map_config"
+path = "../../config.toml"
+archive_as = "rq2_exact_map_update_001/config.toml"
+
+[[overlays]]
+label = "exact_map_experiment_card"
+path = "../../experiment_card.md"
+archive_as = "rq2_exact_map_update_001/experiment_card.md"
+
+[[overlays]]
+label = "exact_map_preflight"
+path = "preflight_validation.toml"
+archive_as = "rq2_exact_map_update_001/preflight_validation.toml"

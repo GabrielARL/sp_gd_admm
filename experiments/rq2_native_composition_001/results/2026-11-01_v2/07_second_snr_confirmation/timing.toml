@@ -1,0 +1,13 @@
+execution_variant_count = 11
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+frame_count = 200
+job_id = "07_second_snr_confirmation"
+pass_count = 2
+primary_seconds = 1831.671009485
+replay_seconds = 1804.39893954
+rung_count = 11
+schema_version = "rq2-native-composition-001/timing-v1"
+seconds_per_frame_rung = 1.6527590677386363
+seconds_per_frame_variant = 1.6527590677386363
+total_seconds = 3643.127770777
+write_seconds = 7.057821752

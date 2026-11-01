@@ -1,0 +1,1 @@
+channel,snr_db,frame,noise_seed,llr_sha256,received_sha256,rung_id,backend,parity_valid,transmitted_word_equal,coded_bit_errors,syndrome_weight,updates,status,first_valid_update,first_exact_update,state_sha256,hard_word_sha256

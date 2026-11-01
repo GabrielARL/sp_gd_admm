@@ -1,0 +1,8 @@
+completed_frames = 200
+pass = "replay"
+phase = "complete"
+schema_version = "rq2-gd-residual-projection-budget-001/progress-v1"
+stage = "transfer"
+total_frames = 200
+updated_utc = "2026-11-01T08:21:34.805"
+

@@ -1,0 +1,11 @@
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = ""
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+frames_sha256 = "a19ad81eb2cc4a618f726cabe68da723aa8f2202c03d2e04b19f827869c7bbb8"
+iterations_sha256 = "9bab4a39539bd4b3104a7e8fa85fc5bc58f2f2f06eb08e6590ed31eb0f5dee12"
+job_gate_sha256 = "ed019450984e5dbc622fc0908be1bdda02a9d21b4d8e948b11fcc2be3b0ea872"
+job_id = "01_validation_reproduction_gate"
+schema_version = "rq2-exact-map-update-001/job-completion-v1"
+science_sha256 = "0b3aa1f5baca4ad66448cd4547d3db60bfbe95a457385abbd0b93fb7008c2e2f"
+status = "complete_valid"

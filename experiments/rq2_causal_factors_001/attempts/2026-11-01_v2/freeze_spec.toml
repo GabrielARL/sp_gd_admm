@@ -1,0 +1,213 @@
+schema_version = "rq2-causal-factors-001/freeze-spec-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+attempt_id = "2026-11-01_v2"
+
+[[sources]]
+label = "campaign_preflight"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/attempts/2026-11-01_v2/preflight_validation.toml"
+archive_as = "source/preflight_validation.toml"
+
+[[sources]]
+label = "endpoint_expectations"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/attempts/2026-11-01_v2/endpoint_expectations.toml"
+archive_as = "source/campaign/endpoint_expectations.toml"
+
+[[sources]]
+label = "preflight_evidence"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/attempts/2026-11-01_v2/preflight_evidence.md"
+archive_as = "source/campaign/preflight_evidence.md"
+
+[[sources]]
+label = "endpoint_expectation_verifier"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/attempts/2026-11-01_v2/verify_endpoint_expectations.py"
+archive_as = "source/campaign/verify_endpoint_expectations.py"
+
+[[sources]]
+label = "block_a_runner"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+archive_as = "source/block_a/runner.jl"
+
+[[sources]]
+label = "block_a_config"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_residual_projection_budget_001/config.toml"
+archive_as = "source/block_a/config.toml"
+
+[[sources]]
+label = "block_a_card"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_residual_projection_budget_001/experiment_card.md"
+archive_as = "source/block_a/experiment_card.md"
+
+[[sources]]
+label = "block_a_test"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl"
+archive_as = "source/block_a/test_rq2_gd_residual_projection_budget_001.jl"
+
+[[sources]]
+label = "block_a_v4_runner"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+archive_as = "source/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+
+[[sources]]
+label = "block_a_v4_config"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_parity_assignment_refresh_001/config.toml"
+archive_as = "source/rq2_gd_parity_assignment_refresh_001/config.toml"
+
+[[sources]]
+label = "block_a_split_runner"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+archive_as = "source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+
+[[sources]]
+label = "block_a_split_config"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+archive_as = "source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+
+[[sources]]
+label = "block_a_legacy_runner"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+archive_as = "source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+
+[[sources]]
+label = "block_b_runner"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+archive_as = "source/block_b/runner.jl"
+
+[[sources]]
+label = "block_b_config"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_bp_target_state_update_001/config.toml"
+archive_as = "source/block_b/config.toml"
+
+[[sources]]
+label = "block_b_card"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_bp_target_state_update_001/experiment_card.md"
+archive_as = "source/block_b/experiment_card.md"
+
+[[sources]]
+label = "block_b_test"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl"
+archive_as = "source/block_b/test_rq2_bp_target_state_update_001.jl"
+
+[[sources]]
+label = "v4_calibration_frames"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/frames.csv"
+archive_as = "reference/v4_anchor/frames.csv"
+
+[[sources]]
+label = "v4_calibration_completion"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/COMPLETED.toml"
+archive_as = "reference/v4_anchor/COMPLETED.toml"
+
+[[sources]]
+label = "v4_calibration_manifest"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/MANIFEST.sha256"
+archive_as = "reference/v4_anchor/MANIFEST.sha256"
+
+[[sources]]
+label = "retained_calibration_native_rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_gap_001/results/2026-10-31_profile_v2/frames.csv"
+archive_as = "reference/endpoint_expected/calibration_native_frames.csv"
+
+[[sources]]
+label = "retained_calibration_v4_rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/frames.csv"
+archive_as = "reference/endpoint_expected/calibration_v4_frames.csv"
+
+[[sources]]
+label = "retained_attribution_native_rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_attribution/source/retained/native_gap_frames.csv"
+archive_as = "reference/endpoint_expected/attribution_native_frames.csv"
+
+[[sources]]
+label = "retained_attribution_v4_rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_attribution/frames.csv"
+archive_as = "reference/endpoint_expected/attribution_v4_frames.csv"
+
+[[sources]]
+label = "jade_project_toml"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+archive_as = "source/jade_project/Project.toml"
+
+[[sources]]
+label = "jade_manifest_toml"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+archive_as = "source/jade_project/Manifest.toml"
+
+[[sources]]
+label = "jade_source_jadejcade"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/JadeJcade.jl"
+archive_as = "source/jade_project/src/JadeJcade.jl"
+
+[[sources]]
+label = "jade_source_ldpc"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/LDPC.jl"
+archive_as = "source/jade_project/src/LDPC.jl"
+
+[[sources]]
+label = "jade_source_modulations"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/Modulations.jl"
+archive_as = "source/jade_project/src/Modulations.jl"
+
+[[sources]]
+label = "jade_source_receiver_core"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+archive_as = "source/jade_project/src/ReceiverCore.jl"
+
+[[sources]]
+label = "jade_source_baseline_likelihood"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/baseline_likelihood.jl"
+archive_as = "source/jade_project/src/core/baseline_likelihood.jl"
+
+[[sources]]
+label = "jade_source_common"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+archive_as = "source/jade_project/src/core/common.jl"
+
+[[sources]]
+label = "jade_source_jcade"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/jcade.jl"
+archive_as = "source/jade_project/src/core/jcade.jl"
+
+[[sources]]
+label = "jade_source_joint_projected_gradient"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+archive_as = "source/jade_project/src/core/joint_cz_projected_gradient.jl"
+
+[[sources]]
+label = "jade_source_normalized_minsum_sensitivity"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_sensitivity.jl"
+archive_as = "source/jade_project/src/core/normalized_minsum_sensitivity.jl"
+
+[[sources]]
+label = "jade_source_normalized_minsum_trace"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_trace.jl"
+archive_as = "source/jade_project/src/core/normalized_minsum_trace.jl"
+
+[[sources]]
+label = "jade_source_persistent_edge"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/persistent_edge.jl"
+archive_as = "source/jade_project/src/core/persistent_edge.jl"
+
+[[sources]]
+label = "jade_source_soft_minsum_lagrangian"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/soft_minsum_lagrangian.jl"
+archive_as = "source/jade_project/src/core/soft_minsum_lagrangian.jl"
+
+[[sources]]
+label = "archived_native_runner"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+archive_as = "source/retained_native/run_three_receivers.jl"
+
+[[sources]]
+label = "archived_native_test"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/test_three_receivers.jl"
+archive_as = "source/retained_native/test_three_receivers.jl"
+
+[[sources]]
+label = "archived_native_frames"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/frames.csv"
+archive_as = "source/retained_native/frames.csv"
+
+[[sources]]
+label = "harness_repair_contract"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/attempts/2026-11-01_v2/harness_repair_contract.toml"
+archive_as = "source/campaign/harness_repair_contract.toml"

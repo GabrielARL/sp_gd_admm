@@ -1,0 +1,63 @@
+schema_version = "rq2-native-composition-001/freeze-spec-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+attempt_id = "REPLACE_WITH_NEW_ATTEMPT_ID"
+
+# Include every executed source, configuration, registry, reference, and project
+# lock. The composition sources, project lock, package entry, and three Linux
+# LDPC helpers below are mandatory. Add endpoint references and every imported
+# source file used by the concrete attempt.
+
+[[sources]]
+label = "preflight_validation"
+path = "/REPLACE/preflight_validation.toml"
+archive_as = "source/preflight_validation.toml"
+
+[[sources]]
+label = "native_composition_runner"
+path = "/REPLACE/native_composition.jl"
+archive_as = "source/native_composition.jl"
+
+[[sources]]
+label = "composition_config"
+path = "/REPLACE/config.toml"
+archive_as = "source/config.toml"
+
+[[sources]]
+label = "rung_registry"
+path = "/REPLACE/rung_registry.toml"
+archive_as = "source/rung_registry.toml"
+
+[[sources]]
+label = "jade_project_toml"
+path = "/REPLACE/jade_project/Project.toml"
+archive_as = "source/jade_project/Project.toml"
+
+[[sources]]
+label = "jade_manifest_toml"
+path = "/REPLACE/jade_project/Manifest.toml"
+archive_as = "source/jade_project/Manifest.toml"
+
+[[sources]]
+label = "jade_package_entry"
+path = "/REPLACE/jade_project/src/JadeJcade.jl"
+archive_as = "source/jade_project/src/JadeJcade.jl"
+
+[[sources]]
+label = "jade_ldpc_tool_make_ldpc_linux"
+path = "/REPLACE/jade_project/tools/ldpc/make-ldpc"
+archive_as = "source/jade_project/tools/ldpc/make-ldpc"
+
+[[sources]]
+label = "jade_ldpc_tool_make_gen_linux"
+path = "/REPLACE/jade_project/tools/ldpc/make-gen"
+archive_as = "source/jade_project/tools/ldpc/make-gen"
+
+[[sources]]
+label = "jade_ldpc_tool_print_pchk_linux"
+path = "/REPLACE/jade_project/tools/ldpc/print-pchk"
+archive_as = "source/jade_project/tools/ldpc/print-pchk"
+
+[[sources]]
+label = "jade_ldpc_tool_randfile_linux"
+path = "/REPLACE/jade_project/tools/ldpc/src/randfile"
+archive_as = "source/jade_project/tools/ldpc/src/randfile"

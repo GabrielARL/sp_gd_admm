@@ -1,0 +1,12 @@
+utc	event	outcome	detail
+2026-11-01T14:43:31Z	dispatcher	start	2026-11-01_v1
+2026-11-01T14:43:31Z	predecessor_observed	waiting	active/running/908102
+2026-11-01T18:01:43Z	predecessor_observed	waiting	inactive/dead/0
+2026-11-01T18:01:43Z	predecessor_collected	inactive_candidate	unit disappeared after being observed active; retained evidence is required
+2026-11-01T18:01:43Z	predecessor_validation	start	
+2026-11-01T18:01:50Z	predecessor_validation	ok	locked package, freeze, preflight, 7 results
+2026-11-01T18:01:50Z	successor_validation	start	
+2026-11-01T18:01:50Z	successor_validation	ok	hash-locked package and fresh outputs
+2026-11-01T18:01:50Z	successor_launch	intent_recorded	sp-gd-rq2-exact-map-update-20261101-v1.service
+2026-11-01T18:01:51Z	successor_launch	invoked_once	launched sp-gd-rq2-exact-map-update-20261101-v1.service; read /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1/progress.toml and /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1/queue.log for durable status Running as unit: sp-gd-rq2-exact-map-update-20261101-v1.service
+2026-11-01T18:01:51Z	dispatcher	dispatched	service:active/running/931278

@@ -1,0 +1,12 @@
+block = "A"
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = "c984893e1832c97ef19aca10662a15a2505780296c984b4aead0649f985e429b"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+primary_science_sha256 = "8dd8f1c3607008de890ff40526553efcdcbad848d13770261d4f34e67a069548"
+replay_science_sha256 = "8dd8f1c3607008de890ff40526553efcdcbad848d13770261d4f34e67a069548"
+schema_version = "rq2-causal-factors-001/result-completion-v1"
+science_sha256 = "3c207283e48c3ef93b0a37eb81ddd9174c160a4ead05ffd31846f7c70a412c41"
+stage = "anchor"
+status = "complete_valid"
+

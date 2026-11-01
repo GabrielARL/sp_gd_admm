@@ -1,0 +1,6 @@
+schema_version = "rq2-causal-factors-001/queue-package-lock-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+queue_id = "2026-11-01_v2"
+queue_manifest_sha256 = "16af4f5b673cc155c87f9bc43b12a4c5b4e6cd2cf9e04f395047dbeef1877800"
+locked_file_count = 6
+locked_utc = "2026-11-01T09:59:57Z"

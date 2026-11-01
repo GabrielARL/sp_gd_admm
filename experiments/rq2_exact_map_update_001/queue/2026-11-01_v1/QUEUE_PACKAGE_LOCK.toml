@@ -1,0 +1,7 @@
+schema_version = "rq2-exact-map-update-001/queue-lock-v1"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+queue_id = "2026-11-01_v1"
+status = "locked"
+created_utc = "2026-11-01T14:42:58Z"
+immutable_count = 6
+queue_manifest_sha256 = "4e331a73f6867952977afb9273df3c8fd913a7a60e4f729647d8a0a480a4b957"

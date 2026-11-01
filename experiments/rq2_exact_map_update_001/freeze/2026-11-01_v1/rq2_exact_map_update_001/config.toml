@@ -1,0 +1,156 @@
+schema_version = "rq2-exact-map-update-001/config-v1"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "two-by-two ablation of update direction and step rule for the exact sum-product fixed-point map"
+
+[scope]
+admm_included = false
+native_projected_gd_included = false
+state = "one persistent check-to-variable value per Tanner-graph edge"
+check_calculation = "JadeJcade exact tanh-atanh sum-product kernel"
+shared_basis = "all four cells use the exact sum-product map F with a separate outgoing variable-to-check value for each recipient check, all-zero initialization, 30 attempted updates, and no outcome-altering early stop"
+causal_interpretation = "isolates the Jacobian-transpose direction change and the step-rule change within the exact-map bridge; it is not by itself a decomposition of every native BP-versus-projected-GD difference"
+
+[sources]
+block_b_runner = "../rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+block_b_runner_sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+block_b_config = "../rq2_bp_target_state_update_001/config.toml"
+block_b_config_sha256 = "2964cef7d789a40504695feea39830daf454af99cc30ce6999707d2752221caf"
+jade_project_repo = "../source/jade_project"
+jade_project_toml_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+jade_manifest_toml_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+jade_module_sha256 = "7df2835853a69896a4a00206c3b8b1357667dd4589cc63d83f8701660efd662d"
+jade_ldpc_sha256 = "e7bd15a6f42f3319245c661a28b25a545071256c1f8d46263808f52b6da846d0"
+jade_receiver_core_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+archived_native_runner = "../source/retained_native/run_three_receivers.jl"
+archived_native_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+
+[code]
+n = 10200
+k = 5100
+variable_degree = 3
+check_degree = 6
+graph_seed = 169616412
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+transmitted_word = "all_zero"
+
+[channels.six_db]
+snr_db = 6.0
+noise_variance = 0.251188643150958
+noise_seed_base = 20261012
+llr_clip = 20.0
+llr_convention = "positive favors coded bit zero"
+
+[channels.second_snr]
+snr_db = 1.5
+noise_variance = 0.7079457843841379
+noise_seed_base = 20261012
+llr_clip = 20.0
+llr_convention = "positive favors coded bit zero"
+
+[factorial]
+arm_order = ["true_gradient__armijo", "map_minus_state__armijo", "true_gradient__unit", "map_minus_state__unit"]
+direction_levels = ["true_gradient", "map_minus_state"]
+step_levels = ["armijo", "unit"]
+map_definition = "F(u) is the exact sum-product map with a separate outgoing variable-to-check value for each recipient check"
+objective = "R(u) = 0.5 * norm(u - F(u))^2"
+true_gradient_direction = "-(I - J_F(u))' * (u - F(u))"
+map_minus_state_direction = "F(u) - u"
+armijo_rule = "accept the first finite trial with a strictly negative directional derivative, strict objective decrease, and R(u + alpha*d) <= R(u) + c*alpha*dot(gradient,d)"
+unit_rule = "alpha = 1; map_minus_state__unit evaluates no Jacobian or residual gradient and is assigned exactly to F(u), while true_gradient__unit is assigned to u - gradient"
+initial_state = "all check-to-variable edge values are zero"
+
+[budget]
+update_attempts_per_arm = 30
+outcome_altering_early_stop = false
+shadow_first_valid_update_is_recorded = true
+shadow_first_exact_word_update_is_recorded = true
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+
+[gradient]
+initial_step = 1.0
+backtrack_factor = 0.5
+armijo_c = 0.0001
+maximum_backtracks = 24
+strict_decrease_required = true
+non_descent_rule = "stall and retain the current state"
+unit_gradient_nonfinite_rule = "absorbing failure; retain the last finite state only as an unscored diagnostic and mark all remaining attempts failed"
+parameter_tuning_allowed = false
+
+[native_endpoint_gate]
+maximum_message_passing_iterations = 80
+comparison = "separate 80-update direct-map oracle first-valid snapshot versus native exact-sum-product stopping endpoint; fixed-30 map_minus_state__unit must equal the oracle prefix"
+required_equalities = ["hard_word", "posterior_float_bits", "variable_to_check_float_bits", "check_to_variable_float_bits", "syndrome_weight", "stopping_iteration"]
+terminal_after_30_need_not_equal_native_stopping_state = true
+
+[inference]
+familywise_alpha = 0.05
+atomic_contrast_count = 4
+simultaneous_interval_confidence_level = 0.9875
+simultaneous_interval_z = 2.4977054769619746
+family_definition = "one Holm family of four paired atomic contrasts within each SNR and job"
+exact_test = "two-sided exact McNemar test on terminal transmitted-word recovery after 30 attempts"
+interval = "98.75% Bonferroni-adjusted Newcombe paired score interval for each paired risk difference"
+interaction_rule = "report the per-case difference-in-differences; additive attribution is forbidden whenever any case has nonzero interaction"
+pool_across_snr = false
+pool_across_jobs = false
+
+[jobs."01_validation_reproduction_gate"]
+validation_only = true
+channels = ["six_db"]
+frame_first = 20001
+frame_last = 20024
+expected_case_count = 24
+role = "retained trajectory, derivative, identity, decision, syndrome, and native endpoint reproduction gate"
+
+[jobs."02_fresh_dual_snr_anchor"]
+validation_only = false
+channels = ["six_db", "second_snr"]
+frame_first = 60425
+frame_last = 60448
+expected_case_count = 48
+role = "fresh dual-SNR anchor before either 200-case transfer"
+
+[jobs."03_six_db_transfer"]
+validation_only = false
+channels = ["six_db"]
+frame_first = 60449
+frame_last = 60648
+expected_case_count = 200
+role = "fresh prospective 6 dB transfer"
+
+[jobs."04_second_snr_confirmation"]
+validation_only = false
+channels = ["second_snr"]
+frame_first = 60649
+frame_last = 60848
+expected_case_count = 200
+role = "fresh prospective 1.5 dB confirmation"
+
+[validation]
+finite_difference_step = 1.0e-6
+long_finite_difference_step = 1.0e-5
+toy_gradient_absolute_tolerance = 2.0e-6
+toy_vjp_absolute_tolerance = 2.0e-6
+long_directional_relative_tolerance = 2.0e-5
+long_vjp_relative_tolerance = 2.0e-5
+long_state_base_candidates = [0.271, 0.337, 0.419]
+minimum_check_input_kink_margin = 1.0e-4
+native_endpoint_float_bits_exact = true
+trajectory_float_bits_exact = true
+unit_identity_float_bits_exact = true
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+
+[provenance]
+science_schema = "rq2-exact-map-update-001/science-v1"
+job_gate_schema = "rq2-exact-map-update-001/job-gate-v1"
+endpoint_gate_schema = "rq2-exact-map-update-001/endpoint-gate-v1"
+completion_schema = "rq2-exact-map-update-001/job-completion-v1"
+timing_schema = "rq2-exact-map-update-001/timing-v1"
+manifest_schema = "rq2-exact-map-update-001/manifest-v1"
+refuse_overwrite = true
+scientific_hash_excludes = ["elapsed_seconds", "timestamps", "filesystem_paths"]

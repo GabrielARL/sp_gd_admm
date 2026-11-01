@@ -1,71 +1,68 @@
-# `RQ2-GD-CHECKRULE-001` design note: one native operation toward BP
+# `RQ2-GD-CHECKRULE-001`: superseded design note
 
-Status: **design only; not implemented, not frozen, not to be run until the
-decision rule below selects it.**
+Status: **superseded before execution on 2026-11-01.** No result may be
+reported under this design.
 
-`RQ2-GD-CHECKRULE-001` is an internal experiment ID, not a receiver name.
+The original card proposed changing projected GD toward BP through three
+arms called `check_rule`, `check_rule_llr`, and `variable_rule`. The completed
+assignment/refresh control showed that this is not an atomic ladder:
 
-## Decision rule
+- the retained GD readings leave `[-1,1]`, so applying `atanh` also requires
+  a separately declared domain or clipping intervention;
+- recipient exclusion requires persistent check-to-variable state that the GD
+  construction does not retain;
+- replacing a declared objective's partial derivatives by a BP update
+  calculation makes the existing descent line search undefined; and
+- the old launch trigger required a null outcome that did not occur.
 
-This experiment is built only if `RQ2-GD-OFFSET-NULL-001` returns a valid
-held-out result in which `reference - permuted` is positive for both
-confirmatory endpoints with Holm-adjusted p below 0.05 and `permuted` is
-within its interval of `control`. That outcome means the retained offsets act
-through their check assignment, which is the one property shared with BP's
-extrinsic messages, and a rung toward BP can be built on them.
+Running the old card would therefore change state, calculation, domain, and
+update operator together. It is retained only as the provenance of the
+question.
 
-If `permuted` stays near `reference`, the retained construction is a
-perturbation and this experiment is not built; the next rung starts instead
-from a representation whose per-edge values are defined by an objective (the
-Bethe free energy with per-edge beliefs), not from constructed offsets.
+## Promoted tests
 
-## Question
+The user's 2026-11-01 authorization to test factors 1--6 is implemented as
+two controlled factorial blocks and a conditional composition:
 
-> Holding the per-edge readings `x_i + delta_(c,i)` fixed as the
-> representation, what changes when the check-local operation that acts on
-> those readings is replaced, one operation at a time, by BP's?
+1. `RQ2-GD-RESIDUAL-PROJECTION-BUDGET-001` crosses the compound parity
+   objective with an explicit product-only objective and crosses box
+   projection with no projection. The same trajectories are scored after 30
+   and 90 requested updates and by first parity-valid/first exact-word time.
+   This isolates the check-polynomial shape, projection, update budget, and
+   their interactions inside the frozen-offset GD path.
+2. `RQ2-BP-TARGET-STATE-UPDATE-001` crosses full recipient-specific BP state
+   with mean-preserving tying and crosses direct application of the sum-product
+   map with gradient descent on the declared residual objective
+   `R(u) = 0.5 ||u - F(u)||^2`. This isolates recipient-specific state, update
+   operator, and their interaction on a common exact-SP target.
+3. `RQ2-CAUSAL-FACTORS-001` is the campaign controller. It requires native
+   projected GD, the retained assigned/frozen bridge, and native exact
+   sum-product endpoint gates, then runs the two blocks. A common executable
+   endpoint composition is conditional on those results and is not silently
+   chosen by the queue.
 
-## Candidate ladder (one factor per arm)
+The six requested tests are therefore represented as:
 
-The retained compound arm forms, for check `c` and bit `i`, the parity
-gradient contribution
+| Requested factor | Registered comparison |
+|---|---|
+| 1. recipient-specific formation/state | full versus mean-preserving tied BP target |
+| 2. check calculation | compound versus product-only GD objective |
+| 3. update operator | direct BP map versus gradient descent on the residual objective |
+| 4. projection | box versus unconstrained GD update |
+| 5. budget/stopping | the same trajectory at update 30 and 90, plus shadow first-hit times |
+| 6. interactions/order | both factorial interactions; reverse-order composition is conditional |
 
-```text
-g_(c,i) = -2 mu_p / n * (1 - prod_(j in c) r_(c,j)) * prod_(j in c, j != i) r_(c,j),
-r_(c,j) = x_j + delta_(c,j).
-```
+Factor 5 is an explicitly reopened artifact control, not a new generic
+step-budget search. Earlier long-budget scalar-GD evidence remains part of the
+interpretation. No arm may be tuned after its outcome is observed.
 
-Both factors already use the extrinsic product over `j != i`. BP's check
-rule on the same readings, in the soft-bit domain, is the extrinsic product
-alone. Three candidate arms, each changing one operation against the
-retained compound arm:
+## Claim boundary
 
-| Arm | Check-local operation on the readings | Variable-side combination | Update |
-|---|---|---|---|
-| `compound` (retained) | parity residual times extrinsic product | sum of contributions, preconditioned step, projection | line search |
-| `check_rule` | extrinsic product only (residual factor removed) | unchanged | unchanged |
-| `check_rule_llr` | `2 atanh prod tanh(L_(c,j)/2)` on LLR-domain readings | unchanged | unchanged |
-| `variable_rule` | unchanged | channel LLR plus incoming values, recipient excluded | unchanged |
-
-Each arm's objective, if any, must be stated explicitly; an arm whose update
-is no longer a descent direction on a declared objective is a fixed-point
-iteration and must be labelled as such. The line search must be defined for
-such an arm before it is run, or replaced by a fixed step registered in
-advance.
-
-## What this would and would not show
-
-A valid result would state which single operation, on the fixed per-edge
-representation, moves recovery toward BP's on the frozen cases. It would not
-show that the ladder reaches BP, and it would not make the per-edge readings
-BP messages.
-
-## Preconditions before a card is frozen
-
-1. `RQ2-GD-OFFSET-NULL-001` held-out result with the outcome named above.
-2. `RQ2-NATIVE-GAP-001` six-dB and second-Es/N0 results, so that each rung
-   can be placed between the native GD and native BP figures on the same
-   cases.
-3. An explicit objective or fixed-point statement for every arm, a
-   finite-difference check for every arm with an objective, and the same
-   gates as the null experiment.
+The known `30001:30200` cases, including the 33 unresolved by the retained
+assigned/frozen bridge, are an informed attribution set. Results on them are
+descriptive paired accounting, not fresh confirmation. Every arm runs on all
+200 cases so that recoveries and losses are both visible. Causal confirmation
+requires the preregistered fresh transfer set. An additive statement such as
+"factor X accounts for N cases" is permitted only if endpoint reproduction
+passes and the reverse-order/interaction check shows no material path
+dependence; otherwise increments must be reported as path-conditional.

@@ -1,0 +1,17 @@
+checkpoint_update,endpoint,contrast_id,treatment_arm,reference_arm,cases,treatment_success,reference_success,treatment_only_success,reference_only_success,paired_risk_difference
+30,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,24,20,23,0,3,-0.125
+30,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,22,0,22,0,0.91666666666666663
+30,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,24,0,23,0,23,-0.95833333333333337
+30,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,24,22,20,3,1,0.083333333333333329
+30,parity_valid,parity_shape_given_box,product_only__box,compound__box,24,20,23,0,3,-0.125
+30,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,22,0,22,0,0.91666666666666663
+30,parity_valid,projection_given_compound,compound__unconstrained,compound__box,24,0,23,0,23,-0.95833333333333337
+30,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,24,22,20,3,1,0.083333333333333329
+90,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,24,24,24,0,0,0
+90,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,22,2,20,0,0.83333333333333337
+90,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,24,2,24,0,22,-0.91666666666666663
+90,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,24,22,24,0,2,-0.083333333333333329
+90,parity_valid,parity_shape_given_box,product_only__box,compound__box,24,24,24,0,0,0
+90,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,22,2,20,0,0.83333333333333337
+90,parity_valid,projection_given_compound,compound__unconstrained,compound__box,24,2,24,0,22,-0.91666666666666663
+90,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,24,22,24,0,2,-0.083333333333333329

@@ -1,0 +1,13 @@
+execution_variant_count = 13
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+frame_count = 400
+job_id = "06_six_db_order_controls_and_attribution"
+pass_count = 2
+primary_seconds = 3662.639937099
+replay_seconds = 3662.682368627
+rung_count = 11
+schema_version = "rq2-native-composition-001/timing-v1"
+seconds_per_frame_rung = 1.408715828024231
+seconds_per_frame_variant = 1.408715828024231
+total_seconds = 7339.90321744
+write_seconds = 14.580911714

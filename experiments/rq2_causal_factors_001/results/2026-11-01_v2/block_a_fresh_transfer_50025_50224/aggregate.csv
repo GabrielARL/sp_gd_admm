@@ -1,0 +1,17 @@
+checkpoint_update,arm,endpoint,cases,successes,proportion
+30,compound__box,transmitted_word_equal,200,177,0.88500000000000001
+30,compound__box,parity_valid,200,177,0.88500000000000001
+30,product_only__box,transmitted_word_equal,200,155,0.77500000000000002
+30,product_only__box,parity_valid,200,155,0.77500000000000002
+30,compound__unconstrained,transmitted_word_equal,200,11,0.055
+30,compound__unconstrained,parity_valid,200,11,0.055
+30,product_only__unconstrained,transmitted_word_equal,200,172,0.85999999999999999
+30,product_only__unconstrained,parity_valid,200,172,0.85999999999999999
+90,compound__box,transmitted_word_equal,200,200,1
+90,compound__box,parity_valid,200,200,1
+90,product_only__box,transmitted_word_equal,200,197,0.98499999999999999
+90,product_only__box,parity_valid,200,197,0.98499999999999999
+90,compound__unconstrained,transmitted_word_equal,200,19,0.095000000000000001
+90,compound__unconstrained,parity_valid,200,19,0.095000000000000001
+90,product_only__unconstrained,transmitted_word_equal,200,172,0.85999999999999999
+90,product_only__unconstrained,parity_valid,200,172,0.85999999999999999

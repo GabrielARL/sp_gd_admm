@@ -1,0 +1,12 @@
+arm_count = 4
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+frame_count = 48
+job_id = "02_fresh_dual_snr_anchor"
+pass_count = 2
+primary_seconds = 207.603399276
+replay_seconds = 192.910756724
+schema_version = "rq2-exact-map-update-001/timing-v1"
+seconds_per_case_arm = 1.0430056145833333
+total_seconds = 403.81286311900004
+update_attempts_per_arm = 30
+write_seconds = 3.298707119

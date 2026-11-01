@@ -1,0 +1,27 @@
+case_count = 48
+case_ids_sha256 = "8462e4725f1a58332d72e0b92da9736c5afe909801e8c4937fba2997de35a881"
+channel_llrs_sha256 = "65225fd45dd846dd22ef9b128a05d917278b3a72f0b4dbb8f0217821301ff4b5"
+direct_oracle_80_hard_words_sha256 = "b28a9246f576d6ee234947605db1499de4566191d69ecc8130985b2965b80ba5"
+direct_oracle_80_successes = 48
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+job_id = "02_fresh_dual_snr_anchor"
+map_unit_first30_oracle_equal = true
+map_unit_fixed30_successes = 48
+native_bp_direct_oracle_equal = true
+native_bp_successes = 48
+native_hard_words_sha256 = "b28a9246f576d6ee234947605db1499de4566191d69ecc8130985b2965b80ba5"
+schema_version = "rq2-exact-map-update-001/endpoint-gate-v1"
+status = "pass"
+unit_assignment_exact = true
+
+[absorbing_failure_counts]
+map_minus_state__armijo = 0
+map_minus_state__unit = 0
+true_gradient__armijo = 0
+true_gradient__unit = 0
+
+[arm_success_counts]
+map_minus_state__armijo = 0
+map_minus_state__unit = 48
+true_gradient__armijo = 0
+true_gradient__unit = 0

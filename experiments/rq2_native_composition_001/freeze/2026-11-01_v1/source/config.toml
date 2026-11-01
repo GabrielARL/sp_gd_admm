@@ -1,0 +1,53 @@
+schema_version = "rq2-native-composition-001/config-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+
+[sources]
+block_a_runner = "../rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+block_a_config = "../rq2_gd_residual_projection_budget_001/config.toml"
+block_b_runner = "../rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+block_b_config = "../rq2_bp_target_state_update_001/config.toml"
+jade_project_repo = "jade_project"
+block_a_runner_sha256 = "c6e524179ca693f9128e3e3341bc100e96338272f9dafd8541d5dc026aba07a4"
+block_b_runner_sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+archived_native_runner = "retained_native/run_three_receivers.jl"
+archived_native_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+
+[frames]
+endpoint_gate_first = 20001
+endpoint_gate_last = 20024
+anchor_first = 60001
+anchor_last = 60024
+six_db_first = 60025
+six_db_last = 60224
+locked_first = 30001
+locked_last = 30200
+second_snr_first = 60225
+second_snr_last = 60424
+
+[channels.six_db]
+snr_db = 6.0
+noise_variance = 0.251188643150958
+
+[channels.second_snr]
+snr_db = 1.5
+noise_variance = 0.7079457843841379
+
+[budget]
+scientific_passes = 2
+
+[job6.locked_expected]
+case_count = 200
+native_projected_gd_successes = 107
+native_exact_sum_product_successes = 200
+native_net_gap = 93
+
+[inference]
+familywise_alpha = 0.05
+atomic_transition_count = 9
+simultaneous_interval_confidence_level = 0.9944444444444445
+holm_family = "one family of nine atomic forward transitions per confirmatory SNR job"
+non_atomic_handoff_included = false
+
+[validation]
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 2.0e-5

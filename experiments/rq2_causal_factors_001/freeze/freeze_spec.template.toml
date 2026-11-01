@@ -1,0 +1,35 @@
+schema_version = "rq2-causal-factors-001/freeze-spec-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+attempt_id = "REPLACE_WITH_NEW_ATTEMPT_ID"
+
+# Every scientific runner, configuration, frozen endpoint reference, and
+# project-lock file used by a command belongs in this list.  Paths may be
+# absolute or relative to this specification file.  archive_as is relative to
+# the new freeze root and must not collide with freeze metadata.
+
+[[sources]]
+label = "preflight_validation"
+path = "/REPLACE/preflight_validation.toml"
+archive_as = "source/preflight_validation.toml"
+
+[[sources]]
+label = "block_a_runner"
+path = "/REPLACE/block_a_runner.jl"
+archive_as = "source/block_a/runner.jl"
+
+[[sources]]
+label = "block_a_config"
+path = "/REPLACE/block_a_config.toml"
+archive_as = "source/block_a/config.toml"
+
+[[sources]]
+label = "block_b_runner"
+path = "/REPLACE/block_b_runner.jl"
+archive_as = "source/block_b/runner.jl"
+
+[[sources]]
+label = "block_b_config"
+path = "/REPLACE/block_b_config.toml"
+archive_as = "source/block_b/config.toml"
+
+

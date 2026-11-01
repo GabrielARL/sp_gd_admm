@@ -1,0 +1,7 @@
+schema_version = "rq2-causal-factors-001/queue-job-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+block = "B"
+stage = "calibration"
+state = "failed"
+recorded_utc = "2026-11-01T08:55:02Z"
+detail = "B calibration command exited 1; see /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/queue/2026-11-01_v1/logs/B_calibration.log"

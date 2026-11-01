@@ -1,0 +1,25 @@
+utc	block	stage	phase	event	seconds
+2026-11-01T07:38:59Z			campaign	start	0.000000
+2026-11-01T07:38:59Z	A	calibration	scientific_command	start	0.000000
+2026-11-01T07:44:08Z	A	calibration	scientific_command	end	308.422494
+2026-11-01T07:44:08Z	A	calibration	result_and_endpoint_gate	start	0.000000
+2026-11-01T07:44:08Z	A	calibration	result_and_endpoint_gate	end	0.024243
+2026-11-01T07:44:08Z	A	budget	derive_fresh_anchor_budget	start	0.000000
+2026-11-01T07:44:08Z	A	budget	derive_fresh_anchor_budget	end	0.007188
+2026-11-01T07:44:08Z	A	fresh_anchor	scientific_command	start	0.000000
+2026-11-01T07:48:46Z	A	fresh_anchor	scientific_command	end	277.568646
+2026-11-01T07:48:46Z	A	fresh_anchor	result_and_endpoint_gate	start	0.000000
+2026-11-01T07:48:46Z	A	fresh_anchor	result_and_endpoint_gate	end	0.054215
+2026-11-01T07:48:46Z	A	budget	derive_measured_budgets	start	0.000000
+2026-11-01T07:48:46Z	A	budget	derive_measured_budgets	end	0.010437
+2026-11-01T07:48:46Z	A	fresh_transfer	scientific_command	start	0.000000
+2026-11-01T08:21:35Z	A	fresh_transfer	scientific_command	end	1969.262035
+2026-11-01T08:21:35Z	A	fresh_transfer	result_and_endpoint_gate	start	0.000000
+2026-11-01T08:21:35Z	A	fresh_transfer	result_and_endpoint_gate	end	0.152978
+2026-11-01T08:21:35Z	A	attribution	scientific_command	start	0.000000
+2026-11-01T08:54:48Z	A	attribution	scientific_command	end	1993.234770
+2026-11-01T08:54:48Z	A	attribution	result_and_endpoint_gate	start	0.000000
+2026-11-01T08:54:48Z	A	attribution	result_and_endpoint_gate	end	0.119860
+2026-11-01T08:54:48Z	B	calibration	scientific_command	start	0.000000
+2026-11-01T08:55:02Z	B	calibration	scientific_command	error	13.807288
+2026-11-01T08:55:02Z			campaign	error	4562.842565

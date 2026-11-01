@@ -1,0 +1,43 @@
+schema_version = "rq2-exact-map-update-001/dependency-dispatcher-v1"
+dispatcher_id = "2026-11-01_v1"
+
+[controller]
+state_dir = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/dispatcher/state/2026-11-01_v1"
+systemctl = "/usr/bin/systemctl"
+poll_interval_seconds = 30
+max_wait_seconds = 259200
+confirmation_timeout_seconds = 120
+confirmation_poll_seconds = 2
+command_timeout_seconds = 120
+
+[predecessor]
+unit_name = "sp-gd-rq2-native-composition-20261101-v2.service"
+queue_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/queue/2026-11-01_v2"
+controller_relative_path = "campaign_queue.py"
+controller_sha256 = "<PINNED_SHA256>"
+failed_relative_path = "QUEUE_FAILED.toml"
+completed_relative_path = "QUEUE_COMPLETED.toml"
+progress_relative_path = "progress.toml"
+
+[successor]
+unit_name = "sp-gd-rq2-exact-map-update-20261101-v1.service"
+queue_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1"
+controller_relative_path = "campaign_queue.py"
+controller_sha256 = "<PINNED_SHA256>"
+manifest_relative_path = "QUEUE_MANIFEST.sha256"
+manifest_sha256 = "<PINNED_SHA256>"
+lock_relative_path = "QUEUE_PACKAGE_LOCK.toml"
+lock_sha256 = "<PINNED_SHA256>"
+launch_relative_path = "launch_detached.sh"
+launch_sha256 = "<PINNED_SHA256>"
+launch_arguments = [
+  "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1",
+]
+progress_relative_path = "progress.toml"
+completed_relative_path = "QUEUE_COMPLETED.toml"
+failed_relative_path = "QUEUE_FAILED.toml"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+queue_id = "2026-11-01_v1"
+progress_schema = "rq2-exact-map-update-001/progress-v1"
+completion_schema = "rq2-exact-map-update-001/queue-completion-v1"
+failure_schema = "rq2-exact-map-update-001/queue-failure-v1"

@@ -1,0 +1,52 @@
+schema_version = "rq2-causal-factors-001/endpoint-expectations-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+attempt_id = "2026-11-01_v1"
+hash_definition = "SHA-256 of canonical JSON; frame IDs are an ordered integer list, channel evidence is an ordered [frame, clipped-LLR-SHA256] list, and each hard-word digest is an ordered [frame, hard-word-SHA256] list"
+
+[calibration]
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+frame_ids_sha256 = "6ec789ac10a11424825cda64471e2857b4c9a4513b0e8f9c4af3b2632911ac73"
+channel_llrs_sha256 = "301f7f3069ed54791e7ba33908cc132d19defbba5c12a4b14980a3b79375e62c"
+native_gd_successes = 15
+v4_asbuilt_frozen_successes = 23
+native_bp_successes = 24
+native_gd_hard_words_sha256 = "9a8c63a31bd23ab79b0b4c95e751ca8c07e8df44720cc52ad230651bd80b3765"
+v4_asbuilt_frozen_hard_words_sha256 = "41412ca626cfe5a1e09d9faac8ffe34f4b7a432a7bfc1b86a8a3b6e024f1e44d"
+native_bp_hard_words_sha256 = "e1a181e7214a5a6ca68029ba89c1eba7ea4b9e33b7a9a9ac1b8e64b3328e102e"
+sentinel_sha256 = "b0248a5d4b9a8c6fbbf2534e04910e49303ec3d03ff3eb6a6f95e3b127fba451"
+
+[attribution]
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+frame_ids_sha256 = "86ad5d4c977918e09b949def04c09da3b7c7a7f35d6a33f4106712066d94cca9"
+channel_llrs_sha256 = "8cb9d9078c7bf33be45ac54267850130216153db2a6b4660d0e0deaffad6ee56"
+native_gd_successes = 107
+v4_asbuilt_frozen_successes = 167
+native_bp_successes = 200
+native_gd_hard_words_sha256 = "f2376ac273bdc27c8119576c3052f9d4595e5be9aa856499099b9ea00cf725fe"
+v4_asbuilt_frozen_hard_words_sha256 = "f1f6b6d21c0b9c7b3126758e2f8a77b52d0b9dd81cab03e3ee239766babfe252"
+native_bp_hard_words_sha256 = "45ef348a4b1af538c8edd353874797b9153a3d70b9f6fc99fda6cd344c6d0740"
+sentinel_sha256 = "3fc74849cae50d882e505ac1bac6bf5d2f80850650f2b6c4819b8a2087cf9611"
+
+[[retained_sources]]
+role = "calibration native GD and native exact sum-product rows; filter physical_esn0_db=6 and frames 20001:20024"
+path = "experiments/rq2_native_gap_001/results/2026-10-31_profile_v2/frames.csv"
+sha256 = "0150db06fcab7f776f687ae2a675957646aefcb263e00b3d8c9ac1cb32ca3d8e"
+
+[[retained_sources]]
+role = "calibration v4 asbuilt__frozen rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/frames.csv"
+sha256 = "c6ae629729cb464a59431175d7b86a0866a317ff199025cdb749750e8a55ccf1"
+
+[[retained_sources]]
+role = "attribution native GD and native exact sum-product rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_attribution/source/retained/native_gap_frames.csv"
+sha256 = "a724bbcf3637d92ba61d5d086a28d8c6bc3e804da00459c153782859fb5ab9e7"
+
+[[retained_sources]]
+role = "attribution v4 asbuilt__frozen rows"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_attribution/frames.csv"
+sha256 = "ece720c9aeffac26ecdc8f2d0c91133320d03b2da0fc1dd36585ba55e5844200"

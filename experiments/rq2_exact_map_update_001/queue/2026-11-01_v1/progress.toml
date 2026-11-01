@@ -1,0 +1,10 @@
+schema_version = "rq2-exact-map-update-001/progress-v1"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+queue_id = "2026-11-01_v1"
+updated_utc = "2026-11-01T19:06:41Z"
+status = "complete_valid"
+current_job = "04_second_snr_confirmation"
+phase = "queue_complete"
+completed_jobs = 4
+total_jobs = 4
+detail = ""

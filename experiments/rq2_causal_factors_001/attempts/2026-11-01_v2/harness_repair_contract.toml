@@ -1,0 +1,75 @@
+schema_version = "rq2-causal-factors-001/harness-repair-contract-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+attempt_id = "2026-11-01_v2"
+predecessor_attempt_id = "2026-11-01_v1"
+classification = "implementation-only dynamic native-module binding repair"
+new_attempt_required = true
+resume_predecessor_allowed = false
+reuse_predecessor_block_a_as_v2_evidence = false
+full_block_order = ["A", "B"]
+block_b_scientific_result_exists_in_predecessor = false
+mechanism_change_allowed = false
+protocol_change_allowed = false
+endpoint_change_allowed = false
+cross_block_endpoint_checks_required = true
+freeze_before_regression_pass_allowed = false
+
+[predecessor_failure]
+recorded_utc = "2026-11-01T08:55:02Z"
+jobs_completed = 4
+jobs_total = 8
+failed_block = "B"
+failed_stage = "calibration"
+failure_class = "implementation_binding"
+detail = "fresh Julia process could not resolve _modem_and_code in the dynamically loaded native module"
+scientific_interpretation = "none; failure occurred before any Block B result was written"
+
+[predecessor_hashes]
+freeze_manifest_sha256 = "bff8ecad30e3f17d3f53a5a00a8d07a8cda2517421bb825bf218dc829842c26c"
+queue_manifest_sha256 = "e152ed952682a6ef243f36c9218fef27671f22118e9335de588120b911a08b5a"
+queue_package_lock_sha256 = "119ddf7fc3d0c162d5926d81e8f01fccb723f8aadcf04da4303f0d08c6bf0ade"
+queue_failed_sha256 = "f4662a00849198cd21f18ca96d5066fe51bab27e1b0fd7fda1f6d43f8bf22047"
+queue_progress_sha256 = "fe7e8124f7b062768a34a2d928df07e67a2730384bb8fe416599139bbd13cf88"
+block_b_calibration_log_sha256 = "2b1c0047f5c8d8d5a743aba60b8365cdd9e8abc0f77eb2b92f1cfa6f56feaa29"
+block_a_calibration_manifest_sha256 = "fb78807a5ec1f83c77d9ae6532cf566fbb66f429b3b060e97e7f7b55fc51ef2b"
+block_a_fresh_anchor_manifest_sha256 = "56282f4e7b9c9515e73c093b5e54823eb52a78071d3973e6039904444a35ea99"
+block_a_fresh_transfer_manifest_sha256 = "9e02393ab1d167fadf7b6b7cc3d40ff808f9fd3bb2ed3451f55ef7793922b5c2"
+block_a_attribution_manifest_sha256 = "f7efd7c9cb006992f94a124ee77ff958d634f236b94478b8d408efa5b0b9a86b"
+
+[immutable_endpoint_inputs]
+copy_mode = "byte-identical from predecessor"
+endpoint_expectations_sha256 = "3dbc2e0b85ea1301d792c8f3b9e4cb612189868e9db8349dd2748da68b49d8c0"
+endpoint_verifier_sha256 = "63a4e6c77803ec34dd576b58ac778d5c3e03c04e401dd91ff002c20fd82ed9ef"
+
+[permitted_source_delta]
+scope = "Block B native binding lookup and invocation only"
+purpose = "make the dynamically loaded native helper callable from compiled code in a fresh Julia process"
+scientific_calculation_changed = false
+predecessor_frozen_runner_sha256 = "a026342c2c903da267db1e3bc7f04f25d58d014b2908d96afe5104943929db93"
+patched_runner_sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+patched_test_sha256 = "45b7c7e2ebb925620549b3043245fe553669dbf59b8b0ee2957a2bb020622e59"
+
+[required_fresh_process_regression]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+startup_file = false
+depwarn_error = true
+dynamic_native_module_load = true
+compiled_function_lookup = true
+binding_name = "_modem_and_code"
+binding_invocation_required = true
+expected_graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+standalone_binding_assertions_passed = 1
+standalone_binding_assertions_total = 1
+long_code_gate_assertions_passed = 9
+long_code_gate_assertions_total = 9
+status = "pass"
+
+[build_gate]
+source_patch_confirmed = true
+strict_regression_passed = true
+complete_preflight_passed = true
+freeze_built = true
+queue_locked = true
+launch_authorized = true

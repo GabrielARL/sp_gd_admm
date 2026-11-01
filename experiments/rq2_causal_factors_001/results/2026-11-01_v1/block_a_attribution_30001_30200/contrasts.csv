@@ -1,0 +1,17 @@
+checkpoint_update,endpoint,contrast_id,treatment_arm,reference_arm,cases,treatment_success,reference_success,treatment_only_success,reference_only_success,paired_risk_difference
+30,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,200,146,167,0,21,-0.105
+30,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,200,170,10,160,0,0.80000000000000004
+30,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,200,10,167,0,157,-0.78500000000000003
+30,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,200,170,146,35,11,0.12
+30,parity_valid,parity_shape_given_box,product_only__box,compound__box,200,146,167,0,21,-0.105
+30,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,200,170,10,160,0,0.80000000000000004
+30,parity_valid,projection_given_compound,compound__unconstrained,compound__box,200,10,167,0,157,-0.78500000000000003
+30,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,200,170,146,35,11,0.12
+90,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,200,198,199,0,1,-0.0050000000000000001
+90,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,200,170,24,146,0,0.72999999999999998
+90,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,200,24,199,0,175,-0.875
+90,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,200,170,198,2,30,-0.14000000000000001
+90,parity_valid,parity_shape_given_box,product_only__box,compound__box,200,198,199,0,1,-0.0050000000000000001
+90,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,200,170,24,146,0,0.72999999999999998
+90,parity_valid,projection_given_compound,compound__unconstrained,compound__box,200,24,199,0,175,-0.875
+90,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,200,170,198,2,30,-0.14000000000000001

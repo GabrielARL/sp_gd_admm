@@ -1,0 +1,133 @@
+schema_version = "rq2-gd-residual-projection-budget-001/v1"
+experiment_id = "RQ2-GD-RESIDUAL-PROJECTION-BUDGET-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "atomic two-by-two objective-shape and projection ablation with a trajectory-prefix budget control"
+
+[scope]
+admm_included = false
+bp_arm_included = false
+all_arms_are_gradient_descent_on_declared_objectives = true
+native_bp_vs_gd_attribution = false
+
+[sources]
+v4_runner = "../rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+v4_runner_sha256 = "7e7ffa024115b18b824b0fadd55c93bd7491043610c8737c27c0dc2517224e16"
+v4_config = "../rq2_gd_parity_assignment_refresh_001/config.toml"
+v4_config_sha256 = "9b27ecefcbaac9b81498a3ef9860106445140e0ace3a1e333e36e4afdbd28a11"
+calibration_reference_arm = "asbuilt__frozen"
+
+[freeze_inputs]
+calibration_v4_result_source = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor"
+calibration_v4_frames_sha256 = "c6ae629729cb464a59431175d7b86a0866a317ff199025cdb749750e8a55ccf1"
+calibration_v4_completion_sha256 = "e30b63ce671da62041d9a7d30481ff373b1f337ad504e209d4f472a79a914ddd"
+calibration_v4_manifest_sha256 = "80958b1eec9f0e4c3ab10ccfcd85b97f8c4ffc157e503e305bf436ddd87ead1d"
+frozen_calibration_frames = "reference/v4_anchor/frames.csv"
+frozen_calibration_completion = "reference/v4_anchor/COMPLETED.toml"
+frozen_calibration_manifest = "reference/v4_anchor/MANIFEST.sha256"
+
+[arms]
+order = ["compound__box", "product_only__box", "compound__unconstrained", "product_only__unconstrained"]
+parity_levels = ["compound", "product_only"]
+projection_levels = ["box", "unconstrained"]
+common_update = 1
+first_possible_factorial_divergence_update = 2
+offset_assignment = "asbuilt"
+offset_replacement = "frozen after common update 1"
+
+[solver]
+maximum_update_attempts = 90
+score_updates = [30, 90]
+initial_step = 0.2
+maximum_backtracks = 16
+parity_weight = 2.0
+binary_weight = 0.2
+preconditioner = "retained native curvature bound"
+line_search = "first strict decrease of the arm's declared fixed-offset objective"
+box_lower = -1.0
+box_upper = 1.0
+hard_decision = "bit_i = 1 iff x_i < 0"
+stopping_rule = "90 update attempts or first line-search stall; no syndrome early stop"
+
+[validation]
+finite_difference_updates = [2, 30, 90]
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 3.0e-8
+require_common_update1 = true
+require_strict_decrease = true
+require_independent_hard_decision_and_syndrome = true
+require_deterministic_replay = true
+require_calibration_endpoint_gate = true
+refuse_overwrite = true
+
+[endpoint_gate]
+methods = ["gd_native_projected", "v4_asbuilt_frozen", "bp_exact_sum_product"]
+hard_word_table_hash_required = true
+native_gd_maximum_updates = 30
+bp_maximum_message_passing_iterations = 80
+fresh_outcomes_are_not_gated = true
+
+[endpoint_gate.attribution_expected_transmitted_word_equal]
+gd_native_projected = 107
+v4_asbuilt_frozen = 167
+bp_exact_sum_product = 200
+
+[endpoint_gate.attribution_expected_parity_valid]
+gd_native_projected = 107
+v4_asbuilt_frozen = 167
+bp_exact_sum_product = 200
+
+[calibration]
+frame_first = 20001
+frame_last = 20024
+expected_count = 24
+role = "retained endpoint-equivalence gate only"
+
+[anchor]
+frame_first = 50001
+frame_last = 50024
+expected_count = 24
+role = "fresh correctness anchor; outcome direction is not an expansion gate"
+
+[transfer]
+frame_first = 50025
+frame_last = 50224
+expected_count = 200
+role = "fresh transfer"
+
+[attribution]
+frame_first = 30001
+frame_last = 30200
+expected_count = 200
+role = "locked descriptive transition mapping; not fresh confirmation"
+
+[endpoints]
+primary = ["transmitted_word_equal"]
+confirmatory_secondary = ["parity_valid"]
+supporting = ["coded_bit_errors", "syndrome_weight", "first_valid_update", "first_exact_update", "accepted_steps"]
+
+[work_budget]
+arms_per_case = 4
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+maximum_update_attempts_per_arm = 90
+score_updates = [30, 90]
+parameter_sweep_allowed = false
+snr_sweep_allowed = false
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+
+[timing]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+runtime_is_diagnostic_only = true
+
+[provenance]
+science_schema = "rq2-gd-residual-projection-budget-001/science-v1"
+campaign_experiment_id = "RQ2-CAUSAL-FACTORS-001"
+completion_schema = "rq2-causal-factors-001/result-completion-v1"
+endpoint_gate_schema = "rq2-causal-factors-001/endpoint-gate-v1"
+timing_schema = "rq2-causal-factors-001/stage-timing-v1"
+progress_schema = "rq2-gd-residual-projection-budget-001/progress-v1"
+scientific_hash_scope = "frame checkpoints, update traces, aggregates, contrasts, gates, and input identities; runtime and timestamps excluded"

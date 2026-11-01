@@ -1,0 +1,182 @@
+schema_version = "rq2-causal-factors-001/queue-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+queue_id = "2026-11-01_v2"
+
+[execution]
+block_order = ["A", "B"]
+unit_name = "sp-gd-rq2-causal-factors-20261101-v2.service"
+scientific_unit_pattern = "sp-gd-*.service"
+global_lock_name = "sp-gd-scientific.lock"
+automatic_restart_allowed = false
+resume_allowed = false
+overwrite_allowed = false
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+
+[paths]
+freeze_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v2"
+workdir = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101"
+output_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/results/2026-11-01_v2"
+
+[preflight]
+archived_relative_path = "source/preflight_validation.toml"
+record_sha256 = "1eaa174639b0b9d39beaf083823a459b5df55776c5f97e4574c38b31bd3029e3"
+validation_status = "pass"
+
+[blocks.A]
+calibration_output = "block_a_calibration_20001_20024"
+fresh_anchor_output = "block_a_fresh_anchor_50001_50024"
+fresh_transfer_output = "block_a_fresh_transfer_50025_50224"
+attribution_output = "block_a_attribution_30001_30200"
+calibration_timeout_seconds = 7200
+termination_grace_seconds = 120
+budget_safety_factor = 1.5
+calibration_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_a/runner.jl", "{runner_stage}",
+  "--config", "{freeze}/source/block_a/config.toml",
+  "--freeze", "{freeze}", "--output", "{output}",
+]
+fresh_anchor_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_a/runner.jl", "{runner_stage}",
+  "--config", "{freeze}/source/block_a/config.toml",
+  "--freeze", "{freeze}", "--output", "{output}",
+]
+fresh_transfer_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_a/runner.jl", "{runner_stage}",
+  "--config", "{freeze}/source/block_a/config.toml",
+  "--freeze", "{freeze}", "--output", "{output}",
+]
+attribution_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_a/runner.jl", "{runner_stage}",
+  "--config", "{freeze}/source/block_a/config.toml",
+  "--freeze", "{freeze}", "--output", "{output}",
+]
+
+[blocks.A.calibration_gate]
+mode = "exact"
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+frame_ids_sha256 = "6ec789ac10a11424825cda64471e2857b4c9a4513b0e8f9c4af3b2632911ac73"
+channel_llrs_sha256 = "301f7f3069ed54791e7ba33908cc132d19defbba5c12a4b14980a3b79375e62c"
+native_gd_successes = 15
+v4_asbuilt_frozen_successes = 23
+native_bp_successes = 24
+native_gd_hard_words_sha256 = "9a8c63a31bd23ab79b0b4c95e751ca8c07e8df44720cc52ad230651bd80b3765"
+v4_asbuilt_frozen_hard_words_sha256 = "41412ca626cfe5a1e09d9faac8ffe34f4b7a432a7bfc1b86a8a3b6e024f1e44d"
+native_bp_hard_words_sha256 = "e1a181e7214a5a6ca68029ba89c1eba7ea4b9e33b7a9a9ac1b8e64b3328e102e"
+
+[blocks.A.fresh_anchor_gate]
+mode = "self_consistency"
+frame_first = 50001
+frame_last = 50024
+frame_count = 24
+
+[blocks.A.fresh_transfer_gate]
+mode = "self_consistency"
+frame_first = 50025
+frame_last = 50224
+frame_count = 200
+
+[blocks.A.attribution_gate]
+mode = "exact"
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+frame_ids_sha256 = "86ad5d4c977918e09b949def04c09da3b7c7a7f35d6a33f4106712066d94cca9"
+channel_llrs_sha256 = "8cb9d9078c7bf33be45ac54267850130216153db2a6b4660d0e0deaffad6ee56"
+native_gd_successes = 107
+v4_asbuilt_frozen_successes = 167
+native_bp_successes = 200
+native_gd_hard_words_sha256 = "f2376ac273bdc27c8119576c3052f9d4595e5be9aa856499099b9ea00cf725fe"
+v4_asbuilt_frozen_hard_words_sha256 = "f1f6b6d21c0b9c7b3126758e2f8a77b52d0b9dd81cab03e3ee239766babfe252"
+native_bp_hard_words_sha256 = "45ef348a4b1af538c8edd353874797b9153a3d70b9f6fc99fda6cd344c6d0740"
+
+[blocks.B]
+calibration_output = "block_b_calibration_20001_20024"
+fresh_anchor_output = "block_b_fresh_anchor_50001_50024"
+fresh_transfer_output = "block_b_fresh_transfer_50025_50224"
+attribution_output = "block_b_attribution_30001_30200"
+calibration_timeout_seconds = 7200
+termination_grace_seconds = 120
+budget_safety_factor = 1.5
+calibration_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_b/runner.jl", "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+fresh_anchor_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_b/runner.jl", "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+fresh_transfer_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_b/runner.jl", "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+attribution_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012",
+  "{freeze}/source/block_b/runner.jl", "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+
+[blocks.B.calibration_gate]
+mode = "cross_block_bp"
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+
+[blocks.B.fresh_anchor_gate]
+mode = "cross_block_bp"
+frame_first = 50001
+frame_last = 50024
+frame_count = 24
+
+[blocks.B.fresh_transfer_gate]
+mode = "cross_block_bp"
+frame_first = 50025
+frame_last = 50224
+frame_count = 200
+
+[blocks.B.attribution_gate]
+mode = "cross_block_bp"
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+
+[inventory]
+immutable_files = [
+  "README.md",
+  "campaign_queue.py",
+  "launch_detached.sh",
+  "lock_queue_package.py",
+  "queue.toml",
+  "run_queue.sh",
+]
+
+[telemetry]
+files = [
+  "queue.lock",
+  "queue.log",
+  "progress.toml",
+  "phase_log.tsv",
+  "status_history.tsv",
+  "QUEUE_COMPLETED.toml",
+  "QUEUE_FAILED.toml",
+]

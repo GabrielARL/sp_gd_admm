@@ -1,0 +1,45 @@
+schema_version = "rq2-causal-factors-001/registration-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+campaign_status = "tooling_prepared_scientific_blocks_not_yet_integrated"
+block_order = ["A", "B"]
+attribution_frame_count = 200
+
+[stages]
+calibration = "frames 20001:20024; frozen expected endpoints"
+fresh_anchor = "frames 50001:50024; unknown outcomes, internal gates only"
+fresh_transfer = "frames 50025:50224; prospective unknown outcomes, internal gates only"
+attribution = "frames 30001:30200; informed attribution with frozen expected endpoints"
+
+[scope]
+block_a = "GD objective/check-shape by projection factorial, with 30/90-update observations"
+block_b = "recipient-specific BP state by direct-map/residual-gradient factorial"
+interaction = "within-block factorial interactions; cross-block attribution remains path-conditional"
+
+[launch_contract]
+fresh_anchor_required_before_fresh_transfer = true
+prospective_transfer_precedes_informed_attribution = true
+deterministic_replay_required = true
+no_concurrent_scientific_units = true
+automatic_restart_allowed = false
+resume_allowed = false
+overwrite_allowed = false
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+fresh_anchor_budget_source = "checksum-bound timing from each block's calibration"
+fresh_stage_budget_source = "checksum-bound timing from each block's fresh anchor"
+fresh_stage_budget_formula = "term_after = ceil((seconds_per_frame_per_pass * target_frames * pass_count + post_loop_seconds) * 1.5); wall = term_after + grace"
+termination_grace_seconds = 120
+
+[endpoint_sentinels]
+block_a_native_gd = "native projected GD endpoint on the same frozen cases"
+block_a_v4_asbuilt_frozen = "retained v4 asbuilt__frozen bridge endpoint on the same frozen cases"
+block_a_native_bp = "native exact sum-product endpoint on the same frozen cases"
+block_b_native_bp = "cross-checked against Block A for the same stage"
+block_b_full_direct = "must equal Block B native exact sum-product bit-for-bit"
+
+[claim_boundary]
+statement = "The campaign can estimate path-conditional recovery and interactions; it cannot call one operation a unique cause unless endpoint and reverse-order gates support that attribution."
+

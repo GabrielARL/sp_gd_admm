@@ -1,0 +1,27 @@
+case_count = 200
+case_ids_sha256 = "6c1d752ef88a5d7c4420cdcdd82dc40a553bae9c0b3eedd232811c3245010d57"
+channel_llrs_sha256 = "7a96d6d55384a1cb0b41a89fcf7494b4187433ea16ab4dfbf9be201194bdfdce"
+direct_oracle_80_hard_words_sha256 = "6dfbcc18398f8e741230c3f77adc01f8d3973c7cc4f54098fcd1e25f8478b441"
+direct_oracle_80_successes = 200
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+job_id = "03_six_db_transfer"
+map_unit_first30_oracle_equal = true
+map_unit_fixed30_successes = 200
+native_bp_direct_oracle_equal = true
+native_bp_successes = 200
+native_hard_words_sha256 = "6dfbcc18398f8e741230c3f77adc01f8d3973c7cc4f54098fcd1e25f8478b441"
+schema_version = "rq2-exact-map-update-001/endpoint-gate-v1"
+status = "pass"
+unit_assignment_exact = true
+
+[absorbing_failure_counts]
+map_minus_state__armijo = 0
+map_minus_state__unit = 0
+true_gradient__armijo = 0
+true_gradient__unit = 0
+
+[arm_success_counts]
+map_minus_state__armijo = 0
+map_minus_state__unit = 200
+true_gradient__armijo = 0
+true_gradient__unit = 0

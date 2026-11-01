@@ -1,0 +1,15 @@
+utc	job	event	seconds	detail
+2026-11-01T18:01:51Z	01_validation_reproduction_gate	start	0.000000	timeout=7200
+2026-11-01T18:06:15Z	01_validation_reproduction_gate	process_end	264.022179	
+2026-11-01T18:06:15Z	01_validation_reproduction_gate	verified	264.022179	
+2026-11-01T18:06:15Z	02_fresh_dual_snr_anchor	start	0.000000	timeout=7200
+2026-11-01T18:13:18Z	02_fresh_dual_snr_anchor	process_end	423.121317	
+2026-11-01T18:13:19Z	02_fresh_dual_snr_anchor	verified	423.121317	
+2026-11-01T18:13:19Z	03_six_db_transfer	budget_derived	0.000000	/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1/budgets/03_six_db_transfer.toml
+2026-11-01T18:13:19Z	03_six_db_transfer	start	0.000000	timeout=2524
+2026-11-01T18:38:34Z	03_six_db_transfer	process_end	1514.933719	
+2026-11-01T18:38:35Z	03_six_db_transfer	verified	1514.933719	
+2026-11-01T18:38:35Z	04_second_snr_confirmation	budget_derived	0.000000	/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1/budgets/04_second_snr_confirmation.toml
+2026-11-01T18:38:35Z	04_second_snr_confirmation	start	0.000000	timeout=2524
+2026-11-01T19:06:40Z	04_second_snr_confirmation	process_end	1684.867761	
+2026-11-01T19:06:41Z	04_second_snr_confirmation	verified	1684.867761	

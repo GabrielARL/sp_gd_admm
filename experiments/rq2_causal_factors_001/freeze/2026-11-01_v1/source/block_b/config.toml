@@ -1,0 +1,127 @@
+schema_version = "rq2-bp-target-state-update-001/v1"
+experiment_id = "RQ2-BP-TARGET-STATE-UPDATE-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "two-by-two ablation of recipient-specific state and update operator with an exact sum-product check kernel"
+
+[scope]
+admm_included = false
+native_projected_gd_included = false
+shared_basis = "same graph and exact sum-product check kernel; within each state level, direct and residual-gradient operators share the same declared F_s map"
+causal_interpretation = "path-conditional bridge evidence; this block alone does not uniquely allocate the native BP-versus-projected-GD gap"
+
+[code]
+n = 10200
+k = 5100
+variable_degree = 3
+check_degree = 6
+graph_seed = 169616412
+graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+transmitted_word = "all_zero"
+
+[channel]
+model = "known-unit-gain post-FFT complex AWGN"
+physical_esn0_db = 6.0
+noise_variance = 0.251188643150958
+noise_seed_base = 20261012
+noise_seed_rule = "base plus frame index"
+llr_convention = "positive favors coded bit zero"
+llr_clip = 20.0
+
+[factorial]
+arm_order = ["full__direct", "qbar_tied__direct", "full__residual_gradient", "qbar_tied__residual_gradient"]
+state_levels = ["full", "qbar_tied"]
+operator_levels = ["direct", "residual_gradient"]
+state = "one persistent check-to-variable value per Tanner-graph edge"
+full_rule = "form every variable-to-check value as channel LLR plus all incoming check-to-variable values except the value from its recipient check"
+qbar_tied_rule = "replace one bit's complete outgoing variable-to-check vector by its arithmetic mean before the exact sum-product check calculation"
+qbar_mean_preserving = true
+map_definition = "F_full and F_qbar_tied differ at the declared state-map factor; F_s is held fixed only within one state level"
+direct_rule = "u_next = F_s(u)"
+gradient_objective = "R_s(u) = 0.5 * norm(u - F_s(u))^2"
+gradient_rule = "u_next = u - alpha * (I - J_F_s(u))' * (u - F_s(u))"
+check_calculation = "JadeJcade exact tanh-atanh sum-product kernel"
+initial_state = "all check-to-variable edge values are zero"
+
+[budget]
+update_attempts_per_arm = 30
+outcome_altering_early_stop = false
+shadow_first_valid_update_is_recorded = true
+shadow_first_exact_word_update_is_recorded = true
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+
+[gradient]
+initial_step = 1.0
+backtrack_factor = 0.5
+armijo_c = 0.0001
+maximum_backtracks = 24
+selection_rule = "fixed before any endpoint run; first finite trial satisfying Armijo sufficient decrease"
+stall_rule = "retain the current state and continue counting update attempts"
+parameter_tuning_allowed = false
+
+[native_endpoint_gate]
+maximum_message_passing_iterations = 80
+kernel = "JadeJcade exact sum-product"
+comparison = "full__direct first-valid snapshot versus native exact-sum-product stopping endpoint"
+required_equalities = ["hard_word", "posterior_float_bits", "variable_to_check_float_bits", "check_to_variable_float_bits", "syndrome_weight", "stopping_iteration"]
+terminal_after_30_need_not_equal_native_stopping_state = true
+
+[stages.calibration]
+frame_first = 20001
+frame_last = 20024
+expected_count = 24
+role = "retained native endpoint and derivative gate"
+
+[stages.anchor]
+frame_first = 50001
+frame_last = 50024
+expected_count = 24
+role = "fresh correctness anchor before transfer"
+
+[stages.transfer]
+frame_first = 50025
+frame_last = 50224
+expected_count = 200
+role = "fresh prospective transfer"
+
+[stages.attribution]
+frame_first = 30001
+frame_last = 30200
+expected_count = 200
+role = "locked finite-sample attribution set containing the previously located native gap"
+
+[validation]
+finite_difference_step = 1.0e-6
+long_finite_difference_step = 1.0e-5
+toy_gradient_absolute_tolerance = 2.0e-6
+toy_vjp_absolute_tolerance = 2.0e-6
+long_directional_relative_tolerance = 2.0e-5
+long_vjp_relative_tolerance = 2.0e-5
+long_state_base_candidates = [0.271, 0.337, 0.419]
+minimum_check_input_kink_margin = 1.0e-4
+native_endpoint_float_bits_exact = true
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+
+[sources]
+jade_project_repo = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+jade_project_expected_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+jade_project_toml_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+jade_manifest_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+jade_manifest_toml_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+jade_core_common = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+jade_core_common_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+archived_native_runner = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+archived_native_runner_sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+
+[provenance]
+science_schema = "rq2-bp-target-state-update-001/science-v1"
+completion_schema = "rq2-causal-factors-001/result-completion-v1"
+endpoint_schema = "rq2-causal-factors-001/endpoint-gate-v1"
+timing_schema = "rq2-causal-factors-001/stage-timing-v1"
+manifest_schema = "rq2-bp-target-state-update-001/manifest-v1"
+refuse_overwrite = true
+scientific_hash_excludes = ["elapsed_seconds", "allocated_bytes", "timestamps", "filesystem_paths"]

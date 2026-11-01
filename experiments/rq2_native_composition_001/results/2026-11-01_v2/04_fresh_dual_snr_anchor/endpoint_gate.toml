@@ -1,0 +1,16 @@
+atomic_causal_decomposition_complete = false
+case_count = 48
+combined_counts_reported = true
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_id = "04_fresh_dual_snr_anchor"
+joint_handoff_registered_non_atomic = true
+joint_handoff_single_factor_claim_made = false
+native_bp_endpoint_equal = true
+native_exact_sum_product_successes = 48
+native_gap_accounted = true
+native_gd_endpoint_equal = true
+native_net_gap = 31
+native_projected_gd_successes = 17
+schema_version = "rq2-native-composition-001/endpoint-gate-v1"
+status = "pass"
+transition_net_sum = 31

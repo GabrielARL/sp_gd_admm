@@ -1,0 +1,13 @@
+execution_variant_count = 11
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+frame_count = 48
+job_id = "04_fresh_dual_snr_anchor"
+pass_count = 2
+primary_seconds = 430.358129464
+replay_seconds = 412.807841548
+rung_count = 11
+schema_version = "rq2-native-composition-001/timing-v1"
+seconds_per_frame_rung = 1.596905248128788
+seconds_per_frame_variant = 1.596905248128788
+total_seconds = 845.907923058
+write_seconds = 2.741952046

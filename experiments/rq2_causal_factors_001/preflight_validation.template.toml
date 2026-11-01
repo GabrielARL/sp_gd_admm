@@ -1,0 +1,7 @@
+schema_version = "rq2-causal-factors-001/preflight-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+validation_status = "pass"
+block_a_tests_passed = true
+block_b_tests_passed = true
+command_contract_reviewed = true
+endpoint_gate_contract_reviewed = true

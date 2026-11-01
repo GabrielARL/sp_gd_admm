@@ -1,0 +1,17 @@
+schema_version = "rq2-causal-factors-001/post-freeze-validation-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+attempt_id = "2026-11-01_v2"
+validation_status = "pass"
+freeze_manifest_sha256 = "1ae538d4101354cf57f47d5066eebe3d2954a6ff545f74ba9bb245edd2ca884d"
+freeze_metadata_sha256 = "d5f62f78bb81142bad976ce375755b60bce29e4c7887e53fe2e80f62f088a8f4"
+frozen_block_b_runner_sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+frozen_block_b_test_sha256 = "45b7c7e2ebb925620549b3043245fe553669dbf59b8b0ee2957a2bb020622e59"
+strict_flags = "--threads=1 --startup-file=no --depwarn=error"
+source_gate_passed = true
+correctness_gates_passed = true
+all_four_arms_completed_30_updates = true
+full_direct_native_endpoint_equal = true
+registered_graph_sha256 = "94d94376995c6eb9e21a5859dde6354d7233f61634b5dbdc91fd70653f5f6e2d"
+native_message_passing_iterations = 2
+v1_v2_immutable_source_comparison_passed = true
+scientific_calculation_changed = false

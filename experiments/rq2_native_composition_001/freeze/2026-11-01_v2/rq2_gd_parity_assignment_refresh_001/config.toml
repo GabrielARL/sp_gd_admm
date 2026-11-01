@@ -1,0 +1,219 @@
+schema_version = "rq2-gd-parity-assignment-refresh-001/v1"
+experiment_id = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+classification = "four-arm factorial ablation of check assignment and retained-offset replacement when offsets are read only by the parity calculation"
+
+[scope]
+admm_included = false
+bp_arm_included = false
+snr_sweep = false
+native_bp_vs_projected_gd_attribution = false
+all_arms_are_constructed_projected_gradient_variants = true
+scientific_execution_waits_for_offset_split_v3 = true
+
+[protocol]
+numerical_capsule = "vendored RQ2-GD-OFFSET-SPLIT-001 attempt v3"
+split_config_sha256 = "27378985792f1cd963292a0b6986424b1994b42da1ef17bf9bf2b279c5bc346c"
+split_runner_sha256 = "ddd2cc8ce258ebdd2c43a8c305bebd280e6dd609d3872eec039158b29a407ce4"
+split_test_sha256 = "c989908e6fe09966102e9f4e15d079e1fe2b431c617371de349d00d1d5111c99"
+legacy_runner_sha256 = "12272ccdcdde6b600073299caa4ada07953164dac65aecda98fc5dac1ba6b3cd"
+retained_split_input_table = "../rq2_gd_offset_split_001/freeze/2026-10-31_v3/input_freeze.csv"
+retained_split_input_table_sha256 = "739da19436f5f3371333ad04585be4c9cd934506c9a66892776b146105b5a5bd"
+anchor_and_attribution_rows_must_equal_retained_split = true
+
+[prerequisite]
+experiment_id = "RQ2-GD-OFFSET-SPLIT-001"
+result = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030/experiments/rq2_gd_offset_split_001/results/2026-10-31_heldout_v3"
+require_complete_valid = true
+require_deterministic_replay = true
+selection_endpoint = ["transmitted_word_equal", "parity_valid"]
+selection_contrast = "objective_use_given_bounds0"
+selection_rule = "objective1__bounds0 treatment-only successes exceed objective0__bounds0 reference-only successes for both endpoints"
+
+[arms]
+order = ["asbuilt__refreshed", "permuted__refreshed", "asbuilt__frozen", "permuted__frozen"]
+assignment_levels = ["asbuilt", "permuted"]
+replacement_levels = ["refreshed", "frozen"]
+objective_uses_offsets = true
+projection_uses_offset_bounds = false
+native_projection_interval = "[-1,1]"
+permutation_seed_base = 20261101
+permutation_seed_rule = "base plus frame index; one fixed within-bit derangement plan per frame reused at every accepted update"
+permutation_rule = "degree 1 unchanged; degree 2 swapped; degree 3 one of two cyclic shifts; higher degree a uniform derangement by rejection"
+permutation_preserves = ["per-bit multiset of offsets", "per-bit zero sum"]
+permutation_changes = "which check reads which constructed offset"
+candidate_rule = "all arms calculate a fresh as-built candidate and its permuted shadow candidate after every accepted update"
+refreshed_rule = "replace retained offsets after every accepted update"
+frozen_rule = "replace retained offsets after the first accepted update only; calculate and discard later candidates"
+first_possible_assignment_divergence_update = 2
+first_possible_replacement_divergence_update = 3
+
+[anchor]
+frame_first = 20001
+frame_last = 20024
+expected_count = 24
+development_only = true
+freeze_before_any_endpoint = true
+require_all_correctness_gates = true
+outcome_direction_is_not_an_expansion_gate = true
+
+[transfer]
+frame_first = 40001
+frame_last = 40200
+expected_count = 200
+prospective_confirmation = true
+enabled_only_after_anchor_correctness = true
+outcome_direction_gate = false
+
+[attribution]
+frame_first = 30001
+frame_last = 30200
+expected_count = 200
+classification = "locked finite-sample attribution set; not a new held-out confirmation"
+enabled_only_after_transfer_completion = true
+native_gap_reference = "RQ2-NATIVE-GAP-001 six-dB result"
+native_gd_successes = 107
+native_bp_successes = 200
+native_bp_only_cases = 93
+
+[attribution_reference]
+frames = "../rq2_native_gap_001/results/2026-10-31_six_v2/frames.csv"
+frames_sha256 = "a724bbcf3637d92ba61d5d086a28d8c6bc3e804da00459c153782859fb5ab9e7"
+method = "gd_native_projected"
+expected_frames = 200
+expected_successes = 107
+expected_failures = 93
+
+[endpoints]
+primary = ["transmitted_word_equal"]
+confirmatory_secondary = ["parity_valid"]
+supporting = ["information_word_equal", "coded_bit_errors", "information_bit_errors", "syndrome_weight", "wrong_valid_word_count", "accepted_steps", "candidate_calculations", "offset_replacements"]
+
+[contrasts]
+primary = ["assignment_given_refreshed", "assignment_given_frozen", "refresh_given_asbuilt", "refresh_given_permuted"]
+interaction = "asbuilt__refreshed - permuted__refreshed - asbuilt__frozen + permuted__frozen"
+retain_all_signs = true
+
+[inference]
+confirmatory_stage = "transfer"
+attribution_stage_role = "descriptive transition mapping only; it cannot rescue a null or reversed transfer result"
+pairwise_method = "two-sided exact McNemar test and Newcombe method 10 paired-risk-difference interval"
+pairwise_contrasts_per_endpoint = 4
+endpoint_count = 2
+holm_family_size = 8
+familywise_alpha = 0.05
+pairwise_interval_confidence_level = 0.99375
+holm_correction = true
+interaction_method = "paired-case percentile bootstrap of the complete four-arm outcome vector"
+interaction_bootstrap_seed = 20261101
+interaction_bootstrap_resamples = 100000
+interaction_interval_confidence_level = 0.95
+interaction_is_descriptive = true
+refresh_equivalence_margin = 0.05
+refresh_equivalence_requires_simultaneous_interval_inside_margin = true
+
+[work_budget]
+arms_per_case = 4
+scientific_passes = 2
+scientific_pass_names = ["primary", "replay"]
+maximum_update_attempts_per_arm = 30
+anchor_cases = 24
+transfer_cases = 200
+attribution_cases = 200
+synthetic_warmups_per_arm = 1
+timed_executions_per_arm_case = 1
+anchor_wall_budget_seconds = 7200
+maximum_stage_wall_budget_seconds = 36000
+termination_grace_seconds = 120
+heldout_budget_scale = 1.5
+parameter_sweep_allowed = false
+snr_sweep_allowed = false
+automatic_restart_allowed = false
+interrupted_attempt_must_be_retained = true
+manual_relaunch_requires_new_attempt_directory = true
+extra_cases_allowed = false
+
+[timing]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+process_priority = "nice 19, idle I/O class"
+run_beside_other_scientific_unit = false
+runtime_is_diagnostic_only = true
+allocation_is_diagnostic_only = true
+
+[execution_authorization]
+nonanchor_requires_budget_record = true
+nonanchor_requires_locked_queue_manifest = true
+budget_schema = "rq2-gd-parity-assignment-refresh-001/budget-v1"
+queue_schema = "rq2-gd-parity-assignment-refresh-001/queue-v1"
+queue_lock_schema = "rq2-gd-parity-assignment-refresh-001/queue-package-lock-v1"
+queue_manifest_filename = "QUEUE_MANIFEST.sha256"
+result_manifest_binds_both_hashes = true
+queue_unlisted_immutable_sidecars = ["QUEUE_MANIFEST.sha256", "QUEUE_PACKAGE_LOCK.toml"]
+queue_allowed_mutable_relative_paths = [
+  "queue.lock",
+  "queue.log",
+  "progress.toml",
+  "status_history.tsv",
+  "QUEUE_COMPLETED.toml",
+  "QUEUE_FAILED.toml",
+  "logs/J01.log",
+  "logs/J02.log",
+  "jobs/J01/STARTED.toml",
+  "jobs/J01/COMPLETED.toml",
+  "jobs/J01/FAILED.toml",
+  "jobs/J02/STARTED.toml",
+  "jobs/J02/COMPLETED.toml",
+  "jobs/J02/FAILED.toml",
+]
+reject_every_other_unlisted_file_or_symlink = true
+
+[queue_plan]
+scientific_unit_pattern = "sp-gd-*.service"
+anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service"
+queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service"
+anchor_wall_budget_seconds = 7200
+anchor_term_after_seconds = 7080
+termination_grace_seconds = 120
+maximum_nonanchor_wall_budget_seconds = 36000
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+
+[validation]
+require_custom_reference_equals_v3_o1p0_on_anchor = true
+require_all_pre_adoption_trace_fields_equal_on_update_1 = true
+require_all_scalar_states_equal_through_update_1 = true
+require_refreshed_and_frozen_pre_adoption_trace_fields_equal_on_update_2_within_assignment = true
+require_refreshed_and_frozen_scalar_states_equal_through_update_2_within_assignment = true
+require_same_fixed_permutation_plan_within_frame = true
+require_permuted_multiset_equal = true
+require_every_edge_position_deranged = true
+require_update1_asbuilt_and_permuted_candidates_and_retained_offsets_differ = true
+require_candidate_calculation_after_every_accepted_update = true
+require_selected_candidate_hash_matches_assignment_selector = true
+require_retained_offset_hash_matches_replacement_selector = true
+require_update2_candidate_differs_from_retained_offset_within_each_assignment = true
+require_update2_refreshed_and_frozen_retained_offset_hashes_differ = true
+require_frozen_single_replacement = true
+require_native_projection_bounds_all_arms = true
+require_objective_overshoot_diagnostics = true
+require_offsets_fixed_during_partial_derivatives_and_line_search = true
+require_finite_difference_validation = true
+require_independent_hard_decision_and_syndrome = true
+require_deterministic_replay = true
+refuse_overwrite = true
+reject_extra_output_files = true
+
+[provenance]
+freeze_schema = "rq2-gd-parity-assignment-refresh-001/freeze-v1"
+science_schema = "rq2-gd-parity-assignment-refresh-001/science-v1"
+manifest_schema = "rq2-gd-parity-assignment-refresh-001/manifest-v1"
+completion_schema = "rq2-gd-parity-assignment-refresh-001/completion-v1"
+progress_schema = "rq2-gd-parity-assignment-refresh-001/progress-v1"
+archive_loaded_sources = true
+scientific_hash_scope = "canonical scientific state, transition counts, table hashes, interaction, and gates; runtime, paths, timestamps, and progress excluded"

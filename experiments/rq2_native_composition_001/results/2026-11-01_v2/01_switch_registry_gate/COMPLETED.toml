@@ -1,0 +1,9 @@
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = ""
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_gate_sha256 = "82904cf6dea88714a80f14b13d6c2e3065afb99346a19eecb0b93083712e82a4"
+job_id = "01_switch_registry_gate"
+schema_version = "rq2-native-composition-001/job-completion-v1"
+science_sha256 = "2d85168666b515b295e6320adca8206f6906bc7188c7a68281aad81e57f16f2b"
+status = "complete_valid"

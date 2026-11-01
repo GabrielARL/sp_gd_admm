@@ -1,0 +1,7 @@
+schema_version = "rq2-native-composition-001/queue-completion-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+queue_id = "2026-11-01_v2"
+status = "complete_valid"
+completed_utc = "2026-11-01T18:01:38Z"
+completed_jobs = 7
+total_jobs = 7

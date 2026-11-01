@@ -1,0 +1,28 @@
+atomic_causal_decomposition_complete = false
+case_count = 400
+combined_counts_reported = false
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_id = "06_six_db_order_controls_and_attribution"
+joint_handoff_registered_non_atomic = true
+joint_handoff_single_factor_claim_made = false
+native_bp_endpoint_equal = true
+native_gap_accounted = true
+native_gd_endpoint_equal = true
+schema_version = "rq2-native-composition-001/endpoint-gate-v1"
+status = "pass"
+
+[named_ledgers.locked_attribution]
+case_count = 200
+native_exact_sum_product_successes = 200
+native_gap_accounted = true
+native_net_gap = 93
+native_projected_gd_successes = 107
+transition_net_sum = 93
+
+[named_ledgers.six_db_transfer]
+case_count = 200
+native_exact_sum_product_successes = 200
+native_gap_accounted = true
+native_net_gap = 88
+native_projected_gd_successes = 112
+transition_net_sum = 88

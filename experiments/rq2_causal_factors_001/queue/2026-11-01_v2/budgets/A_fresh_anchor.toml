@@ -1,0 +1,20 @@
+schema_version = "rq2-causal-factors-001/derived-budget-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+block = "A"
+source_stage = "calibration"
+target_stage = "fresh_anchor"
+formula = "term_after_seconds = ceil((seconds_per_frame_per_pass * target_frames * pass_count + post_loop_seconds) * safety_factor); wall_budget_seconds = term_after_seconds + termination_grace_seconds"
+anchor_timing_sha256 = "c76357a89f851c2dc8c5205be1c481bce3881f5e4b2abe46e564107e0bc52c9a"
+anchor_frame_count = 24
+pass_count = 2
+scientific_frame_loop_seconds = 263.771059154
+seconds_per_frame_per_pass = 5.495230399041667
+target_frames = 24
+projected_frame_seconds = 263.771059154
+post_loop_seconds = 8.056167407
+projected_science_seconds = 271.827226561
+safety_factor = 1.5
+wall_budget_seconds = 528
+termination_grace_seconds = 120
+term_after_seconds = 408
+recorded_utc = "2026-11-01T10:05:02Z"

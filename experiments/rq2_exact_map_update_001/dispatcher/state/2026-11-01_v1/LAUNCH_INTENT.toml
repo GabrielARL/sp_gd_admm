@@ -1,0 +1,7 @@
+schema_version = "rq2-exact-map-update-001/launch-intent-v1"
+dispatcher_id = "2026-11-01_v1"
+created_utc = "2026-11-01T18:01:50Z"
+configuration_sha256 = "a99d78167438e374252783efaf9e85ba133dbb9167db1c1fa8ff300e5117279c"
+successor_unit = "sp-gd-rq2-exact-map-update-20261101-v1.service"
+successor_queue_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/queue/2026-11-01_v1"
+launcher_sha256 = "9c426552a96df3b1536ae11be049175810aa66021f50eb1b9b7b66ffbe81dd99"

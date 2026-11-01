@@ -1,0 +1,9 @@
+schema_version = "rq2-causal-factors-001/queue-progress-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+state = "complete"
+current_block = ""
+current_stage = ""
+jobs_completed = 8
+jobs_total = 8
+updated_utc = "2026-11-01T11:54:29Z"
+detail = "Block A then Block B complete-valid"

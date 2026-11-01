@@ -1,0 +1,5 @@
+schema_version = "rq2-causal-factors-001/queue-terminal-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+state = "complete"
+jobs_completed = 8
+recorded_utc = "2026-11-01T11:54:29Z"

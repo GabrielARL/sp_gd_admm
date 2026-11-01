@@ -1,0 +1,213 @@
+schema_version = "rq2-native-composition-001/freeze-spec-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+attempt_id = "2026-11-01_v2"
+
+[[sources]]
+label = "preflight_validation"
+path = "preflight_validation.toml"
+archive_as = "source/preflight_validation.toml"
+
+[[sources]]
+label = "native_composition_runner"
+path = "../../native_composition.jl"
+archive_as = "source/native_composition.jl"
+
+[[sources]]
+label = "native_composition_test"
+path = "../../test_native_composition.jl"
+archive_as = "source/test_native_composition.jl"
+
+[[sources]]
+label = "composition_config"
+path = "../../config.toml"
+archive_as = "source/config.toml"
+
+[[sources]]
+label = "rung_registry"
+path = "../../rung_registry.toml"
+archive_as = "source/rung_registry.toml"
+
+[[sources]]
+label = "experiment_card"
+path = "../../experiment_card.md"
+archive_as = "source/experiment_card.md"
+
+[[sources]]
+label = "campaign_registration"
+path = "../../campaign_registration.toml"
+archive_as = "source/campaign_registration.toml"
+
+[[sources]]
+label = "block_a_runner"
+path = "../../../rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+archive_as = "rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+
+[[sources]]
+label = "block_a_config"
+path = "../../../rq2_gd_residual_projection_budget_001/config.toml"
+archive_as = "rq2_gd_residual_projection_budget_001/config.toml"
+
+[[sources]]
+label = "block_a_card"
+path = "../../../rq2_gd_residual_projection_budget_001/experiment_card.md"
+archive_as = "rq2_gd_residual_projection_budget_001/experiment_card.md"
+
+[[sources]]
+label = "block_a_test"
+path = "../../../rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl"
+archive_as = "rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl"
+
+[[sources]]
+label = "assigned_frozen_runner"
+path = "../../../rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+archive_as = "rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+
+[[sources]]
+label = "assigned_frozen_config"
+path = "../../../rq2_gd_parity_assignment_refresh_001/config.toml"
+archive_as = "rq2_gd_parity_assignment_refresh_001/config.toml"
+
+[[sources]]
+label = "offset_split_runner"
+path = "../../../rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+archive_as = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+
+[[sources]]
+label = "offset_split_config"
+path = "../../../rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+archive_as = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+
+[[sources]]
+label = "legacy_gd_runner"
+path = "../../../rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+archive_as = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+
+[[sources]]
+label = "block_b_runner"
+path = "../../../rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+archive_as = "rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+
+[[sources]]
+label = "block_b_config"
+path = "../../../rq2_bp_target_state_update_001/config.toml"
+archive_as = "rq2_bp_target_state_update_001/config.toml"
+
+[[sources]]
+label = "block_b_card"
+path = "../../../rq2_bp_target_state_update_001/experiment_card.md"
+archive_as = "rq2_bp_target_state_update_001/experiment_card.md"
+
+[[sources]]
+label = "block_b_test"
+path = "../../../rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl"
+archive_as = "rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl"
+
+[[sources]]
+label = "jade_project_toml"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+archive_as = "source/jade_project/Project.toml"
+
+[[sources]]
+label = "jade_manifest_toml"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+archive_as = "source/jade_project/Manifest.toml"
+
+[[sources]]
+label = "jade_package_entry"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/JadeJcade.jl"
+archive_as = "source/jade_project/src/JadeJcade.jl"
+
+[[sources]]
+label = "jade_ldpc"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/LDPC.jl"
+archive_as = "source/jade_project/src/LDPC.jl"
+
+[[sources]]
+label = "jade_modulations"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/Modulations.jl"
+archive_as = "source/jade_project/src/Modulations.jl"
+
+[[sources]]
+label = "jade_receiver_core"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+archive_as = "source/jade_project/src/ReceiverCore.jl"
+
+[[sources]]
+label = "jade_core_common"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+archive_as = "source/jade_project/src/core/common.jl"
+
+[[sources]]
+label = "jade_core_baseline_likelihood"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/baseline_likelihood.jl"
+archive_as = "source/jade_project/src/core/baseline_likelihood.jl"
+
+[[sources]]
+label = "jade_core_jcade"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/jcade.jl"
+archive_as = "source/jade_project/src/core/jcade.jl"
+
+[[sources]]
+label = "jade_core_joint_cz_projected_gradient"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+archive_as = "source/jade_project/src/core/joint_cz_projected_gradient.jl"
+
+[[sources]]
+label = "jade_core_normalized_minsum_sensitivity"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_sensitivity.jl"
+archive_as = "source/jade_project/src/core/normalized_minsum_sensitivity.jl"
+
+[[sources]]
+label = "jade_core_normalized_minsum_trace"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/normalized_minsum_trace.jl"
+archive_as = "source/jade_project/src/core/normalized_minsum_trace.jl"
+
+[[sources]]
+label = "jade_core_persistent_edge"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/persistent_edge.jl"
+archive_as = "source/jade_project/src/core/persistent_edge.jl"
+
+[[sources]]
+label = "jade_ldpc_tool_make_ldpc_linux"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/tools/ldpc/make-ldpc"
+archive_as = "source/jade_project/tools/ldpc/make-ldpc"
+
+[[sources]]
+label = "jade_ldpc_tool_make_gen_linux"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/tools/ldpc/make-gen"
+archive_as = "source/jade_project/tools/ldpc/make-gen"
+
+[[sources]]
+label = "jade_ldpc_tool_print_pchk_linux"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/tools/ldpc/print-pchk"
+archive_as = "source/jade_project/tools/ldpc/print-pchk"
+
+[[sources]]
+label = "jade_ldpc_randfile"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/tools/ldpc/src/randfile"
+archive_as = "source/jade_project/tools/ldpc/src/randfile"
+
+[[sources]]
+label = "jade_core_soft_minsum_lagrangian"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/soft_minsum_lagrangian.jl"
+archive_as = "source/jade_project/src/core/soft_minsum_lagrangian.jl"
+
+[[sources]]
+label = "archived_native_runner"
+path = "/home/gabiel/Documents/GitHub/JadeJcade-runs/awgn-jade-coral-r050-ebn0-2p5to10-step0p5-20261013/source/run_three_receivers.jl"
+archive_as = "source/retained_native/run_three_receivers.jl"
+
+[[sources]]
+label = "retained_v4_frames"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/frames.csv"
+archive_as = "reference/v4_anchor/frames.csv"
+
+[[sources]]
+label = "retained_v4_completion"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/COMPLETED.toml"
+archive_as = "reference/v4_anchor/COMPLETED.toml"
+
+[[sources]]
+label = "retained_v4_manifest"
+path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031/experiments/rq2_gd_parity_assignment_refresh_001/results/2026-11-01_v4_anchor/MANIFEST.sha256"
+archive_as = "reference/v4_anchor/MANIFEST.sha256"

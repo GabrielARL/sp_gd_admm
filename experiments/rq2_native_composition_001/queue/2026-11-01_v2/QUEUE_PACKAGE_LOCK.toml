@@ -1,0 +1,7 @@
+schema_version = "rq2-native-composition-001/queue-lock-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+queue_id = "2026-11-01_v2"
+status = "locked"
+created_utc = "2026-11-01T13:31:49Z"
+immutable_count = 6
+queue_manifest_sha256 = "2afbdfb3cb5ea21cdcfc232f90da3b1e660ce74695f90f12c0b5efd558df0e5d"

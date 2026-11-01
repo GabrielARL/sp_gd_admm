@@ -1,0 +1,8 @@
+completed_frames = 24
+pass = "replay"
+phase = "complete"
+schema_version = "rq2-gd-residual-projection-budget-001/progress-v1"
+stage = "anchor"
+total_frames = 24
+updated_utc = "2026-11-01T10:09:21.858"
+

@@ -1,0 +1,11 @@
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = "84958d74bc7264348ad07e457dd545f78dc36f34442512a7839ef6379b7bac64"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+frames_sha256 = "9e8b120bababf51156e967b0cb25fff78a86bc54d1e204040142e0b95b29403a"
+iterations_sha256 = "c881f5752ec32782698cca0b07d301a9ccfc3bdd6a03218cab6b94371aef3ff9"
+job_gate_sha256 = "57f750e728b6566a68b3047c77ccd5dbe07d32cb8805261aced71f0510b12746"
+job_id = "02_fresh_dual_snr_anchor"
+schema_version = "rq2-exact-map-update-001/job-completion-v1"
+science_sha256 = "a7ccab1d9e47258ceaa5740a3eb389de2f92e5d08bffefa89a37fd471a2021c6"
+status = "complete_valid"

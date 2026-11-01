@@ -1,0 +1,12 @@
+arm_count = 4
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+frame_count = 200
+job_id = "03_six_db_transfer"
+pass_count = 2
+primary_seconds = 746.924621565
+replay_seconds = 737.159203565
+schema_version = "rq2-exact-map-update-001/timing-v1"
+seconds_per_case_arm = 0.9275523907062501
+total_seconds = 1491.8280680340001
+update_attempts_per_arm = 30
+write_seconds = 7.744242904

@@ -1,0 +1,339 @@
+schema_version = "rq2-exact-map-update-001/freeze-v1"
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+attempt_id = "2026-11-01_v1"
+created_utc = "2026-11-01T14:42:45Z"
+source_spec_sha256 = "f9575243846c77493f87a30139bcbd6e9eb63ad4221acbaccdfd2dcfb46b3833"
+predecessor_root = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2"
+predecessor_manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+predecessor_payload_file_count = 42
+overlay_file_count = 5
+file_count = 47
+
+[[sources]]
+label = "predecessor_0001"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/COMPLETED.toml"
+archived_relative_path = "reference/v4_anchor/COMPLETED.toml"
+sha256 = "e30b63ce671da62041d9a7d30481ff373b1f337ad504e209d4f472a79a914ddd"
+executable = false
+
+[[sources]]
+label = "predecessor_0002"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/MANIFEST.sha256"
+archived_relative_path = "reference/v4_anchor/MANIFEST.sha256"
+sha256 = "80958b1eec9f0e4c3ab10ccfcd85b97f8c4ffc157e503e305bf436ddd87ead1d"
+executable = false
+
+[[sources]]
+label = "predecessor_0003"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/frames.csv"
+archived_relative_path = "reference/v4_anchor/frames.csv"
+sha256 = "c6ae629729cb464a59431175d7b86a0866a317ff199025cdb749750e8a55ccf1"
+executable = false
+
+[[sources]]
+label = "predecessor_0004"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/config.toml"
+archived_relative_path = "rq2_bp_target_state_update_001/config.toml"
+sha256 = "2964cef7d789a40504695feea39830daf454af99cc30ce6999707d2752221caf"
+executable = false
+
+[[sources]]
+label = "predecessor_0005"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/experiment_card.md"
+archived_relative_path = "rq2_bp_target_state_update_001/experiment_card.md"
+sha256 = "b15c8c2fd53d3166970472e51ceea055bda91c886cbc4b8a46f83372d0f90841"
+executable = false
+
+[[sources]]
+label = "predecessor_0006"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+archived_relative_path = "rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl"
+sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+executable = false
+
+[[sources]]
+label = "predecessor_0007"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl"
+archived_relative_path = "rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl"
+sha256 = "45b7c7e2ebb925620549b3043245fe553669dbf59b8b0ee2957a2bb020622e59"
+executable = false
+
+[[sources]]
+label = "predecessor_0008"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/config.toml"
+archived_relative_path = "rq2_gd_parity_assignment_refresh_001/config.toml"
+sha256 = "9b27ecefcbaac9b81498a3ef9860106445140e0ace3a1e333e36e4afdbd28a11"
+executable = false
+
+[[sources]]
+label = "predecessor_0009"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+archived_relative_path = "rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl"
+sha256 = "7e7ffa024115b18b824b0fadd55c93bd7491043610c8737c27c0dc2517224e16"
+executable = false
+
+[[sources]]
+label = "predecessor_0010"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+archived_relative_path = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml"
+sha256 = "27378985792f1cd963292a0b6986424b1994b42da1ef17bf9bf2b279c5bc346c"
+executable = false
+
+[[sources]]
+label = "predecessor_0011"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+archived_relative_path = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl"
+sha256 = "ddd2cc8ce258ebdd2c43a8c305bebd280e6dd609d3872eec039158b29a407ce4"
+executable = false
+
+[[sources]]
+label = "predecessor_0012"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+archived_relative_path = "rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl"
+sha256 = "12272ccdcdde6b600073299caa4ada07953164dac65aecda98fc5dac1ba6b3cd"
+executable = false
+
+[[sources]]
+label = "predecessor_0013"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/config.toml"
+archived_relative_path = "rq2_gd_residual_projection_budget_001/config.toml"
+sha256 = "6c0a6cc093c405b851b816c917df5f385fbb4dc3c02257a0052e730ce75a246f"
+executable = false
+
+[[sources]]
+label = "predecessor_0014"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/experiment_card.md"
+archived_relative_path = "rq2_gd_residual_projection_budget_001/experiment_card.md"
+sha256 = "b8549ad1a09c76f70763c32ba3437ed52188d08174b82a95d16672bc588c0233"
+executable = false
+
+[[sources]]
+label = "predecessor_0015"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+archived_relative_path = "rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl"
+sha256 = "c6e524179ca693f9128e3e3341bc100e96338272f9dafd8541d5dc026aba07a4"
+executable = false
+
+[[sources]]
+label = "predecessor_0016"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl"
+archived_relative_path = "rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl"
+sha256 = "4ffa34f445265405e0008e5d98bbaa57869d3eec6482479a9d40b18246297a33"
+executable = false
+
+[[sources]]
+label = "predecessor_0017"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/campaign_registration.toml"
+archived_relative_path = "source/campaign_registration.toml"
+sha256 = "c376da3c1c6d6092fd61b9da53602168d51b980ca71875262839dfd8155ae9c1"
+executable = false
+
+[[sources]]
+label = "predecessor_0018"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/config.toml"
+archived_relative_path = "source/config.toml"
+sha256 = "5d64a083fb726312533830b019ed5814fb8d4c85e66473755465501df5520119"
+executable = false
+
+[[sources]]
+label = "predecessor_0019"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/experiment_card.md"
+archived_relative_path = "source/experiment_card.md"
+sha256 = "a21d6002c3138015e069cfc4d87d98ada5c7ff9f7e3af54b12180c443682f757"
+executable = false
+
+[[sources]]
+label = "predecessor_0020"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/Manifest.toml"
+archived_relative_path = "source/jade_project/Manifest.toml"
+sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+executable = false
+
+[[sources]]
+label = "predecessor_0021"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/Project.toml"
+archived_relative_path = "source/jade_project/Project.toml"
+sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+executable = false
+
+[[sources]]
+label = "predecessor_0022"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/JadeJcade.jl"
+archived_relative_path = "source/jade_project/src/JadeJcade.jl"
+sha256 = "7df2835853a69896a4a00206c3b8b1357667dd4589cc63d83f8701660efd662d"
+executable = false
+
+[[sources]]
+label = "predecessor_0023"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/LDPC.jl"
+archived_relative_path = "source/jade_project/src/LDPC.jl"
+sha256 = "e7bd15a6f42f3319245c661a28b25a545071256c1f8d46263808f52b6da846d0"
+executable = false
+
+[[sources]]
+label = "predecessor_0024"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/Modulations.jl"
+archived_relative_path = "source/jade_project/src/Modulations.jl"
+sha256 = "50abaec021f07c8f9aba8063b5186ab1dcc9ad92b0ae5bb1b79bb567eb5f9c5a"
+executable = false
+
+[[sources]]
+label = "predecessor_0025"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/ReceiverCore.jl"
+archived_relative_path = "source/jade_project/src/ReceiverCore.jl"
+sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+executable = false
+
+[[sources]]
+label = "predecessor_0026"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/baseline_likelihood.jl"
+archived_relative_path = "source/jade_project/src/core/baseline_likelihood.jl"
+sha256 = "568ad500601e6b6cb47e4dc5a372045cee6314f2263c19888f587a95b004a5e1"
+executable = false
+
+[[sources]]
+label = "predecessor_0027"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/common.jl"
+archived_relative_path = "source/jade_project/src/core/common.jl"
+sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+executable = false
+
+[[sources]]
+label = "predecessor_0028"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/jcade.jl"
+archived_relative_path = "source/jade_project/src/core/jcade.jl"
+sha256 = "d4c0fe3a20ad693c2463c2d963ca26f26356ccc9f78f3d8614d1cbafc2d48e6b"
+executable = false
+
+[[sources]]
+label = "predecessor_0029"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/joint_cz_projected_gradient.jl"
+archived_relative_path = "source/jade_project/src/core/joint_cz_projected_gradient.jl"
+sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+executable = false
+
+[[sources]]
+label = "predecessor_0030"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_sensitivity.jl"
+archived_relative_path = "source/jade_project/src/core/normalized_minsum_sensitivity.jl"
+sha256 = "5c4ead0c0aa4817e573dffc0e04b06cd3b3e07ffd4a1e6aa78438c6a422ac93d"
+executable = false
+
+[[sources]]
+label = "predecessor_0031"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_trace.jl"
+archived_relative_path = "source/jade_project/src/core/normalized_minsum_trace.jl"
+sha256 = "7cc4152cb12f42a506004ac74c59b4654ec47118c1e2ea08a00ca2e778d5da98"
+executable = false
+
+[[sources]]
+label = "predecessor_0032"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/persistent_edge.jl"
+archived_relative_path = "source/jade_project/src/core/persistent_edge.jl"
+sha256 = "b8a3f3f6f46e2216f06cb667d920395c5c04a7b36cf639357a6e15a280aee770"
+executable = false
+
+[[sources]]
+label = "predecessor_0033"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/soft_minsum_lagrangian.jl"
+archived_relative_path = "source/jade_project/src/core/soft_minsum_lagrangian.jl"
+sha256 = "70dbc7418c29699f0959840f4b46ddec1098740136e0e4648633747ccae1ac46"
+executable = false
+
+[[sources]]
+label = "predecessor_0034"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/make-gen"
+archived_relative_path = "source/jade_project/tools/ldpc/make-gen"
+sha256 = "5af29a291985b334ac312a2b3314d02d3538e2de438b077ccf26858da4c78fa8"
+executable = true
+
+[[sources]]
+label = "predecessor_0035"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/make-ldpc"
+archived_relative_path = "source/jade_project/tools/ldpc/make-ldpc"
+sha256 = "fa8b613a7297977858bdeaf44cc9c3fa9f49d90ed7c294b23330b36041716a23"
+executable = true
+
+[[sources]]
+label = "predecessor_0036"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/print-pchk"
+archived_relative_path = "source/jade_project/tools/ldpc/print-pchk"
+sha256 = "1f573dab0d4de11ca77054700b32943ec389806929305836b223457620919d53"
+executable = true
+
+[[sources]]
+label = "predecessor_0037"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/src/randfile"
+archived_relative_path = "source/jade_project/tools/ldpc/src/randfile"
+sha256 = "8d79aab59051e2a26fd8c042418d83cd00fdf5a0356f440e654de6bac94888fb"
+executable = false
+
+[[sources]]
+label = "predecessor_0038"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/native_composition.jl"
+archived_relative_path = "source/native_composition.jl"
+sha256 = "97984942dfad8308bc67895f15bd1b6e7e1f3d25506d44918df8984567fb25f8"
+executable = false
+
+[[sources]]
+label = "predecessor_0039"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/preflight_validation.toml"
+archived_relative_path = "source/preflight_validation.toml"
+sha256 = "28acea6af6c5a53ab64ae4facba704b2d85e100e9c7a4bd8e5f819317c2bb9c5"
+executable = false
+
+[[sources]]
+label = "predecessor_0040"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/retained_native/run_three_receivers.jl"
+archived_relative_path = "source/retained_native/run_three_receivers.jl"
+sha256 = "4f2d2977f9843ae52a3b72b42b2f08964aaddef2ef12fd6ff70d48af496070d0"
+executable = false
+
+[[sources]]
+label = "predecessor_0041"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/rung_registry.toml"
+archived_relative_path = "source/rung_registry.toml"
+sha256 = "e9b58764c1aa956665d4f6c5d326b34e2a5086c5faf6d579bba0a3dee29a1245"
+executable = false
+
+[[sources]]
+label = "predecessor_0042"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/test_native_composition.jl"
+archived_relative_path = "source/test_native_composition.jl"
+sha256 = "a58b4ad4bff467b577aaa88f76a7e2dea04326c3b88683036a110215e730db9e"
+executable = false
+
+[[sources]]
+label = "exact_map_runner"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/exact_map_update.jl"
+archived_relative_path = "rq2_exact_map_update_001/exact_map_update.jl"
+sha256 = "6acd0e60a4aff48c8c8961fdf507c0645138eab6dcddb6c7d87c1aec37d91eea"
+executable = false
+
+[[sources]]
+label = "exact_map_test"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/test_exact_map_update.jl"
+archived_relative_path = "rq2_exact_map_update_001/test_exact_map_update.jl"
+sha256 = "100c54b5f7d4008be31ac1c68c96d9b96788837d7f921a47ee26b4e0512732d6"
+executable = false
+
+[[sources]]
+label = "exact_map_config"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/config.toml"
+archived_relative_path = "rq2_exact_map_update_001/config.toml"
+sha256 = "df509cc129305e18c1009fdeaf5fba6ca59d66b03aa3269a2bab341dff9ae9e4"
+executable = false
+
+[[sources]]
+label = "exact_map_experiment_card"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/experiment_card.md"
+archived_relative_path = "rq2_exact_map_update_001/experiment_card.md"
+sha256 = "c09080219bd53f39b1d32899eb2e45494ea769ee20976818b41cdab1dad9df53"
+executable = false
+
+[[sources]]
+label = "exact_map_preflight"
+original_path = "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_exact_map_update_001/attempts/2026-11-01_v1/preflight_validation.toml"
+archived_relative_path = "rq2_exact_map_update_001/preflight_validation.toml"
+sha256 = "42bbd8bed7eceef835411f02b7c5a0cc12d3d7dec71bc8fe6eb55b5e85f3d978"
+executable = false

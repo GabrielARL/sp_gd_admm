@@ -1,0 +1,25 @@
+utc	job	event	seconds	detail
+2026-11-01T13:31:54Z	01_switch_registry_gate	start	0.000000	timeout=1800
+2026-11-01T13:32:29Z	01_switch_registry_gate	process_end	34.610574	
+2026-11-01T13:32:29Z	01_switch_registry_gate	verified	34.610574	
+2026-11-01T13:32:29Z	02_common_harness_gate	start	0.000000	timeout=3600
+2026-11-01T13:32:59Z	02_common_harness_gate	process_end	30.465870	
+2026-11-01T13:32:59Z	02_common_harness_gate	verified	30.465870	
+2026-11-01T13:32:59Z	03_native_endpoint_and_rung_gate	start	0.000000	timeout=7200
+2026-11-01T13:40:27Z	03_native_endpoint_and_rung_gate	process_end	448.181438	
+2026-11-01T13:40:28Z	03_native_endpoint_and_rung_gate	verified	448.181438	
+2026-11-01T13:40:28Z	04_fresh_dual_snr_anchor	start	0.000000	timeout=7200
+2026-11-01T13:54:58Z	04_fresh_dual_snr_anchor	process_end	870.218677	
+2026-11-01T13:54:58Z	04_fresh_dual_snr_anchor	verified	870.218677	
+2026-11-01T13:54:58Z	05_six_db_forward_transfer	budget_derived	0.000000	/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/queue/2026-11-01_v2/budgets/05_six_db_forward_transfer.toml
+2026-11-01T13:54:58Z	05_six_db_forward_transfer	start	0.000000	timeout=5287
+2026-11-01T14:57:36Z	05_six_db_forward_transfer	process_end	3757.514547	
+2026-11-01T14:57:37Z	05_six_db_forward_transfer	verified	3757.514547	
+2026-11-01T14:57:37Z	06_six_db_order_controls_and_attribution	budget_derived	0.000000	/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/queue/2026-11-01_v2/budgets/06_six_db_order_controls_and_attribution.toml
+2026-11-01T14:57:37Z	06_six_db_order_controls_and_attribution	start	0.000000	timeout=12491
+2026-11-01T17:00:23Z	06_six_db_order_controls_and_attribution	process_end	7366.215372	
+2026-11-01T17:00:27Z	06_six_db_order_controls_and_attribution	verified	7366.215372	
+2026-11-01T17:00:27Z	07_second_snr_confirmation	budget_derived	0.000000	/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_native_composition_001/queue/2026-11-01_v2/budgets/07_second_snr_confirmation.toml
+2026-11-01T17:00:27Z	07_second_snr_confirmation	start	0.000000	timeout=5287
+2026-11-01T18:01:37Z	07_second_snr_confirmation	process_end	3669.909806	
+2026-11-01T18:01:38Z	07_second_snr_confirmation	verified	3669.909806	

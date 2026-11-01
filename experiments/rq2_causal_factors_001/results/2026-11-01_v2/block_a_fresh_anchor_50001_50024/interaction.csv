@@ -1,0 +1,5 @@
+checkpoint_update,endpoint,cases,interaction_success_count,interaction_risk_difference
+30,transmitted_word_equal,24,21,0.875
+30,parity_valid,24,21,0.875
+90,transmitted_word_equal,24,18,0.75
+90,parity_valid,24,18,0.75

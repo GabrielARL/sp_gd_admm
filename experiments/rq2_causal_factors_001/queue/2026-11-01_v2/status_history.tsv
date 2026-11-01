@@ -1,0 +1,23 @@
+utc	state	block	stage	jobs_completed	detail
+2026-11-01T10:00:08Z	running			0	campaign initialized
+2026-11-01T10:00:08Z	running	A	calibration	0	scientific command running
+2026-11-01T10:05:02Z	running	A	calibration	1	complete-valid registered gate
+2026-11-01T10:05:02Z	running	A	budget	1	deriving measured fresh-anchor budget
+2026-11-01T10:05:02Z	running	A	fresh_anchor	1	scientific command running
+2026-11-01T10:09:22Z	running	A	fresh_anchor	2	complete-valid registered gate
+2026-11-01T10:09:22Z	running	A	budget	2	deriving measured 200-frame budgets
+2026-11-01T10:09:22Z	running	A	fresh_transfer	2	scientific command running
+2026-11-01T10:40:59Z	running	A	fresh_transfer	3	complete-valid registered gate
+2026-11-01T10:40:59Z	running	A	attribution	3	scientific command running
+2026-11-01T11:12:58Z	running	A	attribution	4	complete-valid registered gate
+2026-11-01T11:12:58Z	running	B	calibration	4	scientific command running
+2026-11-01T11:15:31Z	running	B	calibration	5	complete-valid registered gate
+2026-11-01T11:15:31Z	running	B	budget	5	deriving measured fresh-anchor budget
+2026-11-01T11:15:31Z	running	B	fresh_anchor	5	scientific command running
+2026-11-01T11:18:03Z	running	B	fresh_anchor	6	complete-valid registered gate
+2026-11-01T11:18:03Z	running	B	budget	6	deriving measured 200-frame budgets
+2026-11-01T11:18:03Z	running	B	fresh_transfer	6	scientific command running
+2026-11-01T11:35:39Z	running	B	fresh_transfer	7	complete-valid registered gate
+2026-11-01T11:35:39Z	running	B	attribution	7	scientific command running
+2026-11-01T11:54:29Z	running	B	attribution	8	complete-valid registered gate
+2026-11-01T11:54:29Z	complete			8	Block A then Block B complete-valid

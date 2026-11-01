@@ -1,0 +1,25 @@
+ERROR: LoadError: UndefVarError: `_modem_and_code` not defined in `Main.RQ2BPTargetStateUpdate001.AWGNThreeReceivers`
+Suggestion: define the const at top-level before running function that uses it (stricter Julia v1.12+ rule).
+Note: the binding state changed since the error occurred (was: 11, now: 0).
+Stacktrace:
+  [1] #native_call#13
+    @ ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:281 [inlined]
+  [2] make_code(config::Dict{String, Any}, native::Module)
+    @ Main.RQ2BPTargetStateUpdate001 ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:285
+  [3] run_stage(; config_path::String, stage::Symbol, output::String)
+    @ Main.RQ2BPTargetStateUpdate001 ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:1135
+  [4] run_stage
+    @ ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:1128 [inlined]
+  [5] main(arguments::Vector{String})
+    @ Main.RQ2BPTargetStateUpdate001 ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:1175
+  [6] main()
+    @ Main.RQ2BPTargetStateUpdate001 ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:1167
+  [7] top-level scope
+    @ ~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:1181
+  [8] include(mod::Module, _path::String)
+    @ Base ./Base.jl:306
+  [9] exec_options(opts::Base.JLOptions)
+    @ Base ./client.jl:317
+ [10] _start()
+    @ Base ./client.jl:550
+in expression starting at /home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/freeze/2026-11-01_v1/source/block_b/runner.jl:3

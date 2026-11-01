@@ -1,6 +1,6 @@
 # BP–GD Research Route Map
 
-Last updated: 2026-10-31
+Last updated: 2026-11-02
 
 ## Destination and scope
 
@@ -77,7 +77,12 @@ and is not required to answer either research question.
 | `RQ2-CONFIRM-001` | Held-out paired confirmation | **Complete; valid canonical confirmation** | `2026-10-30_heldout_canonical_linux_v2` is the registered one-thread Linux result on all 200 frozen frames: full exact SP succeeds on 200/200 and persistent `qbar` tying on 0/200 for both endpoints. The earlier Windows transfer is byte-identical in its scientific tables and state snapshot and is cross-platform corroboration. |
 | `RQ2-GD-STATE-USE-001` | Retained check-specific offsets used by projected GD | **Complete; valid favorable held-out result** | On 200 frozen 6 dB cases, active/control transmitted-word and parity-valid successes are 172/113, with 59 active-only and 0 control-only pairs. All correctness, checksum, and deterministic-replay gates pass. This establishes a consequence for the constructed intervention, not BP equivalence or unique native attribution. |
 | `RQ2-GD-OFFSET-SPLIT-001` | Separate retained-offset use in the parity calculation from its use in projection bounds | **V1 terminal; v2 retired; v3 held-out running** | V1 remains an execution-budget failure. V2 completed its primary pass but entered the legacy hash before publishing science and was stopped only after the implementation-equivalent v3 anchor reproduced the registered science hash. The v3 held-out was still running at this publication snapshot; no held-out causal conclusion exists yet. |
-| `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001` | Cross check assignment with repeated replacement while offsets are read only by the parity calculation | **Implementation prepared; Julia validation and execution blocked on v3** | Four constructed projected-GD arms keep the native projection interval and calculate both as-built and fixed-derangement shadow candidates. The queue-governance and budget-derivation suites pass; no Julia preflight or endpoint has been run. |
+| `RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001` | Cross check assignment with repeated replacement while offsets are read only by the parity calculation | **Complete; valid v4 anchor, fresh transfer, and informed attribution run** | All correctness and replay gates pass. On locked frames `30001:30200`, assigned/frozen succeeds on 167/200, recovering 60 of native projected GD's 93 failures without losing a native-GD success; 33 cases remain unresolved. Assigned/refreshed succeeds on 163/200. On the separate transfer `40001:40200`, assigned/frozen succeeds on 174/200. These constructed arms do not yet identify which remaining BP operation explains the unresolved cases. |
+| `RQ2-GD-RESIDUAL-PROJECTION-BUDGET-001` | Check-polynomial shape, projection, and update-budget factorial inside the frozen-offset GD path | **Complete-valid inside `RQ2-CAUSAL-FACTORS-001` v2** | Crosses compound versus explicit product-only parity objectives with box versus unconstrained updates. Every arm shares update 1 and the same frozen offsets; the same trajectories are scored at updates 30 and 90 and by shadow first-hit time. |
+| `RQ2-BP-TARGET-STATE-UPDATE-001` | Recipient-specific BP state by update-operator factorial on a common exact-SP target | **Complete-valid inside `RQ2-CAUSAL-FACTORS-001` v2** | Crosses full versus mean-preserving tied outgoing BP values with direct application of the sum-product map versus gradient descent on the declared residual objective. The full/direct cell reproduces native exact sum-product at its first valid state. |
+| `RQ2-CAUSAL-FACTORS-001` | Endpoint-gated campaign for requested factors 1--6 | **V2 complete-valid; 8/8 jobs** | The immutable v2 queue completed both four-stage blocks with correctness, endpoint, checksum, and replay gates passing. Block B's direct-map cells succeed on 200/200 fresh-transfer cases while both cells using the negative gradient of the declared residual objective succeed on 0/200. This is a controlled result with the same declared map `F`, not native projected GD. |
+| `RQ2-NATIVE-COMPOSITION-001` | Native projected-GD-to-native-exact-SP composition | **V2 complete-valid; 7/7 jobs** | The native endpoints are 112/200 versus 200/200 on the fresh 6 dB transfer and 0/200 versus 199/200 at 1.5 dB. The ordered ledger closes both endpoint gaps, but one scalar-to-directed-edge handoff changes state, target, and update together. The campaign therefore supplies an endpoint-complete arithmetic ledger and controlled adjacent effects, not a complete one-operation-at-a-time explanation of the native gap. |
+| `RQ2-EXACT-MAP-UPDATE-001` | Exact-map update direction by step-rule factorial | **V1 complete-valid; 4/4 jobs** | With the recipient-specific exact sum-product map fixed, only `F(u)-u` with a unit step recovers the transmitted word: 200/200 at 6 dB and 198/200 at 1.5 dB; the other three cells recover 0/200 at both levels. The registered interaction is material, so the recovery cannot be attributed additively to direction or step alone. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -641,16 +646,164 @@ transfer is the sole confirmatory family. The locked set is descriptive
 transition mapping because retained results from those cases informed this
 design, and it cannot rescue a null or reversed transfer result.
 
-The experiment card, configuration, runner, tests, immutable v3 numerical
-capsule, and fail-closed queue controls are prepared in an isolated worktree.
-The 13 queue-governance tests and four budget-derivation tests pass without
-starting Julia. The anchor and non-anchor wrappers execute only from the frozen
-source tree and treat the locked queue copies as checksum-bound evidence, not
-as their trust root. Julia preflight and every scientific endpoint remain
-blocked while the v3 offset-split service is active. A favorable result would
-identify whether this constructed state acts through its check assignment, its
-repeated replacement, or their interaction. It would not make the offsets BP
-messages or establish a complete explanation of the native BP-versus-GD gap.
+The v4 anchor, fresh transfer, and informed attribution stages are complete
+and valid, with deterministic replay and all registered correctness gates
+passing. On the fresh transfer `40001:40200`, assigned/frozen recovers the
+transmitted word on 174/200 cases, assigned/refreshed on 165/200,
+deranged/frozen on 61/200, and deranged/refreshed on 70/200. On the informed
+locked set `30001:30200`, the corresponding counts are 167, 163, 63, and 81.
+The assigned/frozen arm recovers 60 of native projected GD's 93 lost cases,
+loses none of its 107 successes, and leaves 33 unresolved. Exact sum-product
+recovers all 200.
+
+This establishes that the constructed state acts through its check assignment
+and that repeated replacement is not the missing explanation. It does not
+make the constructed offsets BP messages and does not allocate the 33
+remaining failures among check-polynomial shape, projection, recipient-
+specific BP state, or update operator. Those operations are therefore tested
+prospectively in `RQ2-GD-RESIDUAL-PROJECTION-BUDGET-001` and
+`RQ2-BP-TARGET-STATE-UPDATE-001`, under the guarded
+`RQ2-CAUSAL-FACTORS-001` campaign.
+
+### `RQ2-CAUSAL-FACTORS-001` — factors 1--6 without a confounded ladder
+
+The earlier design-only `RQ2-GD-CHECKRULE-001` card is superseded before
+execution. Directly applying a BP LLR check calculation to the retained GD
+readings would also require a domain or clipping choice, because those
+readings leave `[-1,1]`; recipient exclusion would additionally introduce
+persistent check-to-variable state. The six requested tests are consequently
+split into two factorial blocks.
+
+The GD-side block crosses the retained squared parity-residual objective with
+an explicit product-only objective and crosses box projection with no
+projection. All four arms share the exact first update and the same frozen
+constructed offsets. Their unchanged trajectories are scored at update 30,
+update 90, and by shadow first-hit times. This tests check-polynomial shape,
+projection, update budget, and their interactions. The 90-update readout is an
+explicitly reopened artifact control; it is not a generic parameter sweep.
+
+The BP-target block crosses full recipient-specific outgoing values with
+mean-preserving tying and crosses direct application of `F_s` with gradient
+descent on `R_s(u) = 0.5 ||u-F_s(u)||^2`. Within a state level, both operators
+use the same `F_s`; the gradient includes the Jacobian of `F_s`.
+The full/direct first-valid state must reproduce native exact sum-product
+bit-for-bit. This tests recipient-specific state, update operator, and their
+interaction without calling gradient computation message passing.
+
+Both blocks use retained frames `20001:20024` only for calibration, unused
+frames `50001:50024` for a correctness anchor, unused frames `50025:50224`
+for the prospective transfer, and the known `30001:30200` cases afterward for
+descriptive transition accounting. Every arm runs on every case. A final
+reverse-order endpoint composition is conditional on the observed effects;
+until it passes, recovery increments are path-conditional and cannot be added
+as unique case counts.
+
+Attempt `2026-11-01_v1` launched at `2026-11-01T07:38:59Z`. It completed all
+four Block A stages with passing correctness, endpoint, checksum, and replay
+gates. Block B calibration then stopped before producing a result because
+Julia 1.12 could not resolve `_modem_and_code` after its native module was
+loaded dynamically under `--depwarn=error`. This is an implementation harness
+failure, not a Block B scientific outcome. V1 remains immutable and terminal.
+
+Attempt `2026-11-01_v2` changes only the reflective binding lookup: `getfield`
+itself is evaluated through `invokelatest` before the unchanged helper is
+invoked. Strict tests pass 31/31 for Block A, 85/85 for Block B, and 7/7 for
+the controller. The frozen repaired runner also passes the registered source
+and derivative gates, executes all four arms for 30 updates on frame 20001,
+and reproduces the native exact-sum-product endpoint with the full/direct arm.
+The new immutable queue launched at `2026-11-01T10:00:07Z` as
+`sp-gd-rq2-causal-factors-20261101-v2.service`; it reruns the original A-then-B
+order so every Block B cross-check uses Block A artifacts from the same
+attempt. Durable status is in
+`experiments/rq2_causal_factors_001/queue/2026-11-01_v2/progress.toml` and
+`queue.log`; results are written under
+`experiments/rq2_causal_factors_001/results/2026-11-01_v2/`.
+
+The v2 queue subsequently completed all 8 jobs with its correctness, endpoint,
+checksum, and deterministic-replay gates passing. In Block B, both direct-map
+cells recover 200/200 fresh-transfer cases and both cells using the negative
+gradient of the declared residual objective recover 0/200. This identifies an
+update-operator effect while holding the same declared map `F`; it does not by
+itself identify the native projected-GD-to-native-exact-sum-product cause.
+
+### `RQ2-NATIVE-COMPOSITION-001` — native endpoint decomposition
+
+The earlier factorial blocks identify controlled effects but do not by
+themselves decompose the native projected-GD-to-native-exact-SP difference.
+The native-composition campaign therefore evaluates eleven ordered rungs on
+each frozen case. Nine adjacent transitions change one registered operation.
+The scalar-to-directed-edge transition changes state, target, and update
+together; it is permanently marked non-atomic and cannot support a
+single-factor claim. Signed adjacent changes telescope arithmetically to the
+native endpoint difference, but that arithmetic closure is not independent
+causal evidence.
+
+The queue has exactly seven jobs: registry validation, common numerical
+harness validation, native endpoint and rung validation, a fresh dual-SNR
+anchor, the fresh 6 dB transfer, separate fresh/locked 6 dB interaction and
+attribution controls, and the fresh 1.5 dB confirmation. Jobs 5 and 7 apply
+paired exact McNemar tests, Newcombe paired intervals, and one Holm family over
+the nine atomic transitions at each signal-to-noise ratio. Job 6 must first
+reproduce the locked 107-versus-200 endpoint counts and keeps those informed
+cases separate from the fresh transfer.
+
+Attempt v1 terminated before queue preparation because its immutable freeze
+omitted the LDPC tool's runtime `src/randfile`; it produced no experimental
+evidence. Attempt v2 adds that file, passed the 105/105 Julia and 17/17 queue
+tests, and passed a frozen empty-cache Job 3 validation on all 24 endpoint
+cases plus replay. The official immutable queue launched at
+`2026-11-01T13:31:54Z` as
+`sp-gd-rq2-native-composition-20261101-v2.service` and subsequently completed
+all 7 jobs with its registered gates passing.
+
+On the fresh 6 dB transfer, native projected GD recovers 112/200 transmitted
+words and native exact sum-product recovers 200/200. At 1.5 dB the corresponding
+counts are 0/200 and 199/200. The ordered rung ledger closes both endpoint gaps.
+The change from using the negative gradient of the declared exact-sum-product
+residual objective to direct map application is +200 cases at 6 dB and +194
+cases at 1.5 dB. These are controlled adjacent effects, but the earlier scalar-
+to-directed-edge handoff remains non-atomic because it changes state, target,
+and update together. Consequently, the result is an endpoint-complete
+arithmetic ledger, not a complete one-operation-at-a-time explanation of the
+native performance gap.
+
+### `RQ2-EXACT-MAP-UPDATE-001` — gradient of the residual objective versus exact-map displacement
+
+This prospective follow-up holds one check-to-variable value per edge and the
+recipient-specific exact sum-product map `F` fixed. It crosses two update
+directions, the negative gradient of `0.5 ||u-F(u)||^2` and `F(u)-u`, with two
+step rules, the registered backtracking line search and a unit step. The four
+paired cells therefore separate the Jacobian-transpose transformation, the
+step rule, and their interaction inside the exact-map bridge.
+
+Every science cell performs exactly 30 attempted updates without an
+outcome-altering early stop. Terminal transmitted-word recovery is primary;
+first recovery is retained only as a shadow diagnostic. The `F(u)-u` unit-step
+cell assigns `F(u)` directly without evaluating the Jacobian. Its first 30
+updates must equal a retained direct-map prefix. A separate 80-update oracle is
+used only to gate the native exact-sum-product stopping endpoint, so a native
+first recovery after update 30 cannot invalidate the fixed-30 comparison.
+
+The four-job v1 queue begins with 24 retained validation cases, then runs a
+fresh 48-case dual-SNR anchor, a fresh 200-case 6 dB transfer, and a fresh
+200-case 1.5 dB confirmation. Inference is stratified by SNR and job: four
+paired exact McNemar contrasts, one Holm family, simultaneous 98.75% paired
+Newcombe intervals, and a per-case difference-in-differences diagnostic. A
+nonzero registered interaction forbids a separate additive attribution.
+
+After `RQ2-NATIVE-COMPOSITION-001` v2 reached complete-valid at 7/7, the
+fail-closed controller validated the locked predecessor evidence and invoked
+the successor exactly once. The exact-map queue completed all 4 jobs and all
+registered gates passed. At 6 dB, `F(u)-u` with a unit step recovers 200/200
+transmitted words; the true residual gradient with the line search, the true
+residual gradient with a unit step, and `F(u)-u` with the line search each
+recover 0/200. At 1.5 dB the corresponding counts are 198/200 and 0/200 for
+each of the other three cells. The per-case interaction is nonzero on 200/200
+and 198/200 cases, respectively. Thus neither removing the Jacobian-transpose
+transformation alone nor changing to a unit step alone closes this controlled
+bridge: their conjunction, which directly applies `F`, does. Under the
+registered rule this is an interaction result, not separate additive
+attribution to either factor.
 
 ## Separate complexity track
 
@@ -814,3 +967,17 @@ outcome: observed difference | no observed difference
   Only after that equality gate was v2 stopped and the v3 held-out launched.
   The v3 held-out is still running at this publication snapshot, so its mutable
   telemetry is excluded and no split-use causal conclusion is recorded.
+- **2026-11-01:** The user approved the exact-map update follow-up after the
+  frozen native-composition campaign. `RQ2-EXACT-MAP-UPDATE-001` crosses the
+  true residual-gradient direction with `F(u)-u` and the registered
+  backtracking line search with a unit step. Its immutable v1 queue is armed
+  behind a fail-closed dependency controller; no result or causal conclusion
+  exists before the predecessor reaches complete-valid 7/7 and all four
+  successor jobs pass their registered gates.
+- **2026-11-02:** `RQ2-NATIVE-COMPOSITION-001` v2 completed valid at 7/7 and
+  triggered `RQ2-EXACT-MAP-UPDATE-001` v1, which completed valid at 4/4. The
+  native ladder closes the endpoint arithmetic but retains its registered
+  non-atomic scalar-to-directed-edge handoff. In the exact-map 2 x 2, only the
+  `F(u)-u` unit-step cell recovers cases at either signal-to-noise ratio; the
+  material interaction forbids separate additive attribution to direction or
+  step.

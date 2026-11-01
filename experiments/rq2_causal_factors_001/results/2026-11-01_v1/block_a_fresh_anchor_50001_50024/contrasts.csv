@@ -1,0 +1,17 @@
+checkpoint_update,endpoint,contrast_id,treatment_arm,reference_arm,cases,treatment_success,reference_success,treatment_only_success,reference_only_success,paired_risk_difference
+30,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,24,18,20,0,2,-0.083333333333333329
+30,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,21,2,19,0,0.79166666666666663
+30,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,24,2,20,0,18,-0.75
+30,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,24,21,18,4,1,0.125
+30,parity_valid,parity_shape_given_box,product_only__box,compound__box,24,18,20,0,2,-0.083333333333333329
+30,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,21,2,19,0,0.79166666666666663
+30,parity_valid,projection_given_compound,compound__unconstrained,compound__box,24,2,20,0,18,-0.75
+30,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,24,21,18,4,1,0.125
+90,transmitted_word_equal,parity_shape_given_box,product_only__box,compound__box,24,24,24,0,0,0
+90,transmitted_word_equal,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,21,3,18,0,0.75
+90,transmitted_word_equal,projection_given_compound,compound__unconstrained,compound__box,24,3,24,0,21,-0.875
+90,transmitted_word_equal,projection_given_product_only,product_only__unconstrained,product_only__box,24,21,24,0,3,-0.125
+90,parity_valid,parity_shape_given_box,product_only__box,compound__box,24,24,24,0,0,0
+90,parity_valid,parity_shape_given_unconstrained,product_only__unconstrained,compound__unconstrained,24,21,3,18,0,0.75
+90,parity_valid,projection_given_compound,compound__unconstrained,compound__box,24,3,24,0,21,-0.875
+90,parity_valid,projection_given_product_only,product_only__unconstrained,product_only__box,24,21,24,0,3,-0.125

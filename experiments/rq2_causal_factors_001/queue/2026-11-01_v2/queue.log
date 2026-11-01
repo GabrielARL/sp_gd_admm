@@ -1,0 +1,3 @@
+2026-11-01T10:00:07Z starting RQ2 causal-factor queue
+{"jobs_completed": 8, "queue_root": "/home/gabiel/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101/experiments/rq2_causal_factors_001/queue/2026-11-01_v2", "state": "complete"}
+2026-11-01T11:54:29Z RQ2 causal-factor queue complete

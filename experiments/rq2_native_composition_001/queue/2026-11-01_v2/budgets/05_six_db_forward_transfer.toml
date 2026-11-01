@@ -1,0 +1,13 @@
+schema_version = "rq2-native-composition-001/derived-budget-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_id = "05_six_db_forward_transfer"
+anchor_job_id = "04_fresh_dual_snr_anchor"
+anchor_seconds_per_frame_variant = 1.596905248128788
+anchor_pass_count = 2
+target_frame_count = 200
+target_execution_variant_count = 11
+target_pass_count = 2
+projected_scientific_seconds = 3513.1915458833337
+projected_write_seconds = 11.424800191666668
+safety_factor = 1.5
+timeout_seconds = 5287

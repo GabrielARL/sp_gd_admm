@@ -1,0 +1,20 @@
+block = "A"
+channel_llrs_sha256 = "8cb9d9078c7bf33be45ac54267850130216153db2a6b4660d0e0deaffad6ee56"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+frame_count = 200
+frame_first = 30001
+frame_ids_sha256 = "86ad5d4c977918e09b949def04c09da3b7c7a7f35d6a33f4106712066d94cca9"
+frame_last = 30200
+gate_mode = "exact"
+native_bp_hard_words_sha256 = "45ef348a4b1af538c8edd353874797b9153a3d70b9f6fc99fda6cd344c6d0740"
+native_bp_successes = 200
+native_gd_hard_words_sha256 = "f2376ac273bdc27c8119576c3052f9d4595e5be9aa856499099b9ea00cf725fe"
+native_gd_successes = 107
+primary_sentinel_sha256 = "3fc74849cae50d882e505ac1bac6bf5d2f80850650f2b6c4819b8a2087cf9611"
+replay_sentinel_sha256 = "3fc74849cae50d882e505ac1bac6bf5d2f80850650f2b6c4819b8a2087cf9611"
+schema_version = "rq2-causal-factors-001/endpoint-gate-v1"
+sentinel_self_consistency_passed = true
+stage = "attribution"
+v4_asbuilt_frozen_hard_words_sha256 = "f1f6b6d21c0b9c7b3126758e2f8a77b52d0b9dd81cab03e3ee239766babfe252"
+v4_asbuilt_frozen_successes = 167
+

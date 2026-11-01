@@ -1,0 +1,7 @@
+schema_version = "rq2-causal-factors-001/queue-job-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+block = "B"
+stage = "calibration"
+state = "started"
+recorded_utc = "2026-11-01T08:54:48Z"
+detail = "scientific command starting"

@@ -1,0 +1,13 @@
+execution_variant_count = 11
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+frame_count = 200
+job_id = "05_six_db_forward_transfer"
+pass_count = 2
+primary_seconds = 1720.423319014
+replay_seconds = 2006.007138142
+rung_count = 11
+schema_version = "rq2-native-composition-001/timing-v1"
+seconds_per_frame_rung = 1.6938320259800002
+seconds_per_frame_variant = 1.6938320259800002
+total_seconds = 3732.7754795710002
+write_seconds = 6.345022415

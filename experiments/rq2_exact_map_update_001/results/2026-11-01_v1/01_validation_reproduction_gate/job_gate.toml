@@ -1,0 +1,16 @@
+block_b_runner_sha256 = "61df5b2944f21279968f0f0ea5991d5869929468d919fbd367541ee1ea7d464c"
+config_sha256 = "df509cc129305e18c1009fdeaf5fba6ca59d66b03aa3269a2bab341dff9ae9e4"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-EXACT-MAP-UPDATE-001"
+job_id = "01_validation_reproduction_gate"
+job_kind = "validation"
+primary_frames_sha256 = "710a9cd65a002de8e21488909093c531dcf7c300af7471b07f039a24a65fbed1"
+primary_iterations_sha256 = "28ec95202ebd54d083ea70663238ff5334b42fd8c0fa860e3334719f21070244"
+primary_science_sha256 = "0b3aa1f5baca4ad66448cd4547d3db60bfbe95a457385abbd0b93fb7008c2e2f"
+replay_frames_sha256 = "710a9cd65a002de8e21488909093c531dcf7c300af7471b07f039a24a65fbed1"
+replay_iterations_sha256 = "28ec95202ebd54d083ea70663238ff5334b42fd8c0fa860e3334719f21070244"
+replay_science_sha256 = "0b3aa1f5baca4ad66448cd4547d3db60bfbe95a457385abbd0b93fb7008c2e2f"
+schema_version = "rq2-exact-map-update-001/job-gate-v1"
+status = "pass"
+validation_only = true

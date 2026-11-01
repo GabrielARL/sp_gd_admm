@@ -1,0 +1,10 @@
+schema_version = "rq2-native-composition-001/progress-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+queue_id = "2026-11-01_v2"
+updated_utc = "2026-11-01T18:01:38Z"
+status = "complete_valid"
+current_job = "07_second_snr_confirmation"
+phase = "queue_complete"
+completed_jobs = 7
+total_jobs = 7
+detail = ""

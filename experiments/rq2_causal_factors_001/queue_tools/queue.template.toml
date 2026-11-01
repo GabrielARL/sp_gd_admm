@@ -1,0 +1,181 @@
+schema_version = "rq2-causal-factors-001/queue-v1"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+queue_id = "REPLACE_WITH_NEW_QUEUE_ID"
+
+[execution]
+block_order = ["A", "B"]
+unit_name = "sp-gd-rq2-causal-factors-REPLACE.service"
+scientific_unit_pattern = "sp-gd-*.service"
+global_lock_name = "sp-gd-scientific.lock"
+automatic_restart_allowed = false
+resume_allowed = false
+overwrite_allowed = false
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+
+[paths]
+freeze_root = "/REPLACE/immutable_freeze"
+workdir = "/REPLACE/workdir"
+output_root = "/REPLACE/new_results_parent"
+
+[preflight]
+archived_relative_path = "source/preflight_validation.toml"
+record_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+validation_status = "pass"
+
+# Block A: GD-side check-shape x projection factorial.
+[blocks.A]
+calibration_output = "REPLACE_block_a_calibration_20001_20024"
+fresh_anchor_output = "REPLACE_block_a_fresh_anchor_50001_50024"
+fresh_transfer_output = "REPLACE_block_a_fresh_transfer_50025_50224"
+attribution_output = "REPLACE_block_a_attribution_30001_30200"
+calibration_timeout_seconds = 7200
+termination_grace_seconds = 120
+budget_safety_factor = 1.5
+calibration_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_a/runner.jl",
+  "{runner_stage}", "--config", "{freeze}/source/block_a/config.toml",
+  "--output", "{output}", "--freeze", "{freeze}",
+]
+fresh_anchor_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_a/runner.jl",
+  "{runner_stage}", "--config", "{freeze}/source/block_a/config.toml",
+  "--output", "{output}", "--freeze", "{freeze}",
+]
+fresh_transfer_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_a/runner.jl",
+  "{runner_stage}", "--config", "{freeze}/source/block_a/config.toml",
+  "--output", "{output}", "--freeze", "{freeze}",
+]
+attribution_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_a/runner.jl",
+  "{runner_stage}", "--config", "{freeze}/source/block_a/config.toml",
+  "--output", "{output}", "--freeze", "{freeze}",
+]
+
+[blocks.A.calibration_gate]
+mode = "exact"
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+frame_ids_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+channel_llrs_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+native_gd_successes = 0 # REPLACE with the frozen calibration value
+v4_asbuilt_frozen_successes = 0 # REPLACE with the frozen calibration value
+native_bp_successes = 0 # REPLACE with the frozen calibration value
+native_gd_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+v4_asbuilt_frozen_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+native_bp_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+
+[blocks.A.fresh_anchor_gate]
+mode = "self_consistency"
+frame_first = 50001
+frame_last = 50024
+frame_count = 24
+
+[blocks.A.fresh_transfer_gate]
+mode = "self_consistency"
+frame_first = 50025
+frame_last = 50224
+frame_count = 200
+
+[blocks.A.attribution_gate]
+mode = "exact"
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+frame_ids_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+channel_llrs_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+native_gd_successes = 107
+v4_asbuilt_frozen_successes = 167
+native_bp_successes = 200
+native_gd_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+v4_asbuilt_frozen_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+native_bp_hard_words_sha256 = "REPLACE_WITH_64_LOWERCASE_HEX"
+
+# Block B: recipient-specific state x update-operator factorial.
+[blocks.B]
+calibration_output = "REPLACE_block_b_calibration_20001_20024"
+fresh_anchor_output = "REPLACE_block_b_fresh_anchor_50001_50024"
+fresh_transfer_output = "REPLACE_block_b_fresh_transfer_50025_50224"
+attribution_output = "REPLACE_block_b_attribution_30001_30200"
+calibration_timeout_seconds = 7200
+termination_grace_seconds = 120
+budget_safety_factor = 1.5
+calibration_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_b/runner.jl",
+  "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+fresh_anchor_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_b/runner.jl",
+  "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+fresh_transfer_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_b/runner.jl",
+  "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+attribution_command = [
+  "julia", "--threads=1", "--startup-file=no", "--depwarn=error",
+  "--project=/REPLACE/pinned_project", "{freeze}/source/block_b/runner.jl",
+  "stage", "--stage", "{runner_stage}",
+  "--config", "{freeze}/source/block_b/config.toml", "--output", "{output}",
+]
+
+[blocks.B.calibration_gate]
+mode = "cross_block_bp"
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+
+[blocks.B.fresh_anchor_gate]
+mode = "cross_block_bp"
+frame_first = 50001
+frame_last = 50024
+frame_count = 24
+
+[blocks.B.fresh_transfer_gate]
+mode = "cross_block_bp"
+frame_first = 50025
+frame_last = 50224
+frame_count = 200
+
+[blocks.B.attribution_gate]
+mode = "cross_block_bp"
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+
+[inventory]
+immutable_files = [
+  "README.md",
+  "campaign_queue.py",
+  "launch_detached.sh",
+  "lock_queue_package.py",
+  "queue.toml",
+  "run_queue.sh",
+]
+
+[telemetry]
+files = [
+  "queue.lock",
+  "queue.log",
+  "progress.toml",
+  "phase_log.tsv",
+  "status_history.tsv",
+  "QUEUE_COMPLETED.toml",
+  "QUEUE_FAILED.toml",
+]
+

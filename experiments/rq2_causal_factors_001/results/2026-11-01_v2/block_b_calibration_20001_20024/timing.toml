@@ -1,0 +1,8 @@
+block = "B"
+experiment_id = "RQ2-CAUSAL-FACTORS-001"
+frame_count = 24
+pass_count = 2
+post_loop_seconds = 1.709318795
+schema_version = "rq2-causal-factors-001/stage-timing-v1"
+scientific_frame_loop_seconds = 125.27961143
+stage = "calibration"

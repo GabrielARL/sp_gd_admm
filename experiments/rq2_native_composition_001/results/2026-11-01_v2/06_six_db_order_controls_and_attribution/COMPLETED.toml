@@ -1,0 +1,9 @@
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = "dbd2430c5a809b6dcf309d8f26e03a9e71e2e4a929b74ab6326d477449fde5a7"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_gate_sha256 = "a4ee6a96cc447a0440f0657acd1e584e519ff684622da1f296fe2da50bb17e92"
+job_id = "06_six_db_order_controls_and_attribution"
+schema_version = "rq2-native-composition-001/job-completion-v1"
+science_sha256 = "694ff32f35b636fe6f949a1cf93a803db68629469e29045ed5e1844d69be3961"
+status = "complete_valid"

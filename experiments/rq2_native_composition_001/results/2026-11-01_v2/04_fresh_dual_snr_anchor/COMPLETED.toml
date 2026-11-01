@@ -1,0 +1,9 @@
+correctness_passed = true
+deterministic_replay_passed = true
+endpoint_gate_sha256 = "608dad9f40bcf51c0cb95d4dbf35a526dd668e435251c1eede3840f01cc3a71c"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+job_gate_sha256 = "6dd4d85c873f50c47ae4d968b0ed9cb0189ff7609ac2a62ee86fcc009228c084"
+job_id = "04_fresh_dual_snr_anchor"
+schema_version = "rq2-native-composition-001/job-completion-v1"
+science_sha256 = "d6abe86e316df914f91c6383d5d00a7ac96aaccae78b8c6e74a94e6a2c301f41"
+status = "complete_valid"
