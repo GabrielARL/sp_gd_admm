@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Offset Split</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
@@ -10,8 +10,8 @@
 :root{
   --paper:#f5f3ec; --ink:#1c1f27; --soft:#5d6271; --line:#d8d3c6; --panel:#fffdf8;
   --bp:#6b4fa7; --gd:#22796b;
-  --ctl:#2f6d8e; --act:#c4572a; --oonly:#cf8f1f; --ponly:#7183a8;
-  --ok:#2f8a5a; --warn:#b07a12;
+  --ctl:#2f6d8e; --act:#9a3f18; --oonly:#8a5b00; --ponly:#52617d;
+  --ok:#267047; --warn:#805200;
   --serif:Georgia,'Times New Roman',Times,serif;
   --ui:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
 }
@@ -34,6 +34,11 @@ header{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 20px;border-bott
 header h1{font-family:var(--serif);font-weight:500;font-size:1.6rem;margin:0;letter-spacing:-.01em;text-wrap:balance}
 header .sub{font-family:var(--ui);font-size:.8rem;color:var(--soft);letter-spacing:.04em;text-transform:uppercase}
 header .count{margin-left:auto;font-family:var(--ui);font-size:.85rem;color:var(--soft);font-variant-numeric:tabular-nums}
+.mode-switch{display:flex;gap:6px;margin-top:12px;font-family:var(--ui)}
+.mode-switch button{padding:7px 12px}
+.mode-switch button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.mode-note{font-family:var(--ui);font-size:.78rem;line-height:1.45;color:var(--soft);border-left:3px solid var(--ponly);padding:6px 10px;margin:10px 0 0;max-width:110ch}
+.mobile-zoom{display:none}
 main{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;margin-top:18px;align-items:start}
 @media (max-width:900px){main{grid-template-columns:1fr}}
 .stage{min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden}
@@ -47,7 +52,7 @@ aside .num{font-family:var(--ui);font-variant-numeric:tabular-nums}
 aside .tag{display:inline-block;font-family:var(--ui);font-size:.72rem;letter-spacing:.04em;padding:1px 7px;border-radius:3px;border:1px solid var(--line);color:var(--soft);vertical-align:middle}
 aside p.take{border-left:3px solid var(--act);padding-left:12px;font-family:var(--ui);font-size:.92rem;line-height:1.45;margin-top:16px}
 aside p.take b{font-weight:600;color:var(--act);letter-spacing:.04em;font-size:.72rem;text-transform:uppercase;display:block;margin-bottom:2px}
-nav{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+nav{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap;position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--paper) 94%,transparent);backdrop-filter:blur(7px);border-top:1px solid var(--line);padding:10px 0}
 button{font-family:var(--ui);font-size:.9rem;font-weight:500;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 16px;cursor:pointer}
 button:hover{border-color:var(--soft)}
 button:focus-visible{outline:2px solid var(--act);outline-offset:2px}
@@ -56,12 +61,62 @@ button.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .dots{display:flex;gap:6px;flex-wrap:wrap}
 .dots button{width:12px;height:12px;padding:0;border-radius:50%;border:1px solid var(--soft);background:transparent}
 .dots button[aria-current="true"]{background:var(--act);border-color:var(--act)}
+.dots.named{gap:5px;flex:1;min-width:280px}
+.dots.named button{width:auto;height:auto;border-radius:14px;padding:4px 9px;font-size:.72rem;color:var(--soft);white-space:nowrap}
+.dots.named button[aria-current="true"]{background:var(--act);border-color:var(--act);color:white}
 .hint{margin-left:auto;font-family:var(--ui);font-size:.75rem;color:var(--soft)}
 .chapters{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-family:var(--ui);font-size:.75rem;color:var(--soft)}
 .chapters button{font-size:.75rem;padding:3px 9px;border-radius:12px}
 .chapters button[aria-current="true"]{border-color:var(--act);color:var(--act)}
 .src{margin-top:22px;border-top:1px solid var(--line);padding-top:10px;font-family:var(--ui);font-size:.75rem;color:var(--soft);line-height:1.5}
+.src summary{cursor:pointer;font-weight:600;color:var(--ink);padding:4px 0}
+.src .src-body{padding-top:8px}
 .src code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.72rem}
+
+/* The default explanation is advanced one meaningful change at a time. */
+body[data-mode="core"] main{grid-template-columns:minmax(0,7fr) minmax(280px,3fr)}
+body[data-mode="core"] aside p{font-family:var(--ui);font-size:.96rem;line-height:1.48}
+body[data-mode="core"] aside details{font-family:var(--ui);font-size:.82rem;border:1px solid var(--line);border-radius:5px;padding:7px 9px;margin-top:12px}
+body[data-mode="core"] aside summary{cursor:pointer;font-weight:600}
+body[data-mode="core"] .chapters{display:none}
+.core-badge{font-family:var(--ui);font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--soft)}
+.core-note{font-family:var(--ui);font-size:.82rem;color:var(--soft)}
+.core-click{cursor:pointer}
+.core-click:focus{outline:none}
+.core-click:focus-visible>rect,.core-click:focus-visible>circle{stroke:var(--ink)!important;stroke-width:5!important;filter:drop-shadow(0 0 3px var(--panel))}
+.core-click:focus-visible>text{text-decoration:underline;text-decoration-thickness:2px}
+.core-new{animation:coreReveal .28s ease-out both}
+@keyframes coreReveal{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@media (max-width:900px){
+  body[data-mode="core"] main{grid-template-columns:1fr}
+  .dots.named{order:4;flex-basis:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px}
+}
+@media (max-width:600px){
+  .wrap{padding-top:10px}
+  header .count{width:100%;margin-left:0}
+  body[data-mode="core"] main{gap:12px}
+  body[data-mode="core"] aside{order:-2}
+  .mobile-zoom{display:block;order:-1;justify-self:start}
+  .mobile-zoom[hidden]{display:none}
+  .stage{overflow:hidden}
+  .stage svg{width:100%;max-width:100%}
+  body[data-mode="core"][data-mobile-zoom="readable"] .stage{overflow-x:auto;overscroll-behavior-x:contain}
+  body[data-mode="core"][data-mobile-zoom="readable"] .stage svg{width:960px;max-width:none}
+  nav{gap:7px}
+  nav button{padding:7px 10px}
+  .hint{display:none}
+}
+
+/* Full evidence opens in its final static state; Replay is the only autoplay. */
+body[data-motion="paused"] .fi,body[data-motion="paused"] .pop{animation:none!important;opacity:1!important;transform:none!important}
+body[data-motion="paused"] .draw{animation:none!important;stroke-dashoffset:0!important}
+body[data-motion="paused"] .bar{animation:none!important;transform:scaleX(1)!important}
+body[data-motion="paused"] .vbar{animation:none!important;transform:scaleY(1)!important}
+body[data-motion="paused"] .fo{animation:none!important;opacity:0!important}
+body[data-motion="paused"] .fly{animation:none!important;transform:translate(var(--dx),var(--dy))!important}
+body[data-motion="paused"] .slide{animation:none!important;transform:translate(var(--dx),0)!important}
+body[data-motion="paused"] .shrink{animation:none!important;transform:translate(var(--dx),0) scaleX(var(--sx))!important}
+body[data-motion="paused"] .pulse{animation:none!important;opacity:1!important}
 
 /* SVG vocabulary */
 svg text{font-family:var(--ui);font-size:17px;fill:var(--ink)}
@@ -118,28 +173,201 @@ svg .dim{opacity:.35}
 }
 </style>
 
-</head>
-<body>
 <div class="wrap">
   <header>
     <h1>The Offset Split</h1>
-    <span class="sub">BP versus projected GD · what the study asks, what it found, and the 31 October run snapshot</span>
+    <span class="sub" id="subtitle">An intuitive controlled comparison</span>
     <span class="count" id="count"></span>
   </header>
+  <div class="mode-switch" role="group" aria-label="Choose explanation depth">
+    <button id="coreMode" aria-pressed="true">Intuitive explanation</button>
+    <button id="evidenceMode" aria-pressed="false">Full evidence</button>
+  </div>
+  <p class="mode-note" id="modeNote" hidden><strong>Verification scope.</strong> The local manifest and checker reproduce the result tables, interactions, completion and replay gates, the follow-up’s native-GD transition accounting, and the displayed result panels. The operational timelines and the follow-up’s attempt history are dated context linked under Evidence and provenance; this page does not replay every historical job or track any running one.</p>
   <main>
-    <div class="stage" id="stage" aria-live="polite"></div>
+    <button class="mobile-zoom" id="mobileZoom" type="button" aria-pressed="false">Enlarge chart for readable labels</button>
+    <div class="stage" id="stage" role="region" aria-live="polite" aria-label="Current visual explanation"></div>
     <aside id="aside"></aside>
   </main>
   <nav>
     <button id="back">← Back</button>
-    <div class="dots" id="dots" role="tablist"></div>
-    <button id="replay" title="Play this beat's motion again">Replay</button>
-    <button id="next" class="primary">Next →</button>
+    <div class="dots" id="dots" aria-label="Choose a scene"></div>
+    <button id="replay" title="Return to the start of this scene">Start scene over</button>
+    <button id="next" class="primary">Next step →</button>
     <span class="hint">← → or space to move</span>
   </nav>
   <div class="chapters" id="chapters"></div>
-  <div class="src" id="src"></div>
+  <details class="src" id="src"><summary>Evidence and provenance</summary><div class="src-body" id="srcBody"></div></details>
 </div>
+
+<script type="application/json" id="offsetSplitEvidence">
+{
+  "schema_version": 1,
+  "sources": {
+    "compound_case_set_A": {
+      "path": "offset_split_explainer_evidence/compound_case_set_A.csv",
+      "sha256": "93b8cfc089e93a426720bad3d0713b0d27cf17e3015c799694976b3b21be5ad9"
+    },
+    "offset_split_case_set_B": {
+      "path": "offset_split_explainer_evidence/offset_split_case_set_B.csv",
+      "sha256": "da69dc596418e116c670d1297d5b81164de8c21f228ae8ee89f6ba2d5d6a5d12"
+    },
+    "offset_reassignment_case_set_B": {
+      "path": "offset_split_explainer_evidence/offset_reassignment_case_set_B.csv",
+      "sha256": "86e538b047055ff1a5514ea375629bf9f06a37ed4914af248393468903411c22"
+    },
+    "native_gap_case_set_B": {
+      "path": "offset_split_explainer_evidence/native_gap_case_set_B.csv",
+      "sha256": "d47cfff41641a3b752309db4029d15dcdab0dc46c15da5353b3ea7266ae9b4ea"
+    },
+    "offset_split_interaction_case_set_B": {
+      "path": "offset_split_explainer_evidence/offset_split_interaction_case_set_B.csv",
+      "sha256": "5d65a2ac2ba28fbf8004368d735e5b1f74edd9837c274bbb00bc3d6d5c80b061"
+    },
+    "offset_split_completion_case_set_B": {
+      "path": "offset_split_explainer_evidence/offset_split_COMPLETED.toml",
+      "sha256": "1ee4e0d3139eea32e715213822f9e3bb2e06e71eb6f13508d23c85da1da882cf"
+    },
+    "assignment_refresh_transfer_case_set_C": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_transfer_case_set_C.csv",
+      "sha256": "7908cd846ee7cd8f47970f39cea199f8fee21e69b2998ddf7108cd14812cf85c"
+    },
+    "assignment_refresh_transfer_interaction_case_set_C": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_transfer_interaction_case_set_C.csv",
+      "sha256": "7790e946890c689c730b1c3576129691052aa00472216ce853ba679fb294aa9b"
+    },
+    "assignment_refresh_transfer_completion_case_set_C": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_transfer_COMPLETED.toml",
+      "sha256": "63cc477d16fdff86d0a3ad5b30a60928cad2d220590ccf3b47e3d89ccc28f1ba"
+    },
+    "assignment_refresh_attribution_case_set_B": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_attribution_case_set_B.csv",
+      "sha256": "7aca27b170c6e3063a4fe7e693c76beff407df48aa4a2bea3f45c70924c40319"
+    },
+    "assignment_refresh_attribution_interaction_case_set_B": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_attribution_interaction_case_set_B.csv",
+      "sha256": "3f589c7990e7dc7dd09d748cd486f59938a5fb61c5ca8c592693a071e5eefb81"
+    },
+    "assignment_refresh_attribution_completion_case_set_B": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_attribution_COMPLETED.toml",
+      "sha256": "f2097bca258a56809ef8b7ebcacaceed99a6619e50abbb1147d5feccbd7fb36b"
+    },
+    "assignment_refresh_attribution_frames_case_set_B": {
+      "path": "offset_split_explainer_evidence/assignment_refresh_attribution_frames_case_set_B.csv",
+      "sha256": "ece720c9aeffac26ecdc8f2d0c91133320d03b2da0fc1dd36585ba55e5844200"
+    },
+    "native_gap_frames_case_set_B": {
+      "path": "offset_split_explainer_evidence/native_gap_frames_case_set_B.csv",
+      "sha256": "a724bbcf3637d92ba61d5d086a28d8c6bc3e804da00459c153782859fb5ab9e7"
+    }
+  },
+  "toy": {
+    "x_i": 0.42,
+    "offsets": {"A": -0.45, "B": 0.10, "C": 0.35},
+    "readings": {"A": -0.03, "B": 0.52, "C": 0.77},
+    "offset_projection_interval": [-0.55, 0.65],
+    "trial_x": 0.80,
+    "projected_trial_x": 0.65,
+    "note": "Illustrative values, not retained decoder trace values."
+  },
+  "compound_case_set_A": {
+    "locked_cases": 200,
+    "control_recovered": 113,
+    "compound_recovered": 172,
+    "compound_only": 59,
+    "control_only": 0
+  },
+  "offset_split_case_set_B": {
+    "locked_cases": 200,
+    "parity_ignores_offsets__ordinary_interval": 107,
+    "parity_ignores_offsets__offset_interval": 106,
+    "parity_uses_offsets__ordinary_interval": 163,
+    "parity_uses_offsets__offset_interval": 163,
+    "parity_effect_given_ordinary_interval": 56,
+    "parity_effect_given_offset_interval": 57,
+    "interval_effect_when_parity_ignores_offsets": -1,
+    "interval_effect_when_parity_uses_offsets": 0
+  },
+  "offset_reassignment_case_set_B": {
+    "unused": 107,
+    "each_check_reads_its_own": 163,
+    "reassigned_between_checks": 73,
+    "own_offsets_kept_from_first_adoption": 165
+  },
+  "native_gap_case_set_B": {
+    "belief_propagation": 200,
+    "projected_gradient_descent": 107,
+    "constructed_variant": 163,
+    "cases_recovered_by_constructed_variant": 56,
+    "cases_still_unexplained": 37
+  },
+  "assignment_refresh_case_set_C": {
+    "fresh_cases": 200,
+    "own_refreshed": 165,
+    "own_kept": 174,
+    "permuted_refreshed": 70,
+    "permuted_kept": 61,
+    "assignment_won_refreshed": 95,
+    "assignment_won_kept": 113,
+    "assignment_lost": 0,
+    "refreshed_won_with_own": 0,
+    "kept_won_with_own": 9,
+    "refreshed_won_with_permuted": 10,
+    "kept_won_with_permuted": 1,
+    "assignment_rd_refreshed": 0.475,
+    "assignment_interval_refreshed": [0.369, 0.562],
+    "assignment_rd_kept": 0.565,
+    "assignment_interval_kept": [0.457, 0.650],
+    "refresh_rd_with_own": -0.045,
+    "refresh_interval_with_own": [-0.097, 0.0001],
+    "refresh_holm_with_own": 0.016,
+    "refresh_rd_with_permuted": 0.045,
+    "refresh_interval_with_permuted": [-0.002, 0.093],
+    "refresh_holm_with_permuted": 0.023,
+    "refresh_equivalence_established": false,
+    "interaction": -0.09,
+    "interaction_interval": [-0.135, -0.05],
+    "science_sha256": "2556c01f170d0e3f42bdcca831df47278270ec13628e84a1541a7976668c5595"
+  },
+  "assignment_refresh_case_set_B": {
+    "locked_cases": 200,
+    "own_refreshed": 163,
+    "own_kept": 167,
+    "permuted_refreshed": 81,
+    "permuted_kept": 63,
+    "assignment_won_refreshed": 82,
+    "assignment_won_kept": 104,
+    "assignment_lost": 0,
+    "refreshed_won_with_own": 0,
+    "kept_won_with_own": 4,
+    "refreshed_won_with_permuted": 18,
+    "kept_won_with_permuted": 0,
+    "interaction": -0.11,
+    "science_sha256": "e39e1894f0bdfec60960c8f5da6e85173559275e4586d9014f2678829bc0003a"
+  },
+  "native_accounting_case_set_B": {
+    "belief_propagation": 200,
+    "projected_gradient_descent": 107,
+    "bp_only": 93,
+    "own_kept_recovered": 60,
+    "own_kept_lost": 0,
+    "own_refreshed_recovered": 56,
+    "own_refreshed_lost": 0,
+    "permuted_refreshed_recovered": 0,
+    "permuted_refreshed_lost": 26,
+    "permuted_kept_recovered": 0,
+    "permuted_kept_lost": 44,
+    "unresolved": 33,
+    "update_budget": 30,
+    "unresolved_bit_errors": {"1": 21, "2": 9, "4": 3},
+    "unresolved_bit_errors_min": 1,
+    "unresolved_bit_errors_max": 4,
+    "unresolved_native_gd_bit_errors": [1, 8],
+    "bp_iterations": {"2": 162, "3": 38},
+    "kept_own_contains_all_other_successes": true
+  }
+}
+</script>
 
 <script>
 // ---------- small SVG helpers ----------
@@ -174,6 +402,7 @@ const status=(x,y,st,d)=>{
   if(st==='done') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-ok"/><path d="M${x-8} ${y} l6 6 l11 -12" stroke="var(--paper)" stroke-width="2.6" fill="none"/></g>`;
   if(st==='recorded') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-soft"/><text x="${x}" y="${y+5}" class="mid white" style="font-size:13px">½</text></g>`;
   if(st==='waiting') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="box s-soft" style="stroke-width:2"/></g>`;
+  if(st==='failed') return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-act"/><path d="M${x-6} ${y-6} l12 12 M${x+6} ${y-6} l-12 12" stroke="var(--paper)" stroke-width="2.6" fill="none"/></g>`;
   return `<g class="pop" style="--d:${d}s"><circle cx="${x}" cy="${y}" r="14" class="f-act pulse"/><text x="${x}" y="${y+5}" class="mid white" style="font-size:12px">●</text></g>`;
 };
 // wrap a sentence into lines of at most n characters
@@ -188,6 +417,8 @@ function star(bx,by,checks,d0,labels){
 }
 
 // ---------- beats ----------
+// RUN: the v3 held-out's measured end times (CST, decimal hours past midnight on 31 October; 24.5 = 00:30 on 1 November). Patched from phase_log.tsv once the result is written.
+const RUN={replayEnd:24.580, resultWritten:24.585, replayText:'1 h 01 min', resultText:'00:35', usedText:'3 h 11 min'};
 const BEATS=[];
 const take=(s)=>`<p class="take"><b>Takeaway</b>${s}</p>`;
 
@@ -215,7 +446,7 @@ BEATS.push({
   },
   html:`<p>A rate-½ LDPC code with <span class="num">10,200</span> coded bits is sent over an AWGN channel at 6 dB. Two decoders read the same channel LLRs on the same parity-check graph. Belief propagation (BP) recovers the transmitted word. Projected gradient descent (GD) often stops short.</p>
 <p>The <em>sp_gd_admm</em> study asks why. It does not rank the two methods. It changes one mechanism at a time, on frozen cases, and watches whether the decoded word changes.</p>
-<p>This deck has seven chapters: the vocabulary, the two mechanisms, the first experiment, the offset-use split, the machinery behind its execution failure and restart, two controls run beside it, and where the whole chain stood at the dated snapshot.</p>`+take('Same input, two decoders, one question: which mechanism makes the difference.')
+<p>This dated evidence record has eight chapters: vocabulary, the two mechanisms, the first experiment, the split design, its execution record, its result, two controls, and the remaining gap.</p>`+take('For each paired case the parity-check matrix and channel-LLR vector are fixed; which operation makes the difference?')
 });
 
 // 1 — the words used here
@@ -304,7 +535,7 @@ BEATS.push({
       ['One-mechanism RQ1 controls','tie BP’s check-specific state; BP map vs gradient step','done'],
       ['Reproduce both native endpoints','and list the gaps that remain','done'],
       ['RQ1 decision','check-specific state and the update operator are validated candidates; the native cause stays open','recorded'],
-      ['RQ2: preregistered AWGN variants','STATE-USE-001 done · OFFSET-SPLIT-001 active at the dated snapshot · null control and native gap done','recorded'],
+      ['RQ2: preregistered AWGN variants','STATE-USE-001 done · OFFSET-SPLIT-001 held-out running · null control and native gap done','now'],
     ];
     let s='';
     const rowY=k=>52+k*76+(k>=4?24:0);
@@ -321,7 +552,7 @@ BEATS.push({
   },
   html:`<p><strong>RQ1</strong> asks which operational difference first makes the BP and GD trajectories part when the parity-check graph and the channel LLRs are fixed. <strong>RQ2</strong> asks whether adding or removing that difference in a controlled variant changes two outcomes on locked AWGN cases: does the hard-decision estimate satisfy every parity check, and does it equal the transmitted word.</p>
 <p>Every RQ1 control changes one mechanism. Every RQ2 run is preregistered, frozen before it executes, and judged on a fixed budget of <span class="num">30</span> updates.</p>
-<p>A plain BP-versus-GD scoreboard can locate a difference but cannot name its cause, because the two methods differ in state, parity action, objective and update rule all at once.</p>`+take('RQ1 is answered. RQ2 is one held-out run from its registered conclusion.')
+<p>A plain BP-versus-GD scoreboard can locate a difference but cannot name its cause, because the two methods differ in state, parity action, objective and update rule all at once.</p>`+take('RQ1 is answered. RQ2 has its registered held-out result; the written conclusion is the last step.')
 });
 
 // 4 — RQ1: BP needs its check-specific state
@@ -344,12 +575,12 @@ BEATS.push({
     s+=T(540,110,'200 locked AWGN cases · transmitted word recovered','cap',0.5);
     s+=T(540,170,'full BP','',0.8);
     s+=rect(540,185,320,34,'f-bp',1.0,'bar',2);
-    s+=T(870,210,'200 / 200','m',1.9,'style="font-style:normal;--d:1.9s"');
+    s+=T(920,210,'200 / 200','m end',1.9,'style="font-style:normal;--d:1.9s"');
     s+=T(540,290,'BP with tied messages','',3.4);
     s+=rect(540,305,2,34,'f-soft',3.6,'bar',1);
     s+=T(556,330,'0 / 200','m',3.9,'style="font-style:normal;--d:3.9s"');
-    s+=T(540,420,'The check-specific part of BP’s state is load-bearing.','',4.4,bold(4.4));
-    s+=T(540,448,'So: give GD check-specific state it can use, and see.','cap',4.8);
+    s+=T(540,420,'BP’s check-specific state is load-bearing.','',4.4,bold(4.4));
+    s+=T(540,448,'Next: give GD check-specific state it can use.','cap',4.8);
     return s;
   },
   html:`<p>The first control took BP's three outgoing messages at each bit and replaced them with their average, keeping the mean and removing only the check-specific part. BP's trajectory changed at once.</p>
@@ -436,7 +667,7 @@ BEATS.push({
   html:`<p>Two GD variants run on every case. Both build the offsets after every accepted update and both store all <span class="num">30,600</span> of them, one per edge.</p>
 <p>The control never reads them. Its parity term sees <em>x<sub>i</sub></em> and its projection uses [−1, 1].</p>
 <p>The active arm reads them in two places. Its parity term sees <em>x<sub>i</sub> + δ<sub>c,i</sub></em> for each check <em>c</em>, and its projection interval shrinks so that every such reading stays inside [−1, 1].</p>
-<p>Everything else is the same on both sides: the graph, the received samples, the channel LLRs, the initialization <em>x<sub>i</sub> = tanh(ℓ<sub>i</sub>/2)</em>, the objective weights, the preconditioner, the line search, the 30-update budget and the hard-decision rule.</p>`+take('Both arms build and store the offsets. Only the active arm reads them.')
+<p>Held fixed between the arms: the parity-check graph, received samples, channel-LLR vector, initialization <em>x<sub>i</sub> = tanh(ℓ<sub>i</sub>/2)</em>, objective weights, preconditioner, line search, 30-update budget, and hard-decision rule.</p>`+take('Both arms build and store the offsets. Only the active arm reads them.')
 });
 
 // 7 — where the two arms part
@@ -476,7 +707,7 @@ BEATS.push({
   },
   html:`<p>Through update 1 the two arms agree to the last bit: same <em>x</em>, same partial derivatives, same accepted step, same offsets. They enter update 2 holding equal <em>x</em> and equal <em>δ</em>.</p>
 <p>There the active arm reads <em>δ</em> and the control does not. In all <span class="num">200</span> cases the partial-derivative vectors and the accepted states differ from that update onward, and from update 3 the refreshed offsets differ too.</p>
-<p>The divergence begins when the offsets are read, not while the equal state is merely retained. Each arm retains <span class="num">10,200</span> scalar values and <span class="num">30,600</span> check-specific offsets: <span class="num">40,800</span> persistent values in total.</p>`+take('The two arms part at update 2, the first update in which the offsets are read.')
+<p>The divergence is caused by reading the offsets, not by storing them. Both arms store the same <span class="num">40,800</span> numbers.</p>`+take('The two arms part at update 2, the first update in which the offsets are read.')
 });
 
 // 8 — the held-out result
@@ -506,7 +737,7 @@ BEATS.push({
     s+=T(480,Y+56,'paired difference in the share of cases whose hard-decision estimate equals the transmitted word','cap mid',4.6);
     return s;
   },
-  html:`<p>On <span class="num">200</span> frozen 6 dB cases, the active arm recovered the transmitted word <span class="num">172</span> times and the control <span class="num">113</span>. In <span class="num">59</span> cases only the active arm succeeded; in no case did only the control succeed. Parity validity gave the same counts, and neither arm ever produced a wrong word that passed every check.</p>
+  html:`<p>On <span class="num">200</span> frozen 6 dB cases, the active arm recovered the transmitted word <span class="num">172</span> times and the control <span class="num">113</span>. In <span class="num">59</span> cases only the active arm succeeded; in no case did only the control succeed. The parity-valid totals were also 172 and 113.</p>
 <p>Two scientific passes gave the same SHA-256, all <span class="num">15</span> correctness gates passed, and the paired difference of <span class="num">0.295</span> has a 97.5% interval from <span class="num">0.221</span> to <span class="num">0.367</span>.</p>
 <p>Reading the retained offsets in the next update causes better recovery for this constructed GD variant on this locked sample. The active arm also took about ten times longer per case, a cost of this construction and not an asymptotic statement.</p>`+take('Reading the offsets causes better recovery on this sample. Why, and through which of its two changes, is the next question.')
 });
@@ -515,7 +746,7 @@ BEATS.push({
 BEATS.push({
   title:'One switch, or two?',
   eyebrow:'Chapter 4 · The open gap',
-  chapter:'The offset-use split',
+  chapter:'The split design',
   svg(){
     let s='';
     const hot=`<tspan class="f-act pulse" style="--d:1.2s;font-weight:600">${m('δ_(c,i)')}</tspan>`;
@@ -531,8 +762,8 @@ BEATS.push({
     return s;
   },
   html:`<p>The active arm changed two things at once. Its parity term read shifted values <em>x<sub>i</sub> + δ<sub>c,i</sub></em>, and its projection interval shrank to keep those values inside the box.</p>
-<p>The result says the pair of changes causes the gain. It cannot say which of the two did the work, or whether both are needed. The offset-use split was launched to close that gap.</p>
-<p>The terminal experiment record establishes a narrow algorithmic causal chain: reading the offsets changes the partial-derivative vector, the accepted <em>x</em>, and the decoded word. It does not establish the full causal story of native BP against native GD.</p>`+take('Two switches moved together. The split experiment moves them one at a time.')
+<p>The result says the pair of changes causes the gain. It cannot say which of the two did the work, or whether both are needed. That is the gap the split experiment closes.</p>
+<p>Codex's terminal note put it this way: a narrow algorithmic causal effect is established, from reading the offsets to a different gradient vector, a different accepted <em>x</em>, and a different decoded word; the full causal story of native BP against native GD is not.</p>`+take('Two switches moved together. The split experiment moves them one at a time.')
 });
 
 // 10 — the 2x2 split
@@ -544,7 +775,8 @@ BEATS.push({
     const x0=250,y0=120,w=300,h=165;
     s+=T(x0+w,70,'P — the projection interval comes from the offsets','ttl mid',0);
     s+=T(x0+w/2,100,'no','mid',0.1);s+=T(x0+w*1.5,100,'yes','mid',0.1);
-    s+=`<text x="40" y="${y0+h}" class="fi ttl" style="--d:0s" transform="rotate(-90 40 ${y0+h})" text-anchor="middle">O — the parity term reads the offsets</text>`;
+    s+=T(25,55,'O — the parity term','ttl',0,'style="font-size:13px;--d:0s"');
+    s+=T(25,78,'reads the offsets','ttl',0,'style="font-size:13px;--d:0s"');
     s+=T(90,y0+h/2+6,'no','mid',0.1);s+=T(90,y0+h*1.5+6,'yes','mid',0.1);
     const cells=[
       {x:x0,y:y0,id:'objective0__bounds0',name:'native control',note:'the earlier control arm',cls:'ctl',d:0.4,isnew:false},
@@ -560,11 +792,11 @@ BEATS.push({
       c.note.split(' · ').forEach((ln,k)=>s+=T(c.x+32,c.y+100+22*k,ln,'cap',c.d+0.25));
       if(c.isnew) s+=`<g class="pop" style="--d:${c.d+0.5}s"><rect x="${c.x+w-70}" y="${c.y+18}" width="52" height="22" rx="11" class="f-act"/><text x="${c.x+w-44}" y="${c.y+34}" class="mid white" style="font-size:12px;font-weight:600;letter-spacing:.06em">NEW</text></g>`;
     });
-    s+=T(x0+w,490,'Same graph, received samples, channel LLRs, initialization, weights, line search and 30-update budget in all four arms.','cap mid',3.0);
+    s+=T(x0+w,490,'Held fixed: graph, received samples, channel LLRs, initialization, weights, line search and 30-update budget.','cap mid',3.0);
     s+=T(x0+w,514,'All four are bit-for-bit equal through update 1 and enter update 2 with equal x and δ.','cap mid',3.2);
     return s;
   },
-  html:`<p>Four GD arms run on every case. Factor <strong>O</strong> says whether the parity term reads the offsets; factor <strong>P</strong> says whether the projection uses the offset-induced interval. The corners <span class="tag">O=0, P=0</span> and <span class="tag">O=1, P=1</span> are the earlier control and active arms; the two new arms switch one factor each.</p>
+  html:`<p>Four GD arms now run on every case. Factor <strong>O</strong> says whether the parity term reads the offsets; factor <strong>P</strong> says whether the projection uses the offset-induced interval. The corners <span class="tag">O=0, P=0</span> and <span class="tag">O=1, P=1</span> are the earlier control and active arms; the two new arms switch one factor each.</p>
 <p>The arm with O=1 and P=0 reads shifted values but projects into the plain [−1, 1], so a shifted reading can step outside the box. That arm records every such overshoot and never clips it, so nothing beyond the one factor changes.</p>
 <p>Five contrasts are registered in advance: each single switch against the control, each switch given the other, and their interaction. Eight paired tests share one Holm correction at 0.05. All five contrasts are kept whatever their sign.</p>`+take('Four arms, one factor each, five registered contrasts: the design that can say which switch did the work.')
 });
@@ -591,15 +823,15 @@ BEATS.push({
     s+=T(716,158,'parity-term-only arm,','cap',2.7,'style="font-size:14px;--d:2.7s"');
     s+=T(716,177,'readings outside [−1, 1]:','cap',2.7,'style="font-size:14px;--d:2.7s"');
     s+=T(716,208,'during the run: all 24 cases,','',2.8,'style="font-size:14px;--d:2.8s"');
-    s+=T(716,227,'at most 0.058 beyond the edge','',2.8,'style="font-size:14px;--d:2.8s"');
+    s+=T(716,227,'maximum overshoot: 0.058','',2.8,'style="font-size:14px;--d:2.8s"');
     s+=T(716,258,'at the final state: none','',2.9,'style="font-size:14px;--d:2.9s"');
-    s+=T(716,296,'two runs on 31 October, same hash','cap f-ok',3.0,'style="font-size:14px;font-weight:600;--d:3.0s"');
-    s+=T(480,500,'The gain follows the parity term. The interval alone adds nothing and lost one case.','mid',3.4,bold(3.4));
+    s+=T(716,296,'run twice today, same hash','cap f-ok',3.0,'style="font-size:14px;font-weight:600;--d:3.0s"');
+    s+=T(480,500,'The gain follows the parity term. The interval alone added no recovery and lost one case.','mid',3.4,bold(3.4));
     return s;
   },
   html:`<p>The anchor is a development run, judged without statistical tests. Recovery of the transmitted word out of <span class="num">24</span>: native control <span class="num">15</span>; parity term reads <em>δ</em> only, <span class="num">23</span>; interval only, <span class="num">14</span>; both, <span class="num">22</span>. No case was recovered by the control and missed by the parity-term-only arm.</p>
 <p>The parity-term-only arm had shifted readings outside [−1, 1] during every case, by at most <span class="num">0.058</span>, and none at its final state. The card asks for this to be reported beside its outcome.</p>
-<p>The anchor ran twice on 31 October 2026, at 10:34 and again at 17:20 after the first held-out attempt failed, and both runs produced the same science hash. It is not pooled with the held-out result; it only authorizes it.</p>`+take('If the 200 cases repeat this pattern, the registered reading is: the parity term carries the gain, the interval does not.')
+<p>The anchor was run twice today, at 10:34 and again at 17:20 after the first held-out attempt failed, and both runs produced the same science hash. It is not pooled with the held-out result; it only authorizes it.</p>`+take('If the 200 cases repeat this pattern, the registered reading is: the parity term carries the gain, the interval does not.')
 });
 
 // 12 — how every run is made
@@ -644,7 +876,7 @@ BEATS.push({
   },
   html:`<p>Every experiment in this study is run the same way. The inputs and the source code are frozen and hashed first. A 24-case anchor runs, and a gate checks its correctness flags, its deterministic replay and its checksums. Only then do the <span class="num">200</span> held-out cases run, and the registered contrasts are computed on those alone.</p>
 <p>Each stage is computed twice. The primary pass also times the solves and checks every derivative by finite differences, so it solves each case nine times: four timed arms, four traced arms, and one native BP oracle. The replay pass solves each case five times. Both passes must produce the same SHA-256 of the scientific record, or the stage is invalid.</p>
-<p>After each pass the runner computes the statistics, then hashes its tables: the frame table, one row per arm and case, and the iteration table, one row per update of every arm, <span class="num">24,000</span> rows for 200 cases. A wall-clock cap ends a job that runs too long; the first held-out run had five hours.</p>`+take('Two passes, one hash, one cap. That machinery, not the science, is where the first 31 October run broke.')
+<p>After each pass the runner computes the statistics, then hashes its tables: the frame table, one row per arm and case, and the iteration table, one row per update of every arm, <span class="num">24,000</span> rows for 200 cases. A wall-clock cap ends a job that runs too long; the first held-out run had five hours.</p>`+take('Two passes, one hash, one cap. That machinery, not the science, is where today’s first run broke.')
 });
 
 // 13 — why the first held-out run failed
@@ -696,15 +928,16 @@ BEATS.push({
 <p>Every statistic in the same block takes under a second, and solving alone, 98 plus 65 minutes, fit the cap. The fix is one line: hash the same bytes as a byte vector. The digest is identical, and two megabytes take 0.036 seconds.</p>`+take('Not the solver, not the statistics: a quadratic hash, run twice, cost the run. The anchor was too small to show it.')
 });
 
-// 14 — dated execution snapshot
+// 14 — how the v3 run went
 BEATS.push({
-  title:'What was running at the snapshot',
-  eyebrow:'Chapter 5 · Snapshot 21:26 CST, 31 October 2026',
+  title:'How the v3 run went',
+  eyebrow:'Chapter 5 · Measured from the phase logs, 31 October to 1 November 2026 (CST)',
   svg(){
     let s='';
-    const t0=16,t1=27, X=t=>150+(t-t0)/(t1-t0)*790, snapshotTime=21.44, Yax=470;
+    const t0=16,t1=27, X=t=>150+(t-t0)/(t1-t0)*790, Yax=470;
     const hh=t=>String(Math.floor(t)%24).padStart(2,'0')+':'+String(Math.round((t%1)*60)).padStart(2,'0');
-    s+=T(150,30,'wall clock, 31 October → 1 November (CST) · solid = measured · faded = projected','cap',0);
+    const pEnd=23.563, rEnd=RUN.replayEnd, wEnd=RUN.resultWritten;
+    s+=T(150,30,'wall clock, 31 October → 1 November (CST) · every segment measured','cap',0);
     s+=tick(X(t0),Yax,X(t1),Yax);
     for(let t=16;t<=27;t+=1){s+=tick(X(t),Yax-(t%2?3:5),X(t),Yax+(t%2?3:5));if(t%2===0)s+=T(X(t),Yax+26,hh(t),'cap mid',0.1);}
     const lane=(y,label,sub,d)=>{s+=T(20,y+6,label,'',d,bold(d)); s+=T(20,y+28,sub,'cap',d,'style="font-size:13px;--d:'+d+'s"');};
@@ -721,22 +954,78 @@ BEATS.push({
     const y3=310; lane(y3,'attempt v3','hash fix, phase telemetry, checkpoint',0.3);
     seg(y3,20.62,20.74,'f-soft',2.8,false); lab(X(20.74)-6,y3+46,'first anchor 20:37–20:44, set aside (a telemetry bug)','',3.0,'end');
     seg(y3,20.8,21.37,'f-ok',3.2,false); lab(X(21.37)-4,y3-46,'anchor again: same hash, 21:22','f-ok',3.4,'end');
-    seg(y3,21.4,snapshotTime,'f-act',3.6,false); seg(y3,snapshotTime,24.3,'f-act',3.7,true); lab(X(21.5)+4,y3-24,'held-out: primary pass, checkpoint, replay','',3.8,'start');
-    lab(X(24.3)+8,y3+6,'done ≈00:10–00:35','f-ok',4.1,'start');
+    seg(y3,21.41,pEnd,'f-act',3.6,false); lab(X((21.41+pEnd)/2),y3-24,'primary pass 21:25–23:34','',3.8);
+    s+=rect(X(pEnd)-1.5,y3-22,3,44,'f-ok',3.9,'fi',1); lab(X(pEnd)+6,y3+46,'hashes 6 s · checkpoint 3 s','f-ok',4.0,'start');
+    seg(y3,pEnd+0.005,rEnd,'f-oonly',4.1,false); lab(X((pEnd+rEnd)/2),y3-46,'replay 23:34–'+hh(rEnd)+', same hash','',4.3);
+    lab(X(rEnd)+8,y3+6,'result '+hh(wEnd),'f-ok',4.5,'start');
     s+=dashed(X(26.12),y2-60,X(26.12),Yax,'s-warn',2.6); lab(X(26.12),y2-66,'budget 02:07','f-warn',2.7);
-    // dated snapshot marker
-    s+=`<line x1="${X(snapshotTime)}" y1="100" x2="${X(snapshotTime)}" y2="${Yax}" class="axis fi s-ink" style="--d:0.5s;stroke-width:2.5"/>`;
-    s+=T(X(snapshotTime),88,'snapshot 21:26','mid',0.5,bold(0.5));
     return s;
   },
-  html:`<p>Attempt v2 relaunched the unchanged runner at 16:28 with a ten-hour cap. Its anchor reproduced the v1 science hash at 17:44, its held-out primary pass finished all <span class="num">200</span> cases at 19:16, and it then sat in the first silent hash for two hours.</p>
-<p>Attempt v3 introduced the one-line hash fix, named phases in the progress file and an append-only phase log, a checkpoint of the primary pass before replay, and a wall budget derived from measured anchor times. A first anchor attempt at 20:37 was set aside for a telemetry bug. The corrected anchor ran from 20:48 to 21:22 beside v2 and reproduced the same science hash; its iteration-table hash took <span class="num">0.2</span> s instead of 150. V2 was then stopped at 21:23 and the v3 held-out launched at 21:24.</p>
-<p>At this <span class="num">21:26 CST, 31 October 2026</span> snapshot, the held-out had a 4 h 45 min budget and a measured-anchor projection of 3 h 10 min. Those times are a historical execution forecast, not a completed result.</p>`+take('At the dated snapshot, the equivalence gate had passed, v2 was stopped, and v3 was running with its phases visible.')
+  html:`<p>Codex relaunched the unchanged runner as attempt v2 at 16:28 with a ten-hour cap. Its anchor reproduced the v1 science hash at 17:44, its held-out primary pass finished all <span class="num">200</span> cases at 19:16, and it then sat in the first silent hash for two hours.</p>
+<p>Meanwhile Codex built attempt v3 in an isolated copy of the source: the one-line hash fix, named phases written to the progress file and an append-only phase log, a checkpoint of the primary pass before the replay, and a wall budget derived from the anchor's measured times. A first anchor attempt at 20:37 was set aside for a telemetry bug. The corrected anchor ran from 20:48 to 21:22 beside v2 and reproduced the same science hash. Codex then stopped v2 at 21:23 and launched the v3 held-out at 21:24.</p>
+<p>The v3 primary pass took <span class="num">2</span> h <span class="num">09</span> min, 38.7 s per case. Its statistics took 6 s and its three hashes 6 s together, where v1 had spent 2 h 07 min on one of them; the checkpoint was written in 3 s. The replay pass took ${RUN.replayText} and reproduced the primary pass's science hash, and the result was written at ${RUN.resultText}, ${RUN.usedText} into a budget of 4 h 45 min.</p>`+take('Three attempts, one science hash. The fix changed the clock and nothing else.')
+});
+
+// 15 — the split result
+BEATS.push({
+  title:'What the 200 held-out cases found',
+  eyebrow:'Chapter 5 · RQ2-GD-OFFSET-SPLIT-001 · held-out of 31 October to 1 November 2026, two passes on one science hash',
+  chapter:'The split result',
+  svg(){
+    let s='';
+    const x0=110,y0=96,w=205,h=128;
+    s+=T(40,40,'transmitted word recovered, of 200 · O: the parity term reads the offsets · P: the projection interval comes from them','cap',0);
+    s+=T(x0+w/2,78,'P = 0','mid',0.1,bold(0.1)); s+=T(x0+w*1.5,78,'P = 1','mid',0.1,bold(0.1));
+    s+=T(x0-16,y0+h/2+6,'O = 0','end',0.1,bold(0.1)); s+=T(x0-16,y0+h*1.5+6,'O = 1','end',0.1,bold(0.1));
+    const cells=[
+      {x:x0,y:y0,name:'native control',n:107,cls:'ctl',d:0.4,id:'evidence-result-control'},
+      {x:x0+w,y:y0,name:'interval only',n:106,cls:'ponly',d:1.0,id:'evidence-result-interval'},
+      {x:x0,y:y0+h,name:'parity term only',n:163,cls:'oonly',d:1.6,id:'evidence-result-parity'},
+      {x:x0+w,y:y0+h,name:'both',n:163,cls:'act',d:2.2,id:'evidence-result-both'},
+    ];
+    cells.forEach(c=>{
+      s+=`<g id="${c.id}">`;
+      s+=rect(c.x+5,c.y+5,w-10,h-10,'box',c.d,'pop',6);
+      s+=rect(c.x+5,c.y+5,10,h-10,'f-'+c.cls,c.d+0.1,'fi',3);
+      s+=T(c.x+30,c.y+38,c.name,'f-'+c.cls,c.d+0.15,'style="font-weight:600;font-size:19px;--d:'+(c.d+0.15)+'s"');
+      s+=T(c.x+30,c.y+98,String(c.n),'big f-'+c.cls,c.d+0.4);
+      s+=T(c.x+100,c.y+98,'of 200','cap',c.d+0.4);
+      s+='</g>';
+    });
+    s+=T(x0+w,392,'O switched on: +56 cases at P = 0, +57 at P = 1, none lost','cap mid',2.8);
+    s+=T(x0+w,414,'P switched on: −1 case at O = 0, no change at O = 1','cap mid',3.0);
+    // registered contrasts
+    const X=v=>600+(v+0.1)/0.5*320, Yax=378;
+    s+=T(940,78,'registered contrasts · 99.5% intervals','ttl end',0.2,'style="font-size:14px;--d:0.2s"');
+    s+=tick(X(-0.1),Yax,X(0.4),Yax,0.3);
+    [-0.1,0,0.1,0.2,0.3,0.4].forEach(v=>{s+=tick(X(v),Yax-5,X(v),Yax+5,0.3);s+=T(X(v),Yax+22,v.toFixed(1).replace('-','−'),'cap mid',0.3,'style="font-size:13px;--d:0.3s"');});
+    const rows=[
+      ['parity term on, interval off','+0.28',0.190,0.365,0.28,'oonly','O = 1 against 0 at P = 0 · 56 gained, none lost'],
+      ['parity term on, interval on','+0.285',0.194,0.370,0.285,'oonly','O = 1 against 0 at P = 1 · 57 gained, none lost'],
+      ['interval on, parity term off','−0.005',-0.024,0.014,-0.005,'ponly','P = 1 against 0 at O = 0 · none gained, 1 lost'],
+      ['interval on, parity term on','0.00',-0.026,0.026,0,'ponly','P = 1 against 0 at O = 1 · no case changed'],
+    ];
+    rows.forEach((r,k)=>{const y=118+k*72, d=0.6+0.5*k;
+      s+=tick(X(0),y-9,X(0),y+9,0.3);
+      s+=`<line x1="${X(r[2])}" y1="${y}" x2="${X(r[3])}" y2="${y}" class="draw s-${r[5]}" style="--d:${d}s;stroke-width:8;stroke-linecap:round"/>`;
+      s+=`<circle cx="${X(r[4])}" cy="${y}" r="7" class="pop f-${r[5]}" style="--d:${d+0.4}s"/>`;
+      s+=T(600,y-18,r[0]+'  '+r[1],'',d+0.5,'style="font-size:15px;font-weight:600;--d:'+(d+0.5)+'s"');
+      s+=T(600,y+26,r[6],'cap',d+0.6,'style="font-size:13px;--d:'+(d+0.6)+'s"');
+    });
+    s+=T(600,428,'interaction +0.005, one case of 200','cap',2.9,'style="font-size:13px;--d:2.9s"');
+    s+=T(600,446,'bootstrap 95% interval 0.00 to 0.015','cap',2.9,'style="font-size:13px;--d:2.9s"');
+    s+=T(480,484,'Registered reading: the parity-term switch improves recovery and the interval switch does not, so','mid',3.4,bold(3.4));
+    s+=T(480,508,'use of the offsets in the parity calculation is sufficient under the native interval, on this protocol.','mid',3.5,bold(3.5));
+    return s;
+  },
+  html:`<p>The held-out ran as attempt v3 and finished at ${RUN.resultText} on 1 November. Its replay pass reproduced the primary pass's science hash, so the result is complete and valid. Recovery of the transmitted word out of <span class="num">200</span>: native control <span class="num">107</span>; interval only, <span class="num">106</span>; parity term only, <span class="num">163</span>; both, <span class="num">163</span>. Parity validity gave the same totals. The 107 and 163 totals also appear in the separate null control; these aggregate tables do not establish case-by-case identity between the two runs.</p>
+<p>Switching the parity term on gains <span class="num">56</span> cases with the interval off and <span class="num">57</span> with it on, and loses none either way; both intervals exclude zero by a wide margin, with Holm-adjusted p below <span class="num">10<sup>−15</sup></span>. Switching the interval on loses one case with the parity term off and changes none with it on; both intervals sit on zero and Holm p is <span class="num">1</span>. The interaction is <span class="num">0.005</span>, one case in 200, with a bootstrap interval from 0 to 0.015.</p>
+<p>The registered map has a row for exactly this pattern: when O=1,P=0 improves recovery and O=0,P=1 does not, use of the offsets in the parity calculation is sufficient under the native interval on this protocol. The compound arm reproduced its earlier favorable ordering, so there is no failed transfer to report. Parity-valid totals matched transmitted-word totals for all four arms.</p>`+take('The interval added no observed recovery; parity-only and both recovered the same total.')
 });
 
 // 15 — the null control: four arms
 BEATS.push({
-  title:'A complementary four-arm control',
+  title:'A control Codex’s design lacked: four arms',
   eyebrow:'Chapter 6 · RQ2-GD-OFFSET-NULL-001',
   chapter:'Two controls beside it',
   svg(){
@@ -762,9 +1051,9 @@ BEATS.push({
     });
     return s;
   },
-  html:`<p>A separate control tested a distinction absent from the offset-use split. The earlier result showed that reading the offsets helps. It did not show whether the help comes from <em>which</em> check reads <em>which</em> offset, or merely from the disturbance of reading any offset at all. Four GD arms ran on the same <span class="num">200</span> cases, two passes each, every gate passing.</p>
+  html:`<p>Beside Codex's queue I ran a control its design lacked. The earlier result showed that reading the offsets helps. It did not show whether the help comes from <em>which</em> check reads <em>which</em> offset, or merely from the disturbance of reading any offset at all. Four GD arms ran on the same <span class="num">200</span> cases, two passes each, every gate passing.</p>
 <p>The control reads no offsets. The reference reads them as the active arm did. The permuted arm reads the same three numbers at each bit but shuffled among that bit's checks, so every check reads an offset built for a different check. The frozen arm reads the offsets built after the first update and never refreshes them.</p>
-<p>Transmitted word recovered out of 200: control <span class="num">107</span>, reference <span class="num">163</span>, permuted <span class="num">73</span>, frozen <span class="num">165</span>. Parity validity gave identical counts, and no arm produced a wrong word that passed every check.</p>`+take('Same numbers at the wrong addresses did worse than no numbers at all.')
+<p>Transmitted word recovered out of 200: control <span class="num">107</span>, reference <span class="num">163</span>, permuted <span class="num">73</span>, frozen <span class="num">165</span>. The parity-valid totals were identical for all four arms.</p>`+take('Same numbers assigned to different checks did worse than leaving the offsets unused.')
 });
 
 // 16 — what the null control says
@@ -778,10 +1067,10 @@ BEATS.push({
     s+=tick(X(-0.3),Yax,X(0.6),Yax);
     [-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6].forEach(v=>{s+=tick(X(v),Yax-5,X(v),Yax+5);s+=T(X(v),Yax+26,v.toFixed(1).replace('-','−'),'cap mid',0.1);});
     const rows=[
-      ['reference − permuted','+0.45',0.343,0.540,0.45,'act','the gain needs the check assignment'],
+      ['reference − permuted','+0.45',0.343,0.540,0.45,'act','the effect depends on which check reads each offset'],
       ['reference − control','+0.28',0.187,0.367,0.28,'act','the compound effect on these cases'],
       ['permuted − control','−0.17',-0.242,-0.093,-0.17,'oonly','wrongly addressed offsets hurt'],
-      ['reference − frozen','−0.01',-0.045,0.023,-0.01,'ponly','the refresh adds nothing'],
+      ['reference − frozen','−0.01',-0.045,0.023,-0.01,'ponly','no recovery difference detected for refresh'],
     ];
     rows.forEach((r,k)=>{const y=84+k*70, d=0.4+0.5*k;
       s+=tick(X(0),y-9,X(0),y+9,0.2);
@@ -799,9 +1088,9 @@ BEATS.push({
     });
     return s;
   },
-  html:`<p>Two contrasts were registered as primary. Reference minus permuted is <span class="num">+0.45</span> with a 99.5% interval from <span class="num">0.34</span> to <span class="num">0.54</span>: the gain needs the check assignment. Reference minus frozen is <span class="num">−0.01</span> with an interval from <span class="num">−0.04</span> to <span class="num">0.02</span>: refreshing the offsets after every update adds nothing beyond the first refresh.</p>
-<p>One outcome was not in the registered map. The prediction said that if the offsets carry check-specific information, the permuted arm would fall to the neighbourhood of the control. It fell below it, by <span class="num">0.17</span> with an interval from <span class="num">−0.24</span> to <span class="num">−0.09</span>. A wrongly addressed check-specific offset misleads the parity term where an absent offset is neutral. This shows that the assignment of the retained quantity matters; it does not identify the offsets as BP messages.</p>
-<p>The next design, a ladder that swaps one native operation at a time, was written to trigger only if permuted lands within its interval of control. That literal condition is not met, so building it is a decision for the user, not an automatic step.</p>`+take('The assignment carries the effect, one reshaping is enough, and the map needs a row it did not have.')
+  html:`<p>Two contrasts were registered as primary. Reference minus permuted is <span class="num">+0.45</span> with a 99.5% interval from <span class="num">0.34</span> to <span class="num">0.54</span>: the effect depends on which check reads each stored offset. Reference minus frozen is <span class="num">−0.01</span> with an interval from <span class="num">−0.04</span> to <span class="num">0.02</span>: no recovery difference was detected between refreshed and frozen offsets under this protocol.</p>
+<p>One outcome was not in the registered map. The prediction said that if the effect depends on which check reads each stored offset, the permuted arm would fall to the neighbourhood of the control. It fell below it, by <span class="num">0.17</span> with an interval from <span class="num">−0.24</span> to <span class="num">−0.09</span>. Reassigning the stored offsets among checks reduced recovery below the control; this does not make the offsets BP messages or establish BP's recipient-exclusion rule.</p>
+<p>The next design, a ladder that swaps one native operation at a time, was written to trigger only if permuted lands within its interval of control. That literal condition is not met, so building it is a decision for the user, not an automatic step.</p>`+take('Which check reads each offset changes recovery; repeated refreshing showed no detected recovery effect here.')
 });
 
 // 17 — the native gap
@@ -819,7 +1108,7 @@ BEATS.push({
       s+=T(x,Y0+26,b[0],'cap mid',d+0.2); if(b[1]) s+=T(x,Y0+46,b[1],'cap mid',d+0.2);
     });
     s+=tick(50,Y0,500,Y0);
-    s+=T(270,Y0+92,'the gap: 93 cases; the reference arm closes 56 of them','cap mid',2.4);
+    s+=T(270,Y0+92,'native gap: 93 cases; the constructed reference is 56 above native GD','cap mid',2.4);
     const px=e=>600+(e-1.5)/4.5*320, py=v=>Y0-v/24*250;
     s+=T(600,50,'24 cases per level — recovered, of 24','cap',0.2);
     s+=tick(px(1.5),py(0),px(6),py(0),0.3); s+=tick(px(1.5),py(0),px(1.5),py(24),0.3);
@@ -831,19 +1120,175 @@ BEATS.push({
     s+=`<path d="${gd.map((p,i)=>(i?'L':'M')+px(p[0])+' '+py(p[1])).join(' ')}" class="draw s-ctl" style="--d:1.6s;stroke-width:3.5;fill:none"/>`;
     gd.forEach((p,i)=>{s+=`<circle cx="${px(p[0])}" cy="${py(p[1])}" r="5" class="pop f-ctl" style="--d:${1.8+0.15*i}s"/>`;});
     s+=T(px(6)+8,py(15)+5,'GD','f-ctl',3.0);
-    s+=T(760,Y0+92,'at the second level, 1.5 dB: BP 200 of 200, GD 0 of 200','cap mid',3.2,'style="font-size:14px;--d:3.2s"');
+    s+=T(760,Y0+80,'second level: 1.5 dB','cap mid',3.2,'style="font-size:14px;--d:3.2s"');
+    s+=T(760,Y0+103,'BP 200 / 200 · GD 0 / 200','cap mid',3.2,'style="font-size:14px;--d:3.2s"');
     return s;
   },
-  html:`<p>The chain compares constructed GD variants with one another. This run puts them on the native scale. On the same <span class="num">200</span> cases at 6 dB, exact sum-product BP recovers all <span class="num">200</span> transmitted words and native projected GD <span class="num">107</span>, the same 107 as the null control's control arm. The reference arm's <span class="num">163</span> closes 56 of those 93 cases.</p>
+  html:`<p>The chain compares constructed GD variants with one another. This run puts them on the native scale. On the same <span class="num">200</span> cases at 6 dB, exact sum-product BP recovers all <span class="num">200</span> transmitted words and native projected GD <span class="num">107</span>, the same 107 as the null control's control arm. The constructed reference total, <span class="num">163</span>, is 56 above native GD.</p>
 <p>A profile over 24 cases per level found BP at 24 of 24 from 1.5 to 6 dB, while GD recovered none below 5 dB. The registered rule picked 1.5 dB as the second level: there BP decodes <span class="num">200</span> of 200 and GD <span class="num">0</span> of 200.</p>
-<p>The constructed offsets close part of the gap at 6 dB and are untested where the gap is total. The route map keeps native attribution open; these numbers say how much remains.</p>`+take('BP 200, GD 107, the best constructed variant 163: a real part of the gap, not all of it.')
+<p>At 6 dB, the constructed reference total lies 56 cases above native GD and 37 below BP. These endpoint distances do not show that this operation causes BP's advantage. The route map keeps native attribution open.</p>`+take('BP 200, GD 107, constructed variant 163: descriptive placement, not native causal attribution.')
 });
 
-// 18 — where we stand
+// 19 — the follow-up and its fail-closed dispatcher
 BEATS.push({
-  title:'Where we stand',
-  eyebrow:'Chapter 7 · Distance to the research objective',
-  chapter:'Where we stand',
+  title:'Historical operations snapshot: the follow-up launch',
+  eyebrow:'Chapter 7 · RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001 · dated snapshot at 09:35 CST on 1 November 2026 · not live status',
+  chapter:'Historical operations',
+  svg(){
+    let s='';
+    s+=T(40,40,'Historical snapshot: assignment × replacement · parity calculation reads the offsets','cap',0);
+    const x0=120,y0=96,w=200,h=104;
+    s+=T(x0+w,64,'replacement of the retained offsets','ttl mid',0,'style="font-size:13px;--d:0s"');
+    s+=T(x0+w/2,84,'refreshed','mid',0.1,bold(0.1)); s+=T(x0+w*1.5,84,'frozen','mid',0.1,bold(0.1));
+    s+=T(18,66,'reading','ttl',0,'style="font-size:12px;--d:0s"');
+    s+=T(18,83,'assignment','ttl',0,'style="font-size:12px;--d:0s"');
+    s+=T(x0-10,y0+h/2+6,'as built','end',0.1,bold(0.1)); s+=T(x0-10,y0+h*1.5+6,'permuted','end',0.1,bold(0.1));
+    const cells=[
+      {x:x0,y:y0,id:'asbuilt__refreshed',n:23,note:'split’s parity-term arm',cls:'oonly',d:0.4},
+      {x:x0+w,y:y0,id:'asbuilt__frozen',n:23,note:'first offsets kept',cls:'soft',d:0.9},
+      {x:x0,y:y0+h,id:'permuted__refreshed',n:10,note:'derangement, refreshed',cls:'soft',d:1.4},
+      {x:x0+w,y:y0+h,id:'permuted__frozen',n:10,note:'derangement, frozen',cls:'soft',d:1.9},
+    ];
+    cells.forEach(c=>{
+      s+=rect(c.x+5,c.y+5,w-10,h-10,'box',c.d,'pop',6);
+      s+=rect(c.x+5,c.y+5,9,h-10,'f-'+c.cls,c.d+0.1,'fi',3);
+      s+=TR(c.x+24,c.y+32,c.id,'',c.d+0.15,'style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;font-weight:600;--d:'+(c.d+0.15)+'s"');
+      s+=T(c.x+24,c.y+66,String(c.n),'f-'+(c.cls==='soft'?'ink':c.cls),c.d+0.3,'style="font-size:24px;font-weight:600;--d:'+(c.d+0.3)+'s"');
+      s+=T(c.x+60,c.y+66,'of 24','cap',c.d+0.3,'style="font-size:13px;--d:'+(c.d+0.3)+'s"');
+      s+=T(c.x+24,c.y+88,c.note,'cap',c.d+0.35,'style="font-size:11.5px;--d:'+(c.d+0.35)+'s"');
+    });
+    s+=T(x0,y0+2*h+20,'v3 anchor: 24 development cases, valid','cap',2.3,'style="font-size:12.5px;--d:2.3s"');
+    s+=T(x0,y0+2*h+36,'assignment: +13, none lost, at both levels','cap',2.4,'style="font-size:12.5px;--d:2.4s"');
+    s+=T(x0,y0+2*h+52,'replacement: no net change','cap',2.4,'style="font-size:12.5px;--d:2.4s"');
+    s+=T(560,64,'the dispatcher, four attempts','ttl',0.2,'style="font-size:13px;--d:0.2s"');
+    const steps=[
+      ['done','selection rule, passed in every attempt','56 won, 0 lost on both endpoints, one hash'],
+      ['failed','v1 · 00:35 · preflight: tests do not parse','bracket at the start of a continuation line; fixed'],
+      ['failed','v2 · 05:36 · freeze: runner error','a local named split shadowed Base.split; fixed'],
+      ['failed','v3 · 05:55 · packaging failed','valid anchor; six checksum files excluded; fixed'],
+      ['recorded','v4 launch snapshot · 09:35','anchor: 11 / 24 frames · 24 s per frame'],
+    ];
+    steps.forEach((st,k)=>{const y=104+k*50, d=0.5+0.45*k;
+      if(k<steps.length-1) s+=`<line x1="576" y1="${y+16}" x2="576" y2="${y+36}" class="axis fi" style="--d:${d}s"/>`;
+      s+=status(576,y+2,st[0],d);
+      s+=T(600,y+7,st[1],'',d+0.1,'style="font-size:15px;font-weight:600;--d:'+(d+0.1)+'s"');
+      s+=T(600,y+25,st[2],'cap',d+0.15,'style="font-size:12px;--d:'+(d+0.15)+'s"');
+    });
+    s+=T(60,384,'the factorial’s stages · one serial unit after the anchor','ttl',2.8,'style="font-size:13px;--d:2.8s"');
+    [['anchor snapshot · 11 of 24',60,true],['transfer · planned 200 fresh cases',355,false],['attribution · planned split cases',650,false]].forEach((b,k)=>{const d=2.9+0.2*k;
+      s+=`<rect x="${b[1]}" y="396" width="250" height="46" rx="6" class="fi box" style="--d:${d}s${b[2]?'':';stroke-dasharray:6 5'}"/>`;
+      if(b[2]) s+=rect(b[1],396,9,46,'f-act',d+0.1,'fi',3);
+      s+=T(b[1]+125+(b[2]?8:0),425,b[0],'mid '+(b[2]?'':'cap'),d+0.1,'style="font-size:14px;--d:'+(d+0.1)+'s"');
+      if(k<2) s+=`<line x1="${b[1]+250}" y1="419" x2="${b[1]+295}" y2="419" class="axis fi" style="--d:${d+0.1}s"/>`;
+    });
+    s+=T(480,486,'This panel records the state at 09:35; it does not report the current queue state.','mid',3.6,'style="font-weight:600;font-size:15px;--d:3.6s"');
+    s+=T(480,510,'Current status belongs in the queue artifacts, not in this explanatory deck.','cap mid',3.8);
+    return s;
+  },
+  html:`<p>Codex registered a follow-up in a third worktree while the split was still running. It crosses <strong>which check reads each stored offset</strong>, each check reading its own offset or a fixed within-bit permutation, with <strong>when the stored offsets are replaced</strong>, after every accepted update or only at their first adoption. Every arm reads the offsets only in the parity term and projects into the native [−1, 1], the configuration the split selected, so its as-built, refreshed corner is the split's parity-term arm. It fills the cell the null control never ran, permuted and frozen together. The plan is a 24-case anchor, 200 fresh transfer cases, then a locked attribution on the split's 200 cases against the native gap's <span class="num">93</span> cases that BP recovers and native GD does not.</p>
+<p>A fail-closed dispatcher waited on the v3 unit and, at ${RUN.resultText}, applied the registered rule to the written result: the parity-term arm must win more paired cases than the native arm wins. It won <span class="num">56</span> and lost <span class="num">0</span> on both endpoints, so the branch was selected, and every later attempt re-derived the same decision from the same hash. The pipeline then has six phases, and the first three attempts each failed closed one gate further along: v1 at the preflight, because one Julia test does not parse; v2 at the freeze, because a local variable named <em>split</em> shadowed the standard function; v3 at queue packaging, after a valid 24-case anchor, because the packaging excluded six nested checksum files by their basenames. Each failure was retained in a commit and fixed under a new attempt ID, as the README requires.</p>
+<p>The v3 anchor is complete and valid on the 24 development cases: <span class="num">23</span> of 24 for both as-built arms and <span class="num">10</span> of 24 for both permuted arms. Letting each check read its own stored offset wins 13 cases and loses none at either replacement level; replacement changes nothing with those readings and swaps one case each way with the permuted readings. The as-built, refreshed arm reproduces the split's parity-term arm on these cases, also 23 of 24. The remaining sentences on this beat are a historical snapshot recorded at 09:35 on 1 November, not live run status. Development anchors are not pooled with the transfer; the registered confirmatory family is the transfer's.</p>`+take('Historical snapshot: the follow-up reached a valid anchor after three retained failed attempts.')
+});
+
+// 20 — what the follow-up found
+const fmtI=v=>{const a=Math.abs(v);const t=(a>0&&a<0.001)?a.toFixed(4):a.toFixed(3);return (v<0?'−':'')+t;};
+const TF=(x,y,s,cls='',d=0,extra='')=>{const st=/^style="([^"]*)"$/.exec(extra);return `<text x="${x}" y="${y}" class="fi ${cls}" style="--d:${d}s${st?';'+st[1]:''}" ${st?'':extra}>${m(s)}</text>`;};
+const fmtD=v=>(v>0?'+':v<0?'−':'')+Math.abs(v);
+BEATS.push({
+  title:'What the follow-up found',
+  eyebrow:'Chapter 7 · RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001 · transfer and attribution, complete and valid on 1 November 2026',
+  chapter:'Follow-up result',
+  svg(){
+    const C=EVIDENCE.assignment_refresh_case_set_C,B=EVIDENCE.assignment_refresh_case_set_B; let s='';
+    s+=TF(40,38,'Which check reads each stored offset × when the offsets are replaced · parity calculation only · projection onto [−1, 1]','cap',0,'style="font-size:13.5px;--d:0s"');
+    const grid=(x0,title,sub,D,ids,d0)=>{let g='';const w=165,h=84,y0=118;
+      g+=TF(x0+w,66,title,'ttl mid',d0,'style="font-size:13px;--d:'+d0+'s"');
+      g+=TF(x0+w,86,sub,'cap mid',d0,'style="font-size:12.5px;--d:'+d0+'s"');
+      g+=TF(x0+w/2,108,'refreshed','mid',d0+0.1,'style="font-size:13px;font-weight:600;--d:'+(d0+0.1)+'s"');
+      g+=TF(x0+w*1.5,108,'kept','mid',d0+0.1,'style="font-size:13px;font-weight:600;--d:'+(d0+0.1)+'s"');
+      g+=TF(x0-10,y0+h/2+5,'permuted','end',d0+0.1,'style="font-size:13px;font-weight:600;--d:'+(d0+0.1)+'s"');
+      g+=TF(x0-10,y0+h*1.5+5,'own','end',d0+0.1,'style="font-size:13px;font-weight:600;--d:'+(d0+0.1)+'s"');
+      [[0,0,D.permuted_refreshed,'oonly'],[1,0,D.permuted_kept,'oonly'],[0,1,D.own_refreshed,'act'],[1,1,D.own_kept,'act']].forEach((c,k)=>{const x=x0+c[0]*w,y=y0+c[1]*h,d=d0+0.2+0.15*k;
+        g+=`<g id="${ids[k]}">`+rect(x+4,y+4,w-8,h-8,'box',d,'pop',6)+rect(x+4,y+4,8,h-8,'f-'+c[3],d+0.05,'fi',3)+TF(x+w/2+4,y+h/2+10,String(c[2]),'mid f-'+c[3],d+0.1,'style="font-size:26px;font-weight:600;--d:'+(d+0.1)+'s"')+'</g>';});
+      return g;};
+    s+=grid(110,'200 fresh cases · confirmatory','case set C · frames 40001 to 40200',C,['evidence-follow-c-pr','evidence-follow-c-pk','evidence-follow-c-or','evidence-follow-c-ok'],0.1);
+    s+=grid(590,'the split’s 200 locked cases','case set B · descriptive attribution',B,['evidence-follow-b-pr','evidence-follow-b-pk','evidence-follow-b-or','evidence-follow-b-ok'],0.6);
+    const lines=(x,D,third,d0)=>{let g='';
+      g+=TF(x,316,`assignment: ${fmtD(D.own_refreshed-D.permuted_refreshed)} and ${fmtD(D.own_kept-D.permuted_kept)} cases, none lost`,'mid',d0,'style="font-size:14px;--d:'+d0+'s"');
+      g+=TF(x,338,`kept vs refreshed: ${fmtD(D.own_kept-D.own_refreshed)} own checks, ${fmtD(D.permuted_kept-D.permuted_refreshed)} permuted`,'cap mid',d0+0.1,'style="font-size:13px;--d:'+(d0+0.1)+'s"');
+      g+=TF(x,358,third,'cap mid',d0+0.2,'style="font-size:13px;--d:'+(d0+0.2)+'s"');
+      return g;};
+    s+=lines(275,C,`interaction ${fmtI(C.interaction)} · bootstrap [${fmtI(C.interaction_interval[0])}, ${fmtI(C.interaction_interval[1])}]`,1.4);
+    s+=lines(755,B,`interaction ${fmtI(B.interaction)} · descriptive stage`,1.6);
+    [[`transfer · complete and valid · deterministic replay passed · science ${C.science_sha256.slice(0,8)}…`,398],[`attribution · complete and valid · deterministic replay passed · science ${B.science_sha256.slice(0,8)}…`,434]].forEach((r,k)=>{const d=2.0+0.2*k;
+      s+=status(84,r[1],'done',d);
+      s+=TF(110,r[1]+5,r[0],'',d+0.1,'style="font-size:14px;--d:'+(d+0.1)+'s"');
+    });
+    s+=TF(480,488,'Registered row met: a positive assignment effect at both replacement levels.','mid',2.6,'style="font-weight:600;font-size:15px;--d:2.6s"');
+    s+=TF(480,512,'Refresh equivalence within ±0.05 is not established, and the two switches interact.','cap mid',2.8);
+    return s;
+  },
+  get html(){const C=EVIDENCE.assignment_refresh_case_set_C,B=EVIDENCE.assignment_refresh_case_set_B;return `<p>The follow-up finished at 12:39 CST on 1 November. Its fourth attempt reproduced the third attempt’s 24-case anchor hash, then ran the registered stages in order: a prospective transfer on <span class="num">200</span> fresh cases, the experiment’s only confirmatory family of eight tests with one Holm correction and simultaneous 99.375% intervals, then a descriptive attribution on the split’s 200 locked cases. Every arm projects onto [−1, 1], so only the parity calculation reads the stored offsets. The dispatcher then wrote its bridge handoff and launched nothing further.</p>
+<p>On the fresh cases, letting each check read its own stored offset recovers <span class="num">${C.own_refreshed}</span> and <span class="num">${C.own_kept}</span> transmitted words, against <span class="num">${C.permuted_refreshed}</span> and <span class="num">${C.permuted_kept}</span> with permuted offsets. The own checks win ${C.assignment_won_refreshed} and ${C.assignment_won_kept} cases and lose none; the risk differences are ${fmtD(C.assignment_rd_refreshed)} [${fmtI(C.assignment_interval_refreshed[0])}, ${fmtI(C.assignment_interval_refreshed[1])}] and ${fmtD(C.assignment_rd_kept)} [${fmtI(C.assignment_interval_kept[0])}, ${fmtI(C.assignment_interval_kept[1])}]. Replacement is secondary. Refreshing rather than keeping the offsets loses ${C.kept_won_with_own} cases and wins ${C.refreshed_won_with_own} with the own checks, ${fmtI(C.refresh_rd_with_own)} [${fmtI(C.refresh_interval_with_own[0])}, ${fmtI(C.refresh_interval_with_own[1])}] with Holm-adjusted p ${C.refresh_holm_with_own}, and wins ${C.refreshed_won_with_permuted} against ${C.kept_won_with_permuted} with permuted checks, ${fmtD(C.refresh_rd_with_permuted)} [${fmtI(C.refresh_interval_with_permuted[0])}, ${fmtI(C.refresh_interval_with_permuted[1])}] with p ${C.refresh_holm_with_permuted}. Equivalence within ±0.05 is established for neither. The interaction is ${fmtI(C.interaction)}, bootstrap [${fmtI(C.interaction_interval[0])}, ${fmtI(C.interaction_interval[1])}]. Parity validity gives identical counts in every arm, so no arm produced a wrong valid word.</p>
+<p>On the split’s locked cases the counts are <span class="num">${B.own_refreshed}</span> and <span class="num">${B.own_kept}</span> with the own checks and <span class="num">${B.permuted_refreshed}</span> and <span class="num">${B.permuted_kept}</span> with permuted ones. The own-check, refreshed arm recovers ${B.own_refreshed}, the same count as the split’s parity-term arm. These cases informed the design, so this stage maps transitions; it can neither rescue nor overturn the transfer.</p>`+take('The registered interpretation row is met: check assignment is the next bridge mechanism. Replacement timing matters less and interacts with it, so later claims must state their path and order.');}
+});
+
+// 21 — the cases still unresolved
+BEATS.push({
+  title:'The 33 cases no constructed variant recovers',
+  eyebrow:'Chapter 7 · native-GD transition accounting on case set B, and the next registered test',
+  chapter:'Remaining gap',
+  svg(){
+    const e=EVIDENCE.native_accounting_case_set_B; let s='';
+    s+=TF(40,38,`Against native projected GD on the 200 locked cases · BP recovers ${e.belief_propagation}, native GD ${e.projected_gradient_descent}, so ${e.bp_only} cases are BP-only`,'cap',0,'style="font-size:13.5px;--d:0s"');
+    s+=TF(60,76,'each arm against native GD','ttl',0.1,'style="font-size:13px;--d:0.1s"');
+    s+=TF(240,100,`recovered, of ${e.bp_only}`,'cap',0.1,'style="font-size:12.5px;--d:0.1s"');
+    s+=TF(430,100,`lost, of ${e.projected_gradient_descent}`,'cap',0.1,'style="font-size:12.5px;--d:0.1s"');
+    const rows=[['own · kept',e.own_kept_recovered,e.own_kept_lost,'act'],['own · refreshed',e.own_refreshed_recovered,e.own_refreshed_lost,'act'],['permuted · refreshed',e.permuted_refreshed_recovered,e.permuted_refreshed_lost,'oonly'],['permuted · kept',e.permuted_kept_recovered,e.permuted_kept_lost,'oonly']];
+    rows.forEach((r,k)=>{const y=112+k*42,d=0.2+0.15*k;
+      s+=TF(60,y+22,r[0],'',d,'style="font-size:14px;font-weight:600;--d:'+d+'s"');
+      s+=rect(240,y+6,140,22,'box',d,'fi',3);
+      if(r[1]) s+=rect(240,y+6,140*r[1]/e.bp_only,22,'f-'+r[3],d+0.05,'bar',3);
+      s+=TF(390,y+23,String(r[1]),'',d+0.1,'style="font-size:14px;font-weight:600;--d:'+(d+0.1)+'s"');
+      s+=rect(430,y+6,80,22,'box',d,'fi',3);
+      if(r[2]) s+=rect(430,y+6,80*r[2]/e.projected_gradient_descent,22,'f-warn',d+0.05,'bar',3);
+      s+=TF(520,y+23,String(r[2]),'',d+0.1,'style="font-size:14px;font-weight:600;--d:'+(d+0.1)+'s"');
+    });
+    s+=TF(60,300,'Every success of the other three arms is also a success of own · kept.','cap',0.9,'style="font-size:13px;--d:0.9s"');
+    s+=TF(590,76,`the ${e.unresolved} still unresolved`,'ttl',1.0,'style="font-size:13px;--d:1.0s"');
+    s+=TF(590,96,`coded bits wrong after ${e.update_budget} updates, own · kept`,'cap',1.0,'style="font-size:12.5px;--d:1.0s"');
+    const base=240,top=112,maxN=Math.max(...Object.values(e.unresolved_bit_errors));
+    [1,2,3,4].forEach((b,k)=>{const n=e.unresolved_bit_errors[String(b)]||0,x=604+k*70,hh=(base-top-24)*n/maxN,d=1.1+0.12*k;
+      if(n) s+=`<rect x="${x}" y="${base-hh}" width="44" height="${hh}" rx="3" class="vbar f-act" style="--d:${d}s"/>`;
+      s+=TF(x+22,base-hh-8,String(n),'mid',d+0.1,'style="font-size:14px;font-weight:600;--d:'+(d+0.1)+'s"');
+      s+=TF(x+22,base+18,String(b),'mid cap',d,'style="font-size:13px;--d:'+d+'s"');
+    });
+    s+=`<line x1="594" y1="${base}" x2="872" y2="${base}" class="axis fi" style="--d:1.1s"/>`;
+    s+=TF(590,284,`every one ran all ${e.update_budget} accepted updates`,'cap',1.6,'style="font-size:13px;--d:1.6s"');
+    s+=TF(590,303,`native GD had left them ${e.unresolved_native_gd_bit_errors[0]} to ${e.unresolved_native_gd_bit_errors[1]} bits wrong`,'cap',1.7,'style="font-size:13px;--d:1.7s"');
+    s+=TF(590,322,'BP: 2 or 3 message-passing iterations','cap',1.8,'style="font-size:13px;--d:1.8s"');
+    s+=TF(590,341,'on every one of the 200 cases','cap',1.8,'style="font-size:13px;--d:1.8s"');
+    s+=TF(60,370,'what still differs between own · kept and BP','ttl',2.0,'style="font-size:13px;--d:2.0s"');
+    ['value formation','check calculation','update rule','objective, projection','budget, stopping'].forEach((c,k)=>{const x=60+k*172,d=2.1+0.1*k;
+      s+=`<rect x="${x}" y="384" width="160" height="32" rx="16" class="fi box s-soft" style="--d:${d}s;stroke-width:1.5"/>`;
+      s+=TF(x+80,405,c,'mid',d+0.05,'style="font-size:13px;--d:'+(d+0.05)+'s"');
+    });
+    s+=TF(60,456,'RQ2-CAUSAL-FACTORS-001 tests these in two registered factorial blocks, launched 15:39 on 1 November.','',2.7,'style="font-weight:600;font-size:14px;--d:2.7s"');
+    s+=TF(60,480,'Block A · parity objective shape × projection, inside the kept-offset GD path, scored at 30 and 90 updates','cap',2.8,'style="font-size:13px;--d:2.8s"');
+    s+=TF(60,500,'Block B · full or tied BP values × direct sum-product map or gradient step on its fixed-point residual','cap',2.9,'style="font-size:13px;--d:2.9s"');
+    s+=TF(60,524,'This record does not track the campaign’s progress; its queue artifacts do.','cap',3.0,'style="font-size:13px;--d:3.0s"');
+    return s;
+  },
+  get html(){const e=EVIDENCE.native_accounting_case_set_B;return `<p>The attribution stage records every transition against the native-gap result on the same 200 cases, and its correctness gates check that each partition adds up. The own-check, kept arm recovers <span class="num">${e.own_kept_recovered}</span> of the ${e.bp_only} BP-only cases and loses none of native GD’s ${e.projected_gradient_descent} successes; the own-check, refreshed arm recovers <span class="num">${e.own_refreshed_recovered}</span> and loses none. Both permuted arms recover none of the ${e.bp_only} and lose ${e.permuted_refreshed_lost} and ${e.permuted_kept_lost} of native GD’s successes. Every success of the other three arms is also a success of the own-check, kept arm. The card still forbids saying that an operation accounts for a number of the ${e.bp_only} cases until a reverse-order test shows no material interaction.</p>
+<p>The <span class="num">${e.unresolved}</span> cases left are near misses. All ran the full ${e.update_budget} accepted updates. The own-check, kept arm ended ${e.unresolved_bit_errors['1']} of them one coded bit wrong, ${e.unresolved_bit_errors['2']} two bits wrong and ${e.unresolved_bit_errors['4']} four bits wrong, where native GD had left them ${e.unresolved_native_gd_bit_errors[0]} to ${e.unresolved_native_gd_bit_errors[1]} bits wrong. BP recovers each of them in two or three message-passing iterations, as it does every one of the 200 cases. Iteration counts are not equal-work measures.</p>
+<p>Several operations still differ between the own-check, kept variant and BP: how the stored values are formed, the check calculation, the update rule, the objective and projection domain, and the update budget and stopping rule. Codex registered <em>RQ2-CAUSAL-FACTORS-001</em> to test them in two factorial blocks, staged like the follow-up: calibration on frames 20001 to 20024, a fresh anchor on 50001 to 50024, a fresh transfer on 50025 to 50224, then these locked cases. Block A crosses the parity objective’s shape with projection inside the kept-offset GD path and scores the same trajectories at 30 and 90 updates. Block B crosses full against mean-preserving tied BP values with the direct sum-product map against a true gradient step on the fixed-point residual. The campaign was launched at 15:39 CST on 1 November. Until its reverse-order composition passes, any recovery it adds is path-conditional.</p>`+take(`The best constructed GD variant recovers ${e.own_kept_recovered} of the ${e.bp_only} BP-only cases and loses none; the ${e.unresolved} near misses left are the next registered test’s target.`);}
+});
+
+// 22 — where we stand
+BEATS.push({
+  title:'Evidence boundary at the end of this record',
+  eyebrow:'Chapter 8 · Completed evidence versus work outside this dated record',
+  chapter:'Evidence boundary',
   svg(){
     let s='';
     const rows=[
@@ -852,61 +1297,565 @@ BEATS.push({
       ['Reproduce both native endpoints','done'],
       ['AWGN anchor and 200-case confirmation: exact SP 200 of 200, tied 0 of 200','done'],
       ['RQ2-GD-STATE-USE-001: retained offsets, 172 against 113','done'],
-      ['RQ2-GD-OFFSET-SPLIT-001: held-out shown running at the dated snapshot','recorded'],
+      ['RQ2-GD-OFFSET-SPLIT-001: parity term carries the gain; interval adds no observed recovery','done'],
+      ['RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001: check assignment decides; best variant 167 of 200','done'],
       ['Scoped RQ2 conclusion','waiting'],
+      ['RQ2-CAUSAL-FACTORS-001: launched 15:39 on 1 November; progress not tracked here','recorded'],
     ];
-    rows.forEach((r,k)=>{const y=36+k*58, d=0.2*k;
-      s+=rect(60,y,840,46,'box',d,'fi');
-      if(k<rows.length-1) s+=`<line x1="480" y1="${y+46}" x2="480" y2="${y+58}" class="axis fi" style="--d:${d+0.1}s"/>`;
-      s+=T(84,y+29,r[0],'',d+0.1,r[1]==='waiting'?'style="font-weight:600;--d:'+(d+0.1)+'s"':'style="--d:'+(d+0.1)+'s"');
-      s+=status(868,y+23,r[1],d+0.3);
+    rows.forEach((r,k)=>{const y=24+k*44, d=0.18*k;
+      s+=rect(60,y,840,38,'box',d,'fi');
+      if(k<rows.length-1) s+=`<line x1="480" y1="${y+38}" x2="480" y2="${y+44}" class="axis fi" style="--d:${d+0.1}s"/>`;
+      s+=TF(84,y+25,r[0],'',d+0.1,r[1]==='waiting'?'style="font-weight:600;font-size:15px;--d:'+(d+0.1)+'s"':'style="font-size:15px;--d:'+(d+0.1)+'s"');
+      s+=status(868,y+19,r[1],d+0.3);
     });
-    s+=T(60,470,'beside the chain, completed by the 31 October snapshot','ttl',1.8,'style="font-size:14px;--d:1.8s"');
-    s+=T(60,494,'null control: the assignment carries it, one reshaping suffices · native gap: BP 200, GD 107, reference 163 at 6 dB','cap',1.9,'style="font-size:14px;--d:1.9s"');
-    s+=T(60,514,'check-rule ladder: design only; its literal trigger was not met, so the decision is the user’s','cap',2.0,'style="font-size:14px;--d:2.0s"');
+    s+=TF(60,448,'beside the chain','ttl',1.8,'style="font-size:14px;--d:1.8s"');
+    s+=TF(60,472,'null control, 31 October: which check reads each offset matters; refreshed and frozen differed by 2 of 200','cap',1.9,'style="font-size:14px;--d:1.9s"');
+    s+=TF(60,494,'check-rule ladder: design only; superseded before execution by the two-block campaign on 1 November','cap',2.0,'style="font-size:14px;--d:2.0s"');
+    s+=TF(60,516,'operations record: the follow-up’s 09:35 launch snapshot stays at beat 20; this deck makes no current-status claim','cap',2.1,'style="font-size:14px;--d:2.1s"');
     return s;
   },
-  html:`<p>The route map's destination is a scoped RQ2 conclusion: whether adding or removing the RQ1 mechanism changes parity validity and transmitted-word equality on preregistered cases. At the <span class="num">31 October 2026</span> snapshot, every step before the last was done and the split held-out result was still missing. Its anchor suggested that the gain follows the parity term rather than the interval, but the anchor is development-only.</p>
-<p>A valid result will attribute the earlier gain among four constructed GD variants on this graph, this 6 dB sample, this initialization and 30 updates. It will not make the offsets BP messages, reproduce BP, rank the decoders, or explain the whole native gap. The null control adds that the gain needs the check assignment and a single reshaping. The native gap adds that <span class="num">37</span> of 200 cases at 6 dB, and all 200 at 1.5 dB, remain unexplained.</p>
-<p>At this snapshot, the human decision was whether the null control's stronger-than-predicted outcome counts as the trigger for the check-rule ladder; the machine-side dependency was the one held-out run.</p>`+take('One result from the registered endpoint. The native cause stays open by design, and the numbers show how open.')
+  html:`<p>The route map's destination is a scoped RQ2 conclusion: whether adding or removing the RQ1 mechanism changes parity validity and transmitted-word equality on preregistered cases. Every experimental step on the chain is done, and the written conclusion is the step still waiting. The split attributes the earlier gain to the parity term's reading of the offsets: <span class="num">163</span> against <span class="num">107</span> whether or not the interval is switched, while the interval alone moves one case. The follow-up keeps the native interval in every arm and shows, on 200 fresh cases, that which check reads each stored offset decides that gain.</p>
+<p>Both results are scoped to constructed GD variants on this graph, this 6 dB sample, this initialization and 30 updates. They do not make the offsets BP messages, reproduce BP, rank the decoders, or explain the whole native gap. On the 200 locked cases the best constructed variant recovers <span class="num">167</span>, and <span class="num">33</span> of the 93 BP-only cases remain unresolved; at 1.5 dB native GD recovers none of the 200.</p>
+<p>The next registered experiment, RQ2-CAUSAL-FACTORS-001, was launched at 15:39 CST on 1 November to test the operations that still differ. This page records that launch as a dated fact; its progress lives in the campaign's queue artifacts, not here.</p>`+take('Two operations are now isolated among constructed GD variants: the parity calculation’s use of the stored offsets, and which check reads each one. Native BP–GD attribution remains open.')
+});
+
+// ---------- short, click-controlled explanation ----------
+const EVIDENCE=JSON.parse(document.getElementById('offsetSplitEvidence').textContent);
+const CT=(x,y,s,cls='',extra='')=>`<text x="${x}" y="${y}" class="${cls}" ${extra}>${m(s)}</text>`;
+const CTR=(x,y,s,cls='',extra='')=>`<text x="${x}" y="${y}" class="${cls}" ${extra}>${s}</text>`;
+const CR=(x,y,w,h,cls='box',rx=5,extra='')=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${cls}" ${extra}/>`;
+const CC=(x,y,r,cls='bitfill',extra='')=>`<circle cx="${x}" cy="${y}" r="${r}" class="${cls}" ${extra}/>`;
+const CL=(x1,y1,x2,y2,cls='edge',extra='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}" ${extra}/>`;
+const CShow=(step,n,content)=>step>=n?`<g class="${n>0&&step===n?'core-new':''}">${content}</g>`:'';
+const CTarget=(n,label,content)=>`<g class="core-click" role="button" tabindex="0" data-core-step="${n}" aria-label="${label}">${content}</g>`;
+const CBadge=(x,y,label,cls='')=>{const bw=Math.max(250,label.length*9+24);return `${CR(x+125-bw/2,y,bw,28,'box '+cls,14)}${CTR(x+125,y+19,label,'cap mid '+cls,'style="font-size:12px;font-weight:600;letter-spacing:.06em"')}`;};
+const CBit=(x,y,label,cls='')=>`${CC(x,y,28,'bitfill '+cls)}${CT(x,y+7,label,'m mid')}`;
+const CCheck=(x,y,label,cls='')=>`${CR(x-24,y-24,48,48,'box '+cls,5,'style="stroke-width:2.5"')}${CT(x,y+7,label,'m mid')}`;
+const CArrow=(x1,y1,x2,y2,cls='s-ink',marker='coreArrowInk',extra='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" class="${cls}" style="stroke-width:3;${extra}" marker-end="url(#${marker})"/>`;
+const CORE_DEFS=`<defs>
+  <marker id="coreArrowInk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--ink)"/></marker>
+  <marker id="coreArrowAct" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--act)"/></marker>
+  <marker id="coreArrowGd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="var(--gd)"/></marker>
+</defs>`;
+const coreText=(sentences,takeaway,details='')=>`<p>${sentences}</p>${details}${take(takeaway)}`;
+const INTUITION_BEATS=[];
+
+INTUITION_BEATS.push({
+  short:'Question', title:'A performance gap is not yet its cause', eyebrow:'1 · The causal question', steps:2,
+  svg(step){
+    const e=EVIDENCE.native_gap_case_set_B; let s=CORE_DEFS;
+    s+=CBadge(355,26,'CASE SET B · 200 LOCKED CASES');
+    s+=CT(480,82,'Held fixed for every paired comparison','ttl mid');
+    const fixed=[['H','parity-check matrix'],['L','channel-LLR vector'],['y','received samples and noise'],['b','transmitted word']];
+    fixed.forEach((v,k)=>{const x=105+k*210;s+=CR(x,108,180,62,'box',5);s+=CT(x+90,135,v[0],'m mid f-gd');s+=CT(x+90,157,v[1],'cap mid','style="font-size:12px"');});
+    s+=CShow(step,1,
+      CT(120,230,'Transmitted word recovered','ttl')+
+      CR(120,260,640,62,'box',5)+CR(120,260,640,62,'f-bp',5)+
+      CT(140,299,'Belief propagation','white','style="font-weight:600"')+CT(740,301,String(e.belief_propagation),'big end white')+
+      CR(120,350,640,62,'box',5)+CR(120,350,342,62,'f-gd',5)+
+      CT(140,389,'Projected gradient descent','white','style="font-weight:600"')+CT(740,391,String(e.projected_gradient_descent),'big end')
+    );
+    s+=CShow(step,2,
+      CR(160,448,640,66,'box s-act',7,'style="stroke-width:2.5"')+
+      CT(480,476,'BP and projected GD differ on 93 cases.','mid','style="font-weight:600"')+
+      CT(480,500,'That ordering does not identify which operation caused the difference.','cap mid f-act')
+    );
+    return s;
+  },
+  html(step){const a=[
+    'For each locked case, both decoders use the frozen parity-check matrix, transmitted word, received samples, noise realization, and channel-LLR vector.',
+    'BP recovered 200 transmitted words; projected GD recovered 107 under the registered 30-update budget.',
+    'That 93-case ordering locates a gap. It cannot identify its cause because the native methods differ in several operations.'
+  ];return coreText(a[step],'The experiment must change one operation at a time.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Retained state', title:'The same Tanner neighborhood retains different state', eyebrow:'2 · What survives an update', steps:2,
+  svg(step){
+    let s=CORE_DEFS; const ys=145, yb=315;
+    s+=CT(235,46,'Belief propagation','ttl mid f-bp');s+=CT(725,46,'Projected gradient descent','ttl mid f-gd');
+    s+=CL(480,25,480,515,'thin');
+    [[110,ys,'A'],[235,ys,'B'],[360,ys,'C']].forEach(v=>{s+=CL(235,yb,v[0],v[1],'edge');s+=CCheck(v[0],v[1],v[2],'s-bp');});
+    s+=CBit(235,yb,'i','s-bp');
+    [[600,ys,'A'],[725,ys,'B'],[850,ys,'C']].forEach(v=>{s+=CL(725,yb,v[0],v[1],'edge');s+=CCheck(v[0],v[1],v[2],'s-gd');});
+    s+=CBit(725,yb,'x_i','s-gd');
+    s+=CShow(step,1,
+      CR(42,370,386,126,'box s-bp',7,'style="stroke-width:2"')+
+      CT(235,394,'STATE KEPT BETWEEN ITERATIONS','ttl mid f-bp','style="font-size:13px"')+
+      CT(235,428,'Q_(i→A)   Q_(i→B)   Q_(i→C)','m mid')+
+      CT(235,462,'U_(A→i)   U_(B→i)   U_(C→i)','m mid')+
+      CT(235,486,'directed variable-to-check and check-to-variable messages','cap mid','style="font-size:12px"')
+    );
+    s+=CShow(step,2,
+      CArrow(600,180,686,286,'s-act','coreArrowAct')+CArrow(725,180,725,282,'s-act','coreArrowAct')+CArrow(850,180,764,286,'s-act','coreArrowAct')+
+      CT(608,222,'g_(A,i)','m f-act')+CT(705,222,'g_(B,i)','m f-act')+CT(808,222,'g_(C,i)','m f-act')+
+      CR(540,370,370,126,'box s-gd',7,'style="stroke-width:2"')+
+      CT(725,394,'STATE KEPT BETWEEN UPDATES','ttl mid f-gd','style="font-size:13px"')+
+      CT(725,436,'x_i','m mid f-gd','style="font-size:30px"')+
+      CT(725,466,'the check-associated partial derivatives are temporary','cap mid','style="font-size:12px"')+
+      CT(725,486,'they are combined into one coordinate update','cap mid','style="font-size:12px"')
+    );
+    return s;
+  },
+  html(step){const a=[
+    'A single bit is connected to checks A, B, and C in both diagrams.',
+    'BP retains directed messages addressed to particular graph edges.',
+    'Projected GD combines the applicable partial derivatives into one coordinate update and normally retains only x_i for bit i.'
+  ];return coreText(a[step],'Graph access is similar; retained state is not.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Constructed offsets', title:'Give GD one stored offset for each check–bit edge', eyebrow:'3 · The constructed probe', steps:4,
+  svg(step){
+    const t=EVIDENCE.toy; let s=CORE_DEFS;
+    s+=CBadge(355,22,'ILLUSTRATIVE VALUES · NOT A DECODER TRACE');
+    const C=[[190,105,'A',t.offsets.A,t.readings.A],[480,105,'B',t.offsets.B,t.readings.B],[770,105,'C',t.offsets.C,t.readings.C]], bx=480,by=270;
+    C.forEach((c,k)=>{
+      s+=CL(bx,by,c[0],c[1],'edge');
+      const check=CCheck(c[0],c[1],c[2],step>=k+1?'s-act':'');
+      s+=(k+1===step+1&&step<3)?CTarget(k+1,`Reveal the offset stored for check ${c[2]}`,check):check;
+    });
+    s+=CBit(bx,by,'x_i = 0.42','s-gd');
+    s+=CT(480,325,'Click A, B, and C—or use Next step.','cap mid');
+    C.forEach((c,k)=>{s+=CShow(step,k+1,
+      CArrow(bx+(c[0]-bx)*.18,by+(c[1]-by)*.18,c[0]+(bx-c[0])*.22,c[1]+(by-c[1])*.22,'s-act','coreArrowAct')+
+      CR(c[0]-96,155,192,70,'box s-act',6,'style="stroke-width:2"')+
+      CT(c[0],181,`δ_(${c[2]},i) = ${c[3]>=0?'+':''}${c[3].toFixed(2)}`,'m mid f-act')+
+      CT(c[0],210,`0.42 ${c[3]>=0?'+':'−'} ${Math.abs(c[3]).toFixed(2)} = ${c[4]>=0?c[4].toFixed(2):'−'+Math.abs(c[4]).toFixed(2)}`,'m mid')
+    );});
+    s+=CShow(step,4,
+      CR(95,365,770,128,'box s-act',8,'style="stroke-width:2.5"')+
+      CT(480,392,'STORED OFFSETS','ttl mid f-act')+
+      CT(480,426,'δ_(A,i) = −0.45      δ_(B,i) = +0.10      δ_(C,i) = +0.35','m mid')+
+      CT(480,455,'fixed during this update and every line-search trial','cap mid')+
+      CT(480,478,'refreshed only after an accepted GD update','cap mid')+
+      CT(786,426,'Σ δ = 0','m f-act')
+    );
+    return s;
+  },
+  html(step){const a=[
+    'The constructed probe adds one offset for each check–bit edge while keeping the GD scalar x_i.',
+    'Check A reads x_i+δ_(A,i)=−0.03.',
+    'Check B reads x_i+δ_(B,i)=0.52.',
+    'Check C reads x_i+δ_(C,i)=0.77.',
+    'The offsets are stored GD-derived state. They are not BP messages and they do not travel along the graph.'
+  ];const math=`<details><summary>Show construction rule</summary><p>The three leave-one-check-out readings are centred so their mean is x_i and then kept inside [−1,1]. The displayed values satisfy z_(c,i)=x_i+δ_(c,i) and Σ_c δ_(c,i)=0.</p></details>`;return coreText(a[step],'The probe preserves which offset belongs to A, B, and C.',math);}
+});
+
+INTUITION_BEATS.push({
+  short:'Why split?', title:'The first successful variant changed two operations', eyebrow:'4 · Why one result was not enough', steps:2,
+  svg(step){
+    const e=EVIDENCE.compound_case_set_A; let s=CORE_DEFS;
+    s+=CBadge(355,24,'CASE SET A · A DIFFERENT 200 LOCKED CASES');
+    s+=CT(80,92,'Transmitted word recovered','ttl');
+    const x0=90;
+    s+=CR(x0,122,330,62,'box',5)+CR(x0,122,330*e.control_recovered/200,62,'f-ctl',5)+CT(x0+18,160,'GD control','white','style="font-weight:600"')+CT(x0+310,162,String(e.control_recovered),'big end');
+    s+=CR(x0,210,330,62,'box',5)+CR(x0,210,330*e.compound_recovered/200,62,'f-act',5)+CT(x0+18,248,'compound variant','white','style="font-weight:600"')+CT(x0+330*e.compound_recovered/200-12,250,String(e.compound_recovered),'big end white');
+    s+=CShow(step,1,
+      CT(700,86,'OFFSETS WERE USED IN TWO PLACES','ttl mid','style="font-size:13px"')+
+      CR(495,118,205,110,'box s-oonly',8,'style="stroke-width:2.5"')+CT(597,148,'PARITY CALCULATION','ttl mid f-oonly','style="font-size:13px"')+CT(597,185,'x_j + δ_(c,j)','m mid')+CT(597,210,'instead of x_j','cap mid')+
+      CR(725,118,205,110,'box s-ponly',8,'style="stroke-width:2.5"')+CT(827,148,'PROJECT x_i','ttl mid f-ponly','style="font-size:13px"')+CT(827,185,'onto [l_i, u_i]','m mid')+CT(827,210,'instead of [−1, 1]','cap mid')+
+      CArrow(597,262,597,320,'s-oonly','coreArrowInk')+CArrow(827,262,827,320,'s-ponly','coreArrowInk')+
+      CT(712,352,'both changed together','mid f-act','style="font-weight:600"')
+    );
+    s+=CShow(step,2,
+      CR(70,390,820,92,'box s-act',8,'style="stroke-width:2.5"')+
+      CT(480,424,'59 cases were recovered only by the compound variant; none only by control.','mid','style="font-weight:600"')+
+      CT(480,455,'But which of the two changed operations caused that recovery?','mid f-act')
+    );
+    return s;
+  },
+  html(step){const a=[
+    'On case set A, the compound variant recovered 172 transmitted words and its control recovered 113.',
+    'The compound variant both changed the parity calculation and changed the interval used to project x_i.',
+    'The 59-case gain established a causal effect for the pair of changes, not for either change separately.'
+  ];return coreText(a[step],'Split the two operations and move only one at a time.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Two switches', title:'See exactly what each switch changes', eyebrow:'5 · Two independent operations', steps:3,
+  svg(step){
+    const t=EVIDENCE.toy; let s=CORE_DEFS;
+    s+=CT(245,48,'Switch 1','ttl mid f-oonly');s+=CT(715,48,'Switch 2','ttl mid f-ponly');s+=CL(480,25,480,515,'thin');
+    s+=CT(245,76,'PARITY CALCULATION','ttl mid','style="font-size:13px"');
+    s+=CT(245,96,'does it use the stored offsets?','cap mid');
+    s+=CR(70,108,350,250,'box',8);
+    s+=CCheck(245,152,'A','s-oonly');
+    [[140,290,'x_1'],[245,290,'x_2'],[350,290,'x_3']].forEach(v=>{s+=CBit(v[0],v[1],v[2]);s+=CArrow(v[0],255,225+(v[0]-245)*.18,180,'s-soft','coreArrowInk');});
+    s+=CT(245,330,'project x_i onto [−1, 1] in both demonstrations','cap mid');
+    const parityDemo=step===1, intervalDemo=step===2;
+    s+=CTarget(1,'Show the parity-calculation-only comparison',CR(178,370,134,40,parityDemo?'f-oonly':'box s-soft',20)+CT(245,396,step===3?'OFF / ON':(parityDemo?'ON':'OFF'),'mid '+(parityDemo?'white':'f-soft'),'style="font-weight:700"'));
+    s+=parityDemo?`<g class="core-new">${
+      [[140,'δ_(A,1)'],[245,'δ_(A,2)'],[350,'δ_(A,3)']].map(v=>CT(v[0],238,v[1],'m mid f-act')).join('')+
+      CT(245,448,'The values entering check A change:','cap mid')+CT(245,480,'x_j  →  x_j + δ_(A,j)','m mid f-oonly','style="font-size:26px"')
+    }</g>`:'';
+
+    s+=CT(715,76,'PROJECT x_i','ttl mid','style="font-size:13px"');
+    s+=CT(715,96,'does the interval come from the offsets?','cap mid');
+    s+=CR(540,108,350,250,'box',8);
+    const X=v=>580+(v+1)*135, Y=236;
+    s+=CL(X(-1),Y,X(1),Y,'axis');[-1,0,1].forEach(v=>{s+=CL(X(v),Y-6,X(v),Y+6,'axis');s+=CT(X(v),Y+28,String(v).replace('-','−'),'cap mid');});
+    s+=CC(X(t.trial_x),Y,9,'f-gd');s+=CT(X(t.trial_x)+8,Y-38,'trial 0.80','cap end f-gd');
+    s+=CT(715,330,'parity calculation uses x_j in both demonstrations','cap mid');
+    s+=CTarget(2,'Show the projection-interval-only comparison',CR(648,370,134,40,intervalDemo?'f-ponly':'box s-soft',20)+CT(715,396,step===3?'OFF / ON':(intervalDemo?'ON':'OFF'),'mid '+(intervalDemo?'white':'f-soft'),'style="font-weight:700"'));
+    s+=intervalDemo?`<g class="core-new">${
+      CR(X(-.55),Y-10,(.65+.55)*135,20,'f-ponly',5)+
+      CC(X(.65),Y,10,'f-act')+CT(X(.65),Y+58,'projected to 0.65','cap mid f-act')+
+      CT(715,448,'The interval changes:','cap mid')+CT(715,480,'[−1, 1]  →  [−0.55, 0.65]','m mid f-ponly','style="font-size:26px"')
+    }</g>`:'';
+    s+=CShow(step,3,CR(210,492,540,40,'f-act',20)+CT(480,517,'(OFF, OFF) · (ON, OFF) · (OFF, ON) · (ON, ON)','mid white','style="font-size:13px;font-weight:700;letter-spacing:.03em"'));
+    return s;
+  },
+  html(step){const a=[
+    'The two switches have different destinations. Both demonstrations start with the other operation held in its ordinary GD form.',
+    'Switch 1 changes only the values used in the parity calculation; projection remains onto [−1,1].',
+    'Switch 2 changes only the interval used to project x_i; the parity calculation continues to use x_j.',
+    'Turning the switches on and off independently produces four controlled GD variants.'
+  ];return coreText(a[step],'The split identifies which destination changes recovery.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Four results', title:'The recovery increase follows the parity calculation', eyebrow:'6 · The offset split result', steps:4,
+  svg(step){
+    const e=EVIDENCE.offset_split_case_set_B; let s=CORE_DEFS;
+    s+=CBadge(355,20,'CASE SET B · 200 LOCKED 6 dB CASES');
+    const x0=210,col2=520,y0=120,row2=290,w=260,h=125;
+    s+=CT(495,78,'INTERVAL USED TO PROJECT x_i','ttl mid','style="font-size:13px"');
+    s+=CT(x0+w/2,106,'ordinary [−1, 1]','cap mid');s+=CT(col2+w/2,106,'comes from offsets','cap mid');
+    s+=CTR(55,270,'PARITY CALCULATION','ttl',`transform="rotate(-90 55 270)" text-anchor="middle" style="font-size:13px"`);
+    s+=CT(x0-18,y0+h/2+5,'uses x_j','cap end');s+=CT(x0-18,row2+h/2+5,'uses x_j + δ_(c,j)','cap end');
+    const cells=[
+      [x0,y0,'Neither switch',e.parity_ignores_offsets__ordinary_interval,'ctl','core-result-neither'],
+      [col2,y0,'Interval only',e.parity_ignores_offsets__offset_interval,'ponly','core-result-interval'],
+      [x0,row2,'Parity only',e.parity_uses_offsets__ordinary_interval,'oonly','core-result-parity'],
+      [col2,row2,'Both switches',e.parity_uses_offsets__offset_interval,'act','core-result-both']
+    ];
+    cells.forEach(c=>{s+=`<g id="${c[5]}">`;s+=CR(c[0]+6,c[1]+6,w-12,h-12,'box s-'+c[4],7,'style="stroke-width:2"');s+=CT(c[0]+w/2,c[1]+35,c[2],'mid f-'+c[4],'style="font-weight:600"');s+=CShow(step,1,CT(c[0]+w/2,c[1]+82,String(c[3]),'big mid f-'+c[4])+CT(c[0]+w/2,c[1]+108,'of 200 recovered','cap mid'));s+='</g>';});
+    s+=CShow(step,2,
+      CArrow(x0+50,y0+h-2,x0+50,row2+12,'s-oonly','coreArrowInk')+CArrow(col2+50,y0+h-2,col2+50,row2+12,'s-oonly','coreArrowInk')+
+      CT(x0+82,275,'+56','big f-oonly')+CT(col2+82,275,'+57','big f-oonly')+
+      CT(520,454,'Turning on offset use in the parity calculation adds 56 or 57 recoveries.','mid f-oonly','style="font-weight:600"')
+    );
+    s+=CShow(step,3,
+      CArrow(x0+w-5,y0+62,col2+5,y0+62,'s-ponly','coreArrowInk')+CArrow(x0+w-5,row2+62,col2+5,row2+62,'s-ponly','coreArrowInk')+
+      CT(495,y0+35,'−1','big mid f-ponly')+CT(495,row2+35,'0','big mid f-ponly')+
+      CT(520,482,'Changing only the interval used to project x_i adds no observed recovery.','mid f-ponly','style="font-weight:600"')
+    );
+    s+=CShow(step,4,CR(230,500,580,32,'f-act',16)+CT(520,521,'OBSERVED GAIN: PARITY CALCULATION USES THE STORED OFFSETS','mid white','style="font-size:13px;font-weight:700"'));
+    return s;
+  },
+  html(step){const a=[
+    'All four variants enter update 2 with equal x and equal stored offsets. The switches are the declared differences.',
+    'The four transmitted-word recovery counts are 107, 106, 163, and 163.',
+    'Using the offsets in the parity calculation adds 56 or 57 recoveries, with no losses in the paired comparisons.',
+    'Changing only the interval used to project x_i changes −1 or 0 recoveries.',
+    'On these locked cases and this budget, the observed gain came from the parity calculation; the changed interval contributed no observed gain.'
+  ];const math=`<details><summary>Show registered contrasts</summary><p>Parity use: +0.280 with the ordinary interval and +0.285 with the offset-derived interval. Interval change: −0.005 when parity ignores offsets and 0.000 when it uses them.</p></details>`;return coreText(a[step],'The split isolates where the stored offsets affect recovery.',math);}
+});
+
+INTUITION_BEATS.push({
+  short:'Which check?', title:'It matters which check reads each stored offset', eyebrow:'7 · Reassignment and refresh control', steps:3,
+  svg(step){
+    const e=EVIDENCE.offset_reassignment_case_set_B; let s=CORE_DEFS;
+    s+=CBadge(75,18,'CASE SET B · 200 LOCKED CASES');
+    s+=CR(368,18,544,28,'box s-warn',14)+CTR(640,37,'SEPARATE COMPOUND-ARM CONTROL · OFFSET-DERIVED INTERVAL RETAINED','cap mid f-warn','style="font-size:11px;font-weight:600;letter-spacing:.035em"');
+    s+=CT(480,72,'Only reference ↔ reassigned isolates assignment; reference ↔ kept-from-first-adoption tests refresh.','cap mid');
+    const cards=[['A','δ_(A,i)'],['B','δ_(B,i)'],['C','δ_(C,i)']];
+    cards.forEach((v,k)=>{const x=180+k*135;s+=CCheck(x,120,v[0],'s-act');s+=CR(x-50,165,100,38,'box s-act',5);s+=CT(x,190,v[1],'m mid f-act','style="font-size:16px"');});
+    const rows=[
+      ['each check reads its own',e.each_check_reads_its_own,'act'],
+      ['offsets unused',e.unused,'ctl'],
+      ['offsets reassigned between checks',e.reassigned_between_checks,'oonly'],
+      ['own offsets kept after first adoption',e.own_offsets_kept_from_first_adoption,'ponly']
+    ];
+    rows.forEach((r,k)=>{const y=286+k*56,reveal=k===0?0:k;if(step>=reveal){s+=`<g class="${reveal>0&&step===reveal?'core-new':''}">`;s+=CT(75,y+27,r[0],'','style="font-size:15px"');s+=CR(420,y,360,40,'box',5);s+=CR(420,y,360*r[1]/200,40,'f-'+r[2],5);s+=CT(805,y+29,String(r[1]),'big end f-'+r[2],'style="font-size:25px"');s+='</g>';}});
+    s+=CShow(step,2,
+      `<path d="M180 213 Q248 253 315 213 M315 213 Q383 253 450 213 M450 219 Q315 284 180 219" class="s-warn" fill="none" stroke-width="3" stroke-dasharray="7 5" marker-end="url(#coreArrowAct)"/>`+
+      CT(315,276,'same values, different checks','cap mid f-warn')
+    );
+    s+=CShow(step,3,CT(890,526,'kept from first adoption: +2; interval includes zero','cap end f-ponly'));
+    return s;
+  },
+  html(step){const a=[
+    'This is a separate compound-arm control: the reference, reassigned, and kept-from-first-adoption arms retain the offset-derived projection interval. The no-offset control uses the ordinary interval.',
+    'The reference recovers 163 and the no-offset control 107, but that comparison changes both offset use and projection interval.',
+    'Reassigning the same offset values among A, B, and C reduces recovery from 163 to 73. This one-change contrast shows that which check reads which value matters.',
+    'Keeping each check’s own offsets from their first adoption recovers 165. The registered interval includes zero, so no recovery difference from refreshing was detected.'
+  ];return coreText(a[step],'The assignment contrast supports check-dependent use; it does not make the offsets BP messages.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Clean test', title:'With only the parity calculation reading them, the check assignment decides', eyebrow:'8 · The follow-up factorial', steps:4,
+  svg(step){
+    const e=EVIDENCE.assignment_refresh_case_set_B,f=EVIDENCE.assignment_refresh_case_set_C; let s=CORE_DEFS;
+    const sg=v=>(v>0?'+':v<0?'−':'')+Math.abs(v);
+    s+=CBadge(40,18,'CASE SET B · 200 LOCKED CASES');
+    s+=CR(318,18,602,28,'box s-ok',14)+CTR(619,37,'PARITY CALCULATION ONLY · PROJECTION ONTO [−1, 1] IN EVERY ARM','cap mid f-ok','style="font-size:11px;font-weight:600;letter-spacing:.035em"');
+    s+=CT(480,74,'Two switches: which check reads each stored offset, and when the offsets are replaced.','cap mid');
+    const x0=230,col2=530,y0=124,row2=268,w=240,h=108,ym=(y0+row2+h)/2;
+    s+=CT((x0+col2+w)/2,100,'WHEN THE STORED OFFSETS ARE REPLACED','ttl mid','style="font-size:13px"');
+    s+=CT(x0+w/2,119,'after every accepted update','cap mid','style="font-size:13px"');
+    s+=CT(col2+w/2,119,'kept from first adoption','cap mid','style="font-size:13px"');
+    s+=CTR(24,ym,'WHICH CHECK READS EACH OFFSET','ttl',`transform="rotate(-90 24 ${ym})" text-anchor="middle" style="font-size:12px"`);
+    s+=CT(x0-14,y0+h/2+5,'permuted among checks','cap end','style="font-size:14px"');
+    s+=CT(x0-14,row2+h/2+5,'each check reads its own','cap end','style="font-size:14px"');
+    const cells=[
+      [x0,y0,'permuted · refreshed',e.permuted_refreshed,'oonly','core-follow-permuted-refreshed'],
+      [col2,y0,'permuted · kept',e.permuted_kept,'oonly','core-follow-permuted-kept'],
+      [x0,row2,'own · refreshed',e.own_refreshed,'act','core-follow-own-refreshed'],
+      [col2,row2,'own · kept',e.own_kept,'act','core-follow-own-kept']
+    ];
+    cells.forEach(c=>{s+=`<g id="${c[5]}">`;s+=CR(c[0]+6,c[1]+6,w-12,h-12,'box s-'+c[4],7,'style="stroke-width:2"');s+=CT(c[0]+w/2,c[1]+32,c[2],'mid f-'+c[4],'style="font-weight:600;font-size:15px"');s+=CShow(step,1,CT(c[0]+w/2,c[1]+72,String(c[3]),'big mid f-'+c[4])+CT(c[0]+w/2,c[1]+95,'of 200 recovered','cap mid','style="font-size:13px"'));s+='</g>';});
+    s+=CShow(step,2,
+      CArrow(x0+40,y0+h-4,x0+40,row2+14,'s-act','coreArrowAct')+CArrow(col2+40,y0+h-4,col2+40,row2+14,'s-act','coreArrowAct')+
+      CT(x0+60,row2-8,sg(e.own_refreshed-e.permuted_refreshed),'big f-act','style="font-size:28px"')+CT(col2+60,row2-8,sg(e.own_kept-e.permuted_kept),'big f-act','style="font-size:28px"')+
+      CT(480,408,`Letting each check read its own offset adds ${e.own_refreshed-e.permuted_refreshed} or ${e.own_kept-e.permuted_kept} recoveries and loses none.`,'mid f-act','style="font-weight:600"')
+    );
+    s+=CShow(step,3,
+      CArrow(x0+w-8,y0+70,col2+8,y0+70,'s-ponly','coreArrowInk')+CArrow(x0+w-8,row2+70,col2+8,row2+70,'s-ponly','coreArrowInk')+
+      CT((x0+w+col2)/2,y0+52,sg(e.permuted_kept-e.permuted_refreshed),'mid f-ponly','style="font-size:22px;font-weight:600"')+
+      CT((x0+w+col2)/2,row2+52,sg(e.own_kept-e.own_refreshed),'mid f-ponly','style="font-size:22px;font-weight:600"')+
+      CT(480,434,`Keeping the first offsets adds ${e.own_kept-e.own_refreshed} with the own checks and costs ${e.permuted_refreshed-e.permuted_kept} with permuted ones.`,'mid f-ponly','style="font-weight:600"')
+    );
+    s+=CShow(step,4,
+      CR(110,452,740,80,'box s-ok',8,'style="stroke-width:2.5"')+
+      CT(480,476,'REPEATED ON 200 FRESH CASES · THE REGISTERED CONFIRMATORY TEST','ttl mid f-ok','style="font-size:13px"')+
+      CT(480,501,`own: ${f.own_refreshed} and ${f.own_kept} · permuted: ${f.permuted_refreshed} and ${f.permuted_kept} · own wins ${f.assignment_won_refreshed} and ${f.assignment_won_kept} cases, loses none`,'mid','style="font-size:15px"')+
+      CT(480,523,`keeping the first offsets: ${sg(f.own_kept-f.own_refreshed)} with the own checks, ${sg(f.permuted_kept-f.permuted_refreshed)} with permuted ones`,'cap mid','style="font-size:13px"')
+    );
+    return s;
+  },
+  html(step){const e=EVIDENCE.assignment_refresh_case_set_B,f=EVIDENCE.assignment_refresh_case_set_C;const a=[
+    'The follow-up keeps the native projection onto [−1,1] in every arm, so only the parity calculation reads the stored offsets. It crosses two switches: which check reads each stored offset, and when the offsets are replaced.',
+    `On the same 200 locked cases, permuted offsets recover ${e.permuted_refreshed} and ${e.permuted_kept} transmitted words; letting each check read its own recovers ${e.own_refreshed} and ${e.own_kept}.`,
+    `Letting each check read its own offset instead of a permuted one adds ${e.own_refreshed-e.permuted_refreshed} recoveries when the offsets are refreshed and ${e.own_kept-e.permuted_kept} when they are kept, and loses none.`,
+    `When the offsets are replaced matters less, and its direction depends on the assignment: keeping the first offsets adds ${e.own_kept-e.own_refreshed} with the own checks and costs ${e.permuted_refreshed-e.permuted_kept} with permuted ones.`,
+    `The registered confirmatory test used 200 fresh cases and shows the same pattern: ${f.own_refreshed} and ${f.own_kept} with the own checks, ${f.permuted_refreshed} and ${f.permuted_kept} with permuted ones. The own checks win ${f.assignment_won_refreshed} and ${f.assignment_won_kept} cases and lose none.`
+  ];const math=`<details><summary>Show registered contrasts</summary><p>Fresh cases, transmitted word, simultaneous 99.375% intervals. Own checks against permuted: ${fmtD(f.assignment_rd_refreshed)} [${fmtI(f.assignment_interval_refreshed[0])}, ${fmtI(f.assignment_interval_refreshed[1])}] when refreshed and ${fmtD(f.assignment_rd_kept)} [${fmtI(f.assignment_interval_kept[0])}, ${fmtI(f.assignment_interval_kept[1])}] when kept. Refreshing rather than keeping: ${fmtI(f.refresh_rd_with_own)} [${fmtI(f.refresh_interval_with_own[0])}, ${fmtI(f.refresh_interval_with_own[1])}] with the own checks, Holm-adjusted p ${f.refresh_holm_with_own}, and ${fmtD(f.refresh_rd_with_permuted)} [${fmtI(f.refresh_interval_with_permuted[0])}, ${fmtI(f.refresh_interval_with_permuted[1])}] with permuted checks, p ${f.refresh_holm_with_permuted}. Equivalence within ±0.05 is established for neither. Interaction ${fmtI(f.interaction)}, bootstrap [${fmtI(f.interaction_interval[0])}, ${fmtI(f.interaction_interval[1])}]. Parity validity gives identical counts.</p></details>`;return coreText(a[step],'Which check reads each stored offset decides recovery; when the offsets are replaced is secondary and interacts with the assignment.',math);}
+});
+
+INTUITION_BEATS.push({
+  short:'Boundary', title:'What the experiment establishes—and what remains open', eyebrow:'9 · Distance to the research objective', steps:4,
+  svg(step){
+    const e=EVIDENCE.native_accounting_case_set_B,split=EVIDENCE.offset_split_case_set_B; let s=CORE_DEFS;
+    s+=CBadge(355,22,'CASE SET B · TRANSMITTED WORD RECOVERED');
+    const x=90,y=120,total=780,u=total/200,gd=e.projected_gradient_descent,a=e.own_refreshed_recovered,b=e.own_kept_recovered-e.own_refreshed_recovered,left=e.unresolved;
+    s+=CT(x,92,'0','cap mid');s+=CT(x+total,92,String(e.belief_propagation),'cap mid');
+    s+=CR(x,y,total,82,'box',8);
+    s+=CR(x,y,u*gd,82,'f-ctl',8);
+    s+=CT(x+u*gd/2,y+48,`native projected GD · ${gd}`,'mid white','style="font-weight:600"');
+    s+=CShow(step,1,
+      CR(x+u*gd,y,u*a,82,'f-act',0)+
+      CT(x+u*(gd+a/2),y+48,'+'+a,'big mid white')+
+      CT(x+u*(gd+a/2),y+104,'each check reads its own offset','cap mid f-act','style="font-size:13px"')
+    );
+    s+=CShow(step,2,
+      CR(x+u*(gd+a),y,u*b,82,'f-ponly',0)+
+      CT(x+u*(gd+a+b/2),y+126,`+${b} when kept from first adoption`,'cap mid f-ponly','style="font-size:13px"')
+    );
+    s+=CShow(step,3,
+      CR(x+u*(gd+a+b),y,u*left,82,'f-bp',0)+
+      CT(x+u*(gd+a+b+left/2),y+48,String(left),'big mid white')+
+      CT(480,282,`Descriptive accounting: ${gd} → ${gd+a} → ${gd+a+b} for constructed variants; BP recovered ${e.belief_propagation}.`,'mid','style="font-weight:600"')
+    );
+    s+=CShow(step,4,
+      CR(70,300,390,176,'box s-ok',8,'style="stroke-width:2.5"')+
+      CT(265,328,'ESTABLISHED HERE','ttl mid f-ok')+
+      CT(92,362,`• parity-use switch causes +${split.parity_effect_given_ordinary_interval} recoveries`,'','style="font-size:16px"')+
+      CT(106,386,'among the four constructed GD variants','','style="font-size:16px"')+
+      CT(92,420,'• which check reads each offset decides,','','style="font-size:16px"')+
+      CT(106,444,'repeated on 200 fresh cases','','style="font-size:16px"')+
+      CR(500,300,390,176,'box s-warn',8,'style="stroke-width:2.5"')+
+      CT(695,328,'STILL OPEN','ttl mid f-warn')+
+      CT(522,362,'• whether this explains BP’s advantage','','style="font-size:16px"')+
+      CT(522,390,`• the ${left} near misses: check calculation,`,'','style="font-size:16px"')+
+      CT(536,414,'update rule, projection, update budget','','style="font-size:16px"')+
+      CT(522,444,'• other SNRs, codes, and budgets','','style="font-size:16px"')+
+      CT(480,512,'Next: a registered two-block test of those operations, launched 15:39 on 1 November.','cap mid','style="font-size:14px"')
+    );
+    return s;
+  },
+  html(step){const e=EVIDENCE.native_accounting_case_set_B;const a=[
+    `Native projected GD recovered ${e.projected_gradient_descent} of these 200 transmitted words.`,
+    `A constructed GD variant whose parity calculation reads each check’s own stored offsets recovered ${e.own_refreshed_recovered} more of them and lost none of the ${e.projected_gradient_descent}.`,
+    `Keeping those offsets from their first adoption recovered ${e.own_kept_recovered-e.own_refreshed_recovered} more, again losing none: ${e.projected_gradient_descent+e.own_kept_recovered} in total.`,
+    `BP recovered all ${e.belief_propagation}. The ${e.unresolved} cases left are near misses: each ran the full ${e.update_budget} updates and ended ${e.unresolved_bit_errors_min} to ${e.unresolved_bit_errors_max} coded bits wrong. These totals describe distances between endpoints; they do not prove that the ${e.own_kept_recovered}-case increase is why BP succeeds.`,
+    'The experiment causally attributes recovery differences among the constructed GD variants. Whether that operation explains native BP’s advantage remains an open experiment. A registered test of the operations that still differ, in two factorial blocks, was launched at 15:39 on 1 November.'
+  ];return coreText(a[step],'The parity calculation’s use of each check’s own stored offset is isolated; the cause of native BP’s advantage is not yet established.');}
 });
 
 // ---------- deck ----------
 const stage=document.getElementById('stage'),aside=document.getElementById('aside'),dots=document.getElementById('dots'),count=document.getElementById('count'),chapters=document.getElementById('chapters');
 const back=document.getElementById('back'),next=document.getElementById('next'),replay=document.getElementById('replay');
-let cur=0;
-BEATS.forEach((b,k)=>{const d=document.createElement('button');d.setAttribute('role','tab');d.title=b.title;d.addEventListener('click',()=>go(k));dots.appendChild(d);});
-const CH=[];BEATS.forEach((b,k)=>{if(b.chapter)CH.push([k,b.chapter]);});
-CH.forEach(([k,name])=>{const d=document.createElement('button');d.textContent=name;d.title='go to beat '+(k+1);d.addEventListener('click',()=>go(k));chapters.appendChild(d);});
-function render(){
-  const b=BEATS[cur];
-  stage.innerHTML=`<svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${b.title}">${b.svg()}</svg>`;
-  aside.innerHTML=`<div class="eyebrow">${b.eyebrow}</div><h2>${b.title}</h2>${b.html}`;
-  count.textContent=`${cur+1} / ${BEATS.length}`;
+const coreMode=document.getElementById('coreMode'),evidenceMode=document.getElementById('evidenceMode'),subtitle=document.getElementById('subtitle'),src=document.getElementById('src'),modeNote=document.getElementById('modeNote'),mobileZoom=document.getElementById('mobileZoom');
+const DECKS={core:INTUITION_BEATS,evidence:BEATS};
+let mode='core',cur=0,coreStep=0,chapterStarts=[],mobileZoomed=false;
+const deck=()=>DECKS[mode];
+const maxStep=b=>mode==='core'?(b.steps||0):0;
+function route(){
+  if(mode==='core')return `#core-${cur+1}${coreStep?'-'+coreStep:''}`;
+  return `#b${cur+1}`;
+}
+function writeRoute(){const h=route();if(location.hash!==h){try{history.replaceState(null,'',h);}catch(e){}}}
+function rebuildNavigation(){
+  dots.innerHTML='';chapters.innerHTML='';dots.classList.toggle('named',mode==='core');
+  deck().forEach((b,k)=>{const d=document.createElement('button');d.title=b.title;d.setAttribute('aria-label',`${mode==='core'?'Scene':'Evidence beat'} ${k+1}: ${b.title}`);if(mode==='core')d.textContent=b.short;d.addEventListener('click',()=>go(k,0));dots.appendChild(d);});
+  chapterStarts=[];
+  if(mode==='evidence'){
+    deck().forEach((b,k)=>{if(b.chapter)chapterStarts.push([k,b.chapter]);});
+    chapterStarts.forEach(([k,name])=>{const d=document.createElement('button');d.textContent=name;d.title='go to evidence beat '+(k+1);d.addEventListener('click',()=>go(k,0));chapters.appendChild(d);});
+  }
+}
+function updateModeUI(){
+  document.body.dataset.mode=mode;
+  coreMode.setAttribute('aria-pressed',mode==='core'?'true':'false');
+  evidenceMode.setAttribute('aria-pressed',mode==='evidence'?'true':'false');
+  subtitle.textContent=mode==='core'?'An intuitive controlled comparison':'Dated evidence record · methods, controls, provenance, and historical operations snapshots';
+  src.hidden=mode==='core';
+  modeNote.hidden=mode==='core';
+  mobileZoom.hidden=mode!=='core';
+}
+function setMobileZoom(readable){
+  mobileZoomed=Boolean(readable);
+  document.body.dataset.mobileZoom=mobileZoomed?'readable':'fit';
+  mobileZoom.setAttribute('aria-pressed',mobileZoomed?'true':'false');
+  mobileZoom.textContent=mobileZoomed?'Fit the whole chart':'Enlarge chart for readable labels';
+  if(mobileZoomed)stage.scrollLeft=Math.max(0,(stage.scrollWidth-stage.clientWidth)/2);else stage.scrollLeft=0;
+}
+mobileZoom.addEventListener('click',()=>setMobileZoom(!mobileZoomed));
+function render(animateEvidence=false){
+  const b=deck()[cur];
+  document.body.dataset.motion=mode==='evidence'&&animateEvidence?'running':'paused';
+  const step=mode==='core'?coreStep:0;
+  const body=typeof b.html==='function'?b.html(step):b.html;
+  aside.innerHTML=`<div class="eyebrow">${b.eyebrow}</div><h2>${b.title}</h2>${body}`;
+  stage.innerHTML=`<svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="${b.title}; visual explanation; reveal ${step+1} of ${maxStep(b)+1}" aria-describedby="aside">${b.svg(step)}</svg>`;
+  count.textContent=mode==='core'?`Scene ${cur+1} of ${deck().length} · reveal ${step+1} of ${maxStep(b)+1}`:`Evidence ${cur+1} of ${deck().length}`;
   [...dots.children].forEach((d,k)=>d.setAttribute('aria-current',k===cur?'true':'false'));
-  let active=0;CH.forEach(([k],i)=>{if(cur>=k)active=i;});
-  [...chapters.children].forEach((d,i)=>d.setAttribute('aria-current',i===active?'true':'false'));
-  back.disabled=cur===0; next.disabled=cur===BEATS.length-1;
+  if(innerWidth<=600&&dots.children[cur]){
+    const active=dots.children[cur];
+    dots.scrollLeft=Math.max(0,active.offsetLeft-(dots.clientWidth-active.offsetWidth)/2);
+  }
+  if(mode==='evidence'){
+    let active=0;chapterStarts.forEach(([k],i)=>{if(cur>=k)active=i;});
+    [...chapters.children].forEach((d,i)=>d.setAttribute('aria-current',i===active?'true':'false'));
+  }
+  back.disabled=cur===0&&step===0;
+  next.disabled=cur===deck().length-1&&step===maxStep(b);
+  back.textContent=mode==='core'?(step>0?'← Previous step':'← Previous scene'):'← Back';
+  next.textContent=mode==='core'?(step<maxStep(b)?'Next step →':'Next scene →'):'Next beat →';
+  replay.textContent=mode==='core'?'Start scene over':'Animate this beat';
+  stage.dataset.ready='true';stage.dataset.mode=mode;stage.dataset.scene=String(cur+1);stage.dataset.step=String(step);
 }
-function go(k){
-  cur=Math.max(0,Math.min(BEATS.length-1,k));
-  const h='b'+(cur+1);
-  if(location.hash!=='#'+h){try{history.replaceState(null,'','#'+h);}catch(e){}}
-  render();
+function go(k,step=0,updateHash=true){
+  cur=Math.max(0,Math.min(deck().length-1,k));
+  coreStep=mode==='core'?Math.max(0,Math.min(maxStep(deck()[cur]),step)):0;
+  if(updateHash)writeRoute();
+  render(false);
 }
-back.addEventListener('click',()=>go(cur-1));
-next.addEventListener('click',()=>go(cur+1));
-replay.addEventListener('click',render);
+function switchMode(nextMode,k=0,step=0,updateHash=true){
+  mode=nextMode;cur=Math.max(0,Math.min(DECKS[mode].length-1,k));coreStep=mode==='core'?Math.max(0,Math.min(maxStep(DECKS[mode][cur]),step)):0;
+  updateModeUI();rebuildNavigation();if(updateHash)writeRoute();render(false);
+}
+function advance(){const b=deck()[cur];if(mode==='core'&&coreStep<maxStep(b))go(cur,coreStep+1);else go(cur+1,0);}
+function retreat(){if(mode==='core'&&coreStep>0)go(cur,coreStep-1);else if(cur>0)go(cur-1,mode==='core'?maxStep(deck()[cur-1]):0);}
+back.addEventListener('click',retreat);
+next.addEventListener('click',advance);
+replay.addEventListener('click',()=>{if(mode==='core')go(cur,0);else render(true);});
+coreMode.addEventListener('click',()=>switchMode('core',0,0));
+evidenceMode.addEventListener('click',()=>switchMode('evidence',0,0));
+stage.addEventListener('click',e=>{if(mode!=='core')return;const t=e.target.closest('[data-core-step]');if(t)go(cur,Number(t.dataset.coreStep));});
+stage.addEventListener('keydown',e=>{if(mode!=='core'||(e.key!=='Enter'&&e.key!==' '))return;const t=e.target.closest('[data-core-step]');if(t){e.preventDefault();e.stopPropagation();go(cur,Number(t.dataset.coreStep));}});
 document.addEventListener('keydown',e=>{
-  if(e.target.tagName==='BUTTON'&&e.key===' ')return;
-  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(cur+1);}
-  if(e.key==='ArrowLeft'){e.preventDefault();go(cur-1);}
+  if(e.target.closest&&e.target.closest('button,summary,details,a,input,select,textarea,[role="button"]'))return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();advance();}
+  if(e.key==='ArrowLeft'){e.preventDefault();retreat();}
 });
-window.addEventListener('hashchange',()=>{const mt=/^#b(\d+)$/.exec(location.hash);if(mt)go(parseInt(mt[1],10)-1);});
-(function(){const mt=/^#b(\d+)$/.exec(location.hash);cur=mt?Math.max(0,Math.min(BEATS.length-1,parseInt(mt[1],10)-1)):0;render();})();
+function readRoute(){
+  let mt=/^#core=(\d+)(?:\.(\d+))?$/.exec(location.hash)||/^#core-(\d+)(?:-(\d+))?$/.exec(location.hash);if(mt)return ['core',Number(mt[1])-1,Number(mt[2]||0)];
+  mt=/^#evidence=(\d+)$/.exec(location.hash);if(mt)return ['evidence',Number(mt[1])-1,0];
+  mt=/^#b(\d+)$/.exec(location.hash);if(mt)return ['evidence',Number(mt[1])-1,0];
+  return ['core',0,0];
+}
+window.addEventListener('hashchange',()=>{const r=readRoute();switchMode(r[0],r[1],r[2],false);});
+(()=>{const r=readRoute();switchMode(r[0],r[1],r[2],false);})();
+setMobileZoom(false);
 
-document.getElementById('src').innerHTML=`Sources in this repository: <code>routemap.md</code>; <code>experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2</code> (172/113, 59/0, interval [0.2206, 0.3668]); <code>experiments/rq2_gd_offset_split_001/</code> card, config, v1/v2 anchors and failure records, <code>attempts/2026-10-31_v3/</code>, <code>results/2026-10-31_anchor_v3</code> (science hash 2062fce2…; iteration-table hash 0.2 s), <code>queue/2026-10-31_v3/budget_derivation.toml</code> (11,399 s projected, 17,100 s budget), and the rejected-anchor records; <code>experiments/rq2_gd_offset_null_001/results/2026-10-31_heldout_v1/aggregate.csv</code> (107/163/73/165 and the five contrasts); and <code>experiments/rq2_native_gap_001/results/2026-10-31_{six,profile,second}_v2</code> (200/107, the profile, 200/0). The v3 held-out status shown here is an explicitly dated local observer snapshot, not a completed result; its live telemetry was intentionally not frozen into this commit. Hash timings were measured on Julia 1.12.6 with SHA.jl 0.7.0. The full-BP 200/200 against tied 0/200 figure is <code>RQ2-CONFIRM-001</code> in the route map. Toy numbers on the Tanner-graph beats (0.42, 0.30, the three readings) are illustrations, not trace values. Projected times are projections.`;
+document.documentElement.dataset.offsetSplitReady='true';
+if(new URLSearchParams(location.search).has('smoke')){
+  setTimeout(()=>{
+    try{
+      const assertVisualBounds=(svg,label)=>{
+        const outer=svg.getBoundingClientRect(),tolerance=5;
+        const graphics=[...svg.querySelectorAll('text,rect,circle,line,path,polygon,polyline')].filter(node=>!node.closest('defs'));
+        for(const node of graphics){
+          const box=node.getBoundingClientRect();
+          if((box.width||box.height)&&(box.left<outer.left-tolerance||box.top<outer.top-tolerance||box.right>outer.right+tolerance||box.bottom>outer.bottom+tolerance)){
+            throw new Error(`${label} clips ${node.tagName.toLowerCase()} ${String(node.textContent||'').trim().slice(0,32)}`);
+          }
+        }
+      };
+      switchMode('core',0,0,false);
+      for(let k=0;k<INTUITION_BEATS.length;k++){
+        for(let reveal=0;reveal<=INTUITION_BEATS[k].steps;reveal++){
+          go(k,reveal,false);
+          const svg=stage.querySelector('svg');
+          if(!svg||!aside.textContent.trim())throw new Error(`core scene ${k+1}.${reveal} did not render`);
+          assertVisualBounds(svg,`core scene ${k+1}.${reveal}`);
+          if(document.documentElement.scrollWidth>document.documentElement.clientWidth+1)throw new Error(`core scene ${k+1}.${reveal} overflows the page`);
+        }
+      }
+      switchMode('evidence',0,0,false);
+      for(let k=0;k<BEATS.length;k++){
+        go(k,0,false);
+        const svg=stage.querySelector('svg');
+        if(!svg||!aside.textContent.trim())throw new Error(`evidence beat ${k+1} did not render`);
+        assertVisualBounds(svg,`evidence beat ${k+1}`);
+        if(document.documentElement.scrollWidth>document.documentElement.clientWidth+1)throw new Error(`evidence beat ${k+1} overflows the page`);
+      }
+      switchMode('core',0,0,false);
+      next.click();if(coreStep!==1)throw new Error('Next step did not advance one reveal');
+      back.click();if(coreStep!==0)throw new Error('Previous step did not return one reveal');
+      go(2,0,false);
+      let direct=stage.querySelector('[data-core-step="1"]');
+      if(!direct)throw new Error('first sequential edge control is missing');
+      direct.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      if(coreStep!==1)throw new Error('first edge control did not reveal one offset');
+      direct=stage.querySelector('[data-core-step="2"]');
+      if(!direct)throw new Error('second sequential edge control is missing');
+      direct.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      if(coreStep!==2)throw new Error('second edge control did not reveal one offset');
+      replay.click();if(coreStep!==0)throw new Error('Start scene over did not reset the scene');
+      go(2,4,false);
+      const summary=aside.querySelector('summary');
+      if(!summary)throw new Error('construction-rule disclosure is missing');
+      summary.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true}));
+      if(coreStep!==4)throw new Error('Space on a disclosure advanced the deck');
+      if(innerWidth<=600){
+        go(INTUITION_BEATS.length-1,INTUITION_BEATS[INTUITION_BEATS.length-1].steps,false);
+        const active=dots.children[cur];
+        if(active.offsetLeft<dots.scrollLeft-1||active.offsetLeft+active.offsetWidth>dots.scrollLeft+dots.clientWidth+1)throw new Error('active mobile scene pill is outside the visible strip');
+        setMobileZoom(true);
+        if(stage.querySelector('svg').getBoundingClientRect().width<950||stage.scrollWidth<=stage.clientWidth)throw new Error('readable mobile chart zoom did not activate');
+        setMobileZoom(false);
+        if(stage.querySelector('svg').getBoundingClientRect().width>stage.clientWidth+1)throw new Error('mobile overview did not fit after leaving chart zoom');
+        document.documentElement.dataset.mobileZoomCheck='passed';
+        document.documentElement.dataset.mobileActivePill='visible';
+      }
+      switchMode('core',0,0,false);
+      document.documentElement.dataset.offsetSplitSmoke='passed';
+      document.documentElement.dataset.offsetSplitSmokeCore=String(INTUITION_BEATS.length);
+      document.documentElement.dataset.offsetSplitSmokeEvidence=String(BEATS.length);
+      document.documentElement.dataset.layoutCoreBounds='passed';
+      document.documentElement.dataset.layoutEvidenceBounds='passed';
+      document.documentElement.dataset.layoutOverflow=document.documentElement.scrollWidth<=document.documentElement.clientWidth?'none':`${document.documentElement.scrollWidth}-${document.documentElement.clientWidth}`;
+      const stageSvg=stage.querySelector('svg');
+      document.documentElement.dataset.layoutStageFit=stageSvg&&stageSvg.getBoundingClientRect().width<=stage.clientWidth+1?'true':'false';
+    }catch(error){document.documentElement.dataset.offsetSplitSmoke='failed: '+error.message;}
+  },0);
+}
+
+document.getElementById('srcBody').innerHTML=`Sources. Codex’s worktree <code>~/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030</code>: <code>routemap.md</code> (31 Oct); <code>experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2</code> (172/113, 59/0, interval [0.2206, 0.3668]); <code>experiments/rq2_gd_offset_split_001/</code> card, config, <code>results/2026-10-31_anchor_v1</code> and <code>_anchor_v2</code> (15/23/14/22, overshoot max 0.0577, science hash 2062fce2…), <code>results/2026-10-31_heldout_v1/progress.toml</code> and <code>queue/2026-10-31_v1/logs/J04.log</code> (the v1 timeline), <code>results/2026-10-31_heldout_v2/progress.toml</code>, <code>attempts/2026-10-31_v3/</code>, <code>results/2026-10-31_anchor_v3</code> (same hash; its <code>phase_log.tsv</code> gives the 0.2 s hash), <code>results/2026-10-31_heldout_v3/</code> (<code>COMPLETED.toml</code>, <code>science.json</code>, <code>aggregate.csv</code>, <code>interaction.csv</code>, <code>phase_log.tsv</code>: 107/106/163/163, the four conditional contrasts, the interaction, and every time on the run beat), <code>queue/2026-10-31_v3/budget_derivation.toml</code> (11,399 s projected, 17,100 s budget), and <code>results/2026-10-31_anchor_v3_rejected_progress_chain/REJECTED.toml</code>. Claude’s worktree <code>~/Documents/GitHub/sp_gd_admm-claude-controls-20261031</code>: <code>experiments/rq2_gd_offset_null_001/results/2026-10-31_heldout_v1/aggregate.csv</code> (107/163/73/165 and the five contrasts) and <code>experiments/rq2_native_gap_001/results/2026-10-31_{six,profile,second}_v2</code> (200/107, the profile, 200/0). Hash timings measured in this session on Julia 1.12.6 with SHA.jl 0.7.0: 0.25 MB 0.30 s, 0.5 MB 1.13 s, 1 MB 4.6 s, 2 MB 19.6 s; byte-vector form 2 MB 0.036 s, identical digest; the anchor’s 2,880-row table 150 s. The full-BP 200/200 against tied 0/200 figure is <code>RQ2-CONFIRM-001</code> in the route map. Toy numbers on the Tanner-graph beats (0.42, 0.30, the three readings) are illustrations, not trace values. Times on the run beat are measured from the phase logs. Codex’s third worktree <code>~/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031</code>: <code>experiments/rq2_gd_parity_assignment_refresh_001/</code> card, config and <code>dispatcher/README.md</code> (the four arms, the stages, the selection rule, the fail-closed terminal outcomes), <code>controller/2026-10-31_v1/</code>, <code>controller/2026-11-01_v2/</code>, <code>_v3/</code> and <code>_v4/</code> (each with <code>selection_decision.toml</code>: 56 treatment-only against 0 reference-only on both endpoints; <code>status_history.tsv</code>, <code>FAILED.toml</code> or <code>progress.toml</code>, and <code>logs/pipeline.log</code>: the parse error at line 450 of the test file, the <code>split</code> shadowing at runner line 1497, the result-inventory mismatch in <code>derive_budget.py</code>), <code>results/2026-11-01_v3_anchor/</code> (<code>COMPLETED.toml</code> complete_valid, science hash ce6f238b…, <code>aggregate.csv</code>: 23/10/23/10 of 24, 13 won and 0 lost at both replacement levels, <code>phase_log.tsv</code>: 402 s primary, 309 s replay), <code>results/2026-11-01_v4_anchor/progress.toml</code> (historical snapshot: 11 of 24 frames at 09:35), the units <code>rq2-followup-controller-20261031.service</code> to <code>…-20261101-v4.service</code> and <code>sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service</code> (started 09:30:05), and commits 880fad6, d771540, 0c7e3e2, 48333d7 and 134ca9e (retained failures and registered retries, 05:23 to 09:28 on 1 November). The completed follow-up, in the same worktree: <code>results/2026-11-01_v4_transfer/</code> and <code>results/2026-11-01_v4_attribution/</code> (<code>COMPLETED.toml</code> complete_valid with science hashes 2556c01f… and e39e1894…, <code>aggregate.csv</code>, <code>interaction.csv</code>, the attribution’s <code>frames.csv</code>, and <code>science.json</code> with its native-GD transition accounting), <code>controller/2026-11-01_v4/SELECTED.toml</code> and <code>BRIDGE_REGISTRATION_REQUIRED.toml</code> (12:39 CST), and Claude’s native-gap <code>experiments/rq2_native_gap_001/results/2026-10-31_six_v2/frames.csv</code> (sha a724bbcf…), which the attribution uses as its reference. The next campaign, in Codex’s worktree <code>~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101</code>: <code>routemap.md</code> (the check-rule card superseded; the two blocks) and <code>experiments/rq2_causal_factors_001/</code> (<code>campaign_registration.toml</code>, <code>queue/2026-11-01_v1/status_history.tsv</code>: launched 07:38:59 UTC).`;
+document.getElementById('srcBody').insertAdjacentHTML('afterbegin', `<p><strong>Pinned explainer inputs:</strong> byte-for-byte snapshots are in <code>offset_split_explainer_evidence/</code> and checked against <code>MANIFEST.sha256</code>. Original provenance follows.</p>`);
 </script>
-
-</body>
 </html>

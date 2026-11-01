@@ -1,0 +1,10 @@
+anchor_expansion_authorized = false
+completed_utc = "2026-11-01T03:10:05.946"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
+manifest_sha256 = "0cc5b2f268dad4f06f76623279058f4da7a82644e786bfe40a044f1fb756b177"
+schema_version = "rq2-gd-parity-assignment-refresh-001/completion-v1"
+science_sha256 = "2556c01f170d0e3f42bdcca831df47278270ec13628e84a1541a7976668c5595"
+stage = "transfer"
+status = "complete_valid"

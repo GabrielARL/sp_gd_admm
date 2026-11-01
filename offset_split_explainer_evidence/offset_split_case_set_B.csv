@@ -1,0 +1,13 @@
+endpoint,contrast_id,treatment_arm,reference_arm,pairs,both_success,treatment_only_success,reference_only_success,both_failure,treatment_successes,reference_successes,risk_difference_treatment_minus_reference,interval_confidence_level,interval_lower,interval_upper,mcnemar_exact_two_sided_pvalue,holm_adjusted_pvalue
+information_word_equal,objective_use_given_bounds0,objective1__bounds0,objective0__bounds0,200,137,42,0,21,179,137,0.20999999999999999,,,,,
+information_word_equal,offset_bounds_given_objective0,objective0__bounds1,objective0__bounds0,200,136,1,1,62,137,137,0,,,,,
+information_word_equal,objective_use_given_bounds1,objective1__bounds1,objective0__bounds1,200,137,42,0,21,179,137,0.20999999999999999,,,,,
+information_word_equal,offset_bounds_given_objective1,objective1__bounds1,objective1__bounds0,200,179,0,0,21,179,179,0,,,,,
+parity_valid,objective_use_given_bounds0,objective1__bounds0,objective0__bounds0,200,107,56,0,37,163,107,0.28000000000000003,0.99375000000000002,0.18991717159201069,0.36462018589023215,2.7755575615628914e-17,1.6653345369377348e-16
+parity_valid,offset_bounds_given_objective0,objective0__bounds1,objective0__bounds0,200,106,0,1,93,106,107,-0.0050000000000000001,0.99375000000000002,-0.024093073806130901,0.014114404461788112,1,1
+parity_valid,objective_use_given_bounds1,objective1__bounds1,objective0__bounds1,200,106,57,0,37,163,106,0.28499999999999998,0.99375000000000002,0.19432848910213651,0.36989303561636694,1.3877787807814457e-17,1.1102230246251565e-16
+parity_valid,offset_bounds_given_objective1,objective1__bounds1,objective1__bounds0,200,163,0,0,37,163,163,0,0.99375000000000002,-0.02637450105331994,0.02637450105331994,1,1
+transmitted_word_equal,objective_use_given_bounds0,objective1__bounds0,objective0__bounds0,200,107,56,0,37,163,107,0.28000000000000003,0.99375000000000002,0.18991717159201069,0.36462018589023215,2.7755575615628914e-17,1.6653345369377348e-16
+transmitted_word_equal,offset_bounds_given_objective0,objective0__bounds1,objective0__bounds0,200,106,0,1,93,106,107,-0.0050000000000000001,0.99375000000000002,-0.024093073806130901,0.014114404461788112,1,1
+transmitted_word_equal,objective_use_given_bounds1,objective1__bounds1,objective0__bounds1,200,106,57,0,37,163,106,0.28499999999999998,0.99375000000000002,0.19432848910213651,0.36989303561636694,1.3877787807814457e-17,1.1102230246251565e-16
+transmitted_word_equal,offset_bounds_given_objective1,objective1__bounds1,objective1__bounds0,200,163,0,0,37,163,163,0,0.99375000000000002,-0.02637450105331994,0.02637450105331994,1,1
