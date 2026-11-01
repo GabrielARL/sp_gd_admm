@@ -41,7 +41,7 @@ SELECTION_CONTRAST = "objective_use_given_bounds0"
 TREATMENT_ARM = "objective1__bounds0"
 REFERENCE_ARM = "objective0__bounds0"
 ENDPOINTS = ("transmitted_word_equal", "parity_valid")
-EXPECTED_BUDGET_TESTS = 4
+EXPECTED_BUDGET_TESTS = 5
 EXPECTED_QUEUE_TESTS = 13
 
 FIELD_ORDER = (

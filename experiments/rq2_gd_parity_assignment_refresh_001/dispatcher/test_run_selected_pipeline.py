@@ -138,6 +138,11 @@ class FullFakeCommands:
             unit = unit_argument.split("=", 1)[1]
             if unit == prepare.REGISTERED_EXECUTION["anchor_unit_name"]:
                 self.paths.anchor_result.mkdir(parents=True)
+                (self.paths.anchor_result / "COMPLETED.toml").write_text(
+                    "science_sha256 = "
+                    f'"{pipeline.RETAINED_V3_ANCHOR_SCIENCE_SHA256}"\n',
+                    encoding="utf-8",
+                )
             elif unit == prepare.REGISTERED_EXECUTION["queue_unit_name"]:
                 self.paths.transfer_result.mkdir(parents=True)
                 self.paths.attribution_result.mkdir(parents=True)
@@ -170,6 +175,21 @@ recorded_utc = "2026-10-31T00:00:00Z"
 
 
 class SelectedPipelineTests(unittest.TestCase):
+    def test_anchor_science_equivalence_is_required(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            result = Path(temporary) / "anchor"
+            result.mkdir()
+            completion = result / "COMPLETED.toml"
+            completion.write_text(
+                "science_sha256 = "
+                f'"{pipeline.RETAINED_V3_ANCHOR_SCIENCE_SHA256}"\n',
+                encoding="utf-8",
+            )
+            pipeline.require_anchor_science_equivalence(result)
+            completion.write_text('science_sha256 = "different"\n', encoding="utf-8")
+            with self.assertRaisesRegex(pipeline.PipelineError, "differs"):
+                pipeline.require_anchor_science_equivalence(result)
+
     def test_bridge_handoff_binds_evidence_and_refuses_overwrite(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

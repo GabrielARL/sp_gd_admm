@@ -44,7 +44,7 @@ register; it cannot by itself explain the full native BP performance gap.
 - Outcome: preflight passed, then source enumeration stopped during freeze
   before a freeze manifest, scientific service, or endpoint calculation.
 
-### Registered operational retry
+### Retained packaging failure after a valid anchor
 
 - Controller unit: `rq2-followup-controller-20261101-v3.service`
 - Configuration: `controller_2026-11-01_v3.toml`
@@ -55,6 +55,26 @@ register; it cannot by itself explain the full native BP performance gap.
   `sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service`
 - Serial transfer-plus-attribution unit:
   `sp-gd-rq2-parity-assignment-refresh-20261031.service`
+- Outcome: preflight and freeze passed; the 24-case anchor completed validly
+  with deterministic replay and science SHA-256
+  `ce6f238b81e7edc5d7c160837fee0b566ea026c8cb319a55553c71839fbeeb49`.
+  Queue packaging then rejected six checksum-bound nested evidence files
+  because it excluded their basenames globally. No transfer or attribution
+  service was launched.
+
+### Registered operational retry
+
+- Controller unit: `rq2-followup-controller-20261101-v4.service`
+- Configuration: `controller_2026-11-01_v4.toml`
+- Controller state: `../controller/2026-11-01_v4/`
+- Factorial attempt: `2026-11-01_v4`
+- Preflight: `../preflight/2026-11-01_v4/preflight_validation.md`
+- Anchor unit:
+  `sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service`
+- Serial transfer-plus-attribution unit:
+  `sp-gd-rq2-parity-assignment-refresh-v4-20261101.service`
+- Additional gate: the v4 anchor science SHA-256 must equal the retained valid
+  v3 anchor science SHA-256 before budget creation or queue launch.
 
 The controller has no automatic-resume path. Any durable controller state or
 any existing freeze, result, queue, or bridge-handoff path makes the attempt

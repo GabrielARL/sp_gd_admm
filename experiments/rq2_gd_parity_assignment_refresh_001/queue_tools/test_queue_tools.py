@@ -94,8 +94,8 @@ manual_relaunch_requires_new_attempt_directory = true
 
 [execution]
 scientific_unit_pattern = "sp-gd-*.service"
-anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service"
-queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-20261031.service"
+anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service"
+queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service"
 anchor_wall_budget_seconds = 7200
 anchor_term_after_seconds = 7080
 termination_grace_seconds = 120
@@ -239,8 +239,8 @@ def make_anchor_freeze(root: Path, queue: Path) -> tuple[Path, Path, Path]:
 
 [queue_plan]
 scientific_unit_pattern = "sp-gd-*.service"
-anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service"
-queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-20261031.service"
+anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service"
+queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service"
 anchor_wall_budget_seconds = 7200
 anchor_term_after_seconds = 7080
 termination_grace_seconds = 120
@@ -608,7 +608,7 @@ class GuardAndWrapperTests(unittest.TestCase):
                 args=[],
                 returncode=0,
                 stdout=(
-                    "sp-gd-rq2-parity-assignment-refresh-20261031.service "
+                    "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service "
                     "loaded active running test\n"
                 ),
                 stderr="",
@@ -617,13 +617,13 @@ class GuardAndWrapperTests(unittest.TestCase):
                 record = status.unit_guard(queue, "queue")
                 self.assertEqual(
                     record["active_units"],
-                    ["sp-gd-rq2-parity-assignment-refresh-20261031.service"],
+                    ["sp-gd-rq2-parity-assignment-refresh-v4-20261101.service"],
                 )
             conflict = subprocess.CompletedProcess(
                 args=[],
                 returncode=0,
                 stdout=(
-                    "sp-gd-rq2-parity-assignment-refresh-20261031.service "
+                    "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service "
                     "loaded active running test\n"
                     "sp-gd-rq2-offset-split-v3-20261031.service loaded active running v3\n"
                 ),
@@ -648,11 +648,11 @@ class GuardAndWrapperTests(unittest.TestCase):
     def test_unit_guard_rejects_duplicate_or_out_of_pattern_names(self) -> None:
         replacements = (
             (
-                'queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-20261031.service"',
-                'queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service"',
+                'queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service"',
+                'queue_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service"',
             ),
             (
-                'anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service"',
+                'anchor_unit_name = "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service"',
                 'anchor_unit_name = "unregistered-anchor.service"',
             ),
         )

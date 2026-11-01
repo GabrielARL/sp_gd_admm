@@ -102,8 +102,8 @@ BASE_TELEMETRY = {
 JOB_MARKERS = ("STARTED.toml", "COMPLETED.toml", "FAILED.toml")
 REGISTERED_EXECUTION = {
     "scientific_unit_pattern": "sp-gd-*.service",
-    "anchor_unit_name": "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service",
-    "queue_unit_name": "sp-gd-rq2-parity-assignment-refresh-20261031.service",
+    "anchor_unit_name": "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service",
+    "queue_unit_name": "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service",
     "anchor_wall_budget_seconds": 7200,
     "anchor_term_after_seconds": 7080,
     "termination_grace_seconds": 120,

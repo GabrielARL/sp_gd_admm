@@ -54,9 +54,9 @@ REGISTERED_EXECUTION: dict[str, object] = {
     "ionice_class": "idle",
     "scientific_unit_pattern": "sp-gd-*.service",
     "anchor_unit_name":
-        "sp-gd-rq2-parity-assignment-refresh-anchor-20261031.service",
+        "sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service",
     "queue_unit_name":
-        "sp-gd-rq2-parity-assignment-refresh-20261031.service",
+        "sp-gd-rq2-parity-assignment-refresh-v4-20261101.service",
 }
 
 IMMUTABLE_SOURCE_MAP = {

@@ -40,6 +40,9 @@ import prepare_attempt as preparation  # noqa: E402
 
 EXPERIMENT_ID = "RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001"
 HANDOFF_SCHEMA = "rq2-gd-parity-assignment-refresh-001/bridge-handoff-v1"
+RETAINED_V3_ANCHOR_SCIENCE_SHA256 = (
+    "ce6f238b81e7edc5d7c160837fee0b566ea026c8cb319a55553c71839fbeeb49"
+)
 ACTIVE_STATES = {"active", "activating", "reloading", "deactivating"}
 THREAD_ENVIRONMENT = {
     "JULIA_NUM_THREADS": "1",
@@ -79,6 +82,19 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def require_anchor_science_equivalence(result: Path) -> None:
+    completion_path = result / "COMPLETED.toml"
+    if not completion_path.is_file() or completion_path.is_symlink():
+        raise PipelineError(f"missing direct anchor completion: {completion_path}")
+    completion = load_toml(completion_path)
+    actual = str(completion.get("science_sha256", ""))
+    if actual != RETAINED_V3_ANCHOR_SCIENCE_SHA256:
+        raise PipelineError(
+            "v4 anchor science hash differs from retained valid v3 anchor: "
+            f"expected={RETAINED_V3_ANCHOR_SCIENCE_SHA256}, actual={actual or 'missing'}"
+        )
 
 
 def utc_now() -> str:
@@ -532,6 +548,7 @@ def selected_pipeline(
         ],
         command_runner=command_runner,
     )
+    require_anchor_science_equivalence(paths.anchor_result)
 
     print("pipeline phase 4/6: derive budgets and lock exact queue package", flush=True)
     package = preparation.finalize_attempt(

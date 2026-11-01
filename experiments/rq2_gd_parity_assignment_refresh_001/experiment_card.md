@@ -2,10 +2,10 @@
 
 Status: **registered design; Offset Split v3 completed validly and passed the
 registered branch-selection rule; controller attempt `2026-10-31_v1` failed
-during syntax validation, and attempt `2026-11-01_v2` failed while enumerating
-freeze sources; both stopped before any factorial endpoint was calculated; the
-isolated operational retry is `2026-11-01_v3`; no factorial result is claimed
-yet**.
+during syntax validation, attempt `2026-11-01_v2` failed while enumerating
+freeze sources, and attempt `2026-11-01_v3` completed its valid 24-case anchor
+but stopped at queue packaging; the isolated operational retry is
+`2026-11-01_v4`; no transfer or attribution conclusion is claimed yet**.
 
 This identifier is an internal experiment ID, not a receiver name. ADMM and
 native BP are outside this experiment. The constructed offsets are
@@ -129,7 +129,23 @@ preflight, freeze, result, queue, controller-state, and decision records. The
 scientific question, four arms, cases, endpoints, contrasts, correction
 family, budgets, numerical operations, and stopping rules are unchanged. The
 registered scientific service names are reused only because v1 and v2 launched
-neither service and created no scientific result.
+neither service and created no scientific result. Its preflight, freeze, and
+24-case anchor completed validly, including deterministic replay. The retained
+anchor science SHA-256 is
+`ce6f238b81e7edc5d7c160837fee0b566ea026c8cb319a55553c71839fbeeb49`.
+The controller then stopped before budget creation because the inventory
+verifier excluded nested files named `MANIFEST.sha256` or `phase_log.tsv` by
+basename even though the anchor manifest correctly bound them. No transfer or
+attribution service was launched.
+
+Attempt `2026-11-01_v4` retains every v3 record and changes the inventory rule
+to exclude only the three generated files at the result root. A regression
+requires same-named nested files to remain checksum-bound. The retry receives
+new preflight, freeze, result, queue, controller-state, decision, anchor-unit,
+and queue-unit identities. Before queue packaging, its valid anchor science
+SHA-256 must equal the retained v3 anchor science SHA-256. The scientific
+question, four arms, cases, endpoints, contrasts, correction family, work
+budgets, numerical operations, and stopping rules remain unchanged.
 
 ## Protocol fingerprint
 

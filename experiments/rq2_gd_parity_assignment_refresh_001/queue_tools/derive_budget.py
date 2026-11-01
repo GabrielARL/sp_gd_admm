@@ -60,14 +60,15 @@ def verify_result_inventory(root: Path) -> None:
         if not separator or relative in listed:
             raise RuntimeError(f"malformed or duplicate checksum row: {line}")
         listed[relative] = expected
-    actual = {
-        str(path.relative_to(root))
-        for path in root.rglob("*")
-        if path.is_file()
-        and path.name != "MANIFEST.sha256"
-        and path.name != "progress.toml"
-        and path.name != "phase_log.tsv"
-    }
+    root_generated = {"MANIFEST.sha256", "progress.toml", "phase_log.tsv"}
+    actual: set[str] = set()
+    for path in root.rglob("*"):
+        if not path.is_file():
+            continue
+        relative = path.relative_to(root).as_posix()
+        if relative in root_generated:
+            continue
+        actual.add(relative)
     if actual != set(listed):
         raise RuntimeError(
             f"result inventory mismatch: extra={sorted(actual-set(listed))}, "

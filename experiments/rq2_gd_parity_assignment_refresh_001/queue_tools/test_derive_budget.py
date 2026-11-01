@@ -156,6 +156,35 @@ class DeriveBudgetTests(unittest.TestCase):
             completed = run_tool(anchor, root / "budget.toml")
             self.assertNotEqual(completed.returncode, 0)
 
+    def test_nested_generated_basenames_remain_in_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            anchor = write_anchor(root / "anchor")
+            (anchor / "progress.toml").write_text(
+                'status = "complete_valid"\n', encoding="utf-8"
+            )
+            nested_files = {
+                "source/retained/MANIFEST.sha256": "nested manifest\n",
+                "source/retained/progress.toml": "nested progress\n",
+                "source/retained/phase_log.tsv": "nested phase log\n",
+            }
+            manifest = anchor / "MANIFEST.sha256"
+            with manifest.open("a", encoding="utf-8") as handle:
+                for relative, content in nested_files.items():
+                    path = anchor / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text(content, encoding="utf-8")
+                    handle.write(f"{sha256(path)}  {relative}\n")
+
+            completed = run_tool(anchor, root / "budget.toml")
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+
+            (anchor / "source/retained/progress.toml").write_text(
+                "tampered\n", encoding="utf-8"
+            )
+            tampered = run_tool(anchor, root / "tampered-budget.toml")
+            self.assertNotEqual(tampered.returncode, 0)
+
     def test_cap_and_overwrite_refusals(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

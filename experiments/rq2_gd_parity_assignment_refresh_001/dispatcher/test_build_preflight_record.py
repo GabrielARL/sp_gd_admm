@@ -248,7 +248,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
                 root, "julia",
                 "Test Summary: | Pass  Total  Time\nfixture | 91 91 0.1s\n",
             )
-            budget = fake_command(root, "budget", "Ran 4 tests in 0.1s\n\nOK\n")
+            budget = fake_command(root, "budget", "Ran 5 tests in 0.1s\n\nOK\n")
             queue = fake_command(root, "queue", "Ran 13 tests in 0.1s\n\nOK\n")
             narrative = preflight.read_text(encoding="utf-8").split(
                 "\n## Narrative", 1)[1]
@@ -261,7 +261,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
             self.assertEqual(actual["test_exit_code"], "0")
             self.assertEqual(actual["test_assertions_passed"], "91")
             self.assertEqual(actual["test_assertions_total"], "91")
-            self.assertEqual(actual["budget_tests_passed"], "4")
+            self.assertEqual(actual["budget_tests_passed"], "5")
             self.assertEqual(actual["queue_tests_passed"], "13")
             self.assertEqual(
                 preflight.read_text(encoding="utf-8").split("\n## Narrative", 1)[1],
@@ -280,7 +280,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
                 "Test Summary: | Pass  Fail  Total  Time\nfixture | 8 1 9 0.1s\n",
                 exit_code=7,
             )
-            budget = fake_command(root, "budget", "Ran 4 tests in 0.1s\nOK\n")
+            budget = fake_command(root, "budget", "Ran 5 tests in 0.1s\nOK\n")
             queue = fake_command(root, "queue", "Ran 13 tests in 0.1s\nOK\n")
             self.assertFalse(builder.build_record(
                 root, preflight, prerequisite, None, julia, budget, queue))
@@ -304,7 +304,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
                 root, "julia",
                 "Test Summary: | Pass  Total  Time\nfixture | 91 91 0.1s\n",
             )
-            budget = fake_command(root, "budget", "Ran 4 tests in 0.1s\nOK\n")
+            budget = fake_command(root, "budget", "Ran 5 tests in 0.1s\nOK\n")
             queue = fake_command(root, "queue", "Ran 13 tests in 0.1s\nOK\n")
             self.assertTrue(builder.build_record(
                 root, preflight, prerequisite, None, julia, budget, queue))
@@ -328,7 +328,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
                 root, "julia",
                 "Test Summary: | Pass  Total  Time\nfixture | 91 91 0.1s\n",
             )
-            budget = fake_command(root, "budget", "Ran 4 tests in 0.1s\nOK\n")
+            budget = fake_command(root, "budget", "Ran 5 tests in 0.1s\nOK\n")
             queue = fake_command(root, "queue", "Ran 13 tests in 0.1s\nOK\n")
             self.assertTrue(builder.build_record(
                 root, preflight, prerequisite, None, julia, budget, queue))
@@ -357,7 +357,7 @@ class BuildPreflightRecordTests(unittest.TestCase):
                 root, "julia",
                 "Test Summary: | Pass  Total  Time\nfixture | 3 3 0.1s\n",
             )
-            budget = fake_command(root, "budget", "Ran 4 tests in 0.1s\nOK\n")
+            budget = fake_command(root, "budget", "Ran 5 tests in 0.1s\nOK\n")
             queue = fake_command(root, "queue", "Ran 13 tests in 0.1s\nOK\n")
             arguments = [
                 "--repo-root", str(root),
