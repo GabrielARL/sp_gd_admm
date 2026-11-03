@@ -48,3 +48,19 @@ single primary endpoint is transmitted-word recovery: report both discordance
 directions, the risk difference, a two-sided exact McNemar p-value, and a 95%
 Newcombe method-10 paired interval. Parity validity receives the same
 descriptive summary but is not a second causal decision gate.
+
+## Terminal status
+
+The immutable v1 queue completed valid at 21:20 CST on 3 November 2026. The
+anchor recovered 22/24 transmitted words in the equality-constrained arm and
+0/24 in the equality-relaxed arm. The confirmatory transfer recovered 164/200
+and 0/200, respectively, with 0 relaxed-only and 164 constrained-only pairs.
+The relaxed-minus-constrained risk difference was -0.82, its two-sided 95%
+Newcombe method-10 interval was `[-0.8670537414, -0.7579540490]`, and the exact
+two-sided McNemar p-value was `8.5528470723e-50`.
+
+All registered correctness and deterministic-replay gates passed. The result
+shows that removing edge-copy equality alone is harmful under this bounded
+compound construction. It does not identify the edge optimization variables
+with BP messages or attribute the complete native BP-versus-projected-GD gap.
+See `terminal_result.md` for the diagnostics, claim boundary, and hashes.

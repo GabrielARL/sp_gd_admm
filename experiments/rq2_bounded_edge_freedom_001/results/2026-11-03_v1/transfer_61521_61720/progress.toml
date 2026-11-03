@@ -1,0 +1,11 @@
+completed_frames = 200
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+pass = "replay"
+phase = "write_result"
+previous_phase_seconds = 0.0
+schema_version = "rq2-bounded-edge-freedom-001/progress-v1"
+stage = "transfer"
+status = "complete_valid"
+total_frames = 200
+updated_utc = "2026-11-03T13:20:11.428"
+

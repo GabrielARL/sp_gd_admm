@@ -1,0 +1,16 @@
+anchor_prerequisite_completion_sha256 = "5135728efc56933124e37892813efec3838201b458ba957ebcb07b6784446caf"
+anchor_prerequisite_job_gate_sha256 = "6d945760383b245f5b2d454cd83439add7a819987db3a7fdec1f035f089ca6d7"
+anchor_prerequisite_manifest_sha256 = "514c1acf98af8ef1b8f2cfafd4531bd25332f447f22f0adcd28feb1e93fdee58"
+config_sha256 = "423144c09310c43334c1aa3abaa67e8409a49f649e7f8399da5ef98180b8437d"
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+frame_count = 200
+primary_science_sha256 = "0d744c3e4cee906392c81d6bb6d418f2b715ea7a0a8ba7d5f278c1930fba7dc9"
+projection_passed = true
+replay_science_sha256 = "0d744c3e4cee906392c81d6bb6d418f2b715ea7a0a8ba7d5f278c1930fba7dc9"
+schema_version = "rq2-bounded-edge-freedom-001/gate-v1"
+source_gate_sha256 = "62c667a13d727cdb92f174d9afe38bb1425294772ecd26baa9e993278936d64d"
+stage = "transfer"
+status = "pass"
+

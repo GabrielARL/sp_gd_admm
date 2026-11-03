@@ -1,0 +1,12 @@
+completed_utc = "2026-11-03T13:20:11.421"
+config_sha256 = "423144c09310c43334c1aa3abaa67e8409a49f649e7f8399da5ef98180b8437d"
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+primary_seconds = 652.345803343
+replay_seconds = 701.414363493
+schema_version = "rq2-bounded-edge-freedom-001/completion-v1"
+science_sha256 = "0d744c3e4cee906392c81d6bb6d418f2b715ea7a0a8ba7d5f278c1930fba7dc9"
+source_gate_sha256 = "62c667a13d727cdb92f174d9afe38bb1425294772ecd26baa9e993278936d64d"
+stage = "transfer"
+status = "complete_valid"
+total_seconds = 1368.064194034
+

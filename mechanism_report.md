@@ -53,14 +53,15 @@ on the projected-gradient backbone. It does not make the offsets BP messages,
 separate parity-objective use from projection-bound use, or uniquely explain
 the native performance gap.
 
-The next representation control is now running but has produced no eligible
-fresh result. `RQ2-BOUNDED-EDGE-FREEDOM-001` holds a bounded compound
-objective, calculation, metric, readout, and update budget fixed while removing
-only the equality constraint among edge optimization variables joined to the
-same coded bit. Its exact tied reproduction passed on 24/24 retained
-compatibility cases and its tests passed 121/121 before launch. These are
-implementation gates, not recovery evidence, and the current RQ1 conclusion
-therefore remains unchanged.
+The bounded representation control is now complete-valid.
+`RQ2-BOUNDED-EDGE-FREEDOM-001` held a bounded compound objective, calculation,
+metric, readout, and update budget fixed while removing only the equality
+constraint among edge optimization variables joined to the same coded bit.
+Its exact tied reproduction passed on 24/24 retained compatibility cases and
+its tests passed 121/121. On the confirmatory transfer, the constrained arm
+recovered 164/200 transmitted words and the equality-relaxed arm recovered
+0/200. The result shows that edge freedom alone is harmful in this
+construction; it does not reproduce or indict BP's directed messages.
 
 ## What was isolated
 
@@ -612,12 +613,27 @@ coordinates itself changes recovery while the computation, objective, metric,
 readout, and budget remain fixed.
 
 The exact tied reproduction gate passed on all retained compatibility frames
-`20001:20024`, and the strict suite passed 121/121 tests. Those checks only
-validate the lower-endpoint handoff and implementation. The immutable v1 queue
-launched on 3 November 2026 at 20:51 CST as
-`sp-gd-rq2-bounded-edge-freedom-20261103-v1` and is active at this documentation
-snapshot. It evaluates anchor frames `61497:61520` before any conditional
-transfer on `61521:61720`. No fresh outcome is yet eligible evidence. Even a
-valid nonzero contrast would not establish that the edge variables are BP
-messages, that either arm is equivalent to BP, or that this factor explains
-the complete native BP-versus-projected-GD gap.
+`20001:20024`, and the strict suite passed 121/121 tests. The immutable v1
+queue then completed the 24-case anchor and the 200-case confirmatory transfer
+with every correctness and deterministic-replay gate passing. At update 30,
+equality-constrained/equality-relaxed transmitted-word recovery was 22/24
+versus 0/24 on the anchor and 164/200 versus 0/200 on the transfer. The
+transfer risk difference was -0.82, its two-sided 95% Newcombe method-10
+interval was `[-0.8670537414, -0.7579540490]`, and the exact two-sided McNemar
+p-value was `8.5528470723e-50`.
+
+The free edge values did not remain coherent under the fixed mean readout. On
+the transfer, 86--175 edge signs per case disagreed with their bit's mean sign,
+and 34--107 checks per case changed hard-parity status when private edge values
+were replaced by the corresponding bit means. The relaxed arm remained inside
+the box, completed every strict-decrease update, reached a lower objective on
+200/200 cases, and nevertheless had more coded-bit errors on all 200. This is
+not a numerical-divergence result. It shows that removing equality alone
+permits the objective to improve through private check-local values while the
+coherent hard-decision estimate becomes worse.
+
+This causal result is deliberately narrow. It rejects edge freedom alone as
+the missing ingredient under this bounded compound construction. It does not
+establish that the edge variables are BP messages, that either arm is
+equivalent to BP, or that this factor explains the complete native
+BP-versus-projected-GD gap.

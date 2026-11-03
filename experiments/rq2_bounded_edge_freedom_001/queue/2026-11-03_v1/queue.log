@@ -1,0 +1,173 @@
+2026-11-03T12:51:18Z queue_start experiment=RQ2-BOUNDED-EDGE-FREEDOM-001
+README.md: OK
+launch_detached.sh: OK
+queue.toml: OK
+run_queue.sh: OK
+freeze_manifest.toml: OK
+source/rq2_bounded_edge_freedom_001/README.md: OK
+source/rq2_bounded_edge_freedom_001/config.toml: OK
+source/rq2_bounded_edge_freedom_001/derivation_card.md: OK
+source/rq2_bounded_edge_freedom_001/experiment_card.md: OK
+source/rq2_bounded_edge_freedom_001/freeze/build_freeze.py: OK
+source/rq2_bounded_edge_freedom_001/rq2_bounded_edge_freedom_001.jl: OK
+source/rq2_bounded_edge_freedom_001/test_rq2_bounded_edge_freedom_001.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/MANIFEST.sha256: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/freeze_manifest.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/endpoint_expected/attribution_native_frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/endpoint_expected/attribution_v4_frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/endpoint_expected/calibration_native_frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/endpoint_expected/calibration_v4_frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/v4_anchor/COMPLETED.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/v4_anchor/MANIFEST.sha256: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/reference/v4_anchor/frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/config.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/experiment_card.md: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/runner.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/test_rq2_gd_residual_projection_budget_001.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_b/config.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_b/experiment_card.md: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_b/runner.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_b/test_rq2_bp_target_state_update_001.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/campaign/endpoint_expectations.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/campaign/harness_repair_contract.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/campaign/preflight_evidence.md: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/campaign/verify_endpoint_expectations.py: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/Manifest.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/Project.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/JadeJcade.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/LDPC.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/Modulations.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/ReceiverCore.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/baseline_likelihood.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/common.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/jcade.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/joint_cz_projected_gradient.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_sensitivity.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_trace.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/persistent_edge.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/jade_project/src/core/soft_minsum_lagrangian.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/preflight_validation.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/retained_native/frames.csv: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/retained_native/run_three_receivers.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/retained_native/test_three_receivers.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/rq2_gd_parity_assignment_refresh_001/config.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl: OK
+source/rq2_causal_factors_001/freeze/2026-11-01_v2/source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/COMPLETED.toml: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/MANIFEST.sha256: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/aggregate.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/calibration_gates.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/common_update_gates.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/contrasts.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/endpoint_gate.toml: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/endpoint_words.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/frames.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/interaction.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/iterations.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/primary_checkpoint/frames.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/primary_checkpoint/iterations.csv: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/primary_checkpoint/science.toml: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/science.json: OK
+source/rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/timing.toml: OK
+source/rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/FAILURE.toml: OK
+source/rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/MANIFEST.sha256: OK
+source/rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/phase_log.tsv: OK
+source/rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/progress.toml: OK
+freeze_manifest.toml: OK
+reference/endpoint_expected/attribution_native_frames.csv: OK
+reference/endpoint_expected/attribution_v4_frames.csv: OK
+reference/endpoint_expected/calibration_native_frames.csv: OK
+reference/endpoint_expected/calibration_v4_frames.csv: OK
+reference/v4_anchor/COMPLETED.toml: OK
+reference/v4_anchor/MANIFEST.sha256: OK
+reference/v4_anchor/frames.csv: OK
+source/block_a/config.toml: OK
+source/block_a/experiment_card.md: OK
+source/block_a/runner.jl: OK
+source/block_a/test_rq2_gd_residual_projection_budget_001.jl: OK
+source/block_b/config.toml: OK
+source/block_b/experiment_card.md: OK
+source/block_b/runner.jl: OK
+source/block_b/test_rq2_bp_target_state_update_001.jl: OK
+source/campaign/endpoint_expectations.toml: OK
+source/campaign/harness_repair_contract.toml: OK
+source/campaign/preflight_evidence.md: OK
+source/campaign/verify_endpoint_expectations.py: OK
+source/jade_project/Manifest.toml: OK
+source/jade_project/Project.toml: OK
+source/jade_project/src/JadeJcade.jl: OK
+source/jade_project/src/LDPC.jl: OK
+source/jade_project/src/Modulations.jl: OK
+source/jade_project/src/ReceiverCore.jl: OK
+source/jade_project/src/core/baseline_likelihood.jl: OK
+source/jade_project/src/core/common.jl: OK
+source/jade_project/src/core/jcade.jl: OK
+source/jade_project/src/core/joint_cz_projected_gradient.jl: OK
+source/jade_project/src/core/normalized_minsum_sensitivity.jl: OK
+source/jade_project/src/core/normalized_minsum_trace.jl: OK
+source/jade_project/src/core/persistent_edge.jl: OK
+source/jade_project/src/core/soft_minsum_lagrangian.jl: OK
+source/preflight_validation.toml: OK
+source/retained_native/frames.csv: OK
+source/retained_native/run_three_receivers.jl: OK
+source/retained_native/test_three_receivers.jl: OK
+source/rq2_gd_parity_assignment_refresh_001/config.toml: OK
+source/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl: OK
+source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml: OK
+source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl: OK
+source/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl: OK
+COMPLETED.toml: OK
+aggregate.csv: OK
+calibration_gates.csv: OK
+common_update_gates.csv: OK
+contrasts.csv: OK
+endpoint_gate.toml: OK
+endpoint_words.csv: OK
+frames.csv: OK
+interaction.csv: OK
+iterations.csv: OK
+primary_checkpoint/frames.csv: OK
+primary_checkpoint/iterations.csv: OK
+primary_checkpoint/science.toml: OK
+science.json: OK
+timing.toml: OK
+FAILURE.toml: OK
+phase_log.tsv: OK
+progress.toml: OK
+2026-11-03T12:51:18Z phase=01_frozen_validation start
+Test Summary:                                  | Pass  Total  Time
+registered configuration and source identities |   18     18  6.1s
+Test Summary:                                        | Pass  Total  Time
+paired inference reports both discordance directions |   12     12  2.2s
+Test Summary:                            | Pass  Total  Time
+mean readout preserves exact tied values |    4      4  0.8s
+Test Summary:                               | Pass  Total  Time
+tied lifted compound objective is bit exact |    9      9  0.8s
+Test Summary:                                  | Pass  Total  Time
+scale-aware pullback and direction diagnostics |    8      8  0.6s
+Test Summary:                                   | Pass  Total  Time
+mixed finite-difference bound and frozen inputs |    6      6  1.2s
+Test Summary:                                     | Pass  Total  Time
+the box constrains z and never clips z plus delta |    5      5  0.1s
+Test Summary:                                      | Pass  Total  Time
+private-check diagnostics expose incoherent copies |    3      3  0.1s
+Test Summary:                                      | Pass  Total  Time
+paired solver changes only the equality constraint |   26     26  3.2s
+Test Summary:                            | Pass  Total  Time
+persistent counts and paired discordance |   14     14  0.1s
+Test Summary:                                         | Pass  Total  Time
+post-stall update-30 derivative schedule is preserved |    8      8  0.0s
+Test Summary:              | Pass  Total  Time
+transfer gate fails closed |    4      4  3.7s
+Test Summary:                                    | Pass  Total  Time
+source failures leave a durable failure artifact |    4      4  5.2s
+2026-11-03T12:51:46Z phase=01_frozen_validation end
+2026-11-03T12:51:46Z phase=02_anchor start
+complete_valid science_sha256=3756ba02fe8470190bb02854d75a4f7f6777eed8ef42f0206eeea4bcbb9f4cc4
+2026-11-03T12:57:07Z phase=02_anchor end
+2026-11-03T12:57:07Z phase=03_transfer start
+complete_valid science_sha256=0d744c3e4cee906392c81d6bb6d418f2b715ea7a0a8ba7d5f278c1930fba7dc9
+2026-11-03T13:20:11Z phase=03_transfer end
+2026-11-03T13:20:11Z queue_complete experiment=RQ2-BOUNDED-EDGE-FREEDOM-001
