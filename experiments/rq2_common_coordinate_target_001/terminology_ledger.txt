@@ -1,0 +1,28 @@
+literature	sum-product algorithm
+literature	belief propagation
+literature	variable-to-check message
+literature	check-to-variable message
+literature	message-passing iteration
+literature	projected gradient descent
+approved-project	one scalar per bit
+approved-project	partial derivatives of the objective function
+literature	objective-function gradient
+approved-project	common bounded coordinate
+literature	log-likelihood ratio
+literature	hard-decision estimate
+literature	syndrome
+literature	Tanner graph
+literature	additive white Gaussian noise
+literature	bit error rate
+literature	frame error rate
+literature	low-density parity-check code
+
+# Objective-calculation change and registered-recurrence residual restricted to
+# tied state are literal descriptions of this construction, not proposed
+# algorithm names or literature claims.
+#
+# Do not call the treatment belief propagation.
+# Do not call projected-GD calculations messages or message passing.
+# Use one scalar per bit for the projected-GD state.
+# Enumerate graph, word, noise, samples, and LLRs in comparisons.
+# Do not compare the two objective magnitudes as one physical quantity.

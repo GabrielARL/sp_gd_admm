@@ -53,14 +53,21 @@ on the projected-gradient backbone. It does not make the offsets BP messages,
 separate parity-objective use from projection-bound use, or uniquely explain
 the native performance gap.
 
-The next representation control is now running but has produced no eligible
-fresh result. `RQ2-BOUNDED-EDGE-FREEDOM-001` holds a bounded compound
-objective, calculation, metric, readout, and update budget fixed while removing
-only the equality constraint among edge optimization variables joined to the
-same coded bit. Its exact tied reproduction passed on 24/24 retained
-compatibility cases and its tests passed 121/121 before launch. These are
-implementation gates, not recovery evidence, and the current RQ1 conclusion
-therefore remains unchanged.
+The bounded representation control is now complete-valid.
+`RQ2-BOUNDED-EDGE-FREEDOM-001` held its compound objective, metric, box,
+readout, initialization, and update protocol fixed while removing only the
+equality constraint among edge optimization variables joined to the same
+coded bit. Confirmatory recovery was 164/200 with equality and 0/200 without
+it. Generic edge freedom alone is therefore not the missing BP mechanism under
+that construction.
+
+The complete-valid `RQ2-COMMON-COORDINATE-REPRO-001` gate then reproduced both
+native methods exactly in one bounded edge-value interface on 24 retained
+cases. It does not equate their state meanings. The prospective
+`RQ2-COMMON-COORDINATE-TARGET-001` card uses the tied projected-GD side of that
+interface to change only the objective calculation. Its mathematical and
+anti-duplication audits are complete, but it has no implementation, fresh
+cases, freeze, queue, or result.
 
 ## What was isolated
 
@@ -377,7 +384,7 @@ validator accidentally ran three active updates and observed an intermediate
 coded-error count. The endpoint was not run and the value was not communicated
 to the primary runner. The anchor was mechanically shifted from frames 1:24 to
 2:25; confirmation frames 10001:10200 remained untouched. The v2 freeze holds
-the same 224 input identities as v1, with byte-identical input table SHA-256
+all 224 v1 input identities, with byte-identical input table SHA-256
 `53f515fda963da468e973568f503d1f0792cf161873d447826c5b4b7b182bee8`.
 
 The v2 development anchor is `complete_valid`, passes deterministic replay,
@@ -612,12 +619,42 @@ coordinates itself changes recovery while the computation, objective, metric,
 readout, and budget remain fixed.
 
 The exact tied reproduction gate passed on all retained compatibility frames
-`20001:20024`, and the strict suite passed 121/121 tests. Those checks only
-validate the lower-endpoint handoff and implementation. The immutable v1 queue
-launched on 3 November 2026 at 20:51 CST as
-`sp-gd-rq2-bounded-edge-freedom-20261103-v1` and is active at this documentation
-snapshot. It evaluates anchor frames `61497:61520` before any conditional
-transfer on `61521:61720`. No fresh outcome is yet eligible evidence. Even a
-valid nonzero contrast would not establish that the edge variables are BP
-messages, that either arm is equivalent to BP, or that this factor explains
-the complete native BP-versus-projected-GD gap.
+`20001:20024`, and the strict suite passed 121/121 tests. The immutable v1
+queue then completed its anchor and confirmatory transfer with all correctness
+and replay gates passing. Equality-constrained/equality-relaxed recovery was
+22/24 versus 0/24 on the anchor and 164/200 versus 0/200 on the transfer. The
+relaxed arm strictly decreased its declared objective but formed private
+check-local values that disagreed with the coherent mean readout. This rejects
+edge freedom alone under the registered construction. It does not establish
+that BP messages are harmful, that either arm is BP, or that this factor
+explains the complete native performance gap.
+
+## Common-coordinate reproduction and next objective-calculation rung
+
+`RQ2-COMMON-COORDINATE-REPRO-001` completed valid on retained frames
+`20001:20024`. Native projected GD was reproduced with tied edge copies of its
+one scalar per bit. Native exact sum-product was reproduced with transformed,
+recipient-specific variable-to-check messages. Exact trajectory, active-use,
+input-identity, and replay gates passed; the science SHA-256 is
+`c9398e5bb2c82e1d0f4cf6df1d0c8bdf21aee7ad7150719cfc1c8bba0c65244d`.
+The result validates a numeric interface only.
+
+The design-audited next common-coordinate path,
+`RQ2-COMMON-COORDINATE-TARGET-001`, keeps the exact projected-GD reproduction
+tied and keeps its initialization, inherited diagonal preconditioner, box,
+line search, attempt budget, stall rule, and hard-decision estimate fixed. The
+control uses the native compound objective. The treatment uses the normalized
+full residual of the registered bounded-coordinate recurrence restricted to
+tied state. The recurrence is native-exact on the BP-reachable subdomain and
+uses a frozen saturated extension elsewhere. The full recipient-specific
+output is retained before its smooth-region partial derivatives or registered
+clamp-kink selections are pulled back to the one-scalar-per-bit state; a mean-
+first target is explicitly forbidden.
+
+This is a prospective constructed projected-descent arm, not BP, and it is not
+a literal insertion between the old native-composition rungs. It could
+identify the path-conditional consequence of the objective calculation while
+state and update protocol are fixed. It cannot by itself reproduce native BP
+or finish the native decomposition. Fresh frame ranges, implementation,
+validation, freeze, wall budget, and separate implementation and launch
+approvals remain open. No scientific process was started.

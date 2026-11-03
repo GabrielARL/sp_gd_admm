@@ -85,7 +85,9 @@ and is not required to answer either research question.
 | `RQ2-EXACT-MAP-UPDATE-001` | Exact-map update direction by step-rule factorial | **V1 complete-valid; 4/4 jobs** | With the recipient-specific exact sum-product map fixed, only `F(u)-u` with a unit step recovers the transmitted word: 200/200 at 6 dB and 198/200 at 1.5 dB; the other three cells recover 0/200 at both levels. The registered interaction is material, so the recovery cannot be attributed additively to direction or step alone. |
 | `RQ2-TIED-SCALAR-EDGE-REPRO-001` | Tied scalar-to-edge reproduction gate | **Complete-valid on 24 retained cases** | The lifted tied edge state reproduces `assigned_frozen_product_unconstrained` bit-for-bit, including accepted states, partial derivatives of the objective function, line-search decisions, hard decisions, and terminal traces. This proves the coordinate handoff only for the unboxed product objective; it is not an edge-freedom result. |
 | `RQ2-EDGE-FREEDOM-001` | Remove equality among edge copies under the unboxed product objective | **Terminal compatibility-gate failure; zero fresh cases evaluated** | The queue stopped on retained compatibility frame 20001 at update 6 because the fixed absolute pullback-gradient gate failed. Anchor frames `61497:61520` and transfer frames `61521:61720` were never evaluated. The attempt supplies no decoding-performance evidence and is not eligible for rescue under the same ID. |
-| `RQ2-BOUNDED-EDGE-FREEDOM-001` | Remove equality among edge optimization variables under the bounded compound objective | **Running; prospective contract and prelaunch gates passed** | The exact tied reproduction gate passed on all 24 retained compatibility cases and the test suite passed 121/121. The active v1 queue compares equality-constrained and equality-relaxed arms on anchor frames `61497:61520`, then conditionally runs transfer frames `61521:61720`. No fresh outcome or causal claim is available yet. |
+| `RQ2-BOUNDED-EDGE-FREEDOM-001` | Remove equality among edge optimization variables under the bounded compound objective | **Complete-valid; equality release is harmful in this construction** | All registered gates passed. On the 200-case confirmatory transfer, equality-constrained/equality-relaxed recovery was 164/200 versus 0/200, with 0 relaxed-only and 164 constrained-only pairs. This rules out generic edge freedom alone under the registered objective; it is not a claim about BP messages. |
+| `RQ2-COMMON-COORDINATE-REPRO-001` | Reproduce native projected GD and native exact sum-product in one bounded edge-value interface | **Complete-valid on 24 retained cases; validation only** | Both native trajectories reproduce exactly, active-use and replay gates pass, and science SHA-256 is `c9398e5bb2c82e1d0f4cf6df1d0c8bdf21aee7ad7150719cfc1c8bba0c65244d`. The shared numeric interface does not make the state semantics or updates equivalent. |
+| `RQ2-COMMON-COORDINATE-TARGET-001` | Change only the objective calculation under tied common-coordinate projected GD | **Design-audited; not implemented or launchable** | The treatment is the normalized full residual of the registered bounded-coordinate recurrence restricted to tied state. The recurrence is native-exact on BP-reachable states and uses a frozen saturated extension elsewhere. State freedom, initialization, preconditioner, box, line search, budget, stopping, and readout remain fixed. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -826,14 +828,45 @@ This isolates whether freedom for check-specific edge optimization variables
 itself changes recovery while the calculation, objective, metric, readout, and
 work budget remain fixed.
 
-The immutable v1 queue launched on 3 November 2026 at 20:51 CST as systemd unit
-`sp-gd-rq2-bounded-edge-freedom-20261103-v1`. It runs the unexposed 24-case
-anchor `61497:61520` first and may run transfer cases `61521:61720` only after
-the anchor and deterministic replay pass every registered gate. The unit is
-active at this documentation snapshot. No anchor or transfer outcome is yet
-eligible evidence. Regardless of its direction, this experiment does not
-establish BP equivalence or decompose the complete native BP-versus-projected
-GD performance gap.
+The immutable v1 queue completed valid. On the 24-case anchor, constrained and
+relaxed recovery was 22/24 versus 0/24. On the 200-case confirmatory transfer,
+it was 164/200 versus 0/200, with 0 relaxed-only and 164 constrained-only
+pairs. The relaxed arm stayed finite, strictly decreased its declared
+objective, and reached a lower objective than the constrained arm on every
+transfer case, yet its check-local values no longer described one coherent
+hard-decision estimate. Removing equality alone therefore causally harmed
+recovery under this bounded construction. It rules out generic edge freedom
+as the missing mechanism; it does not show that recipient-specific BP
+messages are harmful or decompose the complete native gap.
+
+### `RQ2-COMMON-COORDINATE-REPRO-001` — validated shared numeric interface
+
+The common-coordinate gate exposes both native decoders through values in
+`[-1,1]` stored on the Tanner-graph edge set. Projected GD uses exactly tied
+copies of its one scalar per bit. Exact sum-product uses transformed,
+recipient-specific variable-to-check messages. Both lanes reproduce their
+native trajectories exactly on retained frames `20001:20024`; the active-use,
+input-identity, and deterministic-replay gates pass. The result is a validated
+interface, not a claim that the two meanings, objectives, or updates agree.
+
+### `RQ2-COMMON-COORDINATE-TARGET-001` — next atomic objective-calculation rung
+
+The next design keeps the exact common-coordinate reproduction of native
+projected GD tied and keeps its initialization, diagonal preconditioner, box,
+strict-decrease line search, 30-attempt budget, stall rule, and hard-decision
+readout fixed. It changes only the objective calculation and its smooth-region
+partial derivatives or registered clamp-kink selections: the control uses the
+native compound objective, while the treatment uses the normalized full
+residual of the registered bounded-coordinate recurrence restricted to the
+tied state. That recurrence is native-exact on the BP-reachable subdomain and
+uses its frozen saturated extension elsewhere.
+
+The full edge residual is formed before any tied projection. This retains the
+recipient-specific disagreement produced by the registered recurrence;
+averaging first
+would define a different experiment. The mathematical and anti-duplication
+audits pass, but the card is documentation only. Fresh frame ranges remain
+unassigned, no runner or freeze exists, and no queue or service is authorized.
 
 ## Separate complexity track
 
@@ -1025,6 +1058,18 @@ outcome: observed difference | no observed difference
 - **2026-11-03:** `RQ2-BOUNDED-EDGE-FREEDOM-001` prospectively replaced the
   unusable unboxed reference with Block A's bounded compound objective. Its
   121/121 tests and exact 24/24 tied compatibility reproduction passed before
-  the v1 queue launched at 20:51 CST. The active unit
-  `sp-gd-rq2-bounded-edge-freedom-20261103-v1` runs anchor `61497:61520` before
-  conditional transfer `61521:61720`; no fresh result is recorded yet.
+  the v1 queue launched at 20:51 CST. The unit
+  `sp-gd-rq2-bounded-edge-freedom-20261103-v1` ran anchor `61497:61520` before
+  conditional transfer `61521:61720`.
+- **2026-11-03:** `RQ2-BOUNDED-EDGE-FREEDOM-001` completed valid. Its
+  confirmatory equality-constrained/equality-relaxed recovery was 164/200
+  versus 0/200. Generic edge freedom alone is therefore rejected under this
+  bounded construction.
+- **2026-11-03:** `RQ2-COMMON-COORDINATE-REPRO-001` completed valid on 24
+  retained cases with exact native-trajectory, active-use, and replay gates.
+  Its science SHA-256 is
+  `c9398e5bb2c82e1d0f4cf6df1d0c8bdf21aee7ad7150719cfc1c8bba0c65244d`.
+- **2026-11-03:** `RQ2-COMMON-COORDINATE-TARGET-001` was design-audited as a
+  nonduplicate prospective objective-calculation rung. It is not implemented,
+  frozen, queued, or launched; fresh ranges and separate approvals remain
+  open gates.
