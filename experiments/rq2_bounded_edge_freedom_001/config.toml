@@ -97,6 +97,7 @@ finite_difference_step = 1.0e-6
 finite_difference_tolerance = 5.0e-8
 finite_difference_relative_tolerance = 5.0e-8
 finite_difference_scale_floor = 1.0
+finite_difference_after_stall = "evaluate the registered update-30 check on the persisted terminal state"
 scale_aware_epsilon_multiplier = 128.0
 pullback_epsilon_multiplier = 128.0
 mean_direction_epsilon_multiplier = 128.0
@@ -135,6 +136,8 @@ paired_test = "two-sided exact McNemar test"
 paired_interval = "Newcombe 1998 score/Wilson method 10 for paired proportions with continuity-corrected correlation"
 confidence_level = 0.95
 multiplicity_rule = "none; transmitted-word recovery is the single primary endpoint and parity validity is descriptive confirmatory evidence"
+anchor_role = "descriptive validation"
+transfer_role = "confirmatory paired comparison"
 
 [execution]
 scientific_passes = 2

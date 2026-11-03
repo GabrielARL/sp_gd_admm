@@ -216,6 +216,10 @@ graph-order-spanning edge coordinates using a symmetric five-point
 finite-difference stencil at registered updates 2 and 30. Its registered
 mixed threshold is
 `5e-8 max(1, |analytic|, |numerical|)`.
+If a line search stalls before update 30, its state is persisted unchanged and
+the update-30 check is evaluated on that persisted terminal state. The common
+scalar update 1 retains its scalar Block-A derivative evidence but is not
+labelled as a lifted-edge finite-difference check.
 
 ## Correctness and launch gates
 
@@ -285,6 +289,11 @@ gate. No multiplicity adjustment is required because transmitted-word
 recovery is the single registered primary endpoint. Do not call the Newcombe
 interval exact, and do not force an additive case attribution when the
 per-case outcomes disagree in both directions.
+
+The 24-case anchor statistics are descriptive validation evidence. The
+200-case transfer set is the registered confirmatory comparison, launched only
+after a complete-valid anchor. Anchor outcome direction is not an expansion
+gate.
 
 A changed outcome supports only this statement:
 
