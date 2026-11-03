@@ -179,6 +179,11 @@ the registered equality-release contrast.
 - Contingent transfer cases: frames `61521:61720`.
 - Passes: primary and deterministic replay, with one Julia, BLAS, and OpenMP
   thread.
+- Julia environment: the same hash-pinned Block-A project worktree,
+  `/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012`,
+  at commit `a4a4f81cec9e1a38a76ece5867b81284324f1eea`. Its project,
+  manifest, receiver-core, common-core, and projected-GD source hashes are
+  checked before execution.
 
 The anchor and transfer ranges were registered by the failed predecessor, but
 that attempt stopped before evaluating any fresh frame. Reusing the still

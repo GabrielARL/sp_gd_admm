@@ -30,3 +30,8 @@ quantities are optimization variables, not BP messages.
 The experiment card and derivation card are the prospective scientific
 contract. Implementation, tests, freeze, queue, and result artifacts must be
 added without changing that contract after fresh outcomes are observed.
+
+The queue uses the same registered and hash-checked Julia project as Block A:
+`/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012`.
+The copied project inside the source freeze is provenance material; it is not
+substituted as a different runtime environment.

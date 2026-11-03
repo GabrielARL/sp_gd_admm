@@ -31,6 +31,18 @@ block_a_calibration_science_file_sha256 = "9fa8a47471ba45df38db2fccd46b64bd4f3e1
 block_a_calibration_status_expected = "complete_valid"
 failed_predecessor_manifest = "../rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/MANIFEST.sha256"
 failed_predecessor_manifest_sha256 = "c6baf082818187f8d38cc0b1fd9ca976c005ec7c6ddaf715d706788d9b6ed3f4"
+jade_project_repo = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+jade_project_expected_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Project.toml"
+jade_project_toml_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+jade_manifest_toml = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/Manifest.toml"
+jade_manifest_toml_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+jade_receiver_core = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/ReceiverCore.jl"
+jade_receiver_core_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+jade_core_common = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/common.jl"
+jade_core_common_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+jade_joint_projected_gradient = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012/src/core/joint_cz_projected_gradient.jl"
+jade_joint_projected_gradient_sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
 
 [protocol]
 channel_label = "six_db"
@@ -121,6 +133,7 @@ pass_names = ["primary", "replay"]
 julia_threads = 1
 blas_threads = 1
 omp_threads = 1
+registered_julia_project = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
 overwrite_allowed = false
 automatic_restart_allowed = false
 launch_transfer_after_valid_anchor = true
