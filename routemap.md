@@ -1,6 +1,6 @@
 # BP–GD Research Route Map
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
 
 ## Destination and scope
 
@@ -83,6 +83,8 @@ and is not required to answer either research question.
 | `RQ2-CAUSAL-FACTORS-001` | Endpoint-gated campaign for requested factors 1--6 | **V2 complete-valid; 8/8 jobs** | The immutable v2 queue completed both four-stage blocks with correctness, endpoint, checksum, and replay gates passing. Block B's direct-map cells succeed on 200/200 fresh-transfer cases while both cells using the negative gradient of the declared residual objective succeed on 0/200. This is a controlled result with the same declared map `F`, not native projected GD. |
 | `RQ2-NATIVE-COMPOSITION-001` | Native projected-GD-to-native-exact-SP composition | **V2 complete-valid; 7/7 jobs** | The native endpoints are 112/200 versus 200/200 on the fresh 6 dB transfer and 0/200 versus 199/200 at 1.5 dB. The ordered ledger closes both endpoint gaps, but one scalar-to-directed-edge handoff changes state, target, and update together. The campaign therefore supplies an endpoint-complete arithmetic ledger and controlled adjacent effects, not a complete one-operation-at-a-time explanation of the native gap. |
 | `RQ2-EXACT-MAP-UPDATE-001` | Exact-map update direction by step-rule factorial | **V1 complete-valid; 4/4 jobs** | With the recipient-specific exact sum-product map fixed, only `F(u)-u` with a unit step recovers the transmitted word: 200/200 at 6 dB and 198/200 at 1.5 dB; the other three cells recover 0/200 at both levels. The registered interaction is material, so the recovery cannot be attributed additively to direction or step alone. |
+| `RQ2-TIED-SCALAR-EDGE-REPRO-001` | Tied scalar-to-edge reproduction gate | **Complete-valid on 24 retained cases** | The lifted tied edge state reproduces `assigned_frozen_product_unconstrained` bit-for-bit, including accepted states, partial derivatives of the objective function, line-search decisions, hard decisions, and terminal traces. This proves the coordinate handoff only for the unboxed product objective; it is not an edge-freedom result. |
+| `RQ2-EDGE-FREEDOM-001` | Remove equality among edge copies under the unboxed product objective | **Terminal compatibility-gate failure; zero fresh cases evaluated** | The queue stopped on retained compatibility frame 20001 at update 6 because the fixed absolute pullback-gradient gate failed. Anchor frames `61497:61520` and transfer frames `61521:61720` were never evaluated. The attempt supplies no decoding-performance evidence and is not eligible for rescue under the same ID. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -981,3 +983,14 @@ outcome: observed difference | no observed difference
   `F(u)-u` unit-step cell recovers cases at either signal-to-noise ratio; the
   material interaction forbids separate additive attribution to direction or
   step.
+- **2026-11-03:** `RQ2-TIED-SCALAR-EDGE-REPRO-001` completed valid and sealed
+  science SHA-256
+  `bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9`.
+  Its 24 retained cases prove a bit-for-bit tied-coordinate reproduction of
+  the assigned/frozen unboxed product endpoint; they do not test independently
+  evolving edge copies.
+- **2026-11-03:** `RQ2-EDGE-FREEDOM-001` terminated before any fresh case was
+  evaluated. Its retained compatibility gate failed on frame 20001, update 6,
+  under the preregistered fixed absolute pullback tolerance. The fresh ranges
+  remain outcome-unexposed. No endpoint count or causal conclusion follows,
+  and the unboxed attempt is preserved rather than retuned.

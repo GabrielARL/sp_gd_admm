@@ -1,0 +1,5 @@
+schema_version = "bp-gd-next-campaigns/dispatcher-v1"
+status = "complete_with_failure"
+current_job = "all"
+last_exit_code = 1
+updated_utc = "2026-11-03T11:27:59Z"

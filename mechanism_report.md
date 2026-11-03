@@ -1,6 +1,6 @@
 # BP--GD mechanism report
 
-Last updated: 2026-10-31
+Last updated: 2026-11-03
 
 ## Outcome first
 
@@ -566,3 +566,28 @@ counts and contrasts point to retained result files, while its v3 execution
 panel is explicitly a 21:26 CST, 31 October 2026 observer snapshot. The panel
 must not be read as a completed offset-split result or as evidence that the
 constructed offsets are BP messages.
+
+## Tied edge-coordinate gate and failed unboxed release
+
+`RQ2-TIED-SCALAR-EDGE-REPRO-001` closes one numerical handoff without making a
+performance claim. On 24 retained compatibility cases, broadcasting each
+scalar state to every incident check--bit connection reproduces the retained
+`assigned_frozen_product_unconstrained` trajectory bit-for-bit. The sealed
+science SHA-256 is
+`bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9`.
+The stored edge values are optimization variables, not BP messages.
+
+The registered successor `RQ2-EDGE-FREEDOM-001` attempted to remove only the
+equality constraint among those copies while retaining one lifted product
+objective, metric, initialization, frozen offsets, line search, and update
+budget. It did not reach a fresh case. On retained compatibility frame 20001,
+update 6, the fixed absolute pullback-gradient gate exceeded its registered
+tolerance. The queue failed closed with `completed_frames = 0`; no anchor or
+transfer endpoint exists.
+
+This terminal result has two consequences. First, it neither supports nor
+refutes a recovery effect from edge-copy freedom. Second, the unboxed product
+objective is not an eligible reference for a post-hoc numerical rescue under
+the same experiment ID. A scientifically distinct successor must be
+prospective and bounded, reproduce its own scalar lower endpoint before the
+constraint is released, and preserve the failed attempt unchanged.
