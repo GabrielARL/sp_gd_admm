@@ -18,12 +18,6 @@ echo "$(date -u +%FT%TZ) queue_start experiment=RQ2-EDGE-FREEDOM-001"
 (cd "$FREEZE_ROOT" && sha256sum -c MANIFEST.sha256)
 (cd "$NATIVE_ROOT" && sha256sum -c MANIFEST.sha256)
 
-if [[ -e "$RESULT_ROOT" ]]; then
-  echo "refusing to overwrite result root: $RESULT_ROOT" >&2
-  exit 2
-fi
-mkdir -p "$RESULT_ROOT"
-
 export JULIA_NUM_THREADS=1
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
@@ -34,6 +28,12 @@ flock -n 9 || {
   echo "another scientific queue holds $LOCK_ROOT/sp-gd-scientific.lock" >&2
   exit 3
 }
+
+if [[ -e "$RESULT_ROOT" ]]; then
+  echo "refusing to overwrite result root: $RESULT_ROOT" >&2
+  exit 2
+fi
+mkdir -p "$RESULT_ROOT"
 
 echo "$(date -u +%FT%TZ) phase=01_frozen_validation start"
 julia --threads=1 --startup-file=no --depwarn=error \
