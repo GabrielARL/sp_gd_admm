@@ -1,0 +1,47 @@
+schema_version = "rq2-edge-freedom-001/config-v1"
+experiment_id = "RQ2-EDGE-FREEDOM-001"
+classification = "one-factor equality-constraint relaxation under a shared lifted product objective and metric"
+
+[sources]
+prerequisite_commit = "10ca9a2"
+prerequisite_experiment = "../rq2_tied_scalar_edge_repro_001"
+prerequisite_science_sha256 = "bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9"
+
+[protocol]
+channel_label = "six_db"
+snr_db = 6.0
+anchor_first = 61497
+anchor_last = 61520
+transfer_first = 61521
+transfer_last = 61720
+anchor_case_count = 24
+transfer_case_count = 200
+
+[solver]
+maximum_update_attempts = 30
+initial_step = 0.2
+maximum_backtracks = 16
+projection_after_common_update = false
+edge_metric = "scalar_curvature_bound_divided_by_variable_degree"
+hard_decision_state = "canonical_copy_plus_mean_deviation"
+absolute_state_safety_limit = 1.0e6
+
+[validation]
+compatibility_frames = [20001, 20002]
+finite_difference_updates = [2, 30]
+finite_difference_sample_count = 12
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 5.0e-8
+aggregate_gradient_tolerance = 5.0e-12
+mean_direction_tolerance = 5.0e-12
+require_nonzero_first_direction_spread = true
+
+[execution]
+scientific_passes = 2
+pass_names = ["primary", "replay"]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+overwrite_allowed = false
+automatic_restart_allowed = false
+launch_transfer_after_valid_anchor = true

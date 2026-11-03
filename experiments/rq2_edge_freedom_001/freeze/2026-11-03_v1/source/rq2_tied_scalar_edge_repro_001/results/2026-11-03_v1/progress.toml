@@ -1,0 +1,10 @@
+completed_frames = 24
+experiment_id = "RQ2-TIED-SCALAR-EDGE-REPRO-001"
+pass = "replay"
+phase = "write_result"
+previous_phase_seconds = 0.0
+schema_version = "rq2-tied-scalar-edge-repro-001/progress-v1"
+status = "complete_valid"
+total_frames = 24
+updated_utc = "2026-11-03T09:23:47.995"
+

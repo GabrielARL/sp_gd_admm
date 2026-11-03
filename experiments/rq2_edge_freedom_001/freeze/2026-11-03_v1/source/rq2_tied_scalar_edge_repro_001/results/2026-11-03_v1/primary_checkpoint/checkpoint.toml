@@ -1,0 +1,6 @@
+experiment_id = "RQ2-TIED-SCALAR-EDGE-REPRO-001"
+frame_count = 24
+schema_version = "rq2-tied-scalar-edge-repro-001/primary-checkpoint-v1"
+science_sha256 = "bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9"
+status = "primary_complete"
+

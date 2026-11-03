@@ -1,0 +1,7 @@
+schema_version = "rq2-edge-freedom-001/freeze-v1"
+experiment_id = "RQ2-EDGE-FREEDOM-001"
+attempt_id = "2026-11-03_v1"
+created_utc = "2026-11-03T09:50:23Z"
+native_freeze_manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+tied_result_manifest_sha256 = "695c648869e262e28309fe0734517d97b6cd7ad73a3b840858396a1d3075dedd"
+scientific_cases_evaluated_before_freeze = false

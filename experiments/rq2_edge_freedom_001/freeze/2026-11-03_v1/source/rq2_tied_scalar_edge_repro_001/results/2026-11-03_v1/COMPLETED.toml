@@ -1,0 +1,10 @@
+completed_utc = "2026-11-03T09:23:47.995"
+config_sha256 = "90c7ab599d626ade6dd0a4c9b212087f2a131d73220891b74ef0f624b6ee2a68"
+experiment_id = "RQ2-TIED-SCALAR-EDGE-REPRO-001"
+primary_seconds = 39.587359906
+replay_seconds = 24.660717211
+schema_version = "rq2-tied-scalar-edge-repro-001/completion-v1"
+science_sha256 = "bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9"
+status = "complete_valid"
+total_seconds = 66.065173307
+
