@@ -85,7 +85,7 @@ and is not required to answer either research question.
 | `RQ2-EXACT-MAP-UPDATE-001` | Exact-map update direction by step-rule factorial | **V1 complete-valid; 4/4 jobs** | With the recipient-specific exact sum-product map fixed, only `F(u)-u` with a unit step recovers the transmitted word: 200/200 at 6 dB and 198/200 at 1.5 dB; the other three cells recover 0/200 at both levels. The registered interaction is material, so the recovery cannot be attributed additively to direction or step alone. |
 | `RQ2-TIED-SCALAR-EDGE-REPRO-001` | Tied scalar-to-edge reproduction gate | **Complete-valid on 24 retained cases** | The lifted tied edge state reproduces `assigned_frozen_product_unconstrained` bit-for-bit, including accepted states, partial derivatives of the objective function, line-search decisions, hard decisions, and terminal traces. This proves the coordinate handoff only for the unboxed product objective; it is not an edge-freedom result. |
 | `RQ2-EDGE-FREEDOM-001` | Remove equality among edge copies under the unboxed product objective | **Terminal compatibility-gate failure; zero fresh cases evaluated** | The queue stopped on retained compatibility frame 20001 at update 6 because the fixed absolute pullback-gradient gate failed. Anchor frames `61497:61520` and transfer frames `61521:61720` were never evaluated. The attempt supplies no decoding-performance evidence and is not eligible for rescue under the same ID. |
-| `RQ2-BOUNDED-EDGE-FREEDOM-001` | Remove equality among edge optimization variables under the bounded compound objective | **Complete-valid; equality release is harmful in this construction** | All registered gates passed. On the 200-case confirmatory transfer, equality-constrained/equality-relaxed recovery was 164/200 versus 0/200, with 0 relaxed-only and 164 constrained-only pairs. This rules out generic edge freedom alone under the registered objective; it is not a claim about BP messages. |
+| `RQ2-BOUNDED-EDGE-FREEDOM-001` | Remove equality among edge optimization variables under the bounded compound objective | **Complete-valid; equality release is harmful in this construction** | The exact tied reproduction gate and all replay and correctness gates passed. On the 200-case confirmatory transfer, equality-constrained/equality-relaxed transmitted-word recovery was 164/200 versus 0/200, with 0 relaxed-only and 164 constrained-only pairs. This rejects edge freedom alone as the missing BP mechanism under the registered construction; it is not native BP-versus-GD attribution. |
 | `RQ2-COMMON-COORDINATE-REPRO-001` | Reproduce native projected GD and native exact sum-product in one bounded edge-value interface | **Complete-valid on 24 retained cases; validation only** | Both native trajectories reproduce exactly, active-use and replay gates pass, and science SHA-256 is `c9398e5bb2c82e1d0f4cf6df1d0c8bdf21aee7ad7150719cfc1c8bba0c65244d`. The shared numeric interface does not make the state semantics or updates equivalent. |
 | `RQ2-COMMON-COORDINATE-TARGET-001` | Change only the objective calculation under tied common-coordinate projected GD | **Design-audited; not implemented or launchable** | The treatment is the normalized full residual of the registered bounded-coordinate recurrence restricted to tied state. The recurrence is native-exact on BP-reachable states and uses a frozen saturated extension elsewhere. State freedom, initialization, preconditioner, box, line search, budget, stopping, and readout remain fixed. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
@@ -828,16 +828,23 @@ This isolates whether freedom for check-specific edge optimization variables
 itself changes recovery while the calculation, objective, metric, readout, and
 work budget remain fixed.
 
-The immutable v1 queue completed valid. On the 24-case anchor, constrained and
-relaxed recovery was 22/24 versus 0/24. On the 200-case confirmatory transfer,
-it was 164/200 versus 0/200, with 0 relaxed-only and 164 constrained-only
-pairs. The relaxed arm stayed finite, strictly decreased its declared
-objective, and reached a lower objective than the constrained arm on every
-transfer case, yet its check-local values no longer described one coherent
-hard-decision estimate. Removing equality alone therefore causally harmed
-recovery under this bounded construction. It rules out generic edge freedom
-as the missing mechanism; it does not show that recipient-specific BP
-messages are harmful or decompose the complete native gap.
+The immutable v1 queue ran on 3 November 2026 from 20:51 to 21:20 CST as
+systemd unit `sp-gd-rq2-bounded-edge-freedom-20261103-v1`. The 24-case anchor
+completed valid: equality-constrained/equality-relaxed transmitted-word
+recovery was 22/24 versus 0/24. The preregistered 200-case transfer then
+completed valid at 164/200 versus 0/200. The relaxed-minus-constrained risk
+difference was -0.82, with two-sided 95% Newcombe method-10 interval
+`[-0.8670537414, -0.7579540490]` and exact two-sided McNemar p-value
+`8.5528470723e-50`. All 164 discordant recoveries favored the constrained arm.
+
+The relaxed arm stayed finite and inside the box and completed every accepted
+strict-decrease update, but its private edge values became inconsistent with
+the fixed mean readout: the transfer had 86--175 edge-sign disagreements and
+34--107 private-versus-mean hard-parity disagreements per case. Thus removing
+edge-copy equality alone causally harms recovery in this bounded construction.
+It does not establish that BP's recipient-specific messages are harmful,
+establish BP equivalence, or decompose the complete native
+BP-versus-projected-GD performance gap.
 
 ### `RQ2-COMMON-COORDINATE-REPRO-001` — validated shared numeric interface
 
@@ -863,8 +870,7 @@ uses its frozen saturated extension elsewhere.
 
 The full edge residual is formed before any tied projection. This retains the
 recipient-specific disagreement produced by the registered recurrence;
-averaging first
-would define a different experiment. The mathematical and anti-duplication
+averaging first would define a different experiment. The mathematical and anti-duplication
 audits pass, but the card is documentation only. Fresh frame ranges remain
 unassigned, no runner or freeze exists, and no queue or service is authorized.
 
@@ -1055,16 +1061,14 @@ outcome: observed difference | no observed difference
   under the preregistered fixed absolute pullback tolerance. The fresh ranges
   remain outcome-unexposed. No endpoint count or causal conclusion follows,
   and the unboxed attempt is preserved rather than retuned.
-- **2026-11-03:** `RQ2-BOUNDED-EDGE-FREEDOM-001` prospectively replaced the
-  unusable unboxed reference with Block A's bounded compound objective. Its
-  121/121 tests and exact 24/24 tied compatibility reproduction passed before
-  the v1 queue launched at 20:51 CST. The unit
-  `sp-gd-rq2-bounded-edge-freedom-20261103-v1` ran anchor `61497:61520` before
-  conditional transfer `61521:61720`.
 - **2026-11-03:** `RQ2-BOUNDED-EDGE-FREEDOM-001` completed valid. Its
-  confirmatory equality-constrained/equality-relaxed recovery was 164/200
-  versus 0/200. Generic edge freedom alone is therefore rejected under this
-  bounded construction.
+  121/121 tests, exact 24/24 tied compatibility reproduction, correctness
+  gates, and deterministic replay passed. Equality-constrained/equality-relaxed
+  recovery was 22/24 versus 0/24 on the anchor and 164/200 versus 0/200 on the
+  confirmatory transfer. All 164 discordant transfer recoveries favored the
+  constrained arm. Removing equality alone is therefore harmful under the
+  registered bounded construction; the result is not BP equivalence or total
+  native-gap attribution.
 - **2026-11-03:** `RQ2-COMMON-COORDINATE-REPRO-001` completed valid on 24
   retained cases with exact native-trajectory, active-use, and replay gates.
   Its science SHA-256 is

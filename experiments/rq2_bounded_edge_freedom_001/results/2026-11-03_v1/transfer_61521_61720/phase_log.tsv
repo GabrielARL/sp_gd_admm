@@ -1,0 +1,13 @@
+utc	pass	phase	event	seconds
+2026-11-03T12:57:26.514	primary	context	start	0.000000
+2026-11-03T12:57:29.806	primary	context	end	3.618818
+2026-11-03T12:57:29.813	primary	compatibility	start	0.000000
+2026-11-03T12:58:51.193	primary	compatibility	end	81.386522
+2026-11-03T12:58:51.194	primary	frames	start	0.000000
+2026-11-03T13:08:18.533	primary	frames	end	567.340463
+2026-11-03T13:08:24.132	replay	context	start	0.000000
+2026-11-03T13:08:24.773	replay	context	end	0.641310
+2026-11-03T13:08:24.773	replay	compatibility	start	0.000000
+2026-11-03T13:09:33.311	replay	compatibility	end	68.538492
+2026-11-03T13:09:33.312	replay	frames	start	0.000000
+2026-11-03T13:20:05.546	replay	frames	end	632.234562
