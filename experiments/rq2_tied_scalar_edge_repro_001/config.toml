@@ -1,0 +1,44 @@
+schema_version = "rq2-tied-scalar-edge-repro-001/config-v1"
+experiment_id = "RQ2-TIED-SCALAR-EDGE-REPRO-001"
+classification = "retained-case exact coordinate-representation reproduction gate"
+performance_inference_allowed = false
+
+[sources]
+native_freeze_manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+composition_runner_sha256 = "97984942dfad8308bc67895f15bd1b6e7e1f3d25506d44918df8984567fb25f8"
+composition_config_sha256 = "5d64a083fb726312533830b019ed5814fb8d4c85e66473755465501df5520119"
+oracle_frames_sha256 = "3d401dbe7abcd5807755fe4b0ded6e92952e716c8b57c26972dc228272fdeed2"
+oracle_completion_sha256 = "dad9a542b39049cd5635eed41572f78e18a45d00486688f8fcb12f64ba58e22b"
+
+[protocol]
+channel_label = "six_db"
+snr_db = 6.0
+frame_first = 20001
+frame_last = 20024
+case_count = 24
+fresh_performance_cases = false
+
+[solver]
+maximum_update_attempts = 30
+initial_step = 0.2
+maximum_backtracks = 16
+projection_after_common_update = false
+recipient_specific_freedom = false
+
+[validation]
+finite_difference_updates = [2, 30]
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 3.0e-8
+floating_point_equality = "exact_ieee754_bits"
+active_edge_read_test = true
+retained_oracle_gate = true
+
+[execution]
+scientific_passes = 2
+pass_names = ["primary", "replay"]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+overwrite_allowed = false
+automatic_restart_allowed = false
+

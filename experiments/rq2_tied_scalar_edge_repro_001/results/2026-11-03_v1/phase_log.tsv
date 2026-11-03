@@ -1,0 +1,9 @@
+utc	pass	phase	event	seconds
+2026-11-03T09:22:42.138	primary	context	start	0.000000
+2026-11-03T09:22:44.421	primary	context	end	2.475702
+2026-11-03T09:22:44.429	primary	frames	start	0.000000
+2026-11-03T09:23:21.430	primary	frames	end	37.009179
+2026-11-03T09:23:23.039	replay	context	start	0.000000
+2026-11-03T09:23:24.058	replay	context	end	1.019952
+2026-11-03T09:23:24.058	replay	frames	start	0.000000
+2026-11-03T09:23:47.699	replay	frames	end	23.640703

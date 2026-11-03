@@ -1,0 +1,26 @@
+# Project-defined experiment title approved explicitly by the user.
+approved-project	Tied scalar-to-edge reproduction gate
+
+literature	belief propagation (BP)
+literature	gradient descent (GD)
+literature	projected gradient descent
+literature	Tanner graph
+literature	variable-to-check message
+literature	check-to-variable message
+literature	incoming message
+literature	partial derivative
+literature	objective function
+literature	equality constraint
+literature	auxiliary variable
+literature	backtracking line search
+literature	projection operator
+literature	box constraint
+literature	log-likelihood ratio (LLR)
+literature	channel LLR
+literature	additive white Gaussian noise (AWGN)
+literature	bit error rate (BER)
+literature	low-density parity-check (LDPC)
+literature	fast Fourier transform (FFT)
+literature	hard decision
+literature	number of bit errors
+literature	syndrome

@@ -1,0 +1,13 @@
+active_edge_read_passed = true
+correctness_passed = true
+deterministic_replay_passed = true
+experiment_id = "RQ2-TIED-SCALAR-EDGE-REPRO-001"
+frame_count = 24
+performance_inference_allowed = false
+primary_science_sha256 = "bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9"
+replay_science_sha256 = "bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9"
+retained_oracle_passed = true
+schema_version = "rq2-tied-scalar-edge-repro-001/gate-v1"
+source_gate_sha256 = "7368d1ac2dd50c9392ca52e8c08072d28f3628196afcf70b0f91fe98799ac384"
+status = "pass"
+

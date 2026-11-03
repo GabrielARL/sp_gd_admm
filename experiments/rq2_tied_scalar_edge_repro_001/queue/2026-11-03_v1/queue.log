@@ -1,0 +1,122 @@
+2026-11-03T09:22:11Z queue_start
+README.md: OK
+launch_detached.sh: OK
+queue.toml: OK
+run_queue.sh: OK
+freeze_manifest.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/MANIFEST.sha256: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/freeze_manifest.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/COMPLETED.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/MANIFEST.sha256: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/reference/v4_anchor/frames.csv: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/config.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/experiment_card.md: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/config.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/config.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/experiment_card.md: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/campaign_registration.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/config.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/experiment_card.md: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/Manifest.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/Project.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/JadeJcade.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/LDPC.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/Modulations.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/ReceiverCore.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/baseline_likelihood.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/common.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/jcade.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/joint_cz_projected_gradient.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_sensitivity.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/normalized_minsum_trace.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/persistent_edge.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/src/core/soft_minsum_lagrangian.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/make-gen: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/make-ldpc: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/print-pchk: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/jade_project/tools/ldpc/src/randfile: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/native_composition.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/preflight_validation.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/retained_native/run_three_receivers.jl: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/rung_registry.toml: OK
+source/rq2_native_composition_001/freeze/2026-11-01_v2/source/test_native_composition.jl: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/COMPLETED.toml: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/MANIFEST.sha256: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/frames.csv: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/iterations.csv: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/job_gate.toml: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/science.json: OK
+source/rq2_native_composition_001/results/2026-11-01_v2/03_native_endpoint_and_rung_gate/timing.toml: OK
+source/rq2_tied_scalar_edge_repro_001/README.md: OK
+source/rq2_tied_scalar_edge_repro_001/config.toml: OK
+source/rq2_tied_scalar_edge_repro_001/experiment_card.md: OK
+source/rq2_tied_scalar_edge_repro_001/freeze/build_freeze.py: OK
+source/rq2_tied_scalar_edge_repro_001/reference_contract.toml: OK
+source/rq2_tied_scalar_edge_repro_001/rq2_tied_scalar_edge_repro_001.jl: OK
+source/rq2_tied_scalar_edge_repro_001/terminology_ledger.txt: OK
+source/rq2_tied_scalar_edge_repro_001/test_rq2_tied_scalar_edge_repro_001.jl: OK
+freeze_manifest.toml: OK
+reference/v4_anchor/COMPLETED.toml: OK
+reference/v4_anchor/MANIFEST.sha256: OK
+reference/v4_anchor/frames.csv: OK
+rq2_bp_target_state_update_001/config.toml: OK
+rq2_bp_target_state_update_001/experiment_card.md: OK
+rq2_bp_target_state_update_001/rq2_bp_target_state_update_001.jl: OK
+rq2_bp_target_state_update_001/test_rq2_bp_target_state_update_001.jl: OK
+rq2_gd_parity_assignment_refresh_001/config.toml: OK
+rq2_gd_parity_assignment_refresh_001/rq2_gd_parity_assignment_refresh_001.jl: OK
+rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/config.toml: OK
+rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_offset_split_001/rq2_gd_offset_split_001.jl: OK
+rq2_gd_parity_assignment_refresh_001/vendor/rq2_gd_state_use_001/rq2_gd_state_use_001.jl: OK
+rq2_gd_residual_projection_budget_001/config.toml: OK
+rq2_gd_residual_projection_budget_001/experiment_card.md: OK
+rq2_gd_residual_projection_budget_001/rq2_gd_residual_projection_budget_001.jl: OK
+rq2_gd_residual_projection_budget_001/test_rq2_gd_residual_projection_budget_001.jl: OK
+source/campaign_registration.toml: OK
+source/config.toml: OK
+source/experiment_card.md: OK
+source/jade_project/Manifest.toml: OK
+source/jade_project/Project.toml: OK
+source/jade_project/src/JadeJcade.jl: OK
+source/jade_project/src/LDPC.jl: OK
+source/jade_project/src/Modulations.jl: OK
+source/jade_project/src/ReceiverCore.jl: OK
+source/jade_project/src/core/baseline_likelihood.jl: OK
+source/jade_project/src/core/common.jl: OK
+source/jade_project/src/core/jcade.jl: OK
+source/jade_project/src/core/joint_cz_projected_gradient.jl: OK
+source/jade_project/src/core/normalized_minsum_sensitivity.jl: OK
+source/jade_project/src/core/normalized_minsum_trace.jl: OK
+source/jade_project/src/core/persistent_edge.jl: OK
+source/jade_project/src/core/soft_minsum_lagrangian.jl: OK
+source/jade_project/tools/ldpc/make-gen: OK
+source/jade_project/tools/ldpc/make-ldpc: OK
+source/jade_project/tools/ldpc/print-pchk: OK
+source/jade_project/tools/ldpc/src/randfile: OK
+source/native_composition.jl: OK
+source/preflight_validation.toml: OK
+source/retained_native/run_three_receivers.jl: OK
+source/rung_registry.toml: OK
+source/test_native_composition.jl: OK
+2026-11-03T09:22:11Z phase=01_frozen_validation start
+Test Summary:                 | Pass  Total  Time
+configuration and source pins |    3      3  2.9s
+Test Summary:                 | Pass  Total  Time
+direct copy lift and collapse |    5      5  1.2s
+Test Summary:                              | Pass  Total  Time
+active tied evaluator is bit-for-bit equal |   10     10  0.7s
+Test Summary:                                        | Pass  Total  Time
+tied finite differences retain the scalar derivative |    5      5  0.3s
+2026-11-03T09:22:20Z phase=01_frozen_validation end
+2026-11-03T09:22:20Z phase=02_tied_reproduction_gate start
+complete_valid science_sha256=bd9e134dc3c8694d77032a0010d9316f84d8e796e9566d971c526ee212a1d4e9
+2026-11-03T09:23:48Z phase=02_tied_reproduction_gate end
+2026-11-03T09:23:48Z queue_complete

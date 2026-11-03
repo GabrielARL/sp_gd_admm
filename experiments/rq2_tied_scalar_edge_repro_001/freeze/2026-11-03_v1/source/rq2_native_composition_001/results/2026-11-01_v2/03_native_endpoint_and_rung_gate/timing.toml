@@ -1,0 +1,14 @@
+execution_variant_count = 0
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+frame_count = 0
+job_id = "03_native_endpoint_and_rung_gate"
+pass_count = 0
+primary_seconds = 221.01032769
+replay_seconds = 199.736730712
+rung_count = 0
+schema_version = "rq2-native-composition-001/timing-v1"
+seconds_per_frame_rung = 0.0
+seconds_per_frame_variant = 0.0
+total_seconds = 422.285075605
+validation_case_count = 24
+write_seconds = 1.538017203
