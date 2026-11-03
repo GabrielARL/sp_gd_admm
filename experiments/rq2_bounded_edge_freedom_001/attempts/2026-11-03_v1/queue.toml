@@ -1,0 +1,31 @@
+schema_version = "rq2-bounded-edge-freedom-001/queue-v1"
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+attempt_id = "2026-11-03_v1"
+unit_name = "sp-gd-rq2-bounded-edge-freedom-20261103-v1"
+freeze_relative = "../../freeze/2026-11-03_v1"
+freeze_manifest_sha256 = "__FREEZE_MANIFEST_SHA256__"
+result_relative = "../../results/2026-11-03_v1"
+wall_budget_seconds = 5400
+overwrite_allowed = false
+automatic_restart_allowed = false
+
+[threads]
+julia = 1
+blas = 1
+omp = 1
+
+[runtime_project]
+path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+expected_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+require_clean_tracked_worktree = true
+project_toml_sha256 = "29b094478b8b4ab89606ca4f9f4a1c8495ebe74ea473372a3b04faef6c40dc04"
+manifest_toml_sha256 = "c0d828e48da8b5bf0acacceacb3fdcfacd0b9b1c2b2766600d11154700016eff"
+receiver_core_sha256 = "98f03da65e8b791e132e57761e3577f46d0f97c5cf802449271838f43f8b6dd0"
+common_core_sha256 = "f4bb1b5aefbc800d51221f732a44532a8dd2128a260fbbb3f6d9c54adf27bba5"
+joint_projected_gradient_sha256 = "c1ba501be0d13269032706f55a80dbd465938c3f4ce71679d5948fc77ecc1c4a"
+
+[jobs]
+order = ["01_frozen_validation", "02_anchor", "03_transfer_if_anchor_valid"]
+anchor_includes_retained_reproduction_gate = true
+anchor_outcome_is_expansion_gate = false
+transfer_requires_complete_valid_anchor = true
