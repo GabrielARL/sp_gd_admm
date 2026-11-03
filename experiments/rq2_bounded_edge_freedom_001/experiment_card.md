@@ -276,9 +276,15 @@ convention before evaluation.
 
 The primary endpoint is paired transmitted-word recovery at requested update
 30. Parity validity is confirmatory; a parity-valid word can be the wrong
-transmitted word. Report both directions of paired discordance, the paired
-recovery difference, and an exact paired interval. Do not force an additive
-case attribution when the per-case outcomes disagree in both directions.
+transmitted word. For the primary endpoint, report both directions of paired
+discordance, the relaxed-minus-constrained recovery difference, the exact
+two-sided McNemar p-value, and a two-sided 95% Newcombe method-10 interval for
+the paired risk difference. Apply the same statistics to parity validity as
+descriptive confirmatory diagnostics; they do not add a second causal decision
+gate. No multiplicity adjustment is required because transmitted-word
+recovery is the single registered primary endpoint. Do not call the Newcombe
+interval exact, and do not force an additive case attribution when the
+per-case outcomes disagree in both directions.
 
 A changed outcome supports only this statement:
 

@@ -127,6 +127,15 @@ retain_raw_and_normalized_validation_maxima = true
 hard_sign_rule = "+1 iff value >= 0; otherwise -1"
 hard_check_satisfaction_rule = "product of mapped signs equals +1"
 
+[inference]
+primary_endpoint = "transmitted_word_equal_at_requested_update_30"
+confirmatory_endpoint = "parity_valid_at_requested_update_30"
+contrast = "equality_relaxed_minus_equality_constrained"
+paired_test = "two-sided exact McNemar test"
+paired_interval = "Newcombe 1998 score/Wilson method 10 for paired proportions with continuity-corrected correlation"
+confidence_level = 0.95
+multiplicity_rule = "none; transmitted-word recovery is the single primary endpoint and parity validity is descriptive confirmatory evidence"
+
 [execution]
 scientific_passes = 2
 pass_names = ["primary", "replay"]
