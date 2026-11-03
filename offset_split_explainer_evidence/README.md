@@ -26,3 +26,17 @@ snapshot; these files are evidence copies, not a new scientific run.
   the native-GD transition accounting case by case from it.
 
 The HTML keeps the original worktree paths in its collapsed provenance record.
+
+## Provenance boundary for the completed campaign
+
+The original snapshot files listed above remain byte-pinned by
+`MANIFEST.sha256`. The completed Block A and Block B campaigns, the exact-map
+2-by-2 experiment, and the native-composition experiment are not duplicated in
+this directory. Instead, the HTML and its verifier identify each retained
+artifact by its repository-relative path and expected SHA-256 digest, then
+verify that artifact in place before accepting the page's reported results.
+
+No experiment was rerun to update the explainer, and no completed-campaign
+artifact was copied into this evidence directory. The proposed atomic bridge is
+a plan for the next experiment; it is not completed evidence and must not be
+read as a result.

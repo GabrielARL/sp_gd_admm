@@ -22,8 +22,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent
 HTML_PATH = ROOT / "offset_split_explainer.html"
-CORE_SCENES = 9
-EVIDENCE_BEATS = 23
+CORE_SCENES = 13
+EVIDENCE_BEATS = 27
 EVIDENCE_DIR = ROOT / "offset_split_explainer_evidence"
 MANIFEST_PATH = EVIDENCE_DIR / "MANIFEST.sha256"
 PINNED_SOURCES = {
@@ -84,6 +84,82 @@ PINNED_SOURCES = {
         "a724bbcf3637d92ba61d5d086a28d8c6bc3e804da00459c153782859fb5ab9e7",
     ),
 }
+
+# These completed-campaign artifacts remain in their registered experiment
+# directories.  Their descriptors and bytes are pinned just as strictly as the
+# compact evidence snapshots above, but they do not belong in that snapshot
+# directory's historical MANIFEST.sha256.
+EXPERIMENT_SOURCES = {
+    "block_a_locked_aggregate": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/aggregate.csv",
+        "f21fd0dab1606904801000f407767ef0a2f68440efbcc43ced2bd40fef884ee9",
+    ),
+    "block_a_locked_frames": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/frames.csv",
+        "28bdcbc0b15ec3f3320ec3e25920d50bc8967516a72641c0561ebcb2c24df9cf",
+    ),
+    "block_a_locked_completion": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/COMPLETED.toml",
+        "a143fd277332e864cc7fe6d965fc8e690fc9e16ab75b276f007c7c97d423670d",
+    ),
+    "block_a_fresh_aggregate": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/aggregate.csv",
+        "576edfe500e8775ff49bd7bc315681e2e6a567b0966824f1baa6d1954183411d",
+    ),
+    "block_a_fresh_frames": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/frames.csv",
+        "5ef7433de3b7989f35d8febb7c769083a87c49a9359e179457664aa0937df4d2",
+    ),
+    "block_a_fresh_completion": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/COMPLETED.toml",
+        "c099b9424c3137c43b0a67673e76ac83a198fcf62a476303b111d93795dc6765",
+    ),
+    "block_b_locked_frames": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_b_attribution_30001_30200/frames.csv",
+        "fcddf325f4106faa0ab7a4a286fca9a88e4cb7fdf9de2f2463b19d4884bd3bb1",
+    ),
+    "block_b_locked_completion": (
+        "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_b_attribution_30001_30200/COMPLETED.toml",
+        "6108a1304b6286ee80f482d77e7ce6964e25b47d2e7253452d53e31047cb6146",
+    ),
+    "exact_map_six_frames": (
+        "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/03_six_db_transfer/frames.csv",
+        "033167501f4464fa3eb762c72da1615ff68e96152e52e5c2a340d6a066cf05b7",
+    ),
+    "exact_map_six_completion": (
+        "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/03_six_db_transfer/COMPLETED.toml",
+        "3af6d61eb3b914833806261ac184b7312c5f3cb165e091bd7be38df8f53be721",
+    ),
+    "exact_map_second_frames": (
+        "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/04_second_snr_confirmation/frames.csv",
+        "525c172c3da2bd88e14120f33c341d32c37953940c57ff297b3aaac72388aa31",
+    ),
+    "exact_map_second_completion": (
+        "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/04_second_snr_confirmation/COMPLETED.toml",
+        "746f62db3fd9a479f12e565efd85329134504e680714dcd3e0b3f9869f1aede1",
+    ),
+    "native_composition_six_frames": (
+        "experiments/rq2_native_composition_001/results/2026-11-01_v2/05_six_db_forward_transfer/frames.csv",
+        "1b1e1d226535ed7817357848c3c2136a90aacb911ef1cb154038fa80739b6a5e",
+    ),
+    "native_composition_six_completion": (
+        "experiments/rq2_native_composition_001/results/2026-11-01_v2/05_six_db_forward_transfer/COMPLETED.toml",
+        "091c95a1ac735c466fce949ff168b8218d7ba524e3b7ceabd7acf19b5c507902",
+    ),
+    "native_composition_second_frames": (
+        "experiments/rq2_native_composition_001/results/2026-11-01_v2/07_second_snr_confirmation/frames.csv",
+        "b9968055cc208bcf382086ff06b1a413149eb2d128cb18e0f2fa132fe9b13220",
+    ),
+    "native_composition_second_completion": (
+        "experiments/rq2_native_composition_001/results/2026-11-01_v2/07_second_snr_confirmation/COMPLETED.toml",
+        "c0c43dd53201236a4052a4ddfc7175849a5f05752c84b813c28b1f361f84d1af",
+    ),
+    "native_composition_registry": (
+        "experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/rung_registry.toml",
+        "e9b58764c1aa956665d4f6c5d326b34e2a5086c5faf6d579bba0a3dee29a1245",
+    ),
+}
+ALL_SOURCES = PINNED_SOURCES | EXPERIMENT_SOURCES
 
 
 class EvidenceParser(HTMLParser):
@@ -160,6 +236,13 @@ def integer(row: dict[str, str], key: str) -> int:
     return int(value)
 
 
+def boolean(row: dict[str, str], key: str) -> bool:
+    value = row[key]
+    if value not in {"true", "false"}:
+        raise AssertionError(f"{key} must be true or false, got {value!r}")
+    return value == "true"
+
+
 def verify_paired_decomposition(
     row: dict[str, str],
     *,
@@ -207,7 +290,7 @@ def contrast_ratio(first: str, second: str) -> float:
 
 
 def verify_sources(evidence: dict[str, Any]) -> dict[str, Any]:
-    if set(evidence["sources"]) != set(PINNED_SOURCES):
+    if set(evidence["sources"]) != set(ALL_SOURCES):
         raise AssertionError("embedded source set changed")
     expected_manifest = "".join(
         f"{digest}  {Path(relative_path).name}\n"
@@ -216,7 +299,7 @@ def verify_sources(evidence: dict[str, Any]) -> dict[str, Any]:
     if MANIFEST_PATH.read_text(encoding="utf-8") != expected_manifest:
         raise AssertionError("evidence manifest differs from the verifier's pinned source list")
     tables: dict[str, Any] = {}
-    for source_id, (relative_path, pinned_digest) in PINNED_SOURCES.items():
+    for source_id, (relative_path, pinned_digest) in ALL_SOURCES.items():
         descriptor = evidence["sources"][source_id]
         if descriptor != {"path": relative_path, "sha256": pinned_digest}:
             raise AssertionError(f"embedded descriptor changed for {source_id}")
@@ -230,6 +313,10 @@ def verify_sources(evidence: dict[str, Any]) -> dict[str, Any]:
             raise AssertionError(f"{source_id} source digest changed: {observed}")
         if path.suffix == ".csv":
             tables[source_id] = read_rows(path)
+        elif source_id == "native_composition_registry":
+            # The registry uses repeated TOML tables; its exact frozen text is
+            # what the transition-boundary verifier inspects below.
+            tables[source_id] = path.read_text(encoding="utf-8")
         elif path.suffix == ".toml":
             tables[source_id] = read_flat_toml(path)
         else:
@@ -695,6 +782,313 @@ def verify_followup(evidence: dict[str, Any], tables: dict[str, Any]) -> None:
         raise AssertionError("native-gap frame table and aggregate disagree")
 
 
+def verify_completed_campaign(evidence: dict[str, Any], tables: dict[str, Any]) -> None:
+    """Recompute every post-campaign number displayed by the explainer."""
+
+    def completion_gate(source_id: str, experiment_id: str) -> dict[str, Any]:
+        completion = tables[source_id]
+        expected = {
+            "experiment_id": experiment_id,
+            "status": "complete_valid",
+            "correctness_passed": True,
+            "deterministic_replay_passed": True,
+        }
+        for key, value in expected.items():
+            if completion.get(key) != value:
+                raise AssertionError(f"{source_id}: completion gate changed for {key}")
+        return completion
+
+    for source_id in ("block_a_locked_completion", "block_a_fresh_completion", "block_b_locked_completion"):
+        completion_gate(source_id, "RQ2-CAUSAL-FACTORS-001")
+    for source_id in ("exact_map_six_completion", "exact_map_second_completion"):
+        completion_gate(source_id, "RQ2-EXACT-MAP-UPDATE-001")
+    for source_id in ("native_composition_six_completion", "native_composition_second_completion"):
+        completion_gate(source_id, "RQ2-NATIVE-COMPOSITION-001")
+
+    def indexed(
+        rows: list[dict[str, str]],
+        *,
+        arm: str,
+        checkpoint: int | None = None,
+    ) -> dict[int, dict[str, str]]:
+        selected = [row for row in rows if row.get("arm") == arm]
+        if checkpoint is not None:
+            selected = [row for row in selected if integer(row, "checkpoint_update") == checkpoint]
+        result = {integer(row, "frame"): row for row in selected}
+        if len(result) != len(selected):
+            raise AssertionError(f"duplicate frame rows for {arm} at checkpoint {checkpoint}")
+        if len(result) != 200:
+            raise AssertionError(f"expected 200 rows for {arm} at checkpoint {checkpoint}, found {len(result)}")
+        return result
+
+    def exact_set(rows: dict[int, dict[str, str]], key: str = "transmitted_word_equal") -> set[int]:
+        return {frame for frame, row in rows.items() if boolean(row, key)}
+
+    locked_rows = tables["block_a_locked_frames"]
+    locked_base30_rows = indexed(locked_rows, arm="compound__box", checkpoint=30)
+    locked_base90_rows = indexed(locked_rows, arm="compound__box", checkpoint=90)
+    product30_rows = indexed(locked_rows, arm="product_only__unconstrained", checkpoint=30)
+    locked_ids = set(locked_base30_rows)
+    if locked_ids != set(range(30001, 30201)):
+        raise AssertionError("Block A locked frame set is not 30001:30200")
+    if set(locked_base90_rows) != locked_ids or set(product30_rows) != locked_ids:
+        raise AssertionError("Block A arms do not use the locked frame set")
+
+    base30 = exact_set(locked_base30_rows)
+    base90 = exact_set(locked_base90_rows)
+    product30 = exact_set(product30_rows)
+    original_misses = locked_ids - base30
+    budget_recoveries = base90 - base30
+    budget_losses = base30 - base90
+    product_recoveries = product30 & original_misses
+    product_losses = base30 - product30
+    budget_only = budget_recoveries - product_recoveries
+    both_routes = budget_recoveries & product_recoveries
+    product_only = product_recoveries - budget_recoveries
+    neither_route = original_misses - (budget_recoveries | product_recoveries)
+
+    expected_partition = (len(budget_only), len(both_routes), len(product_only), len(neither_route))
+    if expected_partition != (13, 19, 1, 0):
+        raise AssertionError(f"33-case recovery partition changed: {expected_partition}")
+    if (len(base30), len(base90), len(original_misses), len(budget_recoveries), len(budget_losses)) != (167, 199, 33, 32, 0):
+        raise AssertionError("Block A locked budget result changed")
+    if (len(product30), len(product_recoveries), len(product_losses)) != (170, 20, 17):
+        raise AssertionError("Block A product-only/unconstrained gain-loss accounting changed")
+    budget_latest = max(integer(locked_base90_rows[frame], "first_exact_update") for frame in budget_recoveries)
+    if budget_latest != 59:
+        raise AssertionError(f"latest locked budget recovery changed: {budget_latest}")
+
+    extreme = product30_rows[30149]
+    if 30149 not in product_only:
+        raise AssertionError("frame 30149 is no longer the product-only-only recovery")
+    extreme_expected = {
+        "first_exact_update": 6,
+        "accepted_steps": 7,
+        "status": "line_search_stalled",
+    }
+    for key, value in extreme_expected.items():
+        observed: Any = integer(extreme, key) if key != "status" else extreme[key]
+        if observed != value:
+            raise AssertionError(f"frame 30149 {key} changed: {observed!r}")
+    extreme_maximum = float(extreme["maximum_absolute_scalar"])
+    extreme_objective = float(extreme["objective"])
+    if not math.isclose(extreme_maximum, 1.2602795538802788e51, rel_tol=1e-15):
+        raise AssertionError("frame 30149 maximum absolute scalar changed")
+    if not math.isclose(extreme_objective, -1.3167086955953913e303, rel_tol=1e-15):
+        raise AssertionError("frame 30149 objective changed")
+
+    def verify_block_a_aggregate(source_id: str, expected_counts: dict[tuple[int, str], int]) -> None:
+        rows = tables[source_id]
+        for (checkpoint, arm), expected_count in expected_counts.items():
+            transmitted = one(
+                rows,
+                checkpoint_update=str(checkpoint),
+                arm=arm,
+                endpoint="transmitted_word_equal",
+            )
+            parity = one(rows, checkpoint_update=str(checkpoint), arm=arm, endpoint="parity_valid")
+            if integer(transmitted, "cases") != 200 or integer(transmitted, "successes") != expected_count:
+                raise AssertionError(f"{source_id}: aggregate changed for {arm} at {checkpoint}")
+            if integer(parity, "successes") != expected_count:
+                raise AssertionError(f"{source_id}: parity and exact-word totals differ for {arm} at {checkpoint}")
+
+    verify_block_a_aggregate(
+        "block_a_locked_aggregate",
+        {(30, "compound__box"): 167, (90, "compound__box"): 199, (30, "product_only__unconstrained"): 170},
+    )
+
+    fresh_rows = tables["block_a_fresh_frames"]
+    fresh30_rows = indexed(fresh_rows, arm="compound__box", checkpoint=30)
+    fresh90_rows = indexed(fresh_rows, arm="compound__box", checkpoint=90)
+    fresh_ids = set(fresh30_rows)
+    if fresh_ids != set(range(50025, 50225)) or set(fresh90_rows) != fresh_ids:
+        raise AssertionError("Block A fresh frame set changed")
+    fresh30 = exact_set(fresh30_rows)
+    fresh90 = exact_set(fresh90_rows)
+    fresh_gains = fresh90 - fresh30
+    fresh_losses = fresh30 - fresh90
+    fresh_latest = max(integer(fresh90_rows[frame], "first_exact_update") for frame in fresh_gains)
+    if (len(fresh30), len(fresh90), len(fresh_gains), len(fresh_losses), fresh_latest) != (177, 200, 23, 0, 48):
+        raise AssertionError("Block A fresh budget result changed")
+    verify_block_a_aggregate(
+        "block_a_fresh_aggregate",
+        {(30, "compound__box"): 177, (90, "compound__box"): 200},
+    )
+
+    block_b_rows = tables["block_b_locked_frames"]
+    block_b_arms = {
+        "full__direct": "full_direct",
+        "qbar_tied__direct": "mean_tied_direct",
+        "full__residual_gradient": "full_residual_gradient",
+        "qbar_tied__residual_gradient": "mean_tied_residual_gradient",
+    }
+    block_b_sets: dict[str, set[int]] = {}
+    for arm, label in block_b_arms.items():
+        rows = indexed(block_b_rows, arm=arm)
+        if set(rows) != locked_ids:
+            raise AssertionError(f"Block B {arm} does not use the locked frame set")
+        block_b_sets[label] = {frame for frame, row in rows.items() if boolean(row, "terminal_exact_word")}
+    block_b_totals = {key: len(value) for key, value in block_b_sets.items()}
+    if block_b_totals != {
+        "full_direct": 200,
+        "mean_tied_direct": 200,
+        "full_residual_gradient": 0,
+        "mean_tied_residual_gradient": 0,
+    }:
+        raise AssertionError(f"Block B totals changed: {block_b_totals}")
+    block_b_on_33 = {key: len(value & original_misses) for key, value in block_b_sets.items()}
+    if block_b_on_33 != {
+        "full_direct": 33,
+        "mean_tied_direct": 33,
+        "full_residual_gradient": 0,
+        "mean_tied_residual_gradient": 0,
+    }:
+        raise AssertionError(f"Block B original-33 totals changed: {block_b_on_33}")
+
+    completed_expected = {
+        "locked_case_set_B": {
+            "compound_box_at_30": len(base30),
+            "compound_box_at_90": len(base90),
+            "original_misses": len(original_misses),
+            "recovered_by_more_updates": len(budget_recoveries),
+            "latest_first_exact_update": budget_latest,
+            "more_updates_lost": len(budget_losses),
+            "product_only_unconstrained_at_30": len(product30),
+            "original_misses_recovered_by_product_only_unconstrained": len(product_recoveries),
+            "product_only_unconstrained_lost_from_original_successes": len(product_losses),
+            "budget_only": len(budget_only),
+            "both_routes": len(both_routes),
+            "product_only_unconstrained_only": len(product_only),
+            "neither_route": len(neither_route),
+            "extreme_frame": 30149,
+            "extreme_first_exact_update": integer(extreme, "first_exact_update"),
+            "extreme_accepted_updates": integer(extreme, "accepted_steps"),
+            "extreme_maximum_absolute_scalar": extreme_maximum,
+            "extreme_objective": extreme_objective,
+        },
+        "fresh_case_set_D": {
+            "compound_box_at_30": len(fresh30),
+            "compound_box_at_90": len(fresh90),
+            "gained": len(fresh_gains),
+            "lost": len(fresh_losses),
+            "latest_first_exact_update": fresh_latest,
+        },
+        "locked_block_B": {
+            "cases": len(locked_ids),
+            **block_b_totals,
+            "original_33_full_direct": block_b_on_33["full_direct"],
+            "original_33_mean_tied_direct": block_b_on_33["mean_tied_direct"],
+            "original_33_full_residual_gradient": block_b_on_33["full_residual_gradient"],
+            "original_33_mean_tied_residual_gradient": block_b_on_33["mean_tied_residual_gradient"],
+        },
+    }
+    if evidence["completed_causal_campaign"] != completed_expected:
+        raise AssertionError("completed-campaign summary does not reproduce retained Block A/B tables")
+
+    def arm_successes(rows: list[dict[str, str]], arm_key: str, outcome_key: str) -> tuple[set[int], dict[str, set[int]]]:
+        frame_ids = {integer(row, "frame") for row in rows}
+        arms: dict[str, set[int]] = {}
+        for row in rows:
+            arms.setdefault(row[arm_key], set())
+            if boolean(row, outcome_key):
+                arms[row[arm_key]].add(integer(row, "frame"))
+        expected_rows = len(frame_ids) * len(arms)
+        if len(rows) != expected_rows:
+            raise AssertionError(f"{arm_key}: expected one row per frame and arm")
+        return frame_ids, arms
+
+    exact_map_expected: dict[str, Any] = {}
+    exact_map_specs = (
+        ("six_db", "exact_map_six_frames", 6.0, 200),
+        ("second_snr", "exact_map_second_frames", 1.5, 198),
+    )
+    for label, source_id, snr_db, successful_corner in exact_map_specs:
+        rows = tables[source_id]
+        frame_ids, arms = arm_successes(rows, "arm_id", "terminal_exact_word")
+        expected_arms = {
+            "true_gradient__armijo": 0,
+            "map_minus_state__armijo": 0,
+            "true_gradient__unit": 0,
+            "map_minus_state__unit": successful_corner,
+        }
+        observed = {arm: len(successes) for arm, successes in arms.items()}
+        if observed != expected_arms or len(frame_ids) != 200:
+            raise AssertionError(f"exact-map 2x2 result changed for {label}: {observed}")
+        if {float(row["snr_db"]) for row in rows} != {snr_db}:
+            raise AssertionError(f"exact-map SNR changed for {label}")
+        interaction = {
+            frame for frame in frame_ids
+            if frame in arms["map_minus_state__unit"]
+            and all(frame not in arms[arm] for arm in expected_arms if arm != "map_minus_state__unit")
+        }
+        if len(interaction) != successful_corner:
+            raise AssertionError(f"exact-map interaction count changed for {label}")
+        result = {
+            "cases": len(frame_ids),
+            "true_gradient__armijo": len(arms["true_gradient__armijo"]),
+            "map_displacement__armijo": len(arms["map_minus_state__armijo"]),
+            "true_gradient__unit": len(arms["true_gradient__unit"]),
+            "map_displacement__unit": len(arms["map_minus_state__unit"]),
+            "interaction_cases": len(interaction),
+        }
+        if label == "second_snr":
+            result = {"snr_db": snr_db, **result}
+        exact_map_expected[label] = result
+    if evidence["exact_map_update"] != exact_map_expected:
+        raise AssertionError("exact-map update summary does not reproduce the retained 2x2 tables")
+
+    native_expected: dict[str, Any] = {}
+    native_specs = (
+        ("six_db_fresh", "native_composition_six_frames", 6.0, 112, 200),
+        ("second_snr_fresh", "native_composition_second_frames", 1.5, 0, 199),
+    )
+    for label, source_id, snr_db, expected_gd, expected_bp in native_specs:
+        rows = tables[source_id]
+        frame_ids, rungs = arm_successes(rows, "rung_id", "transmitted_word_equal")
+        observed = (len(rungs["native_projected_gd"]), len(rungs["native_exact_sum_product"]))
+        if len(frame_ids) != 200 or observed != (expected_gd, expected_bp):
+            raise AssertionError(f"native endpoint totals changed for {label}: {observed}")
+        if {float(row["snr_db"]) for row in rows} != {snr_db}:
+            raise AssertionError(f"native-composition SNR changed for {label}")
+        result = {
+            "cases": len(frame_ids),
+            "native_projected_gd": observed[0],
+            "native_exact_sum_product": observed[1],
+        }
+        if label == "second_snr_fresh":
+            result = {"snr_db": snr_db, **result}
+        native_expected[label] = result
+
+    registry = tables["native_composition_registry"]
+    transition = next(
+        (
+            block for block in registry.split("[[transitions]]")
+            if 'from = "assigned_frozen_product_unconstrained"' in block
+            and 'to = "edge_product_residual_gradient_tied"' in block
+        ),
+        None,
+    )
+    if transition is None:
+        raise AssertionError("native-composition registry lost the scalar-to-edge handoff")
+    if "atomic = false" not in transition or "attributable = false" not in transition:
+        raise AssertionError("native-composition scalar-to-edge handoff is no longer registered as non-atomic")
+    changed_match = re.search(r"changed_fingerprint_fields\s*=\s*\[(.*?)\]", transition, flags=re.DOTALL)
+    if changed_match is None:
+        raise AssertionError("non-atomic transition has no changed-fingerprint list")
+    changed_fields = re.findall(r'"([^"]+)"', changed_match.group(1))
+    if changed_fields != ["state_family", "target_family", "update_family"]:
+        raise AssertionError(f"non-atomic transition fields changed: {changed_fields}")
+    native_expected["non_atomic_handoff"] = {
+        "from": "assigned_frozen_product_unconstrained",
+        "to": "edge_product_residual_gradient_tied",
+        "atomic": False,
+        "attributable": False,
+        "changed_fields": changed_fields,
+    }
+    if evidence["native_composition"] != native_expected:
+        raise AssertionError("native-composition summary does not reproduce retained endpoints and registry")
+
+
 def verify_html(html: str) -> None:
     if len(re.findall(r"^INTUITION_BEATS\.push\(\{", html, flags=re.MULTILINE)) != CORE_SCENES:
         raise AssertionError("unexpected number of intuitive scenes")
@@ -709,7 +1103,6 @@ def verify_html(html: str) -> None:
         "They are not BP messages",
         "The recovery increase follows the parity calculation",
         "Changing only the interval used to project x_i adds no observed recovery",
-        "the cause of native BP’s advantage is not yet established",
         "SEPARATE COMPOUND-ARM CONTROL",
         "accepted GD update",
         "Verification scope.",
@@ -721,8 +1114,15 @@ def verify_html(html: str) -> None:
         "PARITY CALCULATION ONLY · PROJECTION ONTO [−1, 1] IN EVERY ARM",
         "REPEATED ON 200 FRESH CASES · THE REGISTERED CONFIRMATORY TEST",
         "What the follow-up found",
-        "The 33 cases no constructed variant recovers",
         "this deck makes no current-status claim",
+        "More updates recover 32 of the 33 checkpoint misses",
+        "The two recovery routes overlap",
+        "The exact-map result requires both the direction and the step",
+        "Native endpoints are reproduced; one bundled transition remains",
+        "The product-only, unconstrained arm is not a monotone improvement",
+        "NEXT EXPERIMENT · PLAN, NOT RESULT",
+        "atomic = false",
+        "this page does not track a running job",
     )
     for phrase in required:
         if phrase not in html:
@@ -740,6 +1140,7 @@ def verify_html(html: str) -> None:
         "unsupported native causal attribution": r"causally explains part of the (?:native )?(?:BP.?GD )?gap|causal part of the performance gap",
         "overstated null effect": r"projection interval contributes nothing|interval (?:alone )?adds nothing",
         "unsupported case identity": r"coincide to the case",
+        "stale unresolved-33 claim": r"The 33 cases no constructed variant recovers",
     }
     for label, pattern in banned_patterns.items():
         if re.search(pattern, html, flags=re.IGNORECASE):
@@ -930,17 +1331,47 @@ def browser_smoke() -> str:
         if value not in follow_visible:
             raise AssertionError(f"visible follow-up scene is missing {value}")
 
-    boundary = dump_dom(browser, base + "#core=9.4", "1440,900", 1200)
-    boundary_visible = element_text(boundary, "div", "stage") + " " + element_text(boundary, "aside", "aside")
+    checkpoint = dump_dom(browser, base + "#core=9.4", "1440,900", 1200)
+    checkpoint_visible = element_text(checkpoint, "div", "stage") + " " + element_text(checkpoint, "aside", "aside")
     for phrase in (
         "among the four constructed GD variants",
-        "Whether that operation explains native BP’s advantage remains an open experiment",
-        "the cause of native BP’s advantage is not yet established",
+        "TESTED IN THE NEXT SCENES",
+        "Historical checkpoint only · completed results follow",
         "107 → 163 → 167",
         "33",
     ):
-        if phrase not in boundary_visible:
-            raise AssertionError(f"boundary scene is missing its registered scope: {phrase}")
+        if phrase not in checkpoint_visible:
+            raise AssertionError(f"checkpoint scene is missing its historical scope: {phrase}")
+
+    budget = dump_dom(browser, base + "#core=10.3", "1440,900", 1200)
+    budget_visible = element_text(budget, "div", "stage") + " " + element_text(budget, "aside", "aside")
+    for phrase in ("167", "199", "+32 of 33", "177 → 200", "last recovery 48", "CAUSAL BOUNDARY"):
+        if phrase not in budget_visible:
+            raise AssertionError(f"budget scene is missing {phrase}")
+
+    overlap = dump_dom(browser, base + "#core=11.3", "1440,900", 1200)
+    overlap_visible = element_text(overlap, "div", "stage") + " " + element_text(overlap, "aside", "aside")
+    for phrase in ("BUDGET ONLY 13", "BOTH ROUTES 19", "OTHER ROUTE ONLY 1", "NEITHER 0", "+20", "−17", "30149"):
+        if phrase not in overlap_visible:
+            raise AssertionError(f"overlap scene is missing {phrase}")
+
+    exact_map = dump_dom(browser, base + "#core=12.3", "1440,900", 1200)
+    exact_map_visible = element_text(exact_map, "div", "stage") + " " + element_text(exact_map, "aside", "aside")
+    for phrase in ("F(u) − u", "200 / 200", "u + [F(u) − u] = F(u)", "direct map 33/33", "residual-gradient 0/33", "interaction"):
+        if phrase not in exact_map_visible:
+            raise AssertionError(f"exact-map scene is missing {phrase}")
+
+    native_boundary = dump_dom(browser, base + "#core=13.4", "1440,900", 1200)
+    native_boundary_visible = element_text(native_boundary, "div", "stage") + " " + element_text(native_boundary, "aside", "aside")
+    for phrase in (
+        "projected GD 112 · exact BP 200",
+        "projected GD 0 · exact BP 199",
+        "atomic = false · attributable = false",
+        "NEXT EXPERIMENT · PLAN, NOT RESULT",
+        "2 × 2 × 2",
+    ):
+        if phrase not in native_boundary_visible:
+            raise AssertionError(f"native-boundary scene is missing {phrase}")
 
     legacy = dump_dom(browser, base + f"#b{EVIDENCE_BEATS}", "1440,900", 1200)
     if f"Evidence {EVIDENCE_BEATS} of {EVIDENCE_BEATS}" not in legacy:
@@ -971,6 +1402,41 @@ def browser_smoke() -> str:
     if '<p class="mode-note" id="modeNote"><strong>Verification scope.</strong>' not in evidence_result:
         raise AssertionError("Full evidence does not disclose the automated verification boundary")
 
+    budget_evidence = dump_dom(browser, base + "#b24", "1440,900", 1200)
+    for element_id, expected_values in {
+        "evidence-budget-locked": ("167", "199", "+32 of 33", "last recovery: 59"),
+        "evidence-budget-fresh": ("177 / 200", "200 / 200", "+23", "lost 0", "last recovery 48"),
+    }.items():
+        visible = element_text(budget_evidence, "g", element_id)
+        if not all(value in visible for value in expected_values):
+            raise AssertionError(f"visible budget evidence is wrong: {element_id} -> {visible!r}")
+
+    overlap_evidence = dump_dom(browser, base + "#b25", "1440,900", 1200)
+    overlap_ledger = element_text(overlap_evidence, "g", "evidence-overlap-ledger")
+    for value in ("+20", "−17", "167 → 170"):
+        if value not in overlap_ledger:
+            raise AssertionError(f"visible overlap ledger is missing {value}")
+
+    exact_evidence = dump_dom(browser, base + "#b26", "1440,900", 1200)
+    for element_id, value in {
+        "exact-grid-gradient-line": "0 / 200",
+        "exact-grid-gradient-unit": "0 / 200",
+        "exact-grid-map-line": "0 / 200",
+        "exact-grid-map-unit": "200 / 200",
+    }.items():
+        if value not in element_text(exact_evidence, "g", element_id):
+            raise AssertionError(f"visible exact-map evidence is wrong: {element_id}")
+
+    native_evidence = dump_dom(browser, base + "#b27", "1440,900", 1200)
+    native_endpoints = element_text(native_evidence, "g", "evidence-native-endpoints")
+    for phrase in ("projected GD 112 · exact BP 200", "projected GD 0 · exact BP 199"):
+        if phrase not in native_endpoints:
+            raise AssertionError(f"visible native endpoint gate is missing {phrase}")
+    native_full_visible = element_text(native_evidence, "div", "stage") + " " + element_text(native_evidence, "aside", "aside")
+    for phrase in ("atomic = false · attributable = false", "NEXT EXPERIMENT · PLAN, NOT RESULT"):
+        if phrase not in native_full_visible:
+            raise AssertionError(f"visible native boundary is missing {phrase}")
+
     mobile = dump_dom(browser, base + "?smoke=1#core=1", "500,800")
     if 'data-layout-overflow="none"' not in mobile:
         raise AssertionError("mobile page overflows horizontally")
@@ -990,12 +1456,13 @@ def main() -> int:
 
     html = HTML_PATH.read_text(encoding="utf-8")
     evidence = extract_evidence(html)
-    if evidence.get("schema_version") != 1:
+    if evidence.get("schema_version") != 2:
         raise AssertionError("unexpected embedded evidence schema")
     verify_toy(evidence)
     tables = verify_sources(evidence)
     verify_tables(evidence, tables)
     verify_followup(evidence, tables)
+    verify_completed_campaign(evidence, tables)
     verify_html(html)
     browser = "skipped by request" if args.skip_browser else browser_smoke()
     print(f"PASS: {CORE_SCENES} intuitive scenes, {EVIDENCE_BEATS} evidence beats, retained tables and terminology gates")

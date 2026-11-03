@@ -183,7 +183,7 @@ svg .dim{opacity:.35}
     <button id="coreMode" aria-pressed="true">Intuitive explanation</button>
     <button id="evidenceMode" aria-pressed="false">Full evidence</button>
   </div>
-  <p class="mode-note" id="modeNote" hidden><strong>Verification scope.</strong> The local manifest and checker reproduce the result tables, interactions, completion and replay gates, the follow-up’s native-GD transition accounting, and the displayed result panels. The operational timelines and the follow-up’s attempt history are dated context linked under Evidence and provenance; this page does not replay every historical job or track any running one.</p>
+  <p class="mode-note" id="modeNote" hidden><strong>Verification scope.</strong> The checker reproduces the result tables, interactions, completion and replay gates, the 33-case overlap ledger, the exact-map comparisons, and the native-composition boundary from retained artifacts. The proposed atomic handoff is a next experiment, not a result. Historical timelines are dated context linked under Evidence and provenance; this page does not track a running job.</p>
   <main>
     <button class="mobile-zoom" id="mobileZoom" type="button" aria-pressed="false">Enlarge chart for readable labels</button>
     <div class="stage" id="stage" role="region" aria-live="polite" aria-label="Current visual explanation"></div>
@@ -202,7 +202,7 @@ svg .dim{opacity:.35}
 
 <script type="application/json" id="offsetSplitEvidence">
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "sources": {
     "compound_case_set_A": {
       "path": "offset_split_explainer_evidence/compound_case_set_A.csv",
@@ -259,6 +259,74 @@ svg .dim{opacity:.35}
     "native_gap_frames_case_set_B": {
       "path": "offset_split_explainer_evidence/native_gap_frames_case_set_B.csv",
       "sha256": "a724bbcf3637d92ba61d5d086a28d8c6bc3e804da00459c153782859fb5ab9e7"
+    },
+    "block_a_locked_aggregate": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/aggregate.csv",
+      "sha256": "f21fd0dab1606904801000f407767ef0a2f68440efbcc43ced2bd40fef884ee9"
+    },
+    "block_a_locked_frames": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/frames.csv",
+      "sha256": "28bdcbc0b15ec3f3320ec3e25920d50bc8967516a72641c0561ebcb2c24df9cf"
+    },
+    "block_a_locked_completion": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_attribution_30001_30200/COMPLETED.toml",
+      "sha256": "a143fd277332e864cc7fe6d965fc8e690fc9e16ab75b276f007c7c97d423670d"
+    },
+    "block_a_fresh_aggregate": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/aggregate.csv",
+      "sha256": "576edfe500e8775ff49bd7bc315681e2e6a567b0966824f1baa6d1954183411d"
+    },
+    "block_a_fresh_frames": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/frames.csv",
+      "sha256": "5ef7433de3b7989f35d8febb7c769083a87c49a9359e179457664aa0937df4d2"
+    },
+    "block_a_fresh_completion": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_a_fresh_transfer_50025_50224/COMPLETED.toml",
+      "sha256": "c099b9424c3137c43b0a67673e76ac83a198fcf62a476303b111d93795dc6765"
+    },
+    "block_b_locked_frames": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_b_attribution_30001_30200/frames.csv",
+      "sha256": "fcddf325f4106faa0ab7a4a286fca9a88e4cb7fdf9de2f2463b19d4884bd3bb1"
+    },
+    "block_b_locked_completion": {
+      "path": "experiments/rq2_causal_factors_001/results/2026-11-01_v2/block_b_attribution_30001_30200/COMPLETED.toml",
+      "sha256": "6108a1304b6286ee80f482d77e7ce6964e25b47d2e7253452d53e31047cb6146"
+    },
+    "exact_map_six_frames": {
+      "path": "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/03_six_db_transfer/frames.csv",
+      "sha256": "033167501f4464fa3eb762c72da1615ff68e96152e52e5c2a340d6a066cf05b7"
+    },
+    "exact_map_six_completion": {
+      "path": "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/03_six_db_transfer/COMPLETED.toml",
+      "sha256": "3af6d61eb3b914833806261ac184b7312c5f3cb165e091bd7be38df8f53be721"
+    },
+    "exact_map_second_frames": {
+      "path": "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/04_second_snr_confirmation/frames.csv",
+      "sha256": "525c172c3da2bd88e14120f33c341d32c37953940c57ff297b3aaac72388aa31"
+    },
+    "exact_map_second_completion": {
+      "path": "experiments/rq2_exact_map_update_001/results/2026-11-01_v1/04_second_snr_confirmation/COMPLETED.toml",
+      "sha256": "746f62db3fd9a479f12e565efd85329134504e680714dcd3e0b3f9869f1aede1"
+    },
+    "native_composition_six_frames": {
+      "path": "experiments/rq2_native_composition_001/results/2026-11-01_v2/05_six_db_forward_transfer/frames.csv",
+      "sha256": "1b1e1d226535ed7817357848c3c2136a90aacb911ef1cb154038fa80739b6a5e"
+    },
+    "native_composition_six_completion": {
+      "path": "experiments/rq2_native_composition_001/results/2026-11-01_v2/05_six_db_forward_transfer/COMPLETED.toml",
+      "sha256": "091c95a1ac735c466fce949ff168b8218d7ba524e3b7ceabd7acf19b5c507902"
+    },
+    "native_composition_second_frames": {
+      "path": "experiments/rq2_native_composition_001/results/2026-11-01_v2/07_second_snr_confirmation/frames.csv",
+      "sha256": "b9968055cc208bcf382086ff06b1a413149eb2d128cb18e0f2fa132fe9b13220"
+    },
+    "native_composition_second_completion": {
+      "path": "experiments/rq2_native_composition_001/results/2026-11-01_v2/07_second_snr_confirmation/COMPLETED.toml",
+      "sha256": "c0c43dd53201236a4052a4ddfc7175849a5f05752c84b813c28b1f361f84d1af"
+    },
+    "native_composition_registry": {
+      "path": "experiments/rq2_native_composition_001/freeze/2026-11-01_v2/source/rung_registry.toml",
+      "sha256": "e9b58764c1aa956665d4f6c5d326b34e2a5086c5faf6d579bba0a3dee29a1245"
     }
   },
   "toy": {
@@ -365,6 +433,76 @@ svg .dim{opacity:.35}
     "unresolved_native_gd_bit_errors": [1, 8],
     "bp_iterations": {"2": 162, "3": 38},
     "kept_own_contains_all_other_successes": true
+  },
+  "completed_causal_campaign": {
+    "locked_case_set_B": {
+      "compound_box_at_30": 167,
+      "compound_box_at_90": 199,
+      "original_misses": 33,
+      "recovered_by_more_updates": 32,
+      "latest_first_exact_update": 59,
+      "more_updates_lost": 0,
+      "product_only_unconstrained_at_30": 170,
+      "original_misses_recovered_by_product_only_unconstrained": 20,
+      "product_only_unconstrained_lost_from_original_successes": 17,
+      "budget_only": 13,
+      "both_routes": 19,
+      "product_only_unconstrained_only": 1,
+      "neither_route": 0,
+      "extreme_frame": 30149,
+      "extreme_first_exact_update": 6,
+      "extreme_accepted_updates": 7,
+      "extreme_maximum_absolute_scalar": 1.2602795538802788e51,
+      "extreme_objective": -1.3167086955953913e303
+    },
+    "fresh_case_set_D": {
+      "compound_box_at_30": 177,
+      "compound_box_at_90": 200,
+      "gained": 23,
+      "lost": 0,
+      "latest_first_exact_update": 48
+    },
+    "locked_block_B": {
+      "cases": 200,
+      "full_direct": 200,
+      "mean_tied_direct": 200,
+      "full_residual_gradient": 0,
+      "mean_tied_residual_gradient": 0,
+      "original_33_full_direct": 33,
+      "original_33_mean_tied_direct": 33,
+      "original_33_full_residual_gradient": 0,
+      "original_33_mean_tied_residual_gradient": 0
+    }
+  },
+  "exact_map_update": {
+    "six_db": {
+      "cases": 200,
+      "true_gradient__armijo": 0,
+      "map_displacement__armijo": 0,
+      "true_gradient__unit": 0,
+      "map_displacement__unit": 200,
+      "interaction_cases": 200
+    },
+    "second_snr": {
+      "snr_db": 1.5,
+      "cases": 200,
+      "true_gradient__armijo": 0,
+      "map_displacement__armijo": 0,
+      "true_gradient__unit": 0,
+      "map_displacement__unit": 198,
+      "interaction_cases": 198
+    }
+  },
+  "native_composition": {
+    "six_db_fresh": {"cases": 200, "native_projected_gd": 112, "native_exact_sum_product": 200},
+    "second_snr_fresh": {"snr_db": 1.5, "cases": 200, "native_projected_gd": 0, "native_exact_sum_product": 199},
+    "non_atomic_handoff": {
+      "from": "assigned_frozen_product_unconstrained",
+      "to": "edge_product_residual_gradient_tied",
+      "atomic": false,
+      "attributable": false,
+      "changed_fields": ["state_family", "target_family", "update_family"]
+    }
   }
 }
 </script>
@@ -1235,9 +1373,9 @@ BEATS.push({
 
 // 21 — the cases still unresolved
 BEATS.push({
-  title:'The 33 cases no constructed variant recovers',
-  eyebrow:'Chapter 7 · native-GD transition accounting on case set B, and the next registered test',
-  chapter:'Remaining gap',
+  title:'At update 30, 33 cases remained for the next campaign',
+  eyebrow:'Chapter 7 · historical checkpoint before the completed causal-factor campaign',
+  chapter:'Historical 30-update checkpoint',
   svg(){
     const e=EVIDENCE.native_accounting_case_set_B; let s='';
     s+=TF(40,38,`Against native projected GD on the 200 locked cases · BP recovers ${e.belief_propagation}, native GD ${e.projected_gradient_descent}, so ${e.bp_only} cases are BP-only`,'cap',0,'style="font-size:13.5px;--d:0s"');
@@ -1255,7 +1393,7 @@ BEATS.push({
       s+=TF(520,y+23,String(r[2]),'',d+0.1,'style="font-size:14px;font-weight:600;--d:'+(d+0.1)+'s"');
     });
     s+=TF(60,300,'Every success of the other three arms is also a success of own · kept.','cap',0.9,'style="font-size:13px;--d:0.9s"');
-    s+=TF(590,76,`the ${e.unresolved} still unresolved`,'ttl',1.0,'style="font-size:13px;--d:1.0s"');
+    s+=TF(590,76,`${e.unresolved} misses at the update-30 checkpoint`,'ttl',1.0,'style="font-size:13px;--d:1.0s"');
     s+=TF(590,96,`coded bits wrong after ${e.update_budget} updates, own · kept`,'cap',1.0,'style="font-size:12.5px;--d:1.0s"');
     const base=240,top=112,maxN=Math.max(...Object.values(e.unresolved_bit_errors));
     [1,2,3,4].forEach((b,k)=>{const n=e.unresolved_bit_errors[String(b)]||0,x=604+k*70,hh=(base-top-24)*n/maxN,d=1.1+0.12*k;
@@ -1273,10 +1411,10 @@ BEATS.push({
       s+=`<rect x="${x}" y="384" width="160" height="32" rx="16" class="fi box s-soft" style="--d:${d}s;stroke-width:1.5"/>`;
       s+=TF(x+80,405,c,'mid',d+0.05,'style="font-size:13px;--d:'+(d+0.05)+'s"');
     });
-    s+=TF(60,456,'RQ2-CAUSAL-FACTORS-001 tests these in two registered factorial blocks, launched 15:39 on 1 November.','',2.7,'style="font-weight:600;font-size:14px;--d:2.7s"');
+    s+=TF(60,456,'RQ2-CAUSAL-FACTORS-001 subsequently completed both controlled blocks; the next beat gives the results.','',2.7,'style="font-weight:600;font-size:14px;--d:2.7s"');
     s+=TF(60,480,'Block A · parity objective shape × projection, inside the kept-offset GD path, scored at 30 and 90 updates','cap',2.8,'style="font-size:13px;--d:2.8s"');
     s+=TF(60,500,'Block B · full or tied BP values × direct sum-product map or gradient step on its fixed-point residual','cap',2.9,'style="font-size:13px;--d:2.9s"');
-    s+=TF(60,524,'This record does not track the campaign’s progress; its queue artifacts do.','cap',3.0,'style="font-size:13px;--d:3.0s"');
+    s+=TF(60,524,'This beat preserves the checkpoint that motivated the completed campaign.','cap',3.0,'style="font-size:13px;--d:3.0s"');
     return s;
   },
   get html(){const e=EVIDENCE.native_accounting_case_set_B;return `<p>The attribution stage records every transition against the native-gap result on the same 200 cases, and its correctness gates check that each partition adds up. The own-check, kept arm recovers <span class="num">${e.own_kept_recovered}</span> of the ${e.bp_only} BP-only cases and loses none of native GD’s ${e.projected_gradient_descent} successes; the own-check, refreshed arm recovers <span class="num">${e.own_refreshed_recovered}</span> and loses none. Both permuted arms recover none of the ${e.bp_only} and lose ${e.permuted_refreshed_lost} and ${e.permuted_kept_lost} of native GD’s successes. Every success of the other three arms is also a success of the own-check, kept arm. The card still forbids saying that an operation accounts for a number of the ${e.bp_only} cases until a reverse-order test shows no material interaction.</p>
@@ -1286,9 +1424,9 @@ BEATS.push({
 
 // 22 — where we stand
 BEATS.push({
-  title:'Evidence boundary at the end of this record',
-  eyebrow:'Chapter 8 · Completed evidence versus work outside this dated record',
-  chapter:'Evidence boundary',
+  title:'Historical evidence boundary before the causal-factor results',
+  eyebrow:'Chapter 8 · dated launch snapshot retained for provenance',
+  chapter:'Historical boundary',
   svg(){
     let s='';
     const rows=[
@@ -1299,8 +1437,8 @@ BEATS.push({
       ['RQ2-GD-STATE-USE-001: retained offsets, 172 against 113','done'],
       ['RQ2-GD-OFFSET-SPLIT-001: parity term carries the gain; interval adds no observed recovery','done'],
       ['RQ2-GD-PARITY-ASSIGNMENT-REFRESH-001: check assignment decides; best variant 167 of 200','done'],
-      ['Scoped RQ2 conclusion','waiting'],
-      ['RQ2-CAUSAL-FACTORS-001: launched 15:39 on 1 November; progress not tracked here','recorded'],
+      ['Scoped RQ2 conclusion: not yet written at this historical checkpoint','waiting'],
+      ['RQ2-CAUSAL-FACTORS-001: launch recorded here; completed results follow','recorded'],
     ];
     rows.forEach((r,k)=>{const y=24+k*44, d=0.18*k;
       s+=rect(60,y,840,38,'box',d,'fi');
@@ -1314,9 +1452,153 @@ BEATS.push({
     s+=TF(60,516,'operations record: the follow-up’s 09:35 launch snapshot stays at beat 20; this deck makes no current-status claim','cap',2.1,'style="font-size:14px;--d:2.1s"');
     return s;
   },
-  html:`<p>The route map's destination is a scoped RQ2 conclusion: whether adding or removing the RQ1 mechanism changes parity validity and transmitted-word equality on preregistered cases. Every experimental step on the chain is done, and the written conclusion is the step still waiting. The split attributes the earlier gain to the parity term's reading of the offsets: <span class="num">163</span> against <span class="num">107</span> whether or not the interval is switched, while the interval alone moves one case. The follow-up keeps the native interval in every arm and shows, on 200 fresh cases, that which check reads each stored offset decides that gain.</p>
-<p>Both results are scoped to constructed GD variants on this graph, this 6 dB sample, this initialization and 30 updates. They do not make the offsets BP messages, reproduce BP, rank the decoders, or explain the whole native gap. On the 200 locked cases the best constructed variant recovers <span class="num">167</span>, and <span class="num">33</span> of the 93 BP-only cases remain unresolved; at 1.5 dB native GD recovers none of the 200.</p>
-<p>The next registered experiment, RQ2-CAUSAL-FACTORS-001, was launched at 15:39 CST on 1 November to test the operations that still differ. This page records that launch as a dated fact; its progress lives in the campaign's queue artifacts, not here.</p>`+take('Two operations are now isolated among constructed GD variants: the parity calculation’s use of the stored offsets, and which check reads each one. Native BP–GD attribution remains open.')
+  html:`<p>This beat preserves the boundary as it stood before the causal-factor campaign completed. At that point the split had attributed the earlier gain to the parity calculation's reading of stored offsets: <span class="num">163</span> against <span class="num">107</span> whether or not the interval was switched. The follow-up had then shown on 200 fresh cases that which check reads each stored offset decides that gain.</p>
+<p>Those results were scoped to constructed GD variants on this graph, the 6 dB cases, the registered initialization, and 30 updates. They did not make the offsets BP messages or reproduce BP. The best constructed variant recovered <span class="num">167</span> of the 200 locked cases, leaving <span class="num">33</span> misses for the campaign shown in the next four beats.</p>
+<p>The launch record below remains provenance, not current status. The completed budget, overlap, exact-map, and native-endpoint results follow immediately after this historical checkpoint.</p>`+take('Historical checkpoint: the offset experiments isolated two constructed-GD mechanisms and left 33 update-30 misses for the completed campaign that follows.')
+});
+
+// 23 — update-budget result
+BEATS.push({
+  title:'More updates recover 32 of the 33 checkpoint misses',
+  eyebrow:'Chapter 9 · completed Block A · change only the maximum update budget',
+  chapter:'Completed causal campaign',
+  svg(){
+    const e=EVIDENCE.completed_causal_campaign.locked_case_set_B,f=EVIDENCE.completed_causal_campaign.fresh_case_set_D; let s='';
+    s+='<g id="evidence-budget-locked">';
+    s+=TF(60,46,'LOCKED CASES · SAME CONSTRUCTED GD PATH','ttl',0,'style="font-size:14px;--d:0s"');
+    s+=rect(60,72,250,122,'box s-soft',0.1,'fi',8);
+    s+=TF(185,104,'registered checkpoint','cap mid',0.2);
+    s+=TF(185,145,String(e.compound_box_at_30),'big mid f-ctl',0.3);
+    s+=TF(185,174,'of 200 at update 30','cap mid',0.4);
+    s+=TF(370,137,'→','big mid',0.5,'style="font-size:42px;--d:0.5s"');
+    s+=rect(430,72,250,122,'box s-act',0.6,'fi',8);
+    s+=TF(555,104,'maximum budget: 90','cap mid',0.7);
+    s+=TF(555,145,String(e.compound_box_at_90),'big mid f-act',0.8);
+    s+=TF(555,174,'of 200 recovered','cap mid',0.9);
+    s+=rect(720,72,180,122,'box s-ok',1.0,'fi',8);
+    s+=TF(810,108,'+'+e.recovered_by_more_updates+' of '+e.original_misses,'big mid f-ok',1.1,'style="font-size:28px;--d:1.1s"');
+    s+=TF(810,141,'lost: '+e.more_updates_lost,'cap mid',1.2);
+    s+=TF(810,168,'last recovery: '+e.latest_first_exact_update,'cap mid',1.3);
+    s+='</g>';
+    s+='<g id="evidence-budget-fresh">';
+    s+=TF(60,242,'FRESH CASES · SAME PREDECLARED CONTRAST','ttl',1.5,'style="font-size:14px;--d:1.5s"');
+    s+=rect(60,266,840,104,'box s-ok',1.6,'fi',8);
+    s+=TF(220,310,f.compound_box_at_30+' / 200','big mid f-ctl',1.7,'style="font-size:30px;--d:1.7s"');
+    s+=TF(220,340,'at update 30','cap mid',1.8);
+    s+=TF(480,320,'→','big mid',1.9,'style="font-size:42px;--d:1.9s"');
+    s+=TF(730,310,f.compound_box_at_90+' / 200','big mid f-ok',2.0,'style="font-size:30px;--d:2s"');
+    s+=TF(730,340,'at update 90 · +'+f.gained+', lost '+f.lost+', last recovery '+f.latest_first_exact_update,'cap mid',2.1);
+    s+='</g>';
+    s+=rect(60,406,840,90,'box s-warn',2.3,'fi',8);
+    s+=TF(480,438,'WHAT THIS ESTABLISHES','ttl mid f-warn',2.4,'style="font-size:14px;--d:2.4s"');
+    s+=TF(480,466,'This constructed GD path is strongly budget-sensitive.','mid',2.5,'style="font-weight:600;--d:2.5s"');
+    s+=TF(480,488,'It does not make update budget the unique cause of the native BP–GD gap.','cap mid',2.6,'style="font-size:14px;--d:2.6s"');
+    return s;
+  },
+  get html(){const e=EVIDENCE.completed_causal_campaign.locked_case_set_B,f=EVIDENCE.completed_causal_campaign.fresh_case_set_D;return '<p>For the assigned/frozen compound-plus-box arm, increasing only the maximum update budget changes recovery from <span class="num">'+e.compound_box_at_30+'</span> to <span class="num">'+e.compound_box_at_90+'</span> on the 200 locked cases. It recovers '+e.recovered_by_more_updates+' of the '+e.original_misses+' update-30 misses, loses none of the original '+e.compound_box_at_30+' successes, and all new recoveries occur by update '+e.latest_first_exact_update+'.</p><p>The prospective repeat on 200 fresh cases moves from <span class="num">'+f.compound_box_at_30+'</span> to <span class="num">'+f.compound_box_at_90+'</span>, with '+f.gained+' gains, no losses, and the last first recovery at update '+f.latest_first_exact_update+'. This establishes budget sensitivity for this constructed GD path. It does not show that the native projected-GD versus BP gap is uniquely caused by the update budget.</p>'+take('Allowing more accepted GD updates recovers 32 of the 33 checkpoint misses without regressions, and the fresh-case repeat shows the same pattern.');}
+});
+
+// 24 — overlap accounting
+BEATS.push({
+  title:'The two recovery routes overlap',
+  eyebrow:'Chapter 10 · outcome accounting on the same 33 checkpoint misses',
+  chapter:'Completed causal campaign',
+  svg(){
+    const e=EVIDENCE.completed_causal_campaign.locked_case_set_B; let s='';
+    s+=TF(480,42,'THE 33 UPDATE-30 MISSES · DO NOT ADD THE TWO ROUTES','ttl mid',0,'style="font-size:14px;--d:0s"');
+    const cards=[
+      [55,'budget only',e.budget_only,'act'],
+      [275,'both routes',e.both_routes,'ok'],
+      [495,'product-only + no box only',e.product_only_unconstrained_only,'ponly'],
+      [715,'neither',e.neither_route,'warn']
+    ];
+    cards.forEach((c,k)=>{const d=0.2+k*0.16;
+      s+=rect(c[0],78,190,110,'box s-'+c[3],d,'fi',8);
+      s+=TF(c[0]+95,112,c[1],'cap mid f-'+c[3],d+0.1,'style="font-size:12.5px;font-weight:600;--d:'+(d+0.1)+'s"');
+      s+=TF(c[0]+95,162,String(c[2]),'big mid f-'+c[3],d+0.2,'style="--d:'+(d+0.2)+'s"');
+    });
+    s+='<g id="evidence-overlap-ledger">';
+    s+=rect(55,222,850,116,'box s-soft',1.0,'fi',8);
+    s+=TF(80,252,'PRODUCT-ONLY + NO BOX, SCORED OVER ALL 200 LOCKED CASES','ttl',1.1,'style="font-size:13px;--d:1.1s"');
+    s+=TF(160,294,'+'+e.original_misses_recovered_by_product_only_unconstrained,'big mid f-act',1.2,'style="font-size:30px;--d:1.2s"');
+    s+=TF(160,320,'former misses','cap mid',1.3);
+    s+=TF(390,294,'−'+e.product_only_unconstrained_lost_from_original_successes,'big mid f-warn',1.4,'style="font-size:30px;--d:1.4s"');
+    s+=TF(390,320,'former successes','cap mid',1.5);
+    s+=TF(650,294,e.compound_box_at_30+' → '+e.product_only_unconstrained_at_30,'big mid',1.6,'style="font-size:30px;--d:1.6s"');
+    s+=TF(650,320,'net recovery count','cap mid',1.7);
+    s+='</g>';
+    s+=rect(55,370,850,130,'box s-warn',1.9,'fi',8);
+    s+=TF(80,400,'INSTABILITY DIAGNOSTIC · FRAME '+e.extreme_frame,'ttl f-warn',2.0,'style="font-size:13px;--d:2s"');
+    s+=TF(80,432,'first exact word at update '+e.extreme_first_exact_update+' · stalled after '+e.extreme_accepted_updates+' accepted updates','',2.1,'style="font-size:15px;--d:2.1s"');
+    s+=TF(80,458,'maximum |x| ≈ 1.26 × 10^51 · objective ≈ −1.32 × 10^303','',2.2,'style="font-size:15px;--d:2.2s"');
+    s+=TF(80,484,'Record the recovery, but do not treat this numerically extreme trajectory as stable convergence.','cap',2.3,'style="font-size:13.5px;--d:2.3s"');
+    return s;
+  },
+  get html(){const e=EVIDENCE.completed_causal_campaign.locked_case_set_B;return '<p>The '+e.original_misses+' checkpoint misses divide into <span class="num">'+e.budget_only+'</span> recovered only by continuing the original path, <span class="num">'+e.both_routes+'</span> recovered by either route, <span class="num">'+e.product_only_unconstrained_only+'</span> recovered only by the product-only, unconstrained route, and <span class="num">'+e.neither_route+'</span> recovered by neither. The counts must not be added because '+e.both_routes+' cases overlap.</p><p>The product-only, unconstrained arm is not a monotone improvement. It recovers '+e.original_misses_recovered_by_product_only_unconstrained+' of the former misses but loses '+e.product_only_unconstrained_lost_from_original_successes+' of the original successes, changing the overall count only from '+e.compound_box_at_30+' to '+e.product_only_unconstrained_at_30+'. Frame '+e.extreme_frame+', the sole recovery unique to that route, reaches the transmitted word at update '+e.extreme_first_exact_update+' and then stalls after '+e.extreme_accepted_updates+' accepted updates with an extreme scalar magnitude. It is a diagnostic of instability, not a case to tune around.</p>'+take('The 33 cases are outcome-accounted by overlapping routes; neither route receives a unique additive share of the gap.');}
+});
+
+// 25 — exact-map direction by step
+BEATS.push({
+  title:'The exact-map result requires both the direction and the step',
+  eyebrow:'Chapter 11 · completed direction × step experiment on fresh cases',
+  chapter:'Completed causal campaign',
+  svg(){
+    const e=EVIDENCE.exact_map_update.six_db,q=EVIDENCE.exact_map_update.second_snr,b=EVIDENCE.completed_causal_campaign.locked_block_B; let s='';
+    s+=TF(560,34,'STEP','ttl mid',0,'style="font-size:14px;--d:0s"');
+    s+=TF(430,62,'Armijo line search','cap mid',0.1);
+    s+=TF(700,62,'unit step','cap mid',0.1);
+    s+=TF(70,204,'DIRECTION','ttl',0.1,'style="font-size:14px;--d:0.1s"');
+    const cells=[
+      [300,82,'true residual gradient','Armijo',e.true_gradient__armijo,'warn','exact-grid-gradient-line'],
+      [570,82,'true residual gradient','unit',e.true_gradient__unit,'warn','exact-grid-gradient-unit'],
+      [300,224,'F(u) − u','Armijo',e.map_displacement__armijo,'warn','exact-grid-map-line'],
+      [570,224,'F(u) − u','unit',e.map_displacement__unit,'ok','exact-grid-map-unit']
+    ];
+    cells.forEach((c,k)=>{const d=0.2+k*0.18;s+='<g id="'+c[6]+'">';s+=rect(c[0],c[1],240,112,'box s-'+c[5],d,'fi',8);s+=TF(c[0]+120,c[1]+32,c[2],'cap mid f-'+c[5],d+0.1);s+=TF(c[0]+120,c[1]+77,c[4]+' / '+e.cases,'big mid f-'+c[5],d+0.2,'style="font-size:30px;--d:'+(d+0.2)+'s"');s+='</g>';});
+    s+=TF(205,142,'∇ ½‖F(u)−u‖²','mid',0.4,'style="font-size:18px;--d:0.4s"');
+    s+=TF(205,284,'F(u)−u','mid',0.7,'style="font-size:18px;--d:0.7s"');
+    s+=rect(90,374,780,76,'box s-ok',1.1,'fi',8);
+    s+=TF(480,404,'u + [F(u) − u] = F(u)','big mid f-ok',1.2,'style="font-size:28px;--d:1.2s"');
+    s+=TF(480,432,'Only the lower-right corner is the direct sum-product assignment.','cap mid',1.3,'style="font-size:14px;--d:1.3s"');
+    s+=TF(480,480,'Locked 33: direct map '+b.original_33_full_direct+'/33, residual-gradient '+b.original_33_full_residual_gradient+'/33 · fresh 1.5 dB: '+q.map_displacement__unit+'/'+q.cases,'mid',1.5,'style="font-weight:600;font-size:15px;--d:1.5s"');
+    s+=TF(480,508,'Changing only the direction or only the step is insufficient: this is an interaction.','cap mid',1.6,'style="font-size:14px;--d:1.6s"');
+    return s;
+  },
+  get html(){const e=EVIDENCE.exact_map_update.six_db,q=EVIDENCE.exact_map_update.second_snr,b=EVIDENCE.completed_causal_campaign.locked_block_B;return '<p>Only one cell succeeds on the 200 fresh 6 dB cases: a unit step along <em>F(u)−u</em>, which gives <em>u+[F(u)−u]=F(u)</em>. That is exactly the direct sum-product fixed-point assignment. The other three direction-and-step combinations recover <span class="num">0 of 200</span>. The corresponding successful corner recovers <span class="num">'+q.map_displacement__unit+' of '+q.cases+'</span> at '+q.snr_db+' dB.</p><p>On the original '+b.original_33_full_direct+' cases, direct assignment recovers all '+b.original_33_full_direct+' with either tied or recipient-specific readings, while taking a gradient step on the exact-map residual objective recovers '+b.original_33_full_residual_gradient+'. Changing only the direction or only the step does not reproduce the direct map, so the result is an interaction—not a unique main effect assigned to one switch.</p>'+take('The decisive exact-map corner is F(u)−u with a unit step, because together they apply u ← F(u) directly.');}
+});
+
+// 26 — native endpoints and the remaining atomic bridge
+BEATS.push({
+  title:'Native endpoints are reproduced; one bundled transition remains',
+  eyebrow:'Chapter 12 · completed endpoint gates versus the next planned experiment',
+  chapter:'Current evidence boundary',
+  svg(){
+    const n=EVIDENCE.native_composition; let s='';
+    s+=TF(480,38,'COMPLETED NATIVE ENDPOINT GATES','ttl mid',0,'style="font-size:14px;--d:0s"');
+    s+='<g id="evidence-native-endpoints">';
+    s+=rect(70,68,380,112,'box s-ok',0.2,'fi',8);
+    s+=TF(260,98,'fresh 6 dB · 200 cases','cap mid',0.3);
+    s+=TF(260,137,'projected GD '+n.six_db_fresh.native_projected_gd+' · exact BP '+n.six_db_fresh.native_exact_sum_product,'big mid f-ok',0.4,'style="font-size:24px;--d:0.4s"');
+    s+=rect(510,68,380,112,'box s-ok',0.5,'fi',8);
+    s+=TF(700,98,'fresh '+n.second_snr_fresh.snr_db+' dB · 200 cases','cap mid',0.6);
+    s+=TF(700,137,'projected GD '+n.second_snr_fresh.native_projected_gd+' · exact BP '+n.second_snr_fresh.native_exact_sum_product,'big mid f-ok',0.7,'style="font-size:24px;--d:0.7s"');
+    s+='</g>';
+    s+=rect(70,214,820,112,'box s-warn',0.9,'fi',8);
+    s+=TF(480,244,'WHY THIS IS NOT YET A ONE-OPERATION NATIVE DECOMPOSITION','ttl mid f-warn',1.0,'style="font-size:13px;--d:1s"');
+    s+=TF(480,278,'one handoff changes state representation + target/objective + update together','mid',1.1,'style="font-weight:600;--d:1.1s"');
+    s+=TF(480,304,'registered as atomic = false · attributable = false','cap mid',1.2,'style="font-size:14px;--d:1.2s"');
+    s+=TF(480,360,'NEXT EXPERIMENT · PLAN, NOT RESULT','ttl mid f-act',1.4,'style="font-size:14px;--d:1.4s"');
+    const plan=[
+      [60,376,'1','exact coordinate lift','copies tied; reproduce scalar endpoint bit-for-bit'],
+      [500,376,'2','release edge-state freedom','change only connection-specific degrees of freedom'],
+      [60,454,'3','2 × 2 × 2 design','target/objective × update × initialization'],
+      [500,454,'4','gate both endpoints','fresh cases; preserve interactions']
+    ];
+    plan.forEach((p,k)=>{const d=1.5+k*0.16;s+=rect(p[0],p[1],400,68,'box s-act',d,'fi',8);s+=TF(p[0]+24,p[1]+42,p[2],'big f-act',d+0.05,'style="font-size:25px;--d:'+(d+0.05)+'s"');s+=TF(p[0]+200,p[1]+25,p[3],'ttl mid',d+0.1,'style="font-size:12px;--d:'+(d+0.1)+'s"');s+=TF(p[0]+200,p[1]+50,p[4],'cap mid',d+0.15,'style="font-size:12px;--d:'+(d+0.15)+'s"');});
+    s+=TF(480,535,'The original 33 are outcome-accounted; the native one-operation causal attribution still needs this atomic handoff.','cap mid',2.3,'style="font-size:12.5px;--d:2.3s"');
+    return s;
+  },
+  get html(){const n=EVIDENCE.native_composition;return '<p>The native endpoint gates now reproduce the score arithmetic on fresh cases: at 6 dB, native projected GD recovers <span class="num">'+n.six_db_fresh.native_projected_gd+' of '+n.six_db_fresh.cases+'</span> and exact BP recovers <span class="num">'+n.six_db_fresh.native_exact_sum_product+' of '+n.six_db_fresh.cases+'</span>; at '+n.second_snr_fresh.snr_db+' dB the counts are <span class="num">'+n.second_snr_fresh.native_projected_gd+'</span> and <span class="num">'+n.second_snr_fresh.native_exact_sum_product+'</span>. This closes both endpoints, not the causal decomposition between them.</p><p>The registered handoff from the scalar constructed-GD path to the edge-state residual-gradient path simultaneously changes the state representation, the target or objective, and the update. It is therefore explicitly non-atomic and non-attributable. The next experiment is a plan: introduce one stored value per check–bit connection while constraining the copies to reproduce the scalar lower endpoint bit-for-bit; release connection-specific freedom separately; then cross target or objective, update, and initialization in a 2×2×2 design. Both endpoints must pass, claim-bearing cases must be fresh, and interactions must be reported rather than forced into additive shares.</p>'+take('The 33 checkpoint misses are outcome-accounted, but a one-operation explanation of the native BP–GD gap still requires the planned atomic scalar-to-edge bridge.');}
 });
 
 // ---------- short, click-controlled explanation ----------
@@ -1635,7 +1917,7 @@ INTUITION_BEATS.push({
 });
 
 INTUITION_BEATS.push({
-  short:'Boundary', title:'What the experiment establishes—and what remains open', eyebrow:'9 · Distance to the research objective', steps:4,
+  short:'30-update mark', title:'The first campaign left 33 cases at its registered checkpoint', eyebrow:'9 · Historical checkpoint before the completed campaign', steps:4,
   svg(step){
     const e=EVIDENCE.native_accounting_case_set_B,split=EVIDENCE.offset_split_case_set_B; let s=CORE_DEFS;
     s+=CBadge(355,22,'CASE SET B · TRANSMITTED WORD RECOVERED');
@@ -1660,18 +1942,18 @@ INTUITION_BEATS.push({
     );
     s+=CShow(step,4,
       CR(70,300,390,176,'box s-ok',8,'style="stroke-width:2.5"')+
-      CT(265,328,'ESTABLISHED HERE','ttl mid f-ok')+
+      CT(265,328,'ESTABLISHED BY THIS POINT','ttl mid f-ok')+
       CT(92,362,`• parity-use switch causes +${split.parity_effect_given_ordinary_interval} recoveries`,'','style="font-size:16px"')+
       CT(106,386,'among the four constructed GD variants','','style="font-size:16px"')+
       CT(92,420,'• which check reads each offset decides,','','style="font-size:16px"')+
       CT(106,444,'repeated on 200 fresh cases','','style="font-size:16px"')+
       CR(500,300,390,176,'box s-warn',8,'style="stroke-width:2.5"')+
-      CT(695,328,'STILL OPEN','ttl mid f-warn')+
-      CT(522,362,'• whether this explains BP’s advantage','','style="font-size:16px"')+
+      CT(695,328,'TESTED IN THE NEXT SCENES','ttl mid f-warn')+
+      CT(522,362,'• how the 33 cases respond to more updates','','style="font-size:16px"')+
       CT(522,390,`• the ${left} near misses: check calculation,`,'','style="font-size:16px"')+
       CT(536,414,'update rule, projection, update budget','','style="font-size:16px"')+
-      CT(522,444,'• other SNRs, codes, and budgets','','style="font-size:16px"')+
-      CT(480,512,'Next: a registered two-block test of those operations, launched 15:39 on 1 November.','cap mid','style="font-size:14px"')
+      CT(522,444,'• direct-map and native endpoint controls','','style="font-size:16px"')+
+      CT(480,512,'Historical checkpoint only · completed results follow.','cap mid','style="font-size:14px"')
     );
     return s;
   },
@@ -1680,8 +1962,175 @@ INTUITION_BEATS.push({
     `A constructed GD variant whose parity calculation reads each check’s own stored offsets recovered ${e.own_refreshed_recovered} more of them and lost none of the ${e.projected_gradient_descent}.`,
     `Keeping those offsets from their first adoption recovered ${e.own_kept_recovered-e.own_refreshed_recovered} more, again losing none: ${e.projected_gradient_descent+e.own_kept_recovered} in total.`,
     `BP recovered all ${e.belief_propagation}. The ${e.unresolved} cases left are near misses: each ran the full ${e.update_budget} updates and ended ${e.unresolved_bit_errors_min} to ${e.unresolved_bit_errors_max} coded bits wrong. These totals describe distances between endpoints; they do not prove that the ${e.own_kept_recovered}-case increase is why BP succeeds.`,
-    'The experiment causally attributes recovery differences among the constructed GD variants. Whether that operation explains native BP’s advantage remains an open experiment. A registered test of the operations that still differ, in two factorial blocks, was launched at 15:39 on 1 November.'
-  ];return coreText(a[step],'The parity calculation’s use of each check’s own stored offset is isolated; the cause of native BP’s advantage is not yet established.');}
+    'This is the historical 30-update checkpoint, not the present conclusion. The completed budget, direct-map, and native-endpoint controls are shown in the next scenes.'
+  ];return coreText(a[step],'At this checkpoint the constructed GD variants accounted for 60 of the 93 BP-only cases; the completed campaign follows.');}
+});
+
+INTUITION_BEATS.push({
+  short:'More updates', title:'More updates recover 32 of the 33 checkpoint misses', eyebrow:'10 · Completed budget contrast', steps:3,
+  svg(step){
+    const e=EVIDENCE.completed_causal_campaign.locked_case_set_B,f=EVIDENCE.completed_causal_campaign.fresh_case_set_D; let s=CORE_DEFS;
+    s+=CBadge(355,18,'LOCKED CASES · SAME CONSTRUCTED GD PATH');
+    s+=CR(90,88,260,126,'box s-soft',8);
+    s+=CT(220,119,'UPDATE 30','ttl mid');
+    s+=CT(220,169,String(e.compound_box_at_30),'big mid f-ctl','style="font-size:38px"');
+    s+=CT(220,198,'of 200 recovered','cap mid');
+    s+=CShow(step,1,
+      CArrow(375,151,555,151,'s-act','coreArrowAct')+
+      CT(465,132,'only the maximum budget changes','cap mid f-act','style="font-size:13px"')+
+      CR(580,88,290,126,'box s-act',8)+
+      CT(725,119,'UPDATE 90','ttl mid f-act')+
+      CT(725,169,String(e.compound_box_at_90),'big mid f-act','style="font-size:38px"')+
+      CT(725,198,'of 200 recovered','cap mid')
+    );
+    s+=CShow(step,2,
+      CR(90,254,780,104,'box s-ok',8)+
+      CT(230,294,'LOCKED','ttl mid f-ok')+
+      CT(230,329,'+'+e.recovered_by_more_updates+' of '+e.original_misses+' · lost '+e.more_updates_lost+' · last recovery '+e.latest_first_exact_update,'mid','style="font-weight:600"')+
+      CT(650,294,'FRESH','ttl mid f-ok')+
+      CT(650,329,f.compound_box_at_30+' → '+f.compound_box_at_90+' · lost '+f.lost+' · last recovery '+f.latest_first_exact_update,'mid','style="font-weight:600"')
+    );
+    s+=CShow(step,3,
+      CR(90,402,780,104,'box s-warn',8)+
+      CT(480,432,'CAUSAL BOUNDARY','ttl mid f-warn')+
+      CT(480,466,'The constructed GD path is budget-sensitive.','mid','style="font-weight:600"')+
+      CT(480,492,'This does not make update budget the unique cause of the native BP–GD gap.','cap mid','style="font-size:14px"')
+    );
+    return s;
+  },
+  html(step){const e=EVIDENCE.completed_causal_campaign.locked_case_set_B,f=EVIDENCE.completed_causal_campaign.fresh_case_set_D;const a=[
+    'At the registered update-30 checkpoint, the assigned/frozen compound-plus-box arm recovered '+e.compound_box_at_30+' of 200 locked cases.',
+    'Changing only the maximum budget from 30 to 90 raises the locked count to '+e.compound_box_at_90+'.',
+    'That is '+e.recovered_by_more_updates+' of the '+e.original_misses+' misses with no regressions. The fresh repeat moves from '+f.compound_box_at_30+' to '+f.compound_box_at_90+', also with no regressions.',
+    'The evidence establishes strong budget sensitivity for this constructed GD path. It does not assign the native BP–GD gap uniquely to update budget.'
+  ];return coreText(a[step],'More updates recover nearly every checkpoint miss, but budget is not a unique native-gap explanation.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Overlap', title:'The two recovery routes overlap', eyebrow:'11 · The 33-case outcome ledger', steps:3,
+  svg(step){
+    const e=EVIDENCE.completed_causal_campaign.locked_case_set_B; let s=CORE_DEFS;
+    s+=CBadge(355,18,'THE 33 UPDATE-30 MISSES');
+    const cards=[
+      [55,'BUDGET ONLY',e.budget_only,'act'],
+      [275,'BOTH ROUTES',e.both_routes,'ok'],
+      [495,'OTHER ROUTE ONLY',e.product_only_unconstrained_only,'ponly'],
+      [715,'NEITHER',e.neither_route,'warn']
+    ];
+    cards.forEach(c=>{s+=CR(c[0],88,190,112,'box s-'+c[3],8);s+=CT(c[0]+95,120,c[1],'cap mid f-'+c[3],'style="font-size:12px;font-weight:600"');s+=CT(c[0]+95,174,String(c[2]),'big mid f-'+c[3],'style="font-size:38px"');});
+    s+=CShow(step,1,
+      CR(55,238,850,112,'box s-soft',8)+
+      CT(80,270,'PRODUCT-ONLY + NO BOX · ALL 200 LOCKED CASES','ttl','style="font-size:13px"')+
+      CT(210,318,'+'+e.original_misses_recovered_by_product_only_unconstrained,'big mid f-act','style="font-size:30px"')+
+      CT(210,342,'former misses','cap mid')+
+      CT(460,318,'−'+e.product_only_unconstrained_lost_from_original_successes,'big mid f-warn','style="font-size:30px"')+
+      CT(460,342,'former successes','cap mid')+
+      CT(735,318,e.compound_box_at_30+' → '+e.product_only_unconstrained_at_30,'big mid','style="font-size:30px"')+
+      CT(735,342,'overall','cap mid')
+    );
+    s+=CShow(step,2,
+      CR(55,388,850,92,'box s-warn',8)+
+      CT(80,420,'FRAME '+e.extreme_frame+' · INSTABILITY DIAGNOSTIC','ttl f-warn','style="font-size:13px"')+
+      CT(80,451,'exact at update '+e.extreme_first_exact_update+' · stalls after '+e.extreme_accepted_updates+' accepted updates · maximum |x| ≈ 1.26 × 10^51','','style="font-size:15px"')
+    );
+    s+=CShow(step,3,
+      CT(480,520,'The routes outcome-account for all 33, but their overlap forbids additive causal shares.','cap mid','style="font-size:14px;font-weight:600"')
+    );
+    return s;
+  },
+  html(step){const e=EVIDENCE.completed_causal_campaign.locked_case_set_B;const a=[
+    'The '+e.original_misses+' misses split into '+e.budget_only+' budget-only, '+e.both_routes+' recovered by both routes, '+e.product_only_unconstrained_only+' recovered only by product-only plus no box, and '+e.neither_route+' recovered by neither.',
+    'The product-only, unconstrained route recovers '+e.original_misses_recovered_by_product_only_unconstrained+' former misses but loses '+e.product_only_unconstrained_lost_from_original_successes+' former successes. Its overall count moves only from '+e.compound_box_at_30+' to '+e.product_only_unconstrained_at_30+'.',
+    'The one unique case, frame '+e.extreme_frame+', reaches the transmitted word and then becomes numerically extreme before stalling. It is an instability diagnostic, not a case to tune around.',
+    'The two routes outcome-account for all 33 checkpoint misses. Because '+e.both_routes+' cases overlap, the results do not support adding two separate causal shares.'
+  ];return coreText(a[step],'The recovery routes overlap and one is non-monotone; report the interaction, not an additive attribution.');}
+});
+
+INTUITION_BEATS.push({
+  short:'Exact map', title:'The exact-map result needs both the direction and the step', eyebrow:'12 · Completed 2 × 2 control', steps:3,
+  svg(step){
+    const e=EVIDENCE.exact_map_update.six_db,q=EVIDENCE.exact_map_update.second_snr,b=EVIDENCE.completed_causal_campaign.locked_block_B; let s=CORE_DEFS;
+    s+=CT(610,34,'STEP','ttl mid');
+    s+=CT(480,62,'Armijo line search','cap mid');
+    s+=CT(740,62,'unit step','cap mid');
+    s+=CT(55,214,'DIRECTION','ttl','style="font-size:13px"');
+    const cells=[
+      [350,82,'true residual gradient',e.true_gradient__armijo,'warn'],
+      [610,82,'true residual gradient',e.true_gradient__unit,'warn'],
+      [350,224,'F(u) − u',e.map_displacement__armijo,'warn'],
+      [610,224,'F(u) − u',e.map_displacement__unit,'ok']
+    ];
+    cells.forEach(c=>{s+=CR(c[0],c[1],220,112,'box s-'+c[4],8);s+=CT(c[0]+110,c[1]+32,c[2],'cap mid f-'+c[4]);s+=CT(c[0]+110,c[1]+80,c[3]+' / '+e.cases,'big mid f-'+c[4],'style="font-size:30px"');});
+    s+=CT(240,142,'∇ ½‖F(u)−u‖²','mid','style="font-size:17px"');
+    s+=CT(240,284,'F(u)−u','mid','style="font-size:17px"');
+    s+=CShow(step,1,
+      CR(115,370,730,72,'box s-ok',8)+
+      CT(480,400,'u + [F(u) − u] = F(u)','big mid f-ok','style="font-size:27px"')+
+      CT(480,426,'unit displacement = direct sum-product assignment','cap mid')
+    );
+    s+=CShow(step,2,
+      CT(480,474,'Locked 33: direct map '+b.original_33_full_direct+'/33 · residual-gradient '+b.original_33_full_residual_gradient+'/33','mid','style="font-weight:600"')+
+      CT(480,498,'Fresh '+q.snr_db+' dB: successful corner '+q.map_displacement__unit+'/'+q.cases,'cap mid','style="font-size:14px"')
+    );
+    s+=CShow(step,3,
+      CT(480,528,'Neither switch alone works: the result is an interaction.','ttl mid f-warn','style="font-size:13px"')
+    );
+    return s;
+  },
+  html(step){const e=EVIDENCE.exact_map_update.six_db,q=EVIDENCE.exact_map_update.second_snr,b=EVIDENCE.completed_causal_campaign.locked_block_B;const a=[
+    'The experiment crosses two choices on fresh cases: true gradient versus F(u)−u, and Armijo line search versus a unit step.',
+    'Only F(u)−u with a unit step succeeds: u+[F(u)−u]=F(u), so the combination directly applies the exact sum-product map.',
+    'The successful corner recovers '+e.map_displacement__unit+' of '+e.cases+' fresh 6 dB cases and '+q.map_displacement__unit+' of '+q.cases+' at '+q.snr_db+' dB. On the locked 33 it recovers '+b.original_33_full_direct+', while the residual-objective gradient recovers '+b.original_33_full_residual_gradient+'.',
+    'Changing only the direction or only the step leaves recovery at zero. The causal statement is therefore about their interaction, not either operation alone.'
+  ];return coreText(a[step],'A unit displacement along F(u)−u works because the two choices together become direct assignment u ← F(u).');}
+});
+
+INTUITION_BEATS.push({
+  short:'Native boundary', title:'Native endpoints close; the atomic handoff remains', eyebrow:'13 · Current research boundary', steps:4,
+  svg(step){
+    const n=EVIDENCE.native_composition; let s=CORE_DEFS;
+    s+=CBadge(355,18,'COMPLETED ENDPOINT GATES');
+    s+=CR(70,80,380,106,'box s-ok',8);
+    s+=CT(260,111,'FRESH 6 dB','cap mid f-ok');
+    s+=CT(260,151,'projected GD '+n.six_db_fresh.native_projected_gd+' · exact BP '+n.six_db_fresh.native_exact_sum_product,'big mid f-ok','style="font-size:23px"');
+    s+=CR(510,80,380,106,'box s-ok',8);
+    s+=CT(700,111,'FRESH '+n.second_snr_fresh.snr_db+' dB','cap mid f-ok');
+    s+=CT(700,151,'projected GD '+n.second_snr_fresh.native_projected_gd+' · exact BP '+n.second_snr_fresh.native_exact_sum_product,'big mid f-ok','style="font-size:23px"');
+    s+=CShow(step,1,
+      CR(70,222,820,96,'box s-warn',8)+
+      CT(480,251,'ONE HANDOFF CHANGES THREE THINGS TOGETHER','ttl mid f-warn','style="font-size:13px"')+
+      CT(480,284,'state representation + target/objective + update','mid','style="font-weight:600"')+
+      CT(480,306,'atomic = false · attributable = false','cap mid')
+    );
+    s+=CShow(step,2,
+      CT(480,354,'NEXT EXPERIMENT · PLAN, NOT RESULT','ttl mid f-act','style="font-size:13px"')+
+      CR(70,376,250,100,'box s-act',8)+
+      CT(195,407,'1 · EXACT LIFT','ttl mid')+
+      CT(195,438,'one value per connection','cap mid','style="font-size:12.5px"')+
+      CT(195,462,'copies tied to scalar endpoint','cap mid','style="font-size:12.5px"')
+    );
+    s+=CShow(step,3,
+      CR(355,376,250,100,'box s-act',8)+
+      CT(480,407,'2 · RELEASE FREEDOM','ttl mid')+
+      CT(480,438,'change only connection-specific','cap mid','style="font-size:12.5px"')+
+      CT(480,462,'degrees of freedom','cap mid','style="font-size:12.5px"')
+    );
+    s+=CShow(step,4,
+      CR(640,376,250,100,'box s-act',8)+
+      CT(765,407,'3 · 2 × 2 × 2','ttl mid')+
+      CT(765,438,'target × update × initialization','cap mid','style="font-size:12.5px"')+
+      CT(765,462,'fresh cases · both endpoint gates','cap mid','style="font-size:12.5px"')+
+      CT(480,518,'Preserve interactions; do not force the remaining gap into additive shares.','cap mid','style="font-size:14px;font-weight:600"')
+    );
+    return s;
+  },
+  html(step){const n=EVIDENCE.native_composition;const a=[
+    'The native endpoint gates reproduce both ends on fresh cases: at 6 dB projected GD recovers '+n.six_db_fresh.native_projected_gd+' and exact BP '+n.six_db_fresh.native_exact_sum_product+'; at '+n.second_snr_fresh.snr_db+' dB the counts are '+n.second_snr_fresh.native_projected_gd+' and '+n.second_snr_fresh.native_exact_sum_product+'.',
+    'The ladder still contains one bundled handoff that changes the state representation, target or objective, and update together. It is explicitly non-atomic and non-attributable.',
+    'The next experiment first stores one value per check–bit connection while constraining all copies to reproduce the scalar lower endpoint bit-for-bit.',
+    'It then releases connection-specific freedom as a separate change.',
+    'Finally it crosses target or objective, update, and initialization in a 2×2×2 design on fresh cases, with both endpoints gated and interactions retained.'
+  ];return coreText(a[step],'The 33 checkpoint misses are outcome-accounted; the native one-operation explanation still requires an atomic scalar-to-edge bridge.');}
 });
 
 // ---------- deck ----------
@@ -1856,6 +2305,7 @@ if(new URLSearchParams(location.search).has('smoke')){
 }
 
 document.getElementById('srcBody').innerHTML=`Sources. Codex’s worktree <code>~/Documents/GitHub/sp_gd_admm-rq1-gd-state-use-20261030</code>: <code>routemap.md</code> (31 Oct); <code>experiments/rq2_gd_state_use_001/results/2026-10-31_heldout_v2</code> (172/113, 59/0, interval [0.2206, 0.3668]); <code>experiments/rq2_gd_offset_split_001/</code> card, config, <code>results/2026-10-31_anchor_v1</code> and <code>_anchor_v2</code> (15/23/14/22, overshoot max 0.0577, science hash 2062fce2…), <code>results/2026-10-31_heldout_v1/progress.toml</code> and <code>queue/2026-10-31_v1/logs/J04.log</code> (the v1 timeline), <code>results/2026-10-31_heldout_v2/progress.toml</code>, <code>attempts/2026-10-31_v3/</code>, <code>results/2026-10-31_anchor_v3</code> (same hash; its <code>phase_log.tsv</code> gives the 0.2 s hash), <code>results/2026-10-31_heldout_v3/</code> (<code>COMPLETED.toml</code>, <code>science.json</code>, <code>aggregate.csv</code>, <code>interaction.csv</code>, <code>phase_log.tsv</code>: 107/106/163/163, the four conditional contrasts, the interaction, and every time on the run beat), <code>queue/2026-10-31_v3/budget_derivation.toml</code> (11,399 s projected, 17,100 s budget), and <code>results/2026-10-31_anchor_v3_rejected_progress_chain/REJECTED.toml</code>. Claude’s worktree <code>~/Documents/GitHub/sp_gd_admm-claude-controls-20261031</code>: <code>experiments/rq2_gd_offset_null_001/results/2026-10-31_heldout_v1/aggregate.csv</code> (107/163/73/165 and the five contrasts) and <code>experiments/rq2_native_gap_001/results/2026-10-31_{six,profile,second}_v2</code> (200/107, the profile, 200/0). Hash timings measured in this session on Julia 1.12.6 with SHA.jl 0.7.0: 0.25 MB 0.30 s, 0.5 MB 1.13 s, 1 MB 4.6 s, 2 MB 19.6 s; byte-vector form 2 MB 0.036 s, identical digest; the anchor’s 2,880-row table 150 s. The full-BP 200/200 against tied 0/200 figure is <code>RQ2-CONFIRM-001</code> in the route map. Toy numbers on the Tanner-graph beats (0.42, 0.30, the three readings) are illustrations, not trace values. Times on the run beat are measured from the phase logs. Codex’s third worktree <code>~/Documents/GitHub/sp_gd_admm-rq2-parity-offset-2x2-20261031</code>: <code>experiments/rq2_gd_parity_assignment_refresh_001/</code> card, config and <code>dispatcher/README.md</code> (the four arms, the stages, the selection rule, the fail-closed terminal outcomes), <code>controller/2026-10-31_v1/</code>, <code>controller/2026-11-01_v2/</code>, <code>_v3/</code> and <code>_v4/</code> (each with <code>selection_decision.toml</code>: 56 treatment-only against 0 reference-only on both endpoints; <code>status_history.tsv</code>, <code>FAILED.toml</code> or <code>progress.toml</code>, and <code>logs/pipeline.log</code>: the parse error at line 450 of the test file, the <code>split</code> shadowing at runner line 1497, the result-inventory mismatch in <code>derive_budget.py</code>), <code>results/2026-11-01_v3_anchor/</code> (<code>COMPLETED.toml</code> complete_valid, science hash ce6f238b…, <code>aggregate.csv</code>: 23/10/23/10 of 24, 13 won and 0 lost at both replacement levels, <code>phase_log.tsv</code>: 402 s primary, 309 s replay), <code>results/2026-11-01_v4_anchor/progress.toml</code> (historical snapshot: 11 of 24 frames at 09:35), the units <code>rq2-followup-controller-20261031.service</code> to <code>…-20261101-v4.service</code> and <code>sp-gd-rq2-parity-assignment-refresh-v4-anchor-20261101.service</code> (started 09:30:05), and commits 880fad6, d771540, 0c7e3e2, 48333d7 and 134ca9e (retained failures and registered retries, 05:23 to 09:28 on 1 November). The completed follow-up, in the same worktree: <code>results/2026-11-01_v4_transfer/</code> and <code>results/2026-11-01_v4_attribution/</code> (<code>COMPLETED.toml</code> complete_valid with science hashes 2556c01f… and e39e1894…, <code>aggregate.csv</code>, <code>interaction.csv</code>, the attribution’s <code>frames.csv</code>, and <code>science.json</code> with its native-GD transition accounting), <code>controller/2026-11-01_v4/SELECTED.toml</code> and <code>BRIDGE_REGISTRATION_REQUIRED.toml</code> (12:39 CST), and Claude’s native-gap <code>experiments/rq2_native_gap_001/results/2026-10-31_six_v2/frames.csv</code> (sha a724bbcf…), which the attribution uses as its reference. The next campaign, in Codex’s worktree <code>~/Documents/GitHub/sp_gd_admm-rq2-bp-gd-causal-ladder-20261101</code>: <code>routemap.md</code> (the check-rule card superseded; the two blocks) and <code>experiments/rq2_causal_factors_001/</code> (<code>campaign_registration.toml</code>, <code>queue/2026-11-01_v1/status_history.tsv</code>: launched 07:38:59 UTC).`;
-document.getElementById('srcBody').insertAdjacentHTML('afterbegin', `<p><strong>Pinned explainer inputs:</strong> byte-for-byte snapshots are in <code>offset_split_explainer_evidence/</code> and checked against <code>MANIFEST.sha256</code>. Original provenance follows.</p>`);
+document.getElementById('srcBody').insertAdjacentHTML('afterbegin', '<p><strong>Current completed campaign:</strong> Block A and Block B, the exact-map 2 × 2, and the native-composition endpoint artifacts are checked in place by repository-relative path and SHA-256. Their results appear in the final four Full evidence beats. The atomic scalar-to-edge bridge shown at the end is planned work, not evidence. The long chronological record below ends at the campaign launch and is retained only as historical provenance.</p>');
+document.getElementById('srcBody').insertAdjacentHTML('afterbegin', '<p><strong>Pinned explainer inputs:</strong> the original byte-for-byte snapshots are in <code>offset_split_explainer_evidence/</code> and checked against <code>MANIFEST.sha256</code>. No experiment was rerun to update this page.</p>');
 </script>
 </html>
