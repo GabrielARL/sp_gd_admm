@@ -1,0 +1,17 @@
+sum-product algorithm
+belief propagation
+variable-to-check message
+check-to-variable message
+message-passing iteration
+projected gradient descent
+partial derivatives
+objective-function gradient
+log-likelihood ratio
+a-posteriori LLR
+hard-decision estimate
+syndrome
+Tanner graph
+additive white Gaussian noise
+bit error rate
+frame error rate
+low-density parity-check code
