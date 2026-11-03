@@ -1,0 +1,205 @@
+schema_version = "rq2-native-composition-001/rung-registry-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+forward_order = [
+  "native_projected_gd",
+  "shadow_edge_state",
+  "assigned_frozen_compound_box",
+  "assigned_frozen_product_box",
+  "assigned_frozen_product_unconstrained",
+  "edge_product_residual_gradient_tied",
+  "exact_sp_residual_gradient_tied",
+  "exact_sp_residual_gradient_full",
+  "exact_sp_direct_full_fixed30",
+  "exact_sp_direct_full_stop30",
+  "native_exact_sum_product",
+]
+
+[[rungs]]
+id = "native_projected_gd"
+position = 1
+backend = "native_gd"
+state_family = "one_scalar_per_bit"
+target_family = "compound_scalar_objective"
+update_family = "preconditioned_gradient_strict_decrease"
+projection_family = "box_minus1_plus1"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "shadow_edge_state"
+position = 2
+backend = "shadow"
+state_family = "one_scalar_per_bit_plus_inactive_directed_edge_shadow"
+target_family = "compound_scalar_objective"
+update_family = "preconditioned_gradient_strict_decrease"
+projection_family = "box_minus1_plus1"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "assigned_frozen_compound_box"
+position = 3
+backend = "block_a"
+state_family = "one_scalar_per_bit_plus_assigned_frozen_check_readings"
+target_family = "compound_scalar_objective"
+update_family = "preconditioned_gradient_strict_decrease"
+projection_family = "box_minus1_plus1"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "assigned_frozen_product_box"
+position = 4
+backend = "block_a"
+state_family = "one_scalar_per_bit_plus_assigned_frozen_check_readings"
+target_family = "product_only_scalar_objective"
+update_family = "preconditioned_gradient_strict_decrease"
+projection_family = "box_minus1_plus1"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "assigned_frozen_product_unconstrained"
+position = 5
+backend = "block_a"
+state_family = "one_scalar_per_bit_plus_assigned_frozen_check_readings"
+target_family = "product_only_scalar_objective"
+update_family = "preconditioned_gradient_strict_decrease"
+projection_family = "none"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "edge_product_residual_gradient_tied"
+position = 6
+backend = "product_edge"
+state_family = "directed_edge_coordinates_with_tied_variable_values"
+target_family = "product_edge_state_map"
+update_family = "residual_objective_gradient_armijo"
+projection_family = "none"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "exact_sp_residual_gradient_tied"
+position = 7
+backend = "block_b"
+state_family = "directed_edge_coordinates_with_tied_variable_values"
+target_family = "exact_sum_product_state_map"
+update_family = "residual_objective_gradient_armijo"
+projection_family = "none"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "exact_sp_residual_gradient_full"
+position = 8
+backend = "block_b"
+state_family = "recipient_specific_directed_edge_coordinates"
+target_family = "exact_sum_product_state_map"
+update_family = "residual_objective_gradient_armijo"
+projection_family = "none"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "exact_sp_direct_full_fixed30"
+position = 9
+backend = "block_b"
+state_family = "recipient_specific_directed_edge_coordinates"
+target_family = "exact_sum_product_state_map"
+update_family = "direct_state_map"
+projection_family = "none"
+protocol_family = "fixed30_no_syndrome_stop"
+
+[[rungs]]
+id = "exact_sp_direct_full_stop30"
+position = 10
+backend = "block_b"
+state_family = "recipient_specific_directed_edge_coordinates"
+target_family = "exact_sum_product_state_map"
+update_family = "direct_state_map"
+projection_family = "none"
+protocol_family = "first_zero_syndrome_cap30"
+
+[[rungs]]
+id = "native_exact_sum_product"
+position = 11
+backend = "native_bp"
+state_family = "recipient_specific_directed_edge_coordinates"
+target_family = "exact_sum_product_state_map"
+update_family = "direct_state_map"
+projection_family = "none"
+protocol_family = "native_first_zero_syndrome_or_80"
+
+[[transitions]]
+from = "native_projected_gd"
+to = "shadow_edge_state"
+atomic = true
+attributable = true
+changed_operation = "allocate_inactive_directed_edge_shadow_state"
+changed_fingerprint_fields = ["state_family"]
+
+[[transitions]]
+from = "shadow_edge_state"
+to = "assigned_frozen_compound_box"
+atomic = true
+attributable = true
+changed_operation = "activate_assigned_frozen_check_specific_readings"
+changed_fingerprint_fields = ["state_family"]
+
+[[transitions]]
+from = "assigned_frozen_compound_box"
+to = "assigned_frozen_product_box"
+atomic = true
+attributable = true
+changed_operation = "replace_compound_parity_objective_with_product_only_objective"
+changed_fingerprint_fields = ["target_family"]
+
+[[transitions]]
+from = "assigned_frozen_product_box"
+to = "assigned_frozen_product_unconstrained"
+atomic = true
+attributable = true
+changed_operation = "remove_componentwise_box_projection"
+changed_fingerprint_fields = ["projection_family"]
+
+[[transitions]]
+from = "assigned_frozen_product_unconstrained"
+to = "edge_product_residual_gradient_tied"
+atomic = false
+attributable = false
+changed_operation = "joint_scalar_to_edge_state_domain_target_handoff"
+changed_fingerprint_fields = ["state_family", "target_family", "update_family"]
+
+[[transitions]]
+from = "edge_product_residual_gradient_tied"
+to = "exact_sp_residual_gradient_tied"
+atomic = true
+attributable = true
+changed_operation = "replace_product_edge_map_with_exact_sum_product_state_map"
+changed_fingerprint_fields = ["target_family"]
+
+[[transitions]]
+from = "exact_sp_residual_gradient_tied"
+to = "exact_sp_residual_gradient_full"
+atomic = true
+attributable = true
+changed_operation = "restore_recipient_specific_variable_to_check_calculation"
+changed_fingerprint_fields = ["state_family"]
+
+[[transitions]]
+from = "exact_sp_residual_gradient_full"
+to = "exact_sp_direct_full_fixed30"
+atomic = true
+attributable = true
+changed_operation = "replace_residual_objective_gradient_step_with_direct_state_map"
+changed_fingerprint_fields = ["update_family"]
+
+[[transitions]]
+from = "exact_sp_direct_full_fixed30"
+to = "exact_sp_direct_full_stop30"
+atomic = true
+attributable = true
+changed_operation = "replace_fixed_terminal_readout_with_first_zero_syndrome_stop_cap30"
+changed_fingerprint_fields = ["protocol_family"]
+
+[[transitions]]
+from = "exact_sp_direct_full_stop30"
+to = "native_exact_sum_product"
+atomic = true
+attributable = true
+changed_operation = "increase_message_passing_iteration_cap_30_to_80"
+changed_fingerprint_fields = ["protocol_family"]

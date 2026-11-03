@@ -1,0 +1,23 @@
+# Final v2 preflight review: 2026-11-01T13:22:41Z
+# Julia runner suite: 105/105 passed with --depwarn=error and one thread.
+# Python queue suite: 17/17 passed with bytecode writes disabled.
+# native_composition.jl sha256: 97984942dfad8308bc67895f15bd1b6e7e1f3d25506d44918df8984567fb25f8
+# test_native_composition.jl sha256: a58b4ad4bff467b577aaa88f76a7e2dea04326c3b88683036a110215e730db9e
+# campaign_queue.py sha256: 14f8a5033aad0949ce4b727f2033e977d3aae935e5dbd217e667a647bf81e995
+# test_campaign_queue.py sha256: c6be7507a5eb6fbd8cbe95838558a0b784b589fa554a4a939e8d1aefdd0a6959
+# build_freeze.py sha256: 96d3881165caee347c08327e0b45e433541f60126f3aa83c22634d1d52b4302a
+# freeze_spec.toml sha256: f9338b44aa26a2885f2ee7c72c63638d6f93803aa15597fe98bad876d3312120
+# config.toml sha256: 5d64a083fb726312533830b019ed5814fb8d4c85e66473755465501df5520119
+# rung_registry.toml sha256: e9b58764c1aa956665d4f6c5d326b34e2a5086c5faf6d579bba0a3dee29a1245
+# campaign_registration.toml sha256: c376da3c1c6d6092fd61b9da53602168d51b980ca71875262839dfd8155ae9c1
+schema_version = "rq2-native-composition-001/preflight-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+validation_status = "pass"
+runner_tests_passed = true
+queue_tests_passed = true
+native_gd_endpoint_contract_reviewed = true
+native_bp_endpoint_contract_reviewed = true
+rung_registry_reviewed = true
+joint_handoff_registered_non_atomic = true
+single_factor_attribution_for_joint_handoff_forbidden = true
+command_contract_reviewed = true

@@ -1,0 +1,7 @@
+schema_version = "rq2-common-coordinate-repro-001/freeze-v1"
+experiment_id = "RQ2-COMMON-COORDINATE-REPRO-001"
+attempt_id = "2026-11-03_v1"
+created_utc = "2026-11-03T13:51:46Z"
+upstream_freeze_manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+upstream_result_manifest_sha256 = "face3a578fbf640a036e782c35aa6f88540162ac82afa19e2e3be84f33cd1a4f"
+performance_inference_allowed = false

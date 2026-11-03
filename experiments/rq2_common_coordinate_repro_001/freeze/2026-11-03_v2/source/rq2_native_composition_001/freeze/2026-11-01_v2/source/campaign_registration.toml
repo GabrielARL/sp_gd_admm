@@ -1,0 +1,208 @@
+schema_version = "rq2-native-composition-001/registration-v1"
+experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+identifier_status = "internal experiment ID; not a receiver name"
+research_question = "RQ2"
+campaign_status = "registered_not_launched"
+job_order = [
+  "01_switch_registry_gate",
+  "02_common_harness_gate",
+  "03_native_endpoint_and_rung_gate",
+  "04_fresh_dual_snr_anchor",
+  "05_six_db_forward_transfer",
+  "06_six_db_order_controls_and_attribution",
+  "07_second_snr_confirmation",
+]
+
+[scope]
+admm_included = false
+native_projected_gd_endpoint_required = true
+native_exact_sum_product_endpoint_required = true
+forward_rung_count = 11
+adjacent_transition_count = 10
+atomic_transition_count = 9
+non_atomic_transition_count = 1
+non_atomic_transition = "assigned_frozen_product_unconstrained -> edge_product_residual_gradient_tied"
+
+[frame_sets.endpoint_gate]
+frame_first = 20001
+frame_last = 20024
+frame_count = 24
+snr_db = 6.0
+role = "retained correctness and endpoint gate; no confirmatory claim"
+
+[frame_sets.fresh_anchor]
+frame_first = 60001
+frame_last = 60024
+frame_count = 24
+snr_db = [6.0, 1.5]
+role = "fresh correctness and timing anchor; no outcome-direction gate"
+
+[frame_sets.six_db_transfer]
+frame_first = 60025
+frame_last = 60224
+frame_count = 200
+snr_db = 6.0
+role = "prospective primary causal transfer"
+
+[frame_sets.locked_attribution]
+frame_first = 30001
+frame_last = 30200
+frame_count = 200
+snr_db = 6.0
+role = "informed descriptive transition accounting for the retained native gap"
+
+[frame_sets.second_snr]
+frame_first = 60225
+frame_last = 60424
+frame_count = 200
+snr_db = 1.5
+role = "fresh second-operating-point confirmation"
+
+[execution]
+stop_on_gate_failure = true
+deterministic_replay_required = true
+automatic_restart_allowed = false
+resume_allowed = false
+overwrite_allowed = false
+no_concurrent_scientific_units = true
+julia_threads = 1
+omp_threads = 1
+blas_threads = 1
+nice = 19
+ionice_class = "idle"
+anchor_timeout_seconds = 7200
+budget_safety_factor = 1.5
+termination_grace_seconds = 120
+later_budget_source = "checksum-bound Job 04 seconds per frame-variant times each target frame count, execution-variant count, and pass ratio, plus write time scaled by frame count; all multiplied by the 1.5 safety factor"
+
+[interaction_controls]
+block_a_cells = [
+  "assigned_frozen_compound_box",
+  "assigned_frozen_compound_unconstrained",
+  "assigned_frozen_product_box",
+  "assigned_frozen_product_unconstrained",
+]
+block_b_cells = [
+  "exact_sp_residual_gradient_tied",
+  "exact_sp_direct_tied_fixed30",
+  "exact_sp_residual_gradient_full",
+  "exact_sp_direct_full_fixed30",
+]
+cross_joint_handoff_reverse_path_registered = false
+factorials_are_reverse_sequential_order = false
+interpretation = "The two factorials test interaction and path-conditioned attribution; they do not reverse the sequential composition."
+
+[endpoint_oracle]
+maximum_message_passing_iterations = 80
+fixed_terminal_readout_update = 30
+stop30_rule = "first zero syndrome through update 30; otherwise update-30 terminal state"
+native_rule = "first zero syndrome through update 80; otherwise update-80 terminal state"
+fixed30_to_stop30_isolates = "stopping/readout rule"
+stop30_to_native_isolates = "message-passing iteration cap 30 versus 80"
+native_recovery_gate = "first-zero-syndrome stopping update, hard word, posterior float bits, and both directed arrays agree"
+native_failure_gate = "update-80 hard word, posterior float bits, both directed arrays, syndrome weight, and cap agree bit-for-bit"
+
+[shadow_null_gate]
+independent_second_run_required = true
+inactive_shadow_allocated_zero_and_unread = true
+recorded_objective_trajectory_hash_equal = true
+terminal_scalar_float_bits_equal = true
+terminal_offsets_equal = true
+hard_word_and_syndrome_equal = true
+update_counts_and_stop_status_equal = true
+registered_losses_and_terminal_terms_equal = true
+both_runs_reproduce_native_projected_gd_oracle = true
+
+[recorded_outputs]
+per_rung_terminal_fields = [
+  "transmitted_word_equal",
+  "parity_valid",
+  "coded_bit_errors",
+  "syndrome_weight",
+  "updates",
+  "status",
+  "state_sha256",
+  "hard_word_sha256",
+]
+conditional_first_hit_fields = [
+  "first_exact_update",
+  "first_valid_update",
+]
+job_timing = true
+line_search_metrics = false
+operation_count_metrics = false
+allocation_metrics = false
+peak_memory_metrics = false
+stored_state_metrics = false
+
+[job6_locked_endpoint_gate]
+case_count = 200
+native_projected_gd_successes = 107
+native_exact_sum_product_successes = 200
+native_net_gap = 93
+kept_separate_from_fresh_cases = true
+
+[claim_boundary]
+joint_handoff_registered_non_atomic = true
+single_factor_attribution_for_joint_handoff_forbidden = true
+locked_cases_are_confirmatory = false
+fresh_cases_required_for_causal_confirmation = true
+unique_additive_attribution_requires_no_material_interaction = true
+native_gap_accounted_is_arithmetic_closure_only = true
+statement = "Atomic rung contrasts support scoped causal effects only after all gates pass. The scalar-to-edge handoff remains a joint remainder; a nonzero remainder prevents a complete single-factor decomposition of the native gap."
+
+[[jobs]]
+id = "01_switch_registry_gate"
+order = 1
+kind = "validation"
+depends_on = []
+frame_set = "none"
+purpose = "validate exact rung order, transition fingerprints, and fail-closed non-atomic claim boundary"
+
+[[jobs]]
+id = "02_common_harness_gate"
+order = 2
+kind = "validation"
+depends_on = ["01_switch_registry_gate"]
+frame_set = "toy_only"
+purpose = "validate derivatives, projections, exact local check calculation, toy shadow allocation, schemas, and replay"
+
+[[jobs]]
+id = "03_native_endpoint_and_rung_gate"
+order = 3
+kind = "validation"
+depends_on = ["02_common_harness_gate"]
+frame_set = "endpoint_gate"
+purpose = "reproduce both native endpoints, gate the independent shadow repeat, and exercise every rung on retained correctness cases"
+
+[[jobs]]
+id = "04_fresh_dual_snr_anchor"
+order = 4
+kind = "science"
+depends_on = ["03_native_endpoint_and_rung_gate"]
+frame_set = "fresh_anchor"
+purpose = "fresh endpoint and replay anchor at both SNRs; supply timing for later jobs"
+
+[[jobs]]
+id = "05_six_db_forward_transfer"
+order = 5
+kind = "science"
+depends_on = ["04_fresh_dual_snr_anchor"]
+frame_set = "six_db_transfer"
+purpose = "prospective eleven-rung forward composition at 6 dB"
+
+[[jobs]]
+id = "06_six_db_order_controls_and_attribution"
+order = 6
+kind = "science"
+depends_on = ["05_six_db_forward_transfer"]
+frame_set = "six_db_transfer plus locked_attribution"
+purpose = "complete both registered 2-by-2 interaction controls and map the known locked gap descriptively"
+
+[[jobs]]
+id = "07_second_snr_confirmation"
+order = 7
+kind = "science"
+depends_on = ["06_six_db_order_controls_and_attribution"]
+frame_set = "second_snr"
+purpose = "fresh eleven-rung forward-composition confirmation at 1.5 dB"

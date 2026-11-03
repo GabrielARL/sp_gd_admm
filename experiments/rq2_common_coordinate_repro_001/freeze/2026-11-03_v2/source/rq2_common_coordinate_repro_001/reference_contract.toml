@@ -1,0 +1,31 @@
+schema_version = "rq2-common-coordinate-repro-001/reference-contract-v1"
+experiment_id = "RQ2-COMMON-COORDINATE-REPRO-001"
+reference_experiment_id = "RQ2-NATIVE-COMPOSITION-001"
+reference_attempt = "2026-11-01_v2"
+reference_job = "03_native_endpoint_and_rung_gate"
+frame_first = 20001
+frame_last = 20024
+performance_inference_allowed = false
+
+[native_composition_freeze]
+manifest_sha256 = "02a333ed531a6b570b49f86db21ae6b4ccb6eb25e5d383e1262e1bdc0b017a5c"
+freeze_manifest_sha256 = "625062ddac3a35cca89f22ab372868cabbcb9381e6b5983ef928e193346f3da7"
+composition_runner_sha256 = "97984942dfad8308bc67895f15bd1b6e7e1f3d25506d44918df8984567fb25f8"
+composition_config_sha256 = "5d64a083fb726312533830b019ed5814fb8d4c85e66473755465501df5520119"
+
+[native_composition_job03]
+manifest_sha256 = "face3a578fbf640a036e782c35aa6f88540162ac82afa19e2e3be84f33cd1a4f"
+science_json_sha256 = "6f7039e1172a81f4e6e641d6aaf9a0554b66ab856689ad2009d2188fc04a34eb"
+frames_csv_sha256 = "3d401dbe7abcd5807755fe4b0ded6e92952e716c8b57c26972dc228272fdeed2"
+iterations_csv_sha256 = "6775f27af9d219bd6a521b618da4c4159255bd09d9e951548635c1b2c3089af2"
+completion_sha256 = "dad9a542b39049cd5635eed41572f78e18a45d00486688f8fcb12f64ba58e22b"
+job_gate_sha256 = "e7ebae26eb91269eaf2a450ef6bad3736d68fcceaf5cee76ec950d3e728ecc09"
+
+[exact_reproduction]
+gd_edge_value = "z_c_i = x_i"
+bp_edge_value = "z_i_to_c = tanh(clamp(Q_i_to_c,-20,20)/2)"
+floating_point_equality = "exact_ieee754_bits"
+gd_edge_reads_per_objective_evaluation = 61200
+bp_edge_reads_per_check_phase = 153000
+inverse_bp_coordinate_reconstruction_allowed = false
+automatic_downstream_launch_allowed = false
