@@ -269,7 +269,10 @@ For each arm and requested update, retain:
 The last three measurements distinguish small private-check residuals from a
 single coherent word estimate. They are diagnostics, not additional treatment
 factors. Runtime and persistent-state counts are reported separately and are
-not combined into a scalar complexity score.
+not combined into a scalar complexity score. Persistent-state reporting
+separates the mathematical optimization dimension, frozen offsets, and the
+constrained runner's redundant lifted-state cache; the cache is not silently
+presented as an additional optimized degree of freedom.
 
 For these sign diagnostics, a value greater than or equal to zero maps to
 `+1`, and a negative value maps to `-1`. A check's hard parity is satisfied

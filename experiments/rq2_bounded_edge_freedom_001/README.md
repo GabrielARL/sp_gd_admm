@@ -35,3 +35,16 @@ The queue uses the same registered and hash-checked Julia project as Block A:
 `/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012`.
 The copied project inside the source freeze is provenance material; it is not
 substituted as a different runtime environment.
+
+Before fresh evaluation, the queue is bound to the SHA-256 of one exact
+top-level freeze manifest. Transfer verifies every anchor-manifest entry, but
+runtime and timestamp hashes stay outside the replay-hashed scientific
+payload. A stalled line search persists its terminal state, so the registered
+update-30 lifted-edge derivative check is still evaluated rather than skipped.
+
+The paired contrast is equality-relaxed minus equality-constrained. The
+24-case anchor summary is descriptive. On the 200-case transfer set, the
+single primary endpoint is transmitted-word recovery: report both discordance
+directions, the risk difference, a two-sided exact McNemar p-value, and a 95%
+Newcombe method-10 paired interval. Parity validity receives the same
+descriptive summary but is not a second causal decision gate.
