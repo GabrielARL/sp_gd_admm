@@ -1,0 +1,11 @@
+completed_frames = 0
+experiment_id = "RQ2-EDGE-FREEDOM-001"
+pass = "unknown"
+phase = "failed"
+previous_phase_seconds = 0.0
+schema_version = "rq2-edge-freedom-001/progress-v1"
+stage = "anchor"
+status = "failed"
+total_frames = 24
+updated_utc = "2026-11-03T09:57:54.350"
+

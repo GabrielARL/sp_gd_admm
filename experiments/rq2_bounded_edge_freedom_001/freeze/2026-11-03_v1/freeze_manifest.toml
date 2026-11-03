@@ -1,0 +1,13 @@
+schema_version = "rq2-bounded-edge-freedom-001/freeze-v1"
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+attempt_id = "2026-11-03_v1"
+created_utc = "2026-11-03T12:50:26Z"
+causal_freeze_manifest_sha256 = "1ae538d4101354cf57f47d5066eebe3d2954a6ff545f74ba9bb245edd2ca884d"
+block_a_calibration_manifest_sha256 = "c8db9c80b6b1a80a07c3121d074a3aec845313b0f97f69184bdc3e4267fab492"
+predecessor_failure_manifest_sha256 = "c6baf082818187f8d38cc0b1fd9ca976c005ec7c6ddaf715d706788d9b6ed3f4"
+new_experiment_runs_evaluated_before_freeze = false
+retained_compatibility_cases_previously_evaluated = true
+fresh_anchor_or_transfer_cases_evaluated_before_freeze = false
+jade_project_expected_head = "a4a4f81cec9e1a38a76ece5867b81284324f1eea"
+jade_project_path = "/home/gabiel/Documents/GitHub/JadeJcade-worktrees/awgn-jade-coral-20261012"
+jade_project_files_hash_checked = true
