@@ -53,6 +53,15 @@ on the projected-gradient backbone. It does not make the offsets BP messages,
 separate parity-objective use from projection-bound use, or uniquely explain
 the native performance gap.
 
+The next representation control is now running but has produced no eligible
+fresh result. `RQ2-BOUNDED-EDGE-FREEDOM-001` holds a bounded compound
+objective, calculation, metric, readout, and update budget fixed while removing
+only the equality constraint among edge optimization variables joined to the
+same coded bit. Its exact tied reproduction passed on 24/24 retained
+compatibility cases and its tests passed 121/121 before launch. These are
+implementation gates, not recovery evidence, and the current RQ1 conclusion
+therefore remains unchanged.
+
 ## What was isolated
 
 For each bit $i$, the standard BP variable-node calculation was decomposed as
@@ -567,7 +576,7 @@ panel is explicitly a 21:26 CST, 31 October 2026 observer snapshot. The panel
 must not be read as a completed offset-split result or as evidence that the
 constructed offsets are BP messages.
 
-## Tied edge-coordinate gate and failed unboxed release
+## Tied edge-coordinate gate, failed unboxed release, and bounded successor
 
 `RQ2-TIED-SCALAR-EDGE-REPRO-001` closes one numerical handoff without making a
 performance claim. On 24 retained compatibility cases, broadcasting each
@@ -591,3 +600,24 @@ objective is not an eligible reference for a post-hoc numerical rescue under
 the same experiment ID. A scientifically distinct successor must be
 prospective and bounded, reproduce its own scalar lower endpoint before the
 constraint is released, and preserve the failed attempt unchanged.
+
+`RQ2-BOUNDED-EDGE-FREEDOM-001` is that prospective successor. It uses Block
+A's bounded `compound__box` objective as its lower endpoint. Its constrained
+arm keeps all edge optimization variables joined to a coded bit equal; its
+relaxed arm removes only that equality. The objective, edge box, metric,
+initialization, assigned frozen offsets, strict-decrease line search, fixed
+mean readout, and 30-update budget are shared. The causal contribution is
+therefore narrow: it tests whether freeing check-specific optimization
+coordinates itself changes recovery while the computation, objective, metric,
+readout, and budget remain fixed.
+
+The exact tied reproduction gate passed on all retained compatibility frames
+`20001:20024`, and the strict suite passed 121/121 tests. Those checks only
+validate the lower-endpoint handoff and implementation. The immutable v1 queue
+launched on 3 November 2026 at 20:51 CST as
+`sp-gd-rq2-bounded-edge-freedom-20261103-v1` and is active at this documentation
+snapshot. It evaluates anchor frames `61497:61520` before any conditional
+transfer on `61521:61720`. No fresh outcome is yet eligible evidence. Even a
+valid nonzero contrast would not establish that the edge variables are BP
+messages, that either arm is equivalent to BP, or that this factor explains
+the complete native BP-versus-projected-GD gap.

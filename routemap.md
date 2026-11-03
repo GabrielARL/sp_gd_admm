@@ -85,6 +85,7 @@ and is not required to answer either research question.
 | `RQ2-EXACT-MAP-UPDATE-001` | Exact-map update direction by step-rule factorial | **V1 complete-valid; 4/4 jobs** | With the recipient-specific exact sum-product map fixed, only `F(u)-u` with a unit step recovers the transmitted word: 200/200 at 6 dB and 198/200 at 1.5 dB; the other three cells recover 0/200 at both levels. The registered interaction is material, so the recovery cannot be attributed additively to direction or step alone. |
 | `RQ2-TIED-SCALAR-EDGE-REPRO-001` | Tied scalar-to-edge reproduction gate | **Complete-valid on 24 retained cases** | The lifted tied edge state reproduces `assigned_frozen_product_unconstrained` bit-for-bit, including accepted states, partial derivatives of the objective function, line-search decisions, hard decisions, and terminal traces. This proves the coordinate handoff only for the unboxed product objective; it is not an edge-freedom result. |
 | `RQ2-EDGE-FREEDOM-001` | Remove equality among edge copies under the unboxed product objective | **Terminal compatibility-gate failure; zero fresh cases evaluated** | The queue stopped on retained compatibility frame 20001 at update 6 because the fixed absolute pullback-gradient gate failed. Anchor frames `61497:61520` and transfer frames `61521:61720` were never evaluated. The attempt supplies no decoding-performance evidence and is not eligible for rescue under the same ID. |
+| `RQ2-BOUNDED-EDGE-FREEDOM-001` | Remove equality among edge optimization variables under the bounded compound objective | **Running; prospective contract and prelaunch gates passed** | The exact tied reproduction gate passed on all 24 retained compatibility cases and the test suite passed 121/121. The active v1 queue compares equality-constrained and equality-relaxed arms on anchor frames `61497:61520`, then conditionally runs transfer frames `61521:61720`. No fresh outcome or causal claim is available yet. |
 | `COMM-001` | Result-driven animation and research narrative | **Complete; validated** | `rq1_mechanism_animation.html` is driven by eligible retained traces and verified against 68 full-precision values and five source hashes. |
 
 ## Approved execution register
@@ -807,6 +808,33 @@ bridge: their conjunction, which directly applies `F`, does. Under the
 registered rule this is an interaction result, not separate additive
 attribution to either factor.
 
+### `RQ2-BOUNDED-EDGE-FREEDOM-001` — equality release under one bounded objective
+
+The terminal `RQ2-EDGE-FREEDOM-001` attempt remains a failed compatibility
+gate with zero fresh cases evaluated. It is not retuned or rescued. Its bounded
+successor instead starts from Block A's retained `compound__box` construction
+and first requires an exact tied reproduction of that scalar lower endpoint.
+That gate passed on all 24 retained compatibility cases; the strict test suite
+also passed 121/121.
+
+Both successor arms use the same bounded compound objective, edge box, metric,
+initialization, assigned frozen offsets, strict-decrease line search, fixed
+mean readout, and 30-update budget. The constrained arm keeps the optimization
+variables joined to each coded bit equal, reproducing the lower endpoint with
+one scalar per bit. The relaxed arm removes only that equality constraint.
+This isolates whether freedom for check-specific edge optimization variables
+itself changes recovery while the calculation, objective, metric, readout, and
+work budget remain fixed.
+
+The immutable v1 queue launched on 3 November 2026 at 20:51 CST as systemd unit
+`sp-gd-rq2-bounded-edge-freedom-20261103-v1`. It runs the unexposed 24-case
+anchor `61497:61520` first and may run transfer cases `61521:61720` only after
+the anchor and deterministic replay pass every registered gate. The unit is
+active at this documentation snapshot. No anchor or transfer outcome is yet
+eligible evidence. Regardless of its direction, this experiment does not
+establish BP equivalence or decompose the complete native BP-versus-projected
+GD performance gap.
+
 ## Separate complexity track
 
 Asymptotic graph traversal alone does not answer RQ1 or RQ2. Record separately:
@@ -994,3 +1022,9 @@ outcome: observed difference | no observed difference
   under the preregistered fixed absolute pullback tolerance. The fresh ranges
   remain outcome-unexposed. No endpoint count or causal conclusion follows,
   and the unboxed attempt is preserved rather than retuned.
+- **2026-11-03:** `RQ2-BOUNDED-EDGE-FREEDOM-001` prospectively replaced the
+  unusable unboxed reference with Block A's bounded compound objective. Its
+  121/121 tests and exact 24/24 tied compatibility reproduction passed before
+  the v1 queue launched at 20:51 CST. The active unit
+  `sp-gd-rq2-bounded-edge-freedom-20261103-v1` runs anchor `61497:61520` before
+  conditional transfer `61521:61720`; no fresh result is recorded yet.
