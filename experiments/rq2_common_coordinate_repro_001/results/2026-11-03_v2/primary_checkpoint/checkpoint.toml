@@ -1,0 +1,8 @@
+experiment_id = "RQ2-COMMON-COORDINATE-REPRO-001"
+frame_count = 24
+frames_sha256 = "8050cfa1e1719b7b22cdd89e7bdd1322343f92164a75269a4c2acf26dbe9368f"
+iterations_sha256 = "ec616ffc5ad55df9655fcaa344ae9eb90fd86073063bb10fbed5ffc41267f746"
+schema_version = "rq2-common-coordinate-repro-001/primary-checkpoint-v1"
+science_sha256 = "c9398e5bb2c82e1d0f4cf6df1d0c8bdf21aee7ad7150719cfc1c8bba0c65244d"
+status = "primary_complete"
+
