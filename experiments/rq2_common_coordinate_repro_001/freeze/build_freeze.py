@@ -14,7 +14,7 @@ import tempfile
 
 
 EXPERIMENT_ID = "RQ2-COMMON-COORDINATE-REPRO-001"
-ATTEMPT_ID = "2026-11-03_v1"
+ATTEMPT_ID = "2026-11-03_v2"
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 EXPERIMENTS_ROOT = EXPERIMENT_ROOT.parent
 UPSTREAM_FREEZE = (
@@ -154,6 +154,10 @@ def utc_now() -> str:
 
 def build(output: Path) -> None:
     output = output.resolve()
+    if output.name != ATTEMPT_ID:
+        raise FreezeError(
+            f"output attempt must be {ATTEMPT_ID}, got {output.name}"
+        )
     if output.exists():
         raise FreezeError(f"refusing to overwrite freeze: {output}")
     for path, expected in EXPECTED.items():

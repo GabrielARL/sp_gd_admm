@@ -1,0 +1,7 @@
+schema_version = "rq2-common-coordinate-repro-001/preflight-failure-v1"
+experiment_id = "RQ2-COMMON-COORDINATE-REPRO-001"
+attempt_id = "2026-11-03_v1"
+status = "preflight_invalid"
+retained_frames_evaluated = 0
+field = "study_freeze_manifest"
+reason = "The Julia path-boundary check appended a separator to a root that already retained a trailing separator, so every valid manifest entry was classified as unsafe. The external SHA-256 verification passed. No scientific run started; attempt v2 fixes only the path normalization check."

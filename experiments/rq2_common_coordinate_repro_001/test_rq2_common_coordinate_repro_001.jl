@@ -12,6 +12,8 @@ const Study = RQ2CommonCoordinateRepro001
     gate = Study.source_gate(config)
     @test gate["passed"]
     @test all(values(gate["checks"]))
+    @test Study.verify_manifest(Study.NATIVE_FREEZE *
+                                Base.Filesystem.path_separator)["passed"]
     threads = Study.thread_environment_gate(config)
     @test threads["passed"]
     composition_config = Study.Composition.load_config(Study.COMPOSITION_CONFIG)

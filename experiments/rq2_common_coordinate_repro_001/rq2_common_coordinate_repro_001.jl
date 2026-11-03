@@ -248,7 +248,8 @@ function load_config(path::AbstractString=joinpath(HERE, "config.toml"))
 end
 
 function verify_manifest(root::AbstractString)
-    manifest = joinpath(root, "MANIFEST.sha256")
+    root_clean = dirname(normpath(joinpath(abspath(root), "__manifest_root__")))
+    manifest = joinpath(root_clean, "MANIFEST.sha256")
     isfile(manifest) || return Dict("passed" => false,
         "reason" => "missing_manifest", "root" => abspath(root))
     failures = String[]
@@ -261,8 +262,8 @@ function verify_manifest(root::AbstractString)
             continue
         end
         expected, relative = fields
-        candidate = normpath(joinpath(root, relative))
-        if !startswith(candidate, normpath(root) * Base.Filesystem.path_separator)
+        candidate = normpath(joinpath(root_clean, relative))
+        if !startswith(candidate, root_clean * Base.Filesystem.path_separator)
             push!(failures, "unsafe:$relative")
         elseif !isfile(candidate)
             push!(failures, "missing:$relative")
@@ -272,7 +273,7 @@ function verify_manifest(root::AbstractString)
         entries += 1
     end
     Dict("passed" => isempty(failures), "entries" => entries,
-         "failures" => failures, "root" => abspath(root))
+         "failures" => failures, "root" => root_clean)
 end
 
 function source_gate(config; require_study_freeze::Bool=false)
