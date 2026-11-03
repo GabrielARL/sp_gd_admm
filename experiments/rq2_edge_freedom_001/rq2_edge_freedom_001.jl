@@ -35,7 +35,7 @@ export load_config, LiftedWorkspace, centered_mean!, centered_mean,
        canonical_edge_samples, edge_finite_difference_gate,
        direction_gate, stability_diagnostics, paired_per_frame_solve
 export source_gate, transfer_prerequisite_gate, compare_frame,
-       run_stage, main
+       persistent_state_counts, paired_outcome_row, run_stage, main
 
 """Reusable storage for the shared lifted objective and its edge partials."""
 mutable struct LiftedWorkspace
@@ -852,8 +852,20 @@ function configured_block_a(context, config)
     block_config
 end
 
+"""Count persistent numeric values without counting temporary diagnostics."""
+function persistent_state_counts(problem)
+    optimized = 0
+    @inbounds for check in problem.check_vars
+        optimized += length(check)
+    end
+    frozen_offsets = optimized
+    (; optimized_persistent_value_count=optimized,
+       frozen_offset_persistent_value_count=frozen_offsets,
+       total_persistent_value_count=optimized + frozen_offsets)
+end
+
 function arm_frame_row(frame, stage, arm, input_identity_sha256,
-                       seed, result, pair)
+                       seed, result, pair, counts)
     metrics = result.terminal_metrics
     stability = result.terminal_stability
     safety_status = !(result.status in (
@@ -866,6 +878,11 @@ function arm_frame_row(frame, stage, arm, input_identity_sha256,
        terminal_mean_sha256=stability.mean_state_sha256,
        terminal_persistent_state_sha256=stability.persistent_state_sha256,
        trace_sha256=Composition.scientific_sha256(result.trace),
+       optimized_persistent_value_count=
+           counts.optimized_persistent_value_count,
+       frozen_offset_persistent_value_count=
+           counts.frozen_offset_persistent_value_count,
+       total_persistent_value_count=counts.total_persistent_value_count,
        accepted_steps=result.accepted_steps,
        effective_update=result.last_effective_update,
        status=result.status,
@@ -887,6 +904,50 @@ function arm_frame_row(frame, stage, arm, input_identity_sha256,
            pair.first_direction.maximum_direction_spread)
 end
 
+
+"""One paired row per frame; no interval or aggregate attribution is implied."""
+function paired_outcome_row(frame, stage, constrained, relaxed)
+    constrained.input_identity_sha256 == relaxed.input_identity_sha256 ||
+        error("paired arms do not share the same input identity")
+    constrained.optimized_persistent_value_count ==
+        relaxed.optimized_persistent_value_count ||
+        error("paired arms do not have the same optimized-state count")
+    constrained.frozen_offset_persistent_value_count ==
+        relaxed.frozen_offset_persistent_value_count ||
+        error("paired arms do not have the same frozen-offset count")
+    (; frame, stage=String(stage),
+       input_identity_sha256=constrained.input_identity_sha256,
+       relaxed_minus_constrained_coded_bit_errors=
+           relaxed.coded_bit_errors - constrained.coded_bit_errors,
+       relaxed_minus_constrained_syndrome_weight=
+           relaxed.syndrome_weight - constrained.syndrome_weight,
+       relaxed_minus_constrained_parity_valid=
+           Int(relaxed.parity_valid) - Int(constrained.parity_valid),
+       relaxed_minus_constrained_transmitted_word_recovery=
+           Int(relaxed.transmitted_word_equal) -
+           Int(constrained.transmitted_word_equal),
+       relaxed_only_transmitted_word_recovery=
+           relaxed.transmitted_word_equal &&
+           !constrained.transmitted_word_equal,
+       constrained_only_transmitted_word_recovery=
+           constrained.transmitted_word_equal &&
+           !relaxed.transmitted_word_equal,
+       terminal_hard_words_equal=
+           relaxed.hard_word_sha256 == constrained.hard_word_sha256,
+       terminal_mean_states_equal=
+           relaxed.terminal_mean_sha256 == constrained.terminal_mean_sha256,
+       relaxed_minus_constrained_accepted_steps=
+           relaxed.accepted_steps - constrained.accepted_steps,
+       relaxed_minus_constrained_effective_update=
+           relaxed.effective_update - constrained.effective_update,
+       optimized_persistent_value_count=
+           constrained.optimized_persistent_value_count,
+       frozen_offset_persistent_value_count=
+           constrained.frozen_offset_persistent_value_count,
+       total_persistent_value_count=
+           constrained.total_persistent_value_count)
+end
+
 function compare_frame(context, config, frame::Int; stage::Symbol)
     input = Legacy.generate_input(
         context.split, context.native, context.code, frame)
@@ -905,6 +966,7 @@ function compare_frame(context, config, frame::Int; stage::Symbol)
         problem, context.code, initial, seed, canonical_spec, block_config)
     pair = paired_per_frame_solve(
         problem, context.code, initial, seed, config; frame)
+    counts = persistent_state_counts(problem)
 
     update = pair.constrained.last_effective_update
     Tied.require_vector(frame, update, 0, "canonical_constrained_state",
@@ -928,10 +990,12 @@ function compare_frame(context, config, frame::Int; stage::Symbol)
 
     constrained_row = arm_frame_row(
         frame, stage, "equality_constrained", input_identity_sha256,
-        seed, pair.constrained, pair)
+        seed, pair.constrained, pair, counts)
     relaxed_row = arm_frame_row(
         frame, stage, "equality_relaxed", input_identity_sha256,
-        seed, pair.relaxed, pair)
+        seed, pair.relaxed, pair, counts)
+    paired_row = paired_outcome_row(
+        frame, stage, constrained_row, relaxed_row)
     iterations = NamedTuple[]
     for row in pair.constrained.trace
         push!(iterations, merge(
@@ -941,7 +1005,8 @@ function compare_frame(context, config, frame::Int; stage::Symbol)
         push!(iterations, merge(
             (; frame, stage=String(stage), arm="equality_relaxed"), row))
     end
-    (; frame_rows=[constrained_row, relaxed_row], iteration_rows=iterations,
+    (; frame_rows=[constrained_row, relaxed_row], paired_row,
+       iteration_rows=iterations,
        identities, canonical_state_sha256=Tied.vector_sha256(canonical.x),
        constrained_reproduction_passed=true)
 end
@@ -1005,8 +1070,14 @@ function run_pass(config, stage, source, prerequisite, pass_name,
                    previous_seconds=context_seconds)
     log_phase(phase_log_path, pass_name, "compatibility", "start", 0.0)
     compatibility = Any[]
+    timing_rows = NamedTuple[]
     for frame in Int.(config["validation"]["compatibility_frames"])
+        frame_started = time_ns()
         result = compare_frame(context, config, frame; stage=:compatibility)
+        wall_seconds = (time_ns() - frame_started) / 1.0e9
+        push!(timing_rows, (;
+            pass=pass_name, stage=String(stage), role="compatibility",
+            frame, wall_seconds))
         push!(compatibility, Dict(
             "frame" => frame,
             "canonical_state_sha256" => result.canonical_state_sha256,
@@ -1025,12 +1096,19 @@ function run_pass(config, stage, source, prerequisite, pass_name,
                    previous_seconds=compatibility_seconds)
     log_phase(phase_log_path, pass_name, "frames", "start", 0.0)
     frame_rows = NamedTuple[]
+    paired_rows = NamedTuple[]
     iteration_rows = NamedTuple[]
     input_identities = Any[]
     for (index, frame) in enumerate(frames)
+        frame_started = time_ns()
         result = compare_frame(context, config, frame; stage)
+        wall_seconds = (time_ns() - frame_started) / 1.0e9
         append!(frame_rows, result.frame_rows)
+        push!(paired_rows, result.paired_row)
         append!(iteration_rows, result.iteration_rows)
+        push!(timing_rows, (;
+            pass=pass_name, stage=String(stage), role="registered_case",
+            frame, wall_seconds))
         push!(input_identities, Dict(
             "frame" => frame, "identities" => result.identities))
         write_progress(progress_path, stage, pass_name, "frames", index, total)
@@ -1048,10 +1126,11 @@ function run_pass(config, stage, source, prerequisite, pass_name,
         "transfer_prerequisite" => prerequisite,
         "compatibility" => compatibility,
         "frames" => frame_rows,
+        "paired_outcomes" => paired_rows,
         "iterations" => iteration_rows,
         "input_identities" => input_identities,
     )
-    (; science, frame_rows, iteration_rows,
+    (; science, frame_rows, paired_rows, iteration_rows, timing_rows,
        seconds=context_seconds + compatibility_seconds + frame_seconds)
 end
 
@@ -1118,7 +1197,12 @@ function run_stage(stage::Symbol;
         mkpath(checkpoint)
         write_json(joinpath(checkpoint, "science.json"), primary.science)
         write_csv(joinpath(checkpoint, "frames.csv"), primary.frame_rows)
+        write_csv(joinpath(checkpoint, "paired_outcomes.csv"),
+                  primary.paired_rows)
         write_csv(joinpath(checkpoint, "iterations.csv"), primary.iteration_rows)
+        # Wall time is deliberately outside science.json and its hash.
+        write_csv(joinpath(checkpoint, "timing_primary.csv"),
+                  primary.timing_rows)
         write_manifest(checkpoint)
         replay = run_pass(config, stage, source, prerequisite_gate,
                           "replay", progress_path, phase_log_path)
@@ -1135,7 +1219,11 @@ function run_stage(stage::Symbol;
 
         write_json(joinpath(output, "science.json"), primary.science)
         write_csv(joinpath(output, "frames.csv"), primary.frame_rows)
+        write_csv(joinpath(output, "paired_outcomes.csv"), primary.paired_rows)
         write_csv(joinpath(output, "iterations.csv"), primary.iteration_rows)
+        # Primary/replay timings are non-scientific execution diagnostics.
+        write_csv(joinpath(output, "timing_primary.csv"), primary.timing_rows)
+        write_csv(joinpath(output, "timing_replay.csv"), replay.timing_rows)
         config_hash = Tied.file_sha256(config_path)
         gate = Dict(
             "schema_version" => GATE_SCHEMA,

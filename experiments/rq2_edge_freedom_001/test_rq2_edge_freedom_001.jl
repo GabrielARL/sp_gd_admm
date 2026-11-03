@@ -235,6 +235,44 @@ end
     @test !Study.stability_diagnostics(problem, nonfinite).all_finite
 end
 
+@testset "persistent counts and paired outcome deltas" begin
+    problem, _, _ = toy_problem()
+    counts = Study.persistent_state_counts(problem)
+    @test counts.optimized_persistent_value_count == 4
+    @test counts.frozen_offset_persistent_value_count == 4
+    @test counts.total_persistent_value_count == 8
+
+    constrained = (;
+        input_identity_sha256="same-input",
+        coded_bit_errors=7, syndrome_weight=3,
+        parity_valid=false, transmitted_word_equal=false,
+        hard_word_sha256="constrained-hard",
+        terminal_mean_sha256="constrained-mean",
+        accepted_steps=4, effective_update=4,
+        counts...)
+    relaxed = (;
+        input_identity_sha256="same-input",
+        coded_bit_errors=2, syndrome_weight=0,
+        parity_valid=true, transmitted_word_equal=true,
+        hard_word_sha256="relaxed-hard",
+        terminal_mean_sha256="relaxed-mean",
+        accepted_steps=5, effective_update=5,
+        counts...)
+    paired = Study.paired_outcome_row(
+        17, :anchor, constrained, relaxed)
+    @test paired.relaxed_minus_constrained_coded_bit_errors == -5
+    @test paired.relaxed_minus_constrained_syndrome_weight == -3
+    @test paired.relaxed_minus_constrained_parity_valid == 1
+    @test paired.relaxed_minus_constrained_transmitted_word_recovery == 1
+    @test paired.relaxed_only_transmitted_word_recovery
+    @test !paired.constrained_only_transmitted_word_recovery
+    @test !paired.terminal_hard_words_equal
+    @test !paired.terminal_mean_states_equal
+    @test paired.relaxed_minus_constrained_accepted_steps == 1
+    @test paired.relaxed_minus_constrained_effective_update == 1
+    @test !hasproperty(paired, :wall_seconds)
+end
+
 @testset "paired solver changes only equality freedom" begin
     problem, x, delta = toy_problem()
     seed = synthetic_seed(problem, x, delta)
@@ -265,4 +303,19 @@ end
     @test result.constrained.accepted_steps == oracle.accepted_steps
     @test result.constrained.status == oracle.status
     @test !Study.Tied.edge_bits_equal(result.constrained.z, result.relaxed.z)
+
+    counts = Study.persistent_state_counts(problem)
+    constrained_row = Study.arm_frame_row(
+        0, :unit, "equality_constrained", "unit-input", seed,
+        result.constrained, result, counts)
+    relaxed_row = Study.arm_frame_row(
+        0, :unit, "equality_relaxed", "unit-input", seed,
+        result.relaxed, result, counts)
+    paired_row = Study.paired_outcome_row(
+        0, :unit, constrained_row, relaxed_row)
+    @test constrained_row.total_persistent_value_count == 8
+    @test relaxed_row.total_persistent_value_count == 8
+    @test paired_row.optimized_persistent_value_count == 4
+    @test !hasproperty(constrained_row, :wall_seconds)
+    @test !hasproperty(paired_row, :wall_seconds)
 end
