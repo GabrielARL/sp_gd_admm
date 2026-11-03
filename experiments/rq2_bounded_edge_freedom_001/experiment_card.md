@@ -206,9 +206,10 @@ first-direction diagnostics. Record both the maximum raw error and the maximum
 error divided by its registered bound. Exact Block-A trajectory reproduction
 remains bit-for-bit and is not weakened to this tolerance.
 
-Analytical edge partial derivatives are also checked using a symmetric
-five-point finite-difference stencil at registered updates 2 and 30. Its
-registered mixed threshold is
+Analytical edge partial derivatives are also checked on 12 deterministic,
+graph-order-spanning edge coordinates using a symmetric five-point
+finite-difference stencil at registered updates 2 and 30. Its registered
+mixed threshold is
 `5e-8 max(1, |analytic|, |numerical|)`.
 
 ## Correctness and launch gates

@@ -217,9 +217,10 @@ roundoff criterion
 For the first-direction identity, the corresponding scale is
 `max(1, |p_i|, (1/d_i)sum_c|p_(c,i)|)`. The result retains the raw maximum
 error and the maximum error divided by its registered bound for both
-identities. Five-point finite differences use the separate mixed bound
-`5e-8 max(1, |analytic|, |numerical|)` and likewise retain raw and normalized
-maxima.
+identities. Five-point finite differences use 12 deterministic,
+graph-order-spanning edge coordinates and the separate mixed bound
+`5e-8 max(1, |analytic|, |numerical|)`; they likewise retain raw and
+normalized maxima.
 
 This criterion belongs only to the new bounded experiment. It does not amend
 the fixed absolute gate that terminated `RQ2-EDGE-FREEDOM-001`.

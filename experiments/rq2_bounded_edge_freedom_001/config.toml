@@ -80,6 +80,7 @@ stopping_rule = "30 requested updates or first line-search stall; no syndrome ea
 
 [validation]
 finite_difference_updates = [2, 30]
+finite_difference_sample_count = 12
 finite_difference_step = 1.0e-6
 finite_difference_tolerance = 5.0e-8
 finite_difference_relative_tolerance = 5.0e-8
