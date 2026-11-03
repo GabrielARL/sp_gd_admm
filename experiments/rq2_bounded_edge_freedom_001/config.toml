@@ -1,0 +1,131 @@
+schema_version = "rq2-bounded-edge-freedom-001/config-v1"
+experiment_id = "RQ2-BOUNDED-EDGE-FREEDOM-001"
+identifier_status = "internal experiment ID; not a receiver name"
+status = "prospectively registered before implementation and fresh-case evaluation"
+classification = "one-factor equality-constraint relaxation under a shared bounded compound objective and metric"
+
+[scope]
+research_question = "RQ2"
+admm_included = false
+native_bp_arm_included = false
+native_projected_gd_arm_included = false
+bp_equivalence_claim_allowed = false
+total_native_gap_attribution_allowed = false
+
+[sources]
+parent_commit = "ccdbdfbf6d977c61efdef3f6ee73494cdbf4b061"
+block_a_experiment_id = "RQ2-GD-RESIDUAL-PROJECTION-BUDGET-001"
+block_a_reference_arm = "compound__box"
+causal_freeze_manifest = "../rq2_causal_factors_001/freeze/2026-11-01_v2/MANIFEST.sha256"
+causal_freeze_manifest_sha256 = "1ae538d4101354cf57f47d5066eebe3d2954a6ff545f74ba9bb245edd2ca884d"
+block_a_runner = "../rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/runner.jl"
+block_a_runner_sha256 = "c6e524179ca693f9128e3e3341bc100e96338272f9dafd8541d5dc026aba07a4"
+block_a_config = "../rq2_causal_factors_001/freeze/2026-11-01_v2/source/block_a/config.toml"
+block_a_config_sha256 = "6c0a6cc093c405b851b816c917df5f385fbb4dc3c02257a0052e730ce75a246f"
+block_a_calibration_completion = "../rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/COMPLETED.toml"
+block_a_calibration_completion_sha256 = "060d3c5c3a74508a609a6112f8f51b291384566fce88db1f542320b01013bbf6"
+block_a_calibration_manifest = "../rq2_causal_factors_001/results/2026-11-01_v2/block_a_calibration_20001_20024/MANIFEST.sha256"
+block_a_calibration_manifest_sha256 = "c8db9c80b6b1a80a07c3121d074a3aec845313b0f97f69184bdc3e4267fab492"
+block_a_calibration_primary_science_sha256 = "50a30ee8ff4e1fae13ac599a21564570c9877b62e41f7526d382a240c8b46ce8"
+block_a_calibration_science_file_sha256 = "9fa8a47471ba45df38db2fccd46b64bd4f3e16e8ac9772da6b05a945251e2f36"
+block_a_calibration_status_expected = "complete_valid"
+failed_predecessor_manifest = "../rq2_edge_freedom_001/results/2026-11-03_v1/anchor_61497_61520/MANIFEST.sha256"
+failed_predecessor_manifest_sha256 = "c6baf082818187f8d38cc0b1fd9ca976c005ec7c6ddaf715d706788d9b6ed3f4"
+
+[protocol]
+channel_label = "six_db"
+snr_db = 6.0
+compatibility_first = 20001
+compatibility_last = 20024
+compatibility_case_count = 24
+anchor_first = 61497
+anchor_last = 61520
+anchor_case_count = 24
+transfer_first = 61521
+transfer_last = 61720
+transfer_case_count = 200
+fresh_ranges_exposed_by_predecessor = false
+
+[arms]
+order = ["equality_constrained", "equality_relaxed"]
+only_causal_difference = "edge_copy_equality_constraint"
+common_update = 1
+first_possible_divergence_update = 2
+offset_assignment = "assigned at common update 1"
+offset_replacement = "frozen after common update 1"
+
+[objective]
+family = "compound_squared_parity_residual"
+channel_state = "mean_of_incident_edge_copies"
+binary_state = "mean_of_incident_edge_copies"
+parity_state = "check_local_edge_coordinate_plus_assigned_frozen_offset"
+parity_weight = 2.0
+binary_weight = 0.2
+edge_coordinate_boxed = true
+offset_adjusted_parity_reading_boxed = false
+
+[solver]
+maximum_update_attempts = 30
+score_updates = [30]
+initial_step = 0.2
+maximum_backtracks = 16
+line_search = "first strict decrease at alpha_k = initial_step * 2^(-k), k=0..maximum_backtracks"
+box_lower = -1.0
+box_upper = 1.0
+edge_metric = "scalar_curvature_bound_divided_by_variable_degree"
+hard_decision_state = "mean_of_incident_edge_copies"
+mean_evaluation = "first_incident_copy_plus_mean_deviation_in_frozen_incident_order"
+hard_decision = "bit_i = 1 iff mean_i < 0"
+stopping_rule = "30 requested updates or first line-search stall; no syndrome early stop"
+
+[validation]
+finite_difference_updates = [2, 30]
+finite_difference_step = 1.0e-6
+finite_difference_tolerance = 5.0e-8
+finite_difference_relative_tolerance = 5.0e-8
+finite_difference_scale_floor = 1.0
+scale_aware_epsilon_multiplier = 128.0
+pullback_epsilon_multiplier = 128.0
+mean_direction_epsilon_multiplier = 128.0
+pullback_scale = "max(1, abs(g_i), abs(h_i) + sum_c(abs(q_c_i)))"
+mean_direction_scale = "max(1, abs(p_i), sum_c(abs(p_c_i))/d_i)"
+require_bit_exact_block_a_reproduction = true
+require_exact_tied_state = true
+require_nonzero_first_direction_spread = true
+require_strict_decrease = true
+require_box_membership = true
+require_common_update1 = true
+require_independent_hard_decision_and_syndrome = true
+require_deterministic_replay = true
+old_experiment_tolerance_may_be_changed = false
+
+[measurements]
+primary_endpoint = "transmitted_word_equal_at_requested_update_30"
+confirmatory_endpoint = "parity_valid_at_requested_update_30"
+retain_private_check_residual = true
+retain_mean_state_check_residual = true
+retain_private_check_hard_satisfaction = true
+retain_mean_word_check_hard_satisfaction = true
+retain_check_satisfaction_disagreement = true
+retain_edge_sign_disagreement = true
+retain_within_bit_spread = true
+retain_paired_discordance = true
+retain_raw_and_normalized_validation_maxima = true
+hard_sign_rule = "+1 iff value >= 0; otherwise -1"
+hard_check_satisfaction_rule = "product of mapped signs equals +1"
+
+[execution]
+scientific_passes = 2
+pass_names = ["primary", "replay"]
+julia_threads = 1
+blas_threads = 1
+omp_threads = 1
+overwrite_allowed = false
+automatic_restart_allowed = false
+launch_transfer_after_valid_anchor = true
+checkpoint_primary_before_replay = true
+fail_closed = true
+
+[claim_boundary]
+allowed = "causal effect of equality-constraint removal within this bounded compound construction"
+forbidden = ["BP equivalence", "total native BP-versus-projected-GD gap attribution", "generic edge-state superiority"]
