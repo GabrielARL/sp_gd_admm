@@ -214,11 +214,11 @@ run `complete_invalid`. Do not weaken an exact gate after observing a failure.
 2. **Native projected-GD oracle.** Reproduce the retained native endpoint and
    retained trace oracle before testing the coordinate view.
 3. **GD edge-value equality and active use.** At initialization, every
-   current-state evaluation, every raw and projected line-search trial, and
-   every accepted state, require exact IEEE-754 equality for tied copies,
-   objective components, total objective, check-associated partial
+   current-state evaluation, every projected line-search trial, and every
+   accepted state, require exact IEEE-754 equality for tied copies, objective
+   components, total objective, check-associated partial
    derivatives, accumulated scalar partial derivatives, preconditioned
-   direction, trial loss, acceptance decision, step, accepted state,
+   direction, projected-trial loss, acceptance decision, step, accepted state,
    hard-decision estimate, syndrome, status, and terminal trace hash. The
    maximum spread among copies belonging to one bit must be exactly zero. The
    parity kernel must receive `z_(c,i)` while scalar `x_i` is unavailable to its
@@ -226,6 +226,13 @@ run `complete_invalid`. Do not weaken an exact gate after observing a failure.
    evaluation--one forward and one reverse read of every edge slot--and a
    focused poison test must hold `x` fixed, perturb one edge copy, and show that
    exactly the intended check calculation changes.
+
+   A raw line-search proposal is compared exactly between the two scalar paths
+   before projection, but it is not lifted into `z`: a raw proposal can lie
+   outside `[-1,1]`, whereas this experiment registers `z` as a bounded
+   coordinate. The projected proposal is then copied to every incident edge,
+   collapsed back, and checked exactly before its objective is evaluated. This
+   clarification was registered before any retained frame was evaluated.
 4. **Native BP LLR oracle.** Reproduce the retained exact sum-product endpoint
    and direct LLR-domain trajectory before testing the bounded coordinate.
 5. **BP edge-value equality and active use.** For every message-passing
